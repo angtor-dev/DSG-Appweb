@@ -9,7 +9,7 @@ defined('LOCAL_DIR') or define("LOCAL_DIR", "/DSG-Appweb");
 defined('DEVELOPER_MODE') or define("DEVELOPER_MODE", false);
 
 defined('DB_HOST') or define("DB_HOST", "localhost");
-defined('DB_NAME') or define("DB_NAME", "dsg");
+defined('DB_NAME') or define("DB_NAME", "dsg_db");
 defined('DB_USER') or define("DB_USER", "root");
 defined('DB_PASSWORD') or define("DB_PASSWORD", "");
 
