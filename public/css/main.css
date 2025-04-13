@@ -223,3 +223,12 @@ body {
 .card > * {
     border-color: var(--border-color-alt);
 }
+
+/* toastify overrides */
+.toastify .toast-close {
+    filter: brightness(0) invert(1);
+    transform: translateX(8px);
+}
+.toastify .toast-close:hover {
+    opacity: .6;
+}
