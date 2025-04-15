@@ -13,9 +13,35 @@ class Bitacora extends Model
     function __construct()
     {
         parent::__construct();
-        if (!empty($this->idUsuario)) {
-            $this->usuario = Usuario::cargar($this->idUsuario);
+    }
+
+    public static function listar(int $estado = null) : Array
+    {
+        $bd = Database::getInstance();
+        $query = "SELECT b.*, u.correo AS 'usuario_correo', u.nombre AS 'usuario_nombre', u.apellido AS 'usuario_apellido', u.estado AS 'usuario_estado'
+            FROM bitacora as b
+            LEFT JOIN usuario as u ON b.idUsuario = u.id";
+        $bd->connect();
+
+        $stmt = $bd->pdo()->query($query);
+        $stmt->setFetchMode(PDO::FETCH_CLASS, 'Bitacora');
+
+        $bd->disconnect();
+
+        if ($stmt->rowCount() == 0) {
+            return array();
         }
+        $bitacoras = $stmt->fetchAll();
+
+        foreach ($bitacoras as $bitacora) {
+            $bitacora->usuario = new Usuario(
+                $bitacora->usuario_correo,
+                $bitacora->usuario_nombre,
+                $bitacora->usuario_apellido,
+                $bitacora->usuario_estado
+            );
+        }
+        return $bitacoras;
     }
 
     /**

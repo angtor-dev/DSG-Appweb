@@ -13,9 +13,20 @@ class Usuario extends Model
     private string $clave;
     public ?Rol $rol;
     
-    public function __construct()
+    public function __construct(
+        string $correo = null,
+        string $nombre = null,
+        string $apellido = null,
+        int $estado = null,
+        Rol $rol = null,
+    )
     {
         parent::__construct();
+        $this->correo = $correo ?? $this->correo;
+        $this->nombre = $nombre ?? $this->nombre;
+        $this->apellido = $apellido ?? $this->apellido;
+        $this->estado = $estado ?? $this->estado;
+        $this->rol =  $this->rol ?? $rol;
         if (!empty($this->idRol)) {
             $this->rol = Rol::cargar($this->idRol);
         }
