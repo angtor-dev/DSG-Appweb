@@ -33,20 +33,71 @@
         Dashboard
     </a>
 
-    <?php if (tienePermiso('usuarios', 'consultar')
-        || tienePermiso('roles', 'consultar')
-        || tienePermiso('bitacora', 'consultar')): ?>
+    <h4>Principal</h4>
+    <?php if (tienePermiso(Modulo::TAREAS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Tareas" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "tareas" ? "active" : "" ?>">
+            <i class="fa-solid fa-list-check"></i>
+            Tareas
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::TRABAJADORES, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Trabajadores" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "trabajadores" ? "active" : "" ?>">
+            <i class="fa-solid fa-users"></i>
+            Trabajadores
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::ASISTENCIAS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Asistencias" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "asistencias" ? "active" : "" ?>">
+            <i class="fa-solid fa-calendar-check"></i>
+            Asistencias
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::AREAS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Areas" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "areas" ? "active" : "" ?>">
+            <i class="fa-solid fa-map-location"></i>
+            Areas
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::INVENTARIO, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Inventario" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "inventario" ? "active" : "" ?>">
+            <i class="fa-solid fa-warehouse"></i>
+            Inventario
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Medidas" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "medidas" ? "active" : "" ?>">
+            <i class="fa-solid fa-ruler-vertical"></i>
+            Medidas
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Departamentos" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "departamentos" ? "active" : "" ?>">
+            <i class="fa-solid fa-building"></i>
+            Departamentos
+        </a>
+    <?php endif ?>
+
+    <?php if (tienePermiso(Modulo::USUARIOS, Permiso::CONSULTAR)
+        || tienePermiso(Modulo::ROLES, Permiso::CONSULTAR)
+        || tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)): ?>
         <h4>Sistema</h4>
     <?php endif ?>
-    <?php if (tienePermiso('usuarios', 'consultar')): ?>
+    <?php if (tienePermiso(Modulo::USUARIOS, Permiso::CONSULTAR)): ?>
         <a href="<?= LOCAL_DIR ?>/Usuarios" class="sidebar-button mx-3
             <?= strtolower($uriParts[0]) == "usuarios" ? "active" : "" ?>">
             <i class="fa-solid fa-user"></i>
             Usuarios
         </a>
     <?php endif ?>
-    <?php if (tienePermiso('roles', 'consultar')
-        || tienePermiso('bitacora', 'consultar')): ?>
+    <?php if (tienePermiso(Modulo::ROLES, Permiso::CONSULTAR)
+        || tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)): ?>
         <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "seguridad" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
                 <?= strtolower($uriParts[0]) == "seguridad" ? "active" : "" ?>">
@@ -55,13 +106,13 @@
             </button>
             <div class="acordeon-body">
                 <div class="acordeon-items py-2">
-                    <?php if (tienePermiso('roles', 'consultar')): ?>
+                    <?php if (tienePermiso(Modulo::ROLES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Roles"
                             class="<?= strtolower($uriParts[1]) == "roles" ? "active" : "" ?>">
                             Roles y permisos
                         </a>
                     <?php endif ?>
-                    <?php if (tienePermiso('bitacora', 'consultar')): ?>
+                    <?php if (tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Bitacora"
                             class="<?= strtolower($uriParts[1]) == "bitacora" ? "active" : "" ?>">
                             Bitacora
