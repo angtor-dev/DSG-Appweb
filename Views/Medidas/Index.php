@@ -1,7 +1,7 @@
 <?php /** @var Medida[] $medidas */ ?>
 
 <div class="panel-header" style="background-color: red;">
-    <div class="page-inner py-5">
+    <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
                 <h3 class="pb-2">Medidas</h3>
