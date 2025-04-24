@@ -9,6 +9,11 @@ if (empty($usuario)) {
     redirigir(LOCAL_DIR."/Usuarios");
 }
 
+if ($usuario->id == $_SESSION['usuario']->id) {
+    $_SESSION['errores'][] = "No puedes eliminar tu propio usuario";
+    redirigir(LOCAL_DIR."/Usuarios");
+}
+
 if ($usuario->eliminar(1)) {
     $_SESSION['exitos'][] = "Usuario eliminado con exito";
     Bitacora::registrar("Usuario '".$usuario->getCorreo()."' eliminado");
