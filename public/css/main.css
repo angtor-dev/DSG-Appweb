@@ -202,6 +202,11 @@ body {
     width: 100%;
 }
 
+.panel-header > .page-inner {
+    padding-top: 1rem !important;
+    padding-bottom: 3rem !important;
+}
+
 /* Filtro pacientes */
 .filtro-alfabetico {
     display: flex;
