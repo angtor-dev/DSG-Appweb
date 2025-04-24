@@ -19,6 +19,25 @@ class Trabajador extends Model
         }
     }
 
+    public static function cargarPorCedula (string $cedula) : mixed{
+        $bd = Database::getInstance();
+        $bd->connect();
+        $query = "SELECT * FROM `trabajador` WHERE cedula = :cedula;";
+
+        $consulta = $bd->pdo()->prepare($query);
+        $consulta->execute([':cedula'=>$cedula]);
+        $consulta->setFetchMode(PDO::FETCH_CLASS, "Trabajador");
+
+
+        $bd->disconnect();
+
+        if( $consulta->rowCount() == 0){
+            return array();
+        }
+
+        return $consulta->fetch();
+    }
+
     // Getters
     public function getNombre() : string {
         return $this->nombre;
