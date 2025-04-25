@@ -1,6 +1,8 @@
 const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     + "0123456789!@#$%^&*()_-+={}[];':\"\\|,.<>/?";
 const longitudClave = 12
+const regClave = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
+
 
 document.querySelectorAll('.toggle-password').forEach(el => {
     el.addEventListener("click", alternarClave)
@@ -14,6 +16,10 @@ function claveSegura() {
         clave += caracteres.charAt(indiceAleatorio)
     }
 
+    if(!regClave.test(clave)){
+        clave = claveSegura();
+    }
+
     return clave
 }
 
@@ -23,6 +29,7 @@ function generarClave() {
 
     claveEl.value = clave
     navigator.clipboard.writeText(clave)
+    claveEl.dispatchEvent(new Event('blur'))
 }
 
 function alternarClave(event) {

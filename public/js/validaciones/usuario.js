@@ -1,6 +1,5 @@
 // expresiones regulares
 const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
-const regClave = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
 
 // validaciones
 function validarNombre() {

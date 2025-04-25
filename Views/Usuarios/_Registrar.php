@@ -11,14 +11,17 @@
             <form method="post" id="form-usuario">
                 <div class="row gy-3">
                     <div class="col-md-6">
-                        <label for="nombre" class="form-label">Nombre</label>
-                        <input class="form-control" type="text" id="nombre" name="nombre">
-                        <div class="form-text invalid-feedback"></div>
+                        <label for="cedula" class="form-label">Cedula </label>
+                        <input value="0000000" type="text" class="form-control" id="cedula" name="cedula" data-span="invalid-span-cedula">
+                        <div id="invalid-span-cedula" class="form-text invalid-feedback"></div>
+                    </div>
+                </div>
+                <div class="row gy-3">
+                    <div class="col-md-6 ">
+                        <div class="form-info-field" data-info="Nombre" id="nombre"></div>
                     </div>
                     <div class="col-md-6">
-                        <label for="apellido" class="form-label">Apellido</label>
-                        <input class="form-control" type="text" id="apellido" name="apellido">
-                        <div class="form-text invalid-feedback"></div>
+                        <div class="form-info-field" data-info="Apellido" id="apellido"></div>
                     </div>
                     <div class="col-md-12">
                         <label for="correo" class="form-label">Correo</label>
