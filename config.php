@@ -17,4 +17,6 @@ defined('DB_PASSWORD') or define("DB_PASSWORD", "");
 define("REG_NUMERICO", "/^[0-9]+$/");
 define("REG_ALFABETICO", "/^\s*[a-zA-ZáÁéÉíÍóÓúÚüÜñÑ., ]*\s*$/");
 define("REG_ALFANUMERICO", "/^\s*[0-9a-zA-ZáÁéÉíÍóÓúÚüÜñÑ., ]*\s*$/");
+define("REG_CEDULA", "/^[0-9]{7,8}$/");
+define("REG_TELEFONO", "/^[0-9]{11}$/");
 define("REG_CLAVE", "/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/");

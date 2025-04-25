@@ -102,4 +102,4 @@
 </script>
 
 <?php // agregarScript("trabajador.js") ?>
-<?php // agregarScript("validaciones/trabajador.js") ?>
+<?php agregarScript("validaciones/trabajador.js") ?>
