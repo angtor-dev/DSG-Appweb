@@ -1,37 +1,3 @@
-<style>
-	.form-info-field{
-		margin-top: var(--bs-gutter-y);
-		position: relative;
-
-		display: block;
-		width: 100%;
-		padding: .375rem .75rem;
-		font-size: 1rem;
-		font-weight: 400;
-		line-height: 1.5;
-		color: var(--bs-body-color);
-		background-color: var(--bs-body-bg);
-		background-clip: padding-box;
-		border: var(--bs-border-width) solid var(--bs-border-color);
-		border-radius: var(--bs-border-radius);
-		transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-	}
-	.form-info-field::before{
-		content: attr(data-info);
-		display: inline-block;
-		position: absolute;
-		font-size: .8rem;
-		top: -0.7rem;
-		background-color: var(--bs-body-bg);
-		padding-left: .2rem;
-		padding-right: .2rem;
-	}
-	.form-info-field::after{
-		content: "";
-		display: inline-block;
-	}
-
-</style>
 <div class="modal-dialog modal-lg" role="dialog" onload="eventos()">
 	<div class="modal-content">
 		<div class="modal-header bg-white">

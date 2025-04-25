@@ -115,7 +115,7 @@
     function agregarValidaciones(){
         document.getElementById('cedula').onkeyup= async function(e){
 
-            if(/^[\d]{8}$/.test(this.value)){
+            if(/^[\d]{7,8}$/.test(this.value)){
                 let data = await peticion(`/Asistencias/Registrar?cedula=${this.value}`);
                 data = JSON.parse(data);
                 console.log(data);

@@ -1,7 +1,7 @@
 <?php
 requiereAutenticacion();
 requierePermiso("usuarios", "registrar");
-require_once "Models/Asistencias.php";
+require_once "Models/Asistencia.php";
 
 
 
