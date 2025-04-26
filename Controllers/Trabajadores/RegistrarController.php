@@ -1,8 +1,6 @@
 <?php
 requiereAutenticacion();
 requierePermiso(Modulo::TRABAJADORES, Permiso::REGISTRAR);
-require_once 'Models/Departamento.php';
-require_once 'Models/Trabajador.php';
 
 
 

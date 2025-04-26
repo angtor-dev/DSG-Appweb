@@ -1,5 +1,7 @@
 // expresiones regulares
 const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
+const regCedula = /^[0-9]{7,8}$/
+
 
 // validaciones
 function validarNombre() {
@@ -64,20 +66,63 @@ function validarClave() {
     return true
 }
 
+
+
+
 function agregarValidaciones() {
+
+    // TODO deshabilitar el submit
     // formulario
     const formulario = document.getElementById('form-usuario')
     // campos
     const iNombre = document.getElementById('nombre')
-    const iApellido = document.getElementById('apellido')
     const iCorreo = document.getElementById('correo')
     const iIdRol = document.getElementById('idRol')
     const iClave = document.getElementById('clave')
+    const iCedula = document.getElementById('cedula')
+    const iDepartamento = document.getElementById('departamento')
 
     // validar al desenfocar campo o al enviar formulario
     iNombre.addEventListener('blur', validarNombre)
     iClave.addEventListener('blur', validarClave)
-    iApellido.addEventListener('blur', validarApellido)
+
+    console.log(iCedula)
+
+
+      iCedula.onkeyup= async function(e){
+        // document.getElementById("btn-submit-registrar").disabled = true
+
+        console.log("entro",regCedula.test(this.value));
+
+
+        if(regCedula.test(this.value)){
+            let data = await peticion(window.location+`/Registrar?cedula=${this.value}`)
+            data = JSON.parse(data)
+            console.log(data)
+            if(data.cedula){
+                iCedula.classList.add('is-valid')
+                iCedula.classList.remove('is-invalid')
+
+                iNombre.textContent = data.nombre
+                iDepartamento.textContent = data.departamento
+
+
+                
+            }
+            else{
+                iCedula.classList.remove('is-valid')
+                iCedula.classList.add('is-invalid')
+                iCedula.parentElement.querySelector('.form-text').textContent = ""
+                // document.getElementById("btn-submit-registrar").disabled = false;
+            }
+        }
+        else{
+            iCedula.classList.add('is-invalid')
+            iCedula.classList.remove('is-valid')
+            iCedula.parentElement.querySelector('.form-text').textContent = "La cedula debe ser de 7 u 8 digitos"
+        }
+    }
+
     
     formulario.addEventListener('submit', event => {
         if (!validarNombre() || !validarClave() || !validarApellido()) {

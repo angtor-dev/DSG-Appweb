@@ -1,12 +1,31 @@
 <?php
 requiereAutenticacion();
 requierePermiso("usuarios", "registrar");
+require_once "Models/Trabajador.php";
+require_once 'Models/Departamento.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
-    $roles = Rol::listar(1);
+    $departamentos = Departamento::listar();
+     if(!empty($_GET['cedula'])){
+        $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
 
-    require_once "Views/Usuarios/_Registrar.php";
+        if($Trabajador instanceof Trabajador){
+            echo json_encode([
+                "cedula" => $Trabajador->getCedula(),
+                "nombre" => $Trabajador->getNombreCompleto(),
+                "departamento" => $Trabajador->departamento->getNombre()
+                ]);
+        }
+        else{
+            echo "{}";
+        }
+    }
+    else{
+        $roles = Rol::listar(1);
+
+        require_once "Views/Usuarios/_Registrar.php";
+    }
 }
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {

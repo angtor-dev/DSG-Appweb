@@ -21,7 +21,7 @@
                         <div class="form-info-field" data-info="Nombre" id="nombre"></div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-info-field" data-info="Apellido" id="apellido"></div>
+                        <div class="form-info-field" data-info="Departamento" id="departamento"></div>
                     </div>
                     <div class="col-md-12">
                         <label for="correo" class="form-label">Correo</label>

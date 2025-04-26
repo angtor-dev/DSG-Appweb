@@ -53,3 +53,22 @@ function mostrarExito(mensaje) {
         }
     }).showToast();
 }
+
+
+async function peticion (url){
+
+
+
+    let response = await fetch(url,{cache:"no-store"});
+
+    let data = await response.text()
+
+    if (!response.ok) {
+        mostrarError("Error de solicitud");
+        console.error(data)
+        return false;
+    }
+
+    return data;
+
+}

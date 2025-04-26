@@ -78,22 +78,7 @@ function validarTelefono(id) {
 
 
 
-async function peticion (url){
 
-
-    let response = await fetch(window.location+url);
-
-    let data = await response.text()
-
-    if (!response.ok) {
-        mostrarError("Error de solicitud");
-        console.error(data)
-        return false;
-    }
-
-    return data;
-
-}
 
 
 
