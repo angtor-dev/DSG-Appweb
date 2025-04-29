@@ -11,9 +11,6 @@ foreach ($areas as $area) {
         $areaPadreArray = array_filter($areas, fn($a) => $a->id == $area->idArea);
         $area->areaPadre = reset($areaPadreArray);
     }
-    else {
-        $area->areaPadre = null;
-    }
 }
 
 renderView();

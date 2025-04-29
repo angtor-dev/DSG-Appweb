@@ -167,7 +167,7 @@ function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null): string
             <div class="node-card w-100">
                 <button class="flex-grow-1" type="button" data-bs-toggle="collapse"
                     data-bs-target="#collapse-'.$area->id.'">
-                    '.(empty(!$tieneSubAreas) ? '<i class="fa-solid fa-caret-down me-2" style="color: var(--gris)"></i>' : '<i class="me-2" style="width: 16px; display: inline-block;"></i>').'
+                    '.(empty(!$tieneSubAreas) ? '<i class="fa-solid fa-caret-down me-2" style="color: var(--gris)"></i>' : '<i class="me-2" style="width: 10px; display: inline-block;"></i>').'
                     <span class="node-name">'.$area->getNombre().'</span>
                 </button>
                 <div class="node-actions">';
