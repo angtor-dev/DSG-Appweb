@@ -3,6 +3,7 @@
  * funciones de utilidades para facilitar la vida
  */
 
+
 /* Inicializar componentes */
 // Acordeones
 document.querySelectorAll('.acordeon-toggle').forEach(a => {
@@ -56,9 +57,7 @@ function mostrarExito(mensaje) {
 
 
 async function peticion (url){
-
-
-
+    url = LOCAL_DIR+url;
     let response = await fetch(url,{cache:"no-store"});
 
     let data = await response.text()
