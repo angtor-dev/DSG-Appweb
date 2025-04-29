@@ -21,52 +21,11 @@
         </div>
     </div>
 </div>
+
 <div class="page-inner mt--5">
-    <div class="card border-0 box-shadow-alt">
-        <div class="card-body p-4">
-            <div class="table-responsive table-dsg">
-                <table class="datatable table table-striped table-hover" id="tabla-areas">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Nombre</th>
-                            <th>Pertenece a</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($areas as $area): ?>
-                            <tr>
-                                <td><?= $area->id ?></td>
-                                <td><?= $area->getNombre() ?></td>
-                                <td><?= $area->areaPadre?->getNombre() ?></td>
-                                <td>
-                                    <div class="d-flex justify-content-evenly w-100 gap-3">
-                                        <?php if (tienePermiso(Modulo::AREAS, Permiso::ACTUALIZAR)): ?>
-                                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
-                                                <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Areas/Actualizar?id=<?= $area->id ?>">
-                                                    <i class="fa-solid fa-fw fa-pen-to-square"></i>
-                                                </div>
-                                            </div>
-                                        <?php endif ?>
-                                        <?php if (tienePermiso(Modulo::AREAS, Permiso::ELIMINAR)): ?>
-                                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-                                                    data-bs-modelo="a el area" 
-                                                    data-bs-nombre="<?= $area->getNombre() ?>"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Areas/Eliminar?id=<?= $area->id ?>">
-                                                    <i class="fa-solid fa-fw fa-trash-can"></i>
-                                                </div>
-                                            </div>
-                                        <?php endif ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach ?>
-                    </tbody>
-                </table>
-            </div>
+    <div class="card border-0">
+        <div class="card-body p-4 d-flex flex-column gap-3">
+            <?= ImprimirAcordeonesAnidados($areas) ?>
         </div>
     </div>
 </div>
