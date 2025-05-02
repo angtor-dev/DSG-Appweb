@@ -46,7 +46,7 @@ class Tarea extends Model
         return $consulta->fetch();
     }
 
-    public static function listar(...$args) : array {
+    public static function listar(int $estado = null) : array {
         $bd = Database::getInstance();
         $bd->connect();
         $query = "SELECT * FROM `tarea` ORDER BY fechaCreacion DESC;";

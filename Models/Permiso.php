@@ -1,8 +1,4 @@
 <?php
-require_once "Models/Model.php";
-require_once "Models/Rol.php";
-require_once "Models/Modulo.php";
-
 class Permiso extends Model
 {
     public int $id;

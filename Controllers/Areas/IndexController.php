@@ -1,7 +1,6 @@
 <?php
 requiereAutenticacion();
 requierePermiso(Modulo::AREAS, Permiso::CONSULTAR);
-require_once "Models/Area.php";
 
 /** @var Area[] $areas */
 $areas = Area::listar();

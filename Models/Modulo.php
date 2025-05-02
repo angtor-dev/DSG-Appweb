@@ -1,6 +1,4 @@
 <?php
-require_once "Models/Model.php";
-
 class Modulo extends Model
 {
     private string $nombre;

@@ -1,8 +1,6 @@
 <?php
 requiereAutenticacion();
 requierePermiso("usuarios", "registrar");
-require_once "Models/Trabajador.php";
-require_once 'Models/Departamento.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {

@@ -1,7 +1,6 @@
 <?php
 requiereAutenticacion();
 requierePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR);
-require_once "Models/Departamento.php";
 
 /** @var Departamento[] $departamentos */
 $departamentos = Departamento::listar();

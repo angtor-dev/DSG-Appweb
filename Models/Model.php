@@ -1,6 +1,4 @@
 <?php
-require_once "Models/Database.php";
-
 abstract class Model
 {
     public int $id;

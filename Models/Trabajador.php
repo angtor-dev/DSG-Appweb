@@ -1,8 +1,5 @@
 <?php
 // TODO agregar indice unico a la cedula del trabajador
-require_once "Models/Departamento.php";
-require_once "Models/Enums/Cargo.php";
-require_once "Models/Enums/Turno.php";
 class Trabajador extends Model
 {
     public int $idDepartamento;

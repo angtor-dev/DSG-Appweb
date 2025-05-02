@@ -2,12 +2,8 @@
 requiereAutenticacion();
 requierePermiso(Modulo::TRABAJADORES, Permiso::REGISTRAR);
 
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
-
-
      $departamentos = Departamento::listar();
      if(!empty($_GET['cedula'])){
         require_once "Models/Trabajador.php";
@@ -29,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 }
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-
     $Trabajador = new Trabajador();
     $Trabajador->mapearFormulario();
 
