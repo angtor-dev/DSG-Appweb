@@ -56,5 +56,12 @@
         <?php endforeach ?>
         <?php unset($_SESSION['errores']) ?>
     <?php endif ?>
+    <?php if (!empty($_SESSION['consoleError'])): ?>
+        <script>
+            console.error("Error en consola");
+            console.log("lista errores",[<?php echo implode(',', $_SESSION['consoleError']) ?>]);
+        </script>
+        <?php unset($_SESSION['consoleError']) ?>
+    <?php endif ?>
 </body>
 </html>
