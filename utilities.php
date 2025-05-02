@@ -142,9 +142,10 @@ function agregarCss($styleName) : void {
  * Imprime el contenido de una variable en un formato legible y finaliza el programa
  * @param mixed $var variable a imprimir
  */
-function debug(mixed $var) : void {
+function debug(mixed $var,$control=true) : void {
     echo "<pre>";
     print_r($var);
     echo "</pre>";
-    exit;
+    if($control)
+        die();
 }
