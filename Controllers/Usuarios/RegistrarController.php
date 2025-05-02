@@ -11,10 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
 
         if($Trabajador instanceof Trabajador){
+
+
+
+
             echo json_encode([
                 "cedula" => $Trabajador->getCedula(),
                 "nombre" => $Trabajador->getNombreCompleto(),
-                "departamento" => $Trabajador->departamento->getNombre()
+                "departamento" => $Trabajador->departamento->getNombre(),
+                "usuario" => ( Usuario::cargarPorCedula($_GET['cedula']) )?1:null
                 ]);
         }
         else{
@@ -32,7 +37,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
     $usuario = new Usuario();
     $usuario->mapearFormulario();
 
-    if ($usuario->esValido() && $usuario->registrar()) {
+    if ($usuario->registrar()) {
         $_SESSION['exitos'][] = "Usuario registrado con exito";
         Bitacora::registrar("Usuario '".$usuario->getCorreo()."' registrado");
     }
