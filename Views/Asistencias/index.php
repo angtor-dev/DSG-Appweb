@@ -8,7 +8,7 @@
                 <span class="opacity-75 mb-2">Gestiona a las asistencias de los trabajadores de los diferentes departamentos de la Dirección de Servicios Generales</span>
             </div>
             <?php if (tienePermiso(Modulo::ASISTENCIAS, Permiso::REGISTRAR)): ?>
-                <div>
+                <div class="d-none">
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"
                         data-bs-toggle="modal" data-bs-target="#modal-generico"
@@ -24,123 +24,249 @@
 <div class="page-inner mt--5">
     <div class="card border-0 box-shadow-alt">
         <div class="card-body p-4">
-            <div class="table-responsive table-dsg">
-                <table class="datatable table table-striped table-hover" id="tabla-trabajadores">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Cedula</th>
-                            <th>Departamento</th>
-                            <th>Fecha</th>
-                            <th>Entrada</th>
-                            <th>Salida</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($asistencias as $asistencia): ?>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <label for="departamento">Departamento </label>
+                        <select name="departamento" class="form-select" id="departamento">
+                            <option value=""></option>
+                            <?php foreach ($departamentos as $departamento): ?>
+                                <option value="<?= $departamento->id ?>"><?= $departamento->getNombre() ?></option>
+                            <?php endforeach ?>
+                        </select>
+                        <div class="form-text invalid-feedback"></div>
+                    </div>
+                    <div class="col">
+                        <label for="turno">Turno </label>
+                        <select name="turno" class="form-select" id="turno">
+                            <option value=""></option>
+                            <?php foreach (Turno::cases() as $turno): ?>
+                                <option value="<?= $turno->value ?>"><?= ucfirst($turno->value) ?></option>
+                            <?php endforeach ?>
+                        </select>
+                        <div class="form-text invalid-feedback"></div>
+                    </div>
+                    <div class="col">
+                        <label for="fecha">Fecha </label>
+                        <input type="date" name="fecha" class="form-control" id="fecha">
+                        <div class="form-text invalid-feedback"></div>
+                    </div>
+                    <div class="col d-flex justify-content-lg-start align-items-center">
+                        <button class="btn btn-primary" onclick="cargarDepartamentos()">Ver Asistencias</button>
+                    </div>
+                    <script>
+                        function cargarDepartamentos() {
+                            if(document.getElementById("tabla-asistencias").classList.contains("d-none")) {
+                                document.getElementById("tabla-asistencias").classList.remove("d-none");
+                            }
+                            else {
+                                document.getElementById("tabla-asistencias").classList.add("d-none");
+                            }
+                        }
+
+                    </script>
+                </div>
+                <hr>
+                <div class="container">
+                    <style>
+                        .cell-justificacion {
+                            display: none;
+                        }
+                        .cell-inasistencia.inasistencia-true + .cell-horas {
+                            display: none;
+                        }
+                        .cell-inasistencia.inasistencia-true ~ .cell-justificacion {
+                            display: table-cell;
+                        }
+                        .cursor-pointer{
+                            cursor: pointer !important;
+                        }
+                        .no-select/*Evita seleccion (sombreado azul)*/
+                        {
+                            -moz-user-select: -moz-none;
+                            -khtml-user-select: none;
+                            -webkit-user-select: none;
+                            -ms-user-select: none;
+                            user-select: none;
+                        }
+                        .nombre{
+                            white-space: nowrap;
+                            width: 10px;
+                        }
+
+                        .inasistencia-check{
+                            display: none;
+                        }
+
+                        .check-feedback{
+                            --size:1rem;
+                            --color:#0d6efd;
+                            width: var(--size) !important;
+                            height: var(--size) !important;
+                            border: 1px solid var(--color);
+                            border-radius: 100%;
+                            display: inline-block;
+                            padding: 2px;
+                            margin-bottom: -3px;
+
+                        }
+                        .check-feedback::after{
+                            content: "";
+                            width: 100%;
+                            height: 100%;
+                            background-color: transparent;
+                            display: block;
+                            border-radius: 100%;
+                        }
+
+                        .inasistencia-check:checked+.check-feedback::after{
+                            background-color: var(--color);
+                        }
+
+
+                        
+                    </style>
+                    <table class="table table-responsive table-striped d-none" id="tabla-asistencias">
+                        <tbody>
                             <tr>
-                                <td><?= $asistencia->getNombreCompleto() ?></td>
-                                <td><?= $asistencia->getCedula() ?></td>
-                                <td><?= $asistencia->departamento->getNombre() ?></td>
-                                <?php echo $asistencia->getEntrada(); ?>
-                                <td>
-                                    <div class="d-flex justify-content-evenly w-100 gap-3">
-                                        <?php if (tienePermiso(Modulo::ASISTENCIAS, Permiso::ACTUALIZAR)): ?>
-                                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
-                                                <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Actualizar?id=<?= $asistencia->id ?>">
-                                                    <i class="fa-solid fa-fw fa-pen-to-square"></i>
-                                                </div>
+                                <td class="align-content-center nombre">Xavier David Sanchez Suares</td>
+                                <td class="cell-inasistencia align-content-center">
+
+                                    <label class="text-nowrap no-select cursor-pointer">
+                                        <span>Inasistencia</span>
+                                        <input type="checkbox" class="inasistencia-check">
+                                        <div class="check-feedback"></div>
+                                    </label>
+                                </td>
+                                <td class="cell-horas w-100">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="hora_entrada" class="form-label">Hora de Entrada</label>
+                                                <input type="time" class="form-control" id="hora_entrada" name="hora_entrada" data-span="invalid-span-hora_entrada">
+                                                <div id="invalid-span-hora_entrada" class="form-text invalid-feedback"></div>
                                             </div>
-                                        <?php endif ?>
-                                        <?php if (tienePermiso(Modulo::ASISTENCIAS, Permiso::ELIMINAR)): ?>
-                                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-                                                    data-bs-modelo="al trabajador" 
-                                                    data-bs-nombre="<?= $asistencia->getNombreCompleto() ?>"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Eliminar?id=<?= $asistencia->id ?>">
-                                                    <i class="fa-solid fa-fw fa-trash-can"></i>
-                                                </div>
+                                            <div class="col">
+                                                <label for="hora_salida" class="form-label">Hora de salida</label>
+                                                <input type="time" class="form-control" id="hora_salida" name="hora_salida" data-span="invalid-span-hora_salida">
+                                                <div id="invalid-span-hora_salida" class="form-text invalid-feedback"></div>
                                             </div>
-                                        <?php endif ?>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="cell-justificacion w-100">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="justificacion" class="form-label">Justificación</label>
+                                                <select name="justificacion" class="form-select">
+                                                    <option value="1">Medico</option>
+                                                    <option value="2">Emergencia</option>
+                                                    <option value="3">Enfermedad</option>
+                                                    <option value="4">Vacaciones</option>
+                                                    <option value="5">Otro</option>
+                                                </select>
+                                                <div id="invalid-span-justificacion" class="form-text invalid-feedback"></div>
+                                            </div>
+                                            <div class="col justificacion-col">
+                                                <label for="justificacion" class="form-label">Descripción</label>
+                                                <input type="text" class="form-control" id="justificacion" name="justificacion" data-span="invalid-span-justificacion">
+                                                <div id="invalid-span-justificacion" class="form-text invalid-feedback"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
-                        <?php endforeach ?>
-                    </tbody>
-                </table>
+                            <tr>
+                                <td class="align-content-center nombre">Xavier David Sanchez Suares</td>
+                                <td class="cell-inasistencia align-content-center">
+
+                                    <label class="text-nowrap no-select cursor-pointer">
+                                        <span>Inasistencia</span>
+                                        <input type="checkbox" class="inasistencia-check">
+                                        <div class="check-feedback"></div>
+                                    </label>
+                                </td>
+                                <td class="cell-horas w-100">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="hora_entrada" class="form-label">Hora de Entrada</label>
+                                                <input type="time" class="form-control" id="hora_entrada" name="hora_entrada" data-span="invalid-span-hora_entrada">
+                                                <div id="invalid-span-hora_entrada" class="form-text invalid-feedback"></div>
+                                            </div>
+                                            <div class="col">
+                                                <label for="hora_salida" class="form-label">Hora de salida</label>
+                                                <input type="time" class="form-control" id="hora_salida" name="hora_salida" data-span="invalid-span-hora_salida">
+                                                <div id="invalid-span-hora_salida" class="form-text invalid-feedback"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="cell-justificacion w-100">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="justificacion" class="form-label">Justificación</label>
+                                                <select name="justificacion" class="form-select">
+                                                    <option value="1">Medico</option>
+                                                    <option value="2">Emergencia</option>
+                                                    <option value="3">Enfermedad</option>
+                                                    <option value="4">Vacaciones</option>
+                                                    <option value="5">Otro</option>
+                                                </select>
+                                                <div id="invalid-span-justificacion" class="form-text invalid-feedback"></div>
+                                            </div>
+                                            <div class="col justificacion-col">
+                                                <label for="justificacion" class="form-label">Descripción</label>
+                                                <input type="text" class="form-control" id="justificacion" name="justificacion" data-span="invalid-span-justificacion">
+                                                <div id="invalid-span-justificacion" class="form-text invalid-feedback"></div>
+                                            </div>
+                                            <div class="col d-flex align-items-center">
+                                                <button class="btn btn-primary"><span class="fa fa-gears"></span> ajuste</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="col"></div>
+                    <script>
+                        let checkList = document.querySelectorAll("input.inasistencia-check");
+                        checkList.forEach(check => {
+                            check.addEventListener("change", function(){
+                                let check = this;
+                                let td = check.closest("td");
+                                if (check.checked) {
+                                    td.classList.add("inasistencia-true");
+                                } else {
+                                    td.classList.remove("inasistencia-true");
+                                }
+                            })
+                        })
+                    </script>
+                </div>
+
+
+                
             </div>
+
         </div>
     </div>
 </div>
 
 <?php renderComponent('ModalGenerico') ?>
 
-<script>
-    document.addEventListener('DOMContentLoaded', e => {
-        tablaTrabajadores = new DataTable('#tabla-trabajadores', {
-            pagingType: 'simple_numbers',
-            language: {
-                url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
-            },
-            layout: {
-                topStart: {
-                    buttons: ['excel', 'pdf', 'print']
-                },
-                bottom1Start: {
-                    pageLength: true
-                }
-            }
-        })
-    })
-
-    async function peticion (url){
-
-        let response = await fetch("<?= LOCAL_DIR ?>"+url);
-
-        let data = await response.text()
-
-        if (!response.ok) {
-            mostrarError("Error de solicitud");
-            console.error(data)
-            return false;
-        }
-
-        return data;
-
-    }
+<script type="text/javascript">
 
 
     function agregarValidaciones(){
-        document.getElementById('cedula').onkeyup= async function(e){
-
-            if(/^[\d]{7,8}$/.test(this.value)){
-                let data = await peticion(`/Asistencias/Registrar?cedula=${this.value}`);
-                data = JSON.parse(data);
-                console.log(data);
-                if(data.id){
-                    document.getElementById("nombre").innerHTML = data.nombre;
-                    document.getElementById("departamento").innerHTML = data.departamento
-
-                    document.getElementById('fecha').disabled = false;
-                    document.getElementById('fechaIn').disabled = false;
-                    document.getElementById('fechaOut').disabled = false;
-                    return true;
-                }
-            }
-            document.getElementById('fecha').disabled = true;
-            document.getElementById('fechaIn').disabled = true;
-            document.getElementById('fechaOut').disabled = true;
-            document.getElementById("nombre").innerHTML ="";
-
-            document.getElementById("departamento").innerHTML ="";
-
-
-
-
-        }
+        
     }
+    /**
+     * 
+     */
     
 
 </script>
