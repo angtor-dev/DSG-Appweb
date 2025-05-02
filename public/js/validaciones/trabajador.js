@@ -115,7 +115,7 @@ function agregarValidaciones() {
 
 
         if(regCedula.test(this.value)){
-            let data = await peticion(`/Registrar?cedula=${this.value}`)
+            let data = await peticion(`/Trabajadores/Registrar?cedula=${this.value}`)
             data = JSON.parse(data)
             console.log(data)
             if(data.cedula){

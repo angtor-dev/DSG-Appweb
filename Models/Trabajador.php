@@ -1,5 +1,7 @@
 <?php
 // TODO agregar indice unico a la cedula del trabajador
+// TODO agregar Alias a los trabajadores
+// (para que Sir Reginald Pomposo siga siendo Chui )
 require_once "Models/Departamento.php";
 require_once "Models/Enums/Cargo.php";
 require_once "Models/Enums/Turno.php";
