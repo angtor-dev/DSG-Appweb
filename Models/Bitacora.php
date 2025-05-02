@@ -8,7 +8,7 @@ class Bitacora extends Model
     private string $ruta;
     private string $fecha;
 
-    public ?Usuario $usuario = null;
+    public ?Trabajador $usuario = null;
 
     function __construct()
     {
@@ -18,9 +18,10 @@ class Bitacora extends Model
     public static function listar(int $estado = null) : Array
     {
         $bd = Database::getInstance();
-        $query = "SELECT b.*, u.correo AS 'usuario_correo', u.nombre AS 'usuario_nombre', u.apellido AS 'usuario_apellido', u.estado AS 'usuario_estado'
+        $query = "SELECT b.*, t.cedula AS 'usuario_cedula', u.correo as 'usuario_correo'
             FROM bitacora as b
-            LEFT JOIN usuario as u ON b.idUsuario = u.id";
+            LEFT JOIN usuario as u ON b.idUsuario = u.id
+            LEFT JOIN Trabajador as t on t.id = u.idTrabajador";
         $bd->connect();
 
         $stmt = $bd->pdo()->query($query);
@@ -34,12 +35,18 @@ class Bitacora extends Model
         $bitacoras = $stmt->fetchAll();
 
         foreach ($bitacoras as $bitacora) {
+            /*
             $bitacora->usuario = new Usuario(
                 $bitacora->usuario_correo,
                 $bitacora->usuario_nombre,
                 $bitacora->usuario_apellido,
                 $bitacora->usuario_estado
             );
+            */
+            $cedula = $bitacora->usuario_cedula;
+            if(!empty($cedula)){
+                $bitacora->usuario = Trabajador::cargarPorCedula($cedula);
+            }
         }
         return $bitacoras;
     }
