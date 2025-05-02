@@ -17,15 +17,7 @@
                         Nueva tarea
                     </button>
                 </div>
-                <div>
-                    <button style="padding: .65rem 1.4rem;"
-                        class="btn btn-outline-light rounded-pill"
-                        data-bs-toggle="modal" data-bs-target="#modal-generico"
-                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Asignar">
-                        <i class="fa-solid fa-plus me-2"></i>
-                        Nueva tarea comun
-                    </button>
-                </div>
+               
                 <div>
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"

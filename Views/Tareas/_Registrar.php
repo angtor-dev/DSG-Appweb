@@ -73,7 +73,7 @@
                         </div>
                         
                         <div class="col-12 d-flex justify-content-end">
-                            <button type="button" class="btn btn-primary siguiente" data-next="area-turno">
+                            <button type="button" class="btn btn-primary siguiente" href="#area-turno" >
                                 Siguiente <i class="fa-solid fa-arrow-right ms-2"></i>
                             </button>
                         </div>
@@ -129,10 +129,7 @@
                             </select>
                             <div class="invalid-feedback">Seleccione al menos un trabajador</div>
                         </div>
-                        <div class="col-md-12">
-                            <label for="comentarios" class="form-label">Comentarios</label>
-                            <textarea class="form-control" id="comentarios" name="comentarios" rows="3"></textarea>
-                        </div>
+                        
                         <div class="col-12 d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary anterior" data-prev="area-turno">
                                 <i class="fa-solid fa-arrow-left me-2"></i> Anterior
@@ -180,6 +177,7 @@
             </form>
         </div>
     </div>
+</div>
 
 <!-- Scripts necesarios -->
 <script>
@@ -191,12 +189,13 @@ $(document).ready(function() {
     });
 
     // Navegación entre pestañas
-    $('.siguiente').click(function() {
+    $(document).on('click', '.siguiente', function() {
+        console.log("kasjdlkaj");
         const nextTab = $(this).data('next');
         $(`#tabs-tarea .nav-link[href="#${nextTab}"]`).tab('show');
     });
 
-    $('.anterior').click(function() {
+    $(document).on('click', '.anterior', function() {
         const prevTab = $(this).data('prev');
         $(`#tabs-tarea .nav-link[href="#${prevTab}"]`).tab('show');
     });
@@ -232,12 +231,3 @@ $(document).ready(function() {
     });
 });
 </script>
-        </div>
-        <div class="modal-footer">
-            <div class="d-flex justify-content-between gap-3">
-                <button data-bs-dismiss="modal" class="btn btn-outline-secondary">Cancelar</button>
-                <button type="submit" form="form-usuario" class="btn btn-primary">Registrar</button>
-            </div>
-        </div>
-    </div>
-</div>
