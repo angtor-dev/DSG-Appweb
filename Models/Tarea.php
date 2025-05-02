@@ -4,7 +4,6 @@ require_once "Models/Departamento.php";
 
 class Tarea extends Model
 {
-    public int $id;
     public int $idArea;
     public int $idDepartamento;
     public string $descripcion;
@@ -170,7 +169,6 @@ class Tarea extends Model
 
 class TareaAutomatica extends Model 
 {
-    public int $id;
     public int $idTarea;
     public int $numTrabajadores;
     public int $tiempoEstimado;
