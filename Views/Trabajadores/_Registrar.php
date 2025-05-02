@@ -63,6 +63,11 @@
                         </select>
                         <div id="invalid-span-departamento" class="form-text invalid-feedback"></div>           
                     </div>
+                    <div class="col-md-4">
+                        <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
+                        <input disabled required type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" data-span="invalid-span-fecha_ingreso">
+                        <div id="invalid-span-fecha_ingreso" class="form-text invalid-feedback"></div>
+                    </div>
                     
                 </div>
             </form>

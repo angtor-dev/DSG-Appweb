@@ -1,5 +1,7 @@
 <?php
 // TODO agregar indice unico a la cedula del trabajador
+// TODO agregar Alias a los trabajadores
+// (para que Sir Reginald Pomposo siga siendo Chui )
 class Trabajador extends Model
 {
     public int $idDepartamento;

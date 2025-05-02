@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="<?= LOCAL_DIR ?>/public/lib/select2/select2.min.css">
     <link rel="stylesheet" href="<?= LOCAL_DIR ?>/public/css/utilities.css">
     <link rel="stylesheet" href="<?= LOCAL_DIR ?>/public/css/main.css">
+    <script>
+        <?php require_once 'public/js/constantes.php'; ?>
+    </script>
 
     <title><?= APP_NAME ?></title>
 </head>
@@ -52,6 +55,13 @@
             </script>
         <?php endforeach ?>
         <?php unset($_SESSION['errores']) ?>
+    <?php endif ?>
+    <?php if (!empty($_SESSION['consoleError'])): ?>
+        <script>
+            console.error("Error en consola");
+            console.log("lista errores",[<?php echo implode(',', $_SESSION['consoleError']) ?>]);
+        </script>
+        <?php unset($_SESSION['consoleError']) ?>
     <?php endif ?>
 </body>
 </html>

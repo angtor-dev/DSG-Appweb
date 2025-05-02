@@ -1,3 +1,6 @@
+// TODO pasar formulario a ajax
+
+
 // expresiones regulares
 const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
 const regCedula = /^[0-9]{7,8}$/
@@ -71,6 +74,8 @@ function validarClave() {
 
 function agregarValidaciones() {
 
+    
+
     // TODO deshabilitar el submit
     // formulario
     const formulario = document.getElementById('form-usuario')
@@ -81,45 +86,56 @@ function agregarValidaciones() {
     const iClave = document.getElementById('clave')
     const iCedula = document.getElementById('cedula')
     const iDepartamento = document.getElementById('departamento')
+    const isubmit = document.getElementById('submit-modal')
+    const iGenerador = document.getElementById('generarClave-btn')
 
     // validar al desenfocar campo o al enviar formulario
-    iNombre.addEventListener('blur', validarNombre)
     iClave.addEventListener('blur', validarClave)
 
     console.log(iCedula)
 
 
       iCedula.onkeyup= async function(e){
-        // document.getElementById("btn-submit-registrar").disabled = true
+        [iCorreo, iIdRol, iClave].forEach(element => {
+            element.disabled = true
+            element.setValidStatus();
+            element.value = ""
+        })
+        iNombre.textContent = ""
+        iDepartamento.textContent = ""
+        this.setValidStatus();
+        isubmit.disabled = true
+        iGenerador.disabled = true
 
-        console.log("entro",regCedula.test(this.value));
 
 
         if(regCedula.test(this.value)){
-            let data = await peticion(window.location+`/Registrar?cedula=${this.value}`)
+            let data = await peticion(`/Usuarios/Registrar?cedula=${this.value}`)
             data = JSON.parse(data)
             console.log(data)
-            if(data.cedula){
-                iCedula.classList.add('is-valid')
-                iCedula.classList.remove('is-invalid')
+            if(data.cedula && !data.usuario){
+
+                iCedula.setValidStatus(true)
 
                 iNombre.textContent = data.nombre
                 iDepartamento.textContent = data.departamento
+
+                iCorreo.disabled = false
+                iIdRol.disabled = false
+                iClave.disabled = false
+                isubmit.disabled = false
+                iGenerador.disabled = false
 
 
                 
             }
             else{
-                iCedula.classList.remove('is-valid')
-                iCedula.classList.add('is-invalid')
-                iCedula.parentElement.querySelector('.form-text').textContent = ""
+                iCedula.setValidStatus(false,(data.usuario? "El usuario ya existe" : "El trabajador no existe"))
                 // document.getElementById("btn-submit-registrar").disabled = false;
             }
         }
         else{
-            iCedula.classList.add('is-invalid')
-            iCedula.classList.remove('is-valid')
-            iCedula.parentElement.querySelector('.form-text').textContent = "La cedula debe ser de 7 u 8 digitos"
+            iCedula.setValidStatus(false,"La cedula debe ser de 7 u 8 digitos")
         }
     }
 

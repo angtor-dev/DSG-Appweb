@@ -38,3 +38,4 @@ if (is_file("Controllers/".$controllerPath.$controllerName."Controller.php")) {
 
 http_response_code(404);
 require_once "Views/Home/404.php";
+// TODO ayudas , reportes, estadisticas

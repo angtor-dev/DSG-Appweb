@@ -38,3 +38,20 @@ $_layout = "Login";
         </div>
     </div>
 </div>
+<script>
+    function recordar() {
+        if (document.getElementById('recordar').checked) {
+            localStorage.setItem('loginCorreo', document.querySelector('input[name="correo"]').value);
+        } else {
+            localStorage.removeItem('loginCorreo');
+        }
+    }
+
+    document.getElementsByTagName('form')[0].addEventListener('submit', recordar);
+    if (localStorage.getItem('loginCorreo')) {
+        document.querySelector('input[name="correo"]').value = localStorage.getItem('loginCorreo');
+        document.getElementById('recordar').checked = true;
+    }
+    localStorage.removeItem('correo');
+
+</script>
