@@ -13,7 +13,7 @@ class Bitacora extends Model
         parent::__construct();
     }
 
-    public static function listar(int $estado = null) : Array
+    public function listar(int $estado = null) : Array
     {
         $bd = Database::getInstance();
         $query = "SELECT b.*, t.cedula AS 'usuario_cedula', u.correo as 'usuario_correo'
