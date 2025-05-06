@@ -16,7 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         redirigir(LOCAL_DIR."/Usuarios");
     }
 
-    $roles = Rol::listar(1);
+    $rolObj = new Rol();
+    $roles = $rolObj->listar(1);
 
     require_once "Views/Usuarios/_Actualizar.php";
 }

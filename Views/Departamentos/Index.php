@@ -23,50 +23,8 @@
 </div>
 <div class="page-inner mt--5">
     <div class="card border-0 box-shadow-alt">
-        <div class="card-body p-4">
-            <div class="table-responsive table-dsg">
-                <table class="datatable table table-striped table-hover" id="tabla-departamentos">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Nombre</th>
-                            <th>Pertenece a</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($departamentos as $departamento): ?>
-                            <tr>
-                                <td><?= $departamento->id ?></td>
-                                <td><?= $departamento->getNombre() ?></td>
-                                <td><?= $departamento->departamentoPadre?->getNombre() ?></td>
-                                <td>
-                                    <div class="d-flex justify-content-evenly w-100 gap-3">
-                                        <?php if (tienePermiso(Modulo::DEPARTAMENTOS, Permiso::ACTUALIZAR)): ?>
-                                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
-                                                <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Departamentos/Actualizar?id=<?= $departamento->id ?>">
-                                                    <i class="fa-solid fa-fw fa-pen-to-square"></i>
-                                                </div>
-                                            </div>
-                                        <?php endif ?>
-                                        <?php if (tienePermiso(Modulo::DEPARTAMENTOS, Permiso::ELIMINAR)): ?>
-                                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-                                                    data-bs-modelo="el departamento" 
-                                                    data-bs-nombre="<?= $departamento->getNombre() ?>"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Departamentos/Eliminar?id=<?= $departamento->id ?>">
-                                                    <i class="fa-solid fa-fw fa-trash-can"></i>
-                                                </div>
-                                            </div>
-                                        <?php endif ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach ?>
-                    </tbody>
-                </table>
-            </div>
+        <div class="card-body p-4 d-flex flex-column gap-3">
+        <?= ImprimirAcordeonesAnidados($departamentos) ?>
         </div>
     </div>
 </div>

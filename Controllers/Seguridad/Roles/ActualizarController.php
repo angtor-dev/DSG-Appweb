@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         redirigir(LOCAL_DIR."/Seguridad/Roles");
     }
 
-    $roles = Rol::listar();
+    $roles = $rol->listar();
 
     renderView();
 }

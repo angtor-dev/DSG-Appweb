@@ -1,6 +1,4 @@
 <?php
-require_once "Models/Model.php";
-
 class Bitacora extends Model
 {
     private ?int $idUsuario;

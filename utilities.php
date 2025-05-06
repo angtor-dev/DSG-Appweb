@@ -149,3 +149,61 @@ function debug(mixed $var,$control=true) : void {
     if($control)
         die();
 }
+
+function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null): string {
+    if (empty($models)) return '';
+    $html = '';
+    $table = strtolower(get_class($models[0]));
+    $nombrePadre = $table . 'Padre';
+    $subAreas = array_filter($models, fn($area) => ($area->$nombrePadre === null && $padreId === null) || ($area->$nombrePadre !== null && $area->$nombrePadre->id === $padreId));
+
+    if (!empty($subAreas)) {
+        $html .= 
+        '<div class="accordion tree-accordion">
+            <div class="accordion-item border-0">';
+        foreach ($subAreas as $area) {
+            $tieneSubAreas = array_filter($models, fn($subArea) => $subArea->$nombrePadre !== null && $subArea->$nombrePadre->id === $area->id);
+            $html .= '
+            '.($tieneSubAreas ? '<div class="node-card-container">' : '').'
+            <div class="node-card w-100">
+                <button class="flex-grow-1" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse-'.$area->id.'">
+                    '.(empty(!$tieneSubAreas) ? '<i class="fa-solid fa-caret-down me-2" style="color: var(--gris)"></i>' : '<i class="me-2" style="width: 10px; display: inline-block;"></i>').'
+                    <span class="node-name">'.$area->getNombre().'</span>
+                </button>
+                <div class="node-actions">';
+            if (tienePermiso(Modulo::AREAS, Permiso::ACTUALIZAR)) {
+                $html .= '
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
+                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
+                        data-bs-url="'.LOCAL_DIR.'/Areas/Actualizar?id='.$area->id.'">
+                        <i class="fa-solid fa-fw fa-pen"></i>
+                    </div>
+                </div>';
+            }
+            if (tienePermiso(Modulo::AREAS, Permiso::ELIMINAR)) {
+                $html .= '
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
+                    <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
+                        data-bs-modelo="el área" 
+                        data-bs-nombre="'.$area->getNombre().'"
+                        data-bs-url="'.LOCAL_DIR.'/Areas/Eliminar?id='.$area->id.'">
+                        <i class="fa-solid fa-fw fa-trash"></i>
+                    </div>
+                </div>';
+            }
+            $html .= '
+                    <i class="fa-solid fa-plus" style="color: var(--gris)"></i>
+                </div>
+            </div>';
+            if ($tieneSubAreas) {
+                $html .= '<div id="collapse-'.$area->id.'" class="accordion-collapse collapse show">';
+                $html .= ImprimirAcordeonesAnidados($models, $area->id);
+                $html .= '</div></div>';
+            }
+        }
+        $html .= '</div></div>';
+    }
+
+    return $html;
+}
