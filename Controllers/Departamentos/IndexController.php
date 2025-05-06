@@ -2,8 +2,9 @@
 requiereAutenticacion();
 requierePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR);
 
+$departamentoObj = new Departamento();
 /** @var Departamento[] $departamentos */
-$departamentos = Departamento::listar();
+$departamentos = $departamentoObj->listar();
 
 foreach ($departamentos as $departamento) {
     if ($departamento->idDepartamento != null) {

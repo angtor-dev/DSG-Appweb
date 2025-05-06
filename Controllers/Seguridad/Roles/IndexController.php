@@ -1,7 +1,8 @@
 <?php
 requiereAutenticacion();
-requierePermiso("roles", "consultar");
+requierePermiso(Modulo::ROLES, Permiso::CONSULTAR);
 
-$roles = Rol::listar(1);
+$rolObj = new Rol();
+$roles = $rolObj->listar(1);
 
 renderView();

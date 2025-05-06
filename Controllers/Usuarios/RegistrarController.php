@@ -4,28 +4,24 @@ requierePermiso("usuarios", "registrar");
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
-    $departamentos = Departamento::listar();
+    $departamentoObj = new Departamento();
+    $departamentos = $departamentoObj->listar();
      if(!empty($_GET['cedula'])){
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
 
-        if($Trabajador instanceof Trabajador){
-
-
-
-
+        if($Trabajador instanceof Trabajador) {
             echo json_encode([
                 "cedula" => $Trabajador->getCedula(),
                 "nombre" => $Trabajador->getNombreCompleto(),
                 "departamento" => $Trabajador->departamento->getNombre(),
                 "usuario" => ( Usuario::cargarPorCedula($_GET['cedula']) )?1:null
-                ]);
-        }
-        else{
+            ]);
+        } else {
             echo "{}";
         }
-    }
-    else{
-        $roles = Rol::listar(1);
+    } else {
+        $rolObj = new Rol();
+        $roles = $rolObj->listar(1);
 
         require_once "Views/Usuarios/_Registrar.php";
     }

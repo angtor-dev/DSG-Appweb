@@ -21,7 +21,8 @@ class Rol extends Model
             VALUES (:nombre, :descripcion)";
             
         try {
-            $modulos = Modulo::listar();
+            $moduloObj = new Modulo();
+            $modulos = $moduloObj->listar();
             $this->db->connect();
 
             $this->db->pdo()->beginTransaction();

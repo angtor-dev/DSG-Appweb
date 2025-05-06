@@ -4,7 +4,8 @@ requierePermiso(Modulo::AREAS, Permiso::REGISTRAR);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
-    $areas = Area::listar();
+    $areaObj = new Area();
+    $areas = $areaObj->listar();
     
     require_once "Views/Areas/_Registrar.php";
 }

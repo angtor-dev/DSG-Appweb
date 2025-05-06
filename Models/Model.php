@@ -41,18 +41,17 @@ abstract class Model
      * Si se especifica, retorna las filas donde el estado sea igual al indicado.
      * @return array<self>
      **/
-    public static function listar(int $estado = null): array
+    public function listar(int $estado = null): array
     {
-        $bd = Database::getInstance();
         $table = strtolower(static::class);
         $query = "SELECT * FROM $table" . (isset($estado) ? " WHERE estado = $estado" : "");
 
-        $bd->connect();
+        $this->db->connect();
 
-        $stmt = $bd->pdo()->query($query);
+        $stmt = $this->db->pdo()->query($query);
         $stmt->setFetchMode(PDO::FETCH_CLASS, $table);
 
-        $bd->disconnect();
+        $this->db->disconnect();
 
         if ($stmt->rowCount() == 0) {
             return array();

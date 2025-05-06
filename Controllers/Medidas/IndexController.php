@@ -2,6 +2,7 @@
 requiereAutenticacion();
 requierePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR);
 
-$medidas = Medida::listar();
+$medidaObj = new Medida();
+$medidas = $medidaObj->listar();
 
 renderView();

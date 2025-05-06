@@ -2,8 +2,9 @@
 requiereAutenticacion();
 requierePermiso(Modulo::AREAS, Permiso::CONSULTAR);
 
+$areaObj = new Area();
 /** @var Area[] $areas */
-$areas = Area::listar();
+$areas = $areaObj->listar();
 
 foreach ($areas as $area) {
     if ($area->idArea != null) {
