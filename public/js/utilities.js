@@ -57,7 +57,10 @@ function mostrarExito(mensaje) {
 
 
 /**
- * Hace una peticion ajax con fetch
+ * Hace una peticion fetch y retorna la respuesta o false en caso de error
+ * Recordar que para metodos POST el controlador debe tener 
+ * $_POST = json_decode(file_get_contents("php://input"), true);
+ * no se agrega en el index porque daña los que envían la info desde el formulario
  * @param {string} url la url a la que se va a hacer la peticion
  * @param {Object} obj objeto con las opciones de la peticion
  * @param {string} obj.method el metodo de la peticion, por defecto es "GET"
@@ -66,7 +69,7 @@ function mostrarExito(mensaje) {
  * @param {function} obj.before funcion que se va a ejecutar antes de la peticion
  * @param {function} obj.after funcion que se va a ejecutar despues de la peticion, recibe el estado de la respuesta y el contenido de la respuesta
  * @param {boolean} obj.focus si se va a deshabilitar el elemento que tiene el foco y habilitarlo despues de la peticion
- * @returns {Promise<string>} el contenido de la respuesta
+ * @returns {string|false} el contenido de la respuesta o false en caso de error
  */
 async function peticion (url,obj = {}) {
     // inicializando
@@ -116,14 +119,16 @@ async function peticion (url,obj = {}) {
 
         afterHandler(response,data);
     } catch (error) {
-        if(obj.signal && obj.signal.aborted) return;
-        afterHandler();
+        if(obj.signal && obj.signal.aborted) return false;
+        afterHandler({},error);
         mostrarError("Error de solicitud");
         console.error(error)
-        return;
+        return false;
     }
     return data;
 }
+
+
 
 
 /**
@@ -133,6 +138,7 @@ async function peticion (url,obj = {}) {
  * @returns {boolean} Falso si el elemento no existe, verdadero en caso contrario
  */
 function mostrarLoader(element, show = true) {
+
     if(typeof element === "string") element = document.querySelector(element);
     if(!element){
         console.error("Elemento no encontrado para el loader");
@@ -144,11 +150,20 @@ function mostrarLoader(element, show = true) {
         loader.className = "loader";
         loader.setAttribute("role", "status");
         loader.setAttribute("aria-hidden", "true");
+        if(element.tagName == document.body.tagName) loader.classList.add("loader-body");
         element.appendChild(loader);
-        element.classList.add("position-relative");
+        if(element.classList.contains("position-relative")){
+            element.havedPosition = true;
+        }
+        else{
+            element.classList.add("position-relative");
+        }
     } else {
         element.querySelector(".loader").remove();
-        element.classList.remove("position-relative");
+        if(element.havedPosition){
+            element.classList.remove("position-relative");
+            delete element.havedPosition;
+        }
     }
 }
 
