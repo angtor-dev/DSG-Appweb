@@ -2,6 +2,7 @@
 requiereAutenticacion();
 requierePermiso("bitacora", "consultar");
 
-$bitacoras = Bitacora::listar();
+$bitacoraObj = new Bitacora();
+$bitacoras = $bitacoraObj->listar();
 
 renderView();

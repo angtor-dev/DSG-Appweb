@@ -13,19 +13,18 @@ class Bitacora extends Model
         parent::__construct();
     }
 
-    public static function listar(int $estado = null) : Array
+    public function listar(int $estado = null) : Array
     {
-        $bd = Database::getInstance();
         $query = "SELECT b.*, t.cedula AS 'usuario_cedula', u.correo as 'usuario_correo'
             FROM bitacora as b
             LEFT JOIN usuario as u ON b.idUsuario = u.id
             LEFT JOIN Trabajador as t on t.id = u.idTrabajador";
-        $bd->connect();
+        $this->db->connect();
 
-        $stmt = $bd->pdo()->query($query);
+        $stmt = $this->db->pdo()->query($query);
         $stmt->setFetchMode(PDO::FETCH_CLASS, 'Bitacora');
 
-        $bd->disconnect();
+        $this->db->disconnect();
 
         if ($stmt->rowCount() == 0) {
             return array();
