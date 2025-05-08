@@ -9,9 +9,10 @@ class Tarea extends Model
     public int $idDepartamento;
     public string $descripcion;
     public string $fechaCreacion;
+    public string $estado_tarea;
     public Area $area;
     public Departamento $departamento;
-    public ?TareaAutomatica $tareaAutomatica;
+
 
     public function __construct() {
         parent::__construct();
@@ -21,9 +22,7 @@ class Tarea extends Model
         if (!empty($this->idDepartamento)) {
             $this->departamento = Departamento::cargar($this->idDepartamento);
         }
-        if (!empty($this->id)) {
-            $this->tareaAutomatica = TareaAutomatica::cargarPorTarea($this->id);
-        }
+        
     }
 
     // Método compatible con Model::cargar()
@@ -60,23 +59,6 @@ class Tarea extends Model
         return $consulta->fetchAll();
     }
 
-    public function mapearFormulario() : bool {
-        try {
-            $this->idArea = $_POST['idArea'];
-            $this->idDepartamento = $_POST['idDepartamento'];
-            $this->descripcion = $_POST['descripcion'];
-            
-            if (isset($_POST['esAutomatica']) && $_POST['esAutomatica'] == '1') {
-                $this->tareaAutomatica = new TareaAutomatica();
-                $this->tareaAutomatica->numTrabajadores = $_POST['numTrabajadores'];
-                $this->tareaAutomatica->tiempoEstimado = $_POST['tiempoEstimado'];
-            }
-            
-            return true;
-        } catch (\Throwable $th) {
-            return false;
-        }
-    }
 
     public function esValido() : bool {
         $valido = true;
@@ -94,18 +76,6 @@ class Tarea extends Model
         if (empty(trim($this->descripcion))) {
             $_SESSION['errores'][] = "El campo 'Descripción' es obligatorio";
             $valido = false;
-        }
-        
-        if (isset($this->tareaAutomatica)) {
-            if (empty($this->tareaAutomatica->numTrabajadores) || $this->tareaAutomatica->numTrabajadores <= 0) {
-                $_SESSION['errores'][] = "El número de trabajadores debe ser mayor que cero";
-                $valido = false;
-            }
-            
-            if (empty($this->tareaAutomatica->tiempoEstimado) || $this->tareaAutomatica->tiempoEstimado <= 0) {
-                $_SESSION['errores'][] = "El tiempo estimado debe ser mayor que cero";
-                $valido = false;
-            }
         }
         
         return $valido;
@@ -126,17 +96,6 @@ class Tarea extends Model
             $stmt->execute();
             
             $idTarea = $this->db->pdo()->lastInsertId();
-            
-            if (isset($this->tareaAutomatica)) {
-                $queryAutomatica = "INSERT INTO tareaautomatica (idTarea, numTrabajadores, tiempoEstimado)
-                                  VALUES (:idTarea, :numTrabajadores, :tiempoEstimado);";
-                
-                $stmt = $this->db->pdo()->prepare($queryAutomatica);
-                $stmt->bindValue(":idTarea", $idTarea);
-                $stmt->bindValue(":numTrabajadores", $this->tareaAutomatica->numTrabajadores);
-                $stmt->bindValue(":tiempoEstimado", $this->tareaAutomatica->tiempoEstimado);
-                $stmt->execute();
-            }
             
             $this->db->pdo()->commit();
             $this->db->disconnect();
@@ -166,30 +125,8 @@ class Tarea extends Model
     public function esAutomatica() : bool {
         return isset($this->tareaAutomatica);
     }
-}
 
-class TareaAutomatica extends Model 
-{
-    public int $id;
-    public int $idTarea;
-    public int $numTrabajadores;
-    public int $tiempoEstimado;
-    
-    public static function cargarPorTarea(int $idTarea) : ?TareaAutomatica {
-        $bd = Database::getInstance();
-        $bd->connect();
-        $query = "SELECT * FROM `tareaautomatica` WHERE idTarea = :idTarea;";
-
-        $consulta = $bd->pdo()->prepare($query);
-        $consulta->execute([':idTarea' => $idTarea]);
-        $consulta->setFetchMode(PDO::FETCH_CLASS, "TareaAutomatica");
-
-        $bd->disconnect();
-
-        if ($consulta->rowCount() == 0) {
-            return null;
-        }
-
-        return $consulta->fetch();
+    public function getEstado() : string {
+        return $this->estado_tarea ?? 'Desconocido';
     }
 }
