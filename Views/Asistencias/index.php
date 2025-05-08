@@ -113,7 +113,8 @@
                                         <input required type="date" name="fecha" class="form-control" id="fecha" min="2000-01-01">
                                         <div class="form-text invalid-feedback"></div>
                                     </div>
-                                    <div class="col d-flex justify-content-lg-start align-items-center">
+                                    <div class="col d-flex justify-content-lg-start">
+                                        <label style="opacity: 0 ;" class="no-select">l</label>
                                         <button type="button" class="btn btn-primary text-nowrap" id="btn-cargar" onclick="cargarDepartamentos()">Ver Asistencias</button>
                                     </div>
                                 </div>
@@ -133,11 +134,20 @@
                                         </tbody>
                                     </table>
                                     <div class="container">
-                                        <div class="row justify-content-end">
-                                            <div class="col-3">
-                                                <button type="submit" class="btn btn-primary" id="submit-asistencias">Guardar</button>
+                                        <?php if (tienePermiso('asistencia', Permiso::REGISTRAR)): ?>
+                                            <div class="row justify-content-end">
+                                                <div class="col-3 text-center">
+                                                    <button type="submit" class="btn btn-primary" id="submit-asistencias">Guardar</button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        <?php else: ?>
+                                            <div class="row justify-content-end">
+                                                <div class="col-3 text-center">
+                                                    No posee los permisos para realizar registros
+                                                </div>
+                                            </div>
+                                            <div id="submit-asistencias" class="d-none"></div>
+                                        <?php endif ?>
                                     </div>
                                 </div>
 

@@ -193,7 +193,7 @@ async function cargarDepartamentos() {
 
     function generateTable(obj){
         document.querySelector("#form-table-asistencias table tbody").innerHTML = "";
-        document.querySelector("#form-table-asistencias button[type='submit']").disabled = false;
+        document.querySelector("#submit-asistencias").disabled = false;
         let i = 0;
         // response es un objeto, recorre las propiedades no iterables
         for (const [key, value] of Object.entries(obj)) {
@@ -209,7 +209,7 @@ async function cargarDepartamentos() {
         if(i === 0) {
             let tr = document.createElement("tr");
             tr.innerHTML = `<td colspan="4" class="text-center">No se encontraron registros</td>`;
-            document.querySelector("#form-table-asistencias button[type='submit']").disabled = true;
+            document.querySelector("#submit-asistencias").disabled = true;
             document.querySelector("#form-table-asistencias table tbody").appendChild(tr);
         }
         
