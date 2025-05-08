@@ -1,10 +1,10 @@
 <?php
 requiereAutenticacion();
 requierePermiso(Modulo::AREAS, Permiso::CONSULTAR);
-require_once "Models/Area.php";
 
+$areaObj = new Area();
 /** @var Area[] $areas */
-$areas = Area::listar();
+$areas = $areaObj->listar();
 
 foreach ($areas as $area) {
     if ($area->idArea != null) {

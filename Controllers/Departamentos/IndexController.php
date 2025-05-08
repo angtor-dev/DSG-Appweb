@@ -1,10 +1,10 @@
 <?php
 requiereAutenticacion();
 requierePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR);
-require_once "Models/Departamento.php";
 
+$departamentoObj = new Departamento();
 /** @var Departamento[] $departamentos */
-$departamentos = Departamento::listar();
+$departamentos = $departamentoObj->listar();
 
 foreach ($departamentos as $departamento) {
     if ($departamento->idDepartamento != null) {

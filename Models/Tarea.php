@@ -4,7 +4,6 @@ require_once "Models/Departamento.php";
 
 class Tarea extends Model
 {
-    public int $id;
     public int $idArea;
     public int $idDepartamento;
     public string $descripcion;
@@ -45,7 +44,7 @@ class Tarea extends Model
         return $consulta->fetch();
     }
 
-    public static function listar(...$args) : array {
+    public static function listar(int $estado = null) : array {
         $bd = Database::getInstance();
         $bd->connect();
         $query = "SELECT * FROM `tarea` ORDER BY fechaCreacion DESC;";

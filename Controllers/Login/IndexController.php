@@ -1,6 +1,5 @@
 <?php
 session_destroy();
-require_once "Models/Usuario.php";
 
 if (!empty($_POST)) {
     $correo = $_POST['correo'] ?? "";

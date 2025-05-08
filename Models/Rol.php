@@ -1,8 +1,4 @@
 <?php
-require_once "Models/Model.php";
-require_once "Models/Modulo.php";
-require_once "Models/Permiso.php";
-
 class Rol extends Model
 {
     private string $nombre;
@@ -25,7 +21,8 @@ class Rol extends Model
             VALUES (:nombre, :descripcion)";
             
         try {
-            $modulos = Modulo::listar();
+            $moduloObj = new Modulo();
+            $modulos = $moduloObj->listar();
             $this->db->connect();
 
             $this->db->pdo()->beginTransaction();

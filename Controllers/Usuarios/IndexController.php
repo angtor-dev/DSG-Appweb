@@ -1,7 +1,7 @@
 <?php
 requiereAutenticacion();
 requierePermiso("usuarios", "consultar");
-
-$usuarios = Usuario::listar(1);
+$usuarioObj = new Usuario();
+$usuarios = $usuarioObj->listar(1);
 
 renderView();

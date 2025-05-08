@@ -1,28 +1,27 @@
 <?php
 requiereAutenticacion();
 requierePermiso("usuarios", "registrar");
-require_once "Models/Trabajador.php";
-require_once 'Models/Departamento.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
-    $departamentos = Departamento::listar();
+    $departamentoObj = new Departamento();
+    $departamentos = $departamentoObj->listar();
      if(!empty($_GET['cedula'])){
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
 
-        if($Trabajador instanceof Trabajador){
+        if($Trabajador instanceof Trabajador) {
             echo json_encode([
                 "cedula" => $Trabajador->getCedula(),
                 "nombre" => $Trabajador->getNombreCompleto(),
-                "departamento" => $Trabajador->departamento->getNombre()
-                ]);
-        }
-        else{
+                "departamento" => $Trabajador->departamento->getNombre(),
+                "usuario" => ( Usuario::cargarPorCedula($_GET['cedula']) )?1:null
+            ]);
+        } else {
             echo "{}";
         }
-    }
-    else{
-        $roles = Rol::listar(1);
+    } else {
+        $rolObj = new Rol();
+        $roles = $rolObj->listar(1);
 
         require_once "Views/Usuarios/_Registrar.php";
     }
@@ -32,7 +31,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
     $usuario = new Usuario();
     $usuario->mapearFormulario();
 
-    if ($usuario->esValido() && $usuario->registrar()) {
+    if ($usuario->registrar()) {
         $_SESSION['exitos'][] = "Usuario registrado con exito";
         Bitacora::registrar("Usuario '".$usuario->getCorreo()."' registrado");
     }
