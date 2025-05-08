@@ -57,19 +57,41 @@ function mostrarExito(mensaje) {
 
 
 /**
- * Hace una peticion ajax con fetch
+ * Hace una peticion fetch y retorna la respuesta o false en caso de error
+ * Recordar que para metodos POST el controlador debe tener 
+ * $_POST = json_decode(file_get_contents("php://input"), true);
+ * no se agrega en el index porque daña los que envían la info desde el formulario
  * @param {string} url la url a la que se va a hacer la peticion
  * @param {Object} obj objeto con las opciones de la peticion
  * @param {string} obj.method el metodo de la peticion, por defecto es "GET"
  * @param {Object} obj.headers los headers de la peticion, por defecto solo tiene el content-type como application/json
- * @param {boolean} obj.useLoader si se va a mostrar un loader durante la peticion
+ * @param {string} obj.useLoader Elemento sobre el que se va a mostrar el loader
  * @param {function} obj.before funcion que se va a ejecutar antes de la peticion
  * @param {function} obj.after funcion que se va a ejecutar despues de la peticion, recibe el estado de la respuesta y el contenido de la respuesta
  * @param {boolean} obj.focus si se va a deshabilitar el elemento que tiene el foco y habilitarlo despues de la peticion
- * @returns {Promise<string>} el contenido de la respuesta
+ * @returns {string|false} el contenido de la respuesta o false en caso de error
  */
 async function peticion (url,obj = {}) {
-
+    // inicializando
+    let focusElement;
+    const beforeHandler = ()=> {
+        if(obj.useLoader) mostrarLoader(obj.useLoader,true);
+        if(obj.before) obj.before();
+        if(obj.focus) {
+            focusElement = document.activeElement;
+            focusElement.blur();
+            focusElement.disabled = true;
+        }
+    }
+    const afterHandler = (response = {},data = null) => {
+        if(obj.after) obj.after(response,data);
+        if(obj.useLoader) mostrarLoader(obj.useLoader,false);
+        if(obj.focus && focusElement) {
+            focusElement = document.activeElement;
+            focusElement.disabled = false;
+            focusElement.focus();
+        }
+    }
     let objdefault = {
         method: 'GET',
         headers: {
@@ -79,61 +101,70 @@ async function peticion (url,obj = {}) {
     }
 
     obj = {...objdefault,...obj}
+    let data;
 
-    // si el objeto tiene un parametro before o after se ejecutan antes o despues de la peticion
+    // Petición
 
-        if(obj.useLoader) mostrarLoader(obj.useLoader,true);
-        if(obj.before) obj.before();
-        let focusElement;
-        if(obj.focus && document.activeElement) {
-            focusElement = document.activeElement;
-            focusElement.blur();
-            focusElement.disabled = true;
-        }
+    try {
+        beforeHandler ();
+        
         url = LOCAL_DIR+url;
         let response = await fetch(url, obj);
-        
-        let data = await response.text()
-        
-        if(obj.after) obj.after(response.ok,data);
-        if(obj.useLoader) mostrarLoader(obj.useLoader,false);
-        if(obj.focus) {
-            console.log(focusElement)
-            focusElement.disabled = false;
-            focusElement.focus();
-        }
 
         if (!response.ok) {
-            mostrarError("Error de solicitud");
-            console.error(data)
-            return false;
+            throw new Error(`Response status: ${response.status}`);
         }
         
-    return data;
+        data = await response.text()
 
+        afterHandler(response,data);
+    } catch (error) {
+        if(obj.signal && obj.signal.aborted) return false;
+        afterHandler({},error);
+        mostrarError("Error de solicitud");
+        console.error(error)
+        return false;
+    }
+    return data;
 }
 
+
+
+
 /**
- * mostrar un loader sobre un elemento 
- * colocandolo al final del elemento 
- * @param {Element} element Elemento sobre el que se va a mostrar el loader
- * @param {boolean} [show] si se va a mostrar el loader o no
- * @returns {void}
+ * Muestra u oculta un loader en un elemento. Si el elemento es pasado como string, se buscar  como selector.
+ * @param {HTMLElement|string} element - Elemento en el que se mostrar  el loader
+ * @param {boolean} [show=true] - Indica si se debe mostrar o ocultar el loader
+ * @returns {boolean} Falso si el elemento no existe, verdadero en caso contrario
  */
 function mostrarLoader(element, show = true) {
+
+    if(typeof element === "string") element = document.querySelector(element);
+    if(!element){
+        console.error("Elemento no encontrado para el loader");
+        return false;
+    }
     if (show) {
         if(element.querySelector(".loader")) return false;
         let loader = document.createElement("div");
         loader.className = "loader";
         loader.setAttribute("role", "status");
         loader.setAttribute("aria-hidden", "true");
+        if(element.tagName == document.body.tagName) loader.classList.add("loader-body");
         element.appendChild(loader);
-        element.classList.add("position-relative");
+        if(element.classList.contains("position-relative")){
+            element.havedPosition = true;
+        }
+        else{
+            element.classList.add("position-relative");
+        }
     } else {
         element.querySelector(".loader").remove();
-        element.classList.remove("position-relative");
+        if(element.havedPosition){
+            element.classList.remove("position-relative");
+            delete element.havedPosition;
+        }
     }
-    console.log(element);
 }
 
 /**

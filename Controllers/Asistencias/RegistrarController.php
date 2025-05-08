@@ -1,4 +1,5 @@
 <?php
+$_POST = json_decode(file_get_contents("php://input"), true);
 requiereAutenticacion();
 requierePermiso("usuarios", "registrar");
 
@@ -35,15 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 }
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-    $usuario = new Usuario();
-    $usuario->mapearFormulario();
+    if(isset($_POST['action']) and $_POST['action'] == "Registrar"){
+        http_response_code(200);
+        $asistencia = new Asistencia;
 
-    if ($usuario->esValido() && $usuario->registrar()) {
-        $_SESSION['exitos'][] = "Usuario registrado con exito";
-        Bitacora::registrar("Usuario '".$usuario->getCorreo()."' registrado");
+
+        $asistencia->mapearFormulario();
+        $asistencia->registrar(true);
+        
     }
-
-    redirigir(LOCAL_DIR."/Usuarios");
+    else{
+        http_response_code(404);
+    }
 }
 else
 {

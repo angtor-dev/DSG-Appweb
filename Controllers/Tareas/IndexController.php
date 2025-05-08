@@ -2,6 +2,6 @@
 requiereAutenticacion();
 requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
 
-$tareas = Tarea::listar();
+$tareas = (new Tarea())->listar();
 
 renderView();

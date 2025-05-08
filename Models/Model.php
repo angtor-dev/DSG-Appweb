@@ -120,10 +120,11 @@ abstract class Model
     }
 
     /**
-     * Elimina u oculta la instancia actual en la BD
+     * Elimina la instancia actual de la base de datos de forma logica o fisica
      * 
-     * @param bool $eliminadoLogico Si es true oculta la instancia en la BD (UPDATE estado = 0),
-     * caso contrario elimina la instancia de la BD (DELETE FROM)
+     * @param bool $eliminadoLogico Si se especifica, elimina de forma logica (modifica el estado a 0)
+     *                              Si no se especifica, elimina de forma fisica (borra la fila)
+     * @return bool True si se elimino correctamente, False si hubo un error
      */
     public function eliminar(bool $eliminadoLogico = true) : bool
     {

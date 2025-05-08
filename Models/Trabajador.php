@@ -57,7 +57,7 @@ class Trabajador extends Model
 
     public function esValido() : bool
     {
-        if (empty(trim($this->cedula))) {
+        if ( !isset($this->cedula) || empty(trim($this->cedula))) {
             $_SESSION['errores'][] = "El campo 'Cedula' es obligatorio";
             return false;
         }
@@ -156,6 +156,6 @@ class Trabajador extends Model
         return is_string($this->cargo) ? Cargo::from($this->cargo) : $this->cargo;
     }
     public function getTurno() : Turno {
-        return is_string($this->turno) ? Turno::from($this->turno) : $this->turno;
+        return is_string($this->turno) ? Turno::from(ucfirst($this->turno)) : $this->turno;
     }
 }

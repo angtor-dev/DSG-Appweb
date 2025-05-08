@@ -92,10 +92,14 @@ function agregarValidaciones() {
     // validar al desenfocar campo o al enviar formulario
     iClave.addEventListener('blur', validarClave)
 
-    console.log(iCedula)
 
 
       iCedula.onkeyup= async function(e){
+
+
+        if(iCedula.abortController) iCedula.abortController.abort("nueva peticion");
+        const abortHolder = new AbortController();
+        iCedula.abortController = abortHolder;
         [iCorreo, iIdRol, iClave].forEach(element => {
             element.disabled = true
             element.setValidStatus();
@@ -110,9 +114,11 @@ function agregarValidaciones() {
 
 
         if(regCedula.test(this.value)){
-            let data = await peticion(`/Usuarios/Registrar?cedula=${this.value}`)
+            
+            fetchObj = {useLoader:"#modal-generico .modal-content", signal:abortHolder.signal}
+            let data = await peticion(`/Usuarios/Registrar?cedula=${this.value}`,fetchObj)
+            if(abortHolder.signal.aborted) {return;}
             data = JSON.parse(data)
-            console.log(data)
             if(data.cedula && !data.usuario){
 
                 iCedula.setValidStatus(true)
@@ -137,6 +143,7 @@ function agregarValidaciones() {
         else{
             iCedula.setValidStatus(false,"La cedula debe ser de 7 u 8 digitos")
         }
+        iCedula.abortController = null;
     }
 
     
