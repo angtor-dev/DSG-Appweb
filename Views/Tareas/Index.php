@@ -363,7 +363,7 @@
                  const formTarea = modalGenerico.querySelector('#form-tarea');
                  if (formTarea) {
                      formTarea.addEventListener('submit', function(e) {
-                         e.preventDefault();
+                         
                          // Lógica para enviar el formulario aquí
                          console.log("Formulario enviado desde el modal");
                          // Puedes querer cerrar el modal después de un envío exitoso
