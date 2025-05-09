@@ -74,12 +74,15 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Comunes</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="evaluada-tab" data-bs-toggle="tab" data-bs-target="#evaluada-tab-pane" type="button" role="tab" aria-controls="evaluada-tab-pane" aria-selected="false">Evaluadas</button>
+                </li>
 
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
                     <div class="table-responsive table-dsg">
-                        <table class="datatable table table-striped table-hover" id="tabla-trabajadores"> Tabla 1
+                        <table class="datatable table table-striped table-hover" id="tabla-activas"> 
                             <thead>
                                 <tr>
                                     <th>Id</th>
@@ -92,7 +95,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tareas as $tarea): ?>
+                                <?php foreach ($tareasActivas as $tarea): ?>
 
                                     <tr>
                                         <td><?= $tarea->id ?></td>
@@ -108,7 +111,7 @@
                                                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
                                                     <div data-bs-toggle="modal" data-bs-target="#modal-generico"
                                                         data-bs-url="<?= LOCAL_DIR ?>/Tareas/Detalle?id=<?= $tarea->id ?>">
-                                                        <i class="fa-solid fa-fw fa-eye"></i> <!-- Icono para ver -->
+                                                        <i class="fa-solid fa-fw fa-eye"></i>
                                                     </div>
                                                 </div>
                                                 <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
@@ -140,7 +143,7 @@
                 </div>
                 <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
                     <div class="table-responsive table-dsg">
-                        <table class="datatable table table-striped table-hover" id="tabla-trabajadores"> Tabla 2
+                        <table class="datatable table table-striped table-hover" id="tabla-vencidas"> 
                             <thead>
                                 <tr>
                                     <th>Id</th>
@@ -153,7 +156,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tareas as $tarea): ?>
+                                <?php foreach ($tareasVencidas as $tarea): ?>
                                     <tr>
                                         <td><?= $tarea->id ?></td>
                                         <td><?= $tarea->area->getNombre() ?></td> <!-- Nombre del área -->
@@ -199,7 +202,7 @@
 
                 <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
                     <div class="table-responsive table-dsg">
-                        <table class="datatable table table-striped table-hover" id="tabla-trabajadores"> Tabla 3
+                        <table class="datatable table table-striped table-hover" id="tabla-comunes"> 
                             <thead>
                                 <tr>
                                     <th>Id</th>
@@ -212,7 +215,66 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tareas as $tarea): ?>
+                                <?php foreach ($tareasComunes as $tarea): ?>
+                                    <tr>
+                                        <td><?= $tarea->id ?></td>
+                                        <td><?= $tarea->area->getNombre() ?></td> <!-- Nombre del área -->
+                                        <td><?= $tarea->departamento->getNombre() ?></td> <!-- Nombre del departamento -->
+                                        <td><?= htmlspecialchars($tarea->descripcion) ?></td>
+                                        <td><?= date('d/m/Y H:i', strtotime($tarea->fechaCreacion)) ?></td>
+                                        <td><?= $tarea->getEstado() ?></td>
+                                        <td>
+                                            <div class="d-flex justify-content-evenly w-100 gap-3">
+
+                                                <!-- Botón Ver Detalles -->
+                                                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
+                                                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
+                                                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Detalle?id=<?= $tarea->id ?>">
+                                                        <i class="fa-solid fa-fw fa-eye"></i> <!-- Icono para ver -->
+                                                    </div>
+                                                </div>
+                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
+                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
+                                                        <div data-bs-toggle="modal" data-bs-target="#modal-generico"
+                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Actualizar?id=\">
+                                                            <i class="fa-solid fa-fw fa-pen-to-square"></i>
+                                                        </div>
+                                                    </div>
+                                                <?php endif ?>
+
+                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ELIMINAR)): ?>
+                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
+                                                        <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
+
+                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Eliminar?id=\">
+                                                            <i class="fa-solid fa-fw fa-trash-can"></i>
+                                                        </div>
+                                                    </div>
+                                                <?php endif ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="evaluada-tab-pane" role="tabpanel" aria-labelledby="evaluada-tab" tabindex="0">
+                    <div class="table-responsive table-dsg">
+                        <table class="datatable table table-striped table-hover" id="tabla-evaluada"> 
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Area</th>
+                                    <th>Departamento</th>
+                                    <th>Descripcion</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($tareasComunes as $tarea): ?>
                                     <tr>
                                         <td><?= $tarea->id ?></td>
                                         <td><?= $tarea->area->getNombre() ?></td> <!-- Nombre del área -->
@@ -271,6 +333,33 @@
  <script>
     document.addEventListener('DOMContentLoaded', e => {
         console.log("Index.php DOMContentLoaded");
+
+        new DataTable('#tabla-activas', {
+        pagingType: 'simple_numbers',
+        language: {
+            url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
+        }
+    });
+    
+    new DataTable('#tabla-vencidas', {
+        pagingType: 'simple_numbers',
+        language: {
+            url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
+        }
+    });
+    
+    new DataTable('#tabla-comunes', {
+        pagingType: 'simple_numbers',
+        language: {
+            url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
+        }
+    });
+    new DataTable('#tabla-evaluada', {
+        pagingType: 'simple_numbers',
+        language: {
+            url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
+        }
+    });
 
         // Modal Generico escuhca
         const modalGenerico = document.getElementById('modal-generico');

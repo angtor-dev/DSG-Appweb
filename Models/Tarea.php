@@ -29,7 +29,6 @@ class Tarea extends Model
         }
     }
     
-    // Propiedades privadas para manejo interno
     private array $personalAsignado = [];
     private array $materiales = [];
 
@@ -246,7 +245,7 @@ class Tarea extends Model
         return $consulta->fetch();
     }
 
-    public function listar(int $estado = null) : array {
+    /* public function listar(int $estado = null) : array {
         $bd = Database::getInstance();
         $bd->connect();
         $query = "SELECT * FROM `tarea` ORDER BY fechaCreacion DESC;";
@@ -258,7 +257,64 @@ class Tarea extends Model
         $bd->disconnect();
 
         return $consulta->fetchAll();
+    } */
+    public function listarPorEstado($estado) {
+
+        $bd = Database::getInstance();
+        $bd->connect();
+        $query = "SELECT * FROM `tarea` WHERE estado_tarea = :estado ORDER BY fechaCreacion DESC;";
+
+        $consulta = $bd->pdo()->prepare($query);
+        $consulta->execute([':estado' => $estado]);
+        $consulta->setFetchMode(PDO::FETCH_CLASS, "Tarea");
+
+        $bd->disconnect();
+
+        return $consulta->fetchAll();
     }
+
+    public static function obtenerPorId($id) {
+        $bd = Database::getInstance();
+        $bd->connect();
+        
+        try {
+            $pdo = $bd->pdo();
+            // Obtener datos básicos de la tarea
+            $query = "SELECT t.*, a.nombre as area_nombre, d.nombre as departamento_nombre 
+                      FROM tarea t
+                      LEFT JOIN area a ON t.idArea = a.id
+                      LEFT JOIN departamento d ON t.idDepartamento = d.id
+                      WHERE t.id = :id";
+            
+            $stmt = $pdo->prepare($query);
+            $stmt->execute([':id' => $id]);
+            $stmt->setFetchMode(PDO::FETCH_CLASS, "Tarea");
+            $tarea = $stmt->fetch();
+            
+            if (!$tarea) {
+                return null;
+            }
+            
+            // Obtener personal asignado
+            $queryPersonal = "SELECT tp.idTrabajador, tr.nombre, tr.apellido, d.nombre as departamento
+                              FROM tarea_personal tp
+                              JOIN trabajador tr ON tp.idTrabajador = tr.id
+                              JOIN departamento d ON tr.idDepartamento = d.id
+                              WHERE tp.idTarea = :idTarea";
+            
+            $stmt = $pdo->prepare($queryPersonal);
+            $stmt->execute([':idTarea' => $id]);
+            $tarea->personal = $stmt->fetchAll(PDO::FETCH_OBJ);
+            
+            // materiales y comentarios
+            
+            return $tarea;
+            
+        } finally {
+            $bd->disconnect();
+        }
+    }
+
 
 
 
