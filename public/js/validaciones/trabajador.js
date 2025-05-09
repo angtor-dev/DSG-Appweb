@@ -76,6 +76,20 @@ function validarTelefono(id) {
     return true
 }
 
+function validarFecha(id) {
+    const iFecha = document.getElementById(id)
+    let valor = iFecha.value.trim()
+    iFecha.setValidStatus();
+    if(/\d{4}-\d{2}-\d{2}/.test(valor)) {
+        iFecha.setValidStatus(true)
+        return true
+    }
+    else {
+        iFecha.setValidStatus(false, "Formato de fecha incorrecto")
+        return false
+    };
+}
+
 
 
 
@@ -93,6 +107,7 @@ function agregarValidaciones() {
     const iTurno = document.getElementById('turno')
     const iDepartamento = document.getElementById('departamento')
     const iTelefono = document.getElementById('telefono')
+    const iFechaIngreso = document.getElementById('fecha_ingreso')
     // validar al desenfocar campo o al enviar formulario
 
     iNombre.addEventListener('blur', () => {validarNombre('nombre')})
@@ -101,6 +116,7 @@ function agregarValidaciones() {
     iTurno.addEventListener('change', () => {validarSelect('turno')})
     iDepartamento.addEventListener('change', () => {validarSelect('departamento')})
     iTelefono.addEventListener('blur', () => {validarTelefono('telefono')})
+    iFechaIngreso.addEventListener('change', () => {validarFecha('fecha_ingreso')})
 
 
 
@@ -111,6 +127,7 @@ function agregarValidaciones() {
         iTurno.disabled = true
         iDepartamento.disabled = true
         iTelefono.disabled = true
+        iFechaIngreso.disabled = true
         document.getElementById("btn-submit-registrar").disabled = true
 
 
@@ -134,6 +151,7 @@ function agregarValidaciones() {
                 iTurno.disabled = false
                 iDepartamento.disabled = false
                 iTelefono.disabled = false
+                iFechaIngreso.disabled = false
                 document.getElementById("btn-submit-registrar").disabled = false;
                 console.log("entro")
             }
@@ -157,7 +175,8 @@ function agregarValidaciones() {
             !validarSelect('turno') ||
             !validarCedula('cedula') ||
             !validarSelect('departamento') ||
-            !validarTelefono('telefono')
+            !validarTelefono('telefono') ||
+            !validarFecha('fecha_ingreso')
         ) {
             event.preventDefault()
             event.stopPropagation()

@@ -9,6 +9,7 @@ class Trabajador extends Model
     private string $nombre;
     private string $apellido;
     private string $telefono;
+    private string $fechaIngreso;
     private Cargo|string $cargo;
     private Turno|string $turno;
     public Departamento $departamento;
@@ -49,6 +50,7 @@ class Trabajador extends Model
             $this->cargo = $_POST['cargo'];
             $this->turno = $_POST['turno'];
             $this->idDepartamento = $_POST['departamento'];
+            $this->fechaIngreso = $_POST['fecha_ingreso'];
             return true;
         } catch (\Throwable $th) {
             return false;
@@ -106,7 +108,7 @@ class Trabajador extends Model
 
     public function registrar() : bool
     {
-        $query = "INSERT INTO trabajador (cedula, nombre, apellido, telefono, cargo, turno, idDepartamento) VALUES (:cedula, :nombre, :apellido, :telefono, :cargo, :turno, :idDepartamento);";
+        $query = "INSERT INTO trabajador (cedula, nombre, apellido, telefono, cargo, turno, idDepartamento,fechaIngreso) VALUES (:cedula, :nombre, :apellido, :telefono, :cargo, :turno, :idDepartamento, :fechaIngreso);";
         try {
             $this->db->connect();
 
@@ -119,7 +121,7 @@ class Trabajador extends Model
             $stmt->bindValue("cargo", $this->cargo);
             $stmt->bindValue("turno", $this->turno);
             $stmt->bindValue("idDepartamento", $this->idDepartamento);
-
+            $stmt->bindValue("fechaIngreso", $this->fechaIngreso);
             $stmt->execute();
 
             $this->db->disconnect();
