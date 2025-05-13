@@ -126,12 +126,13 @@
                                 </div>
                                 <div class="col-md-12">
                                     <label for="personal" class="form-label">Seleccione personal</label>
-                                    <select class="form-select select2-multiple" id="personal" name="personal[]" multiple="multiple" required>
-                                        <option value="1">Juan Pérez</option>
-                                        <option value="2">María García</option>
-                                        <option value="3">Carlos López</option>
-                                        <option value="4">Ana Martínez</option>
-                                    </select>
+                                  <select class="form-select select2-multiple" id="personal" name="personal[]" multiple="multiple" 
+                                        data-placeholder="Seleccione personal">
+                                    <option value="1">Juan Pérez</option>
+                                    <option value="2">María García</option>
+                                    <option value="3">Carlos López</option>
+                                    <option value="4">Ana Martínez</option>
+                                </select>
                                     <div class="invalid-feedback">Seleccione al menos un trabajador</div>
                                 </div>
 
@@ -165,10 +166,6 @@
                                     <label for="fecha-inicio" class="form-label">Fecha de inicio</label>
                                     <input type="datetime-local" class="form-control" id="fecha-inicio" name="fecha_inicio" required>
                                     <div class="invalid-feedback">Seleccione una fecha</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="fecha-fin" class="form-label">Fecha estimada de fin</label>
-                                    <input type="datetime-local" class="form-control" id="fecha-fin" name="fecha_fin">
                                 </div>
                                 <div class="col-12 d-flex justify-content-between">
                                     <button type="button" class="btn btn-secondary anterior" data-prev="personal">

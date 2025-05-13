@@ -95,48 +95,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tareasActivas as $tarea): ?>
+                              
 
-                                    <tr>
-                                        <td><?= $tarea->id ?></td>
-                                        <td><?= $tarea->area->getNombre() ?></td> <!-- Nombre del área -->
-                                        <td><?= $tarea->departamento->getNombre() ?></td> <!-- Nombre del departamento -->
-                                        <td><?= htmlspecialchars($tarea->descripcion) ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($tarea->fechaCreacion)) ?></td>
-                                        <td><?= $tarea->getEstado() ?></td>
-
-                                        <td>
-                                            <div class="d-flex justify-content-evenly w-100 gap-3">
-                                                <!-- Botón Ver Detalles -->
-                                                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
-                                                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Detalle?id=<?= $tarea->id ?>">
-                                                        <i class="fa-solid fa-fw fa-eye"></i>
-                                                    </div>
-                                                </div>
-                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
-                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
-                                                        <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Actualizar?id=">
-                                                            <i class="fa-solid fa-fw fa-pen-to-square"></i>
-                                                        </div>
-                                                    </div>
-                                                <?php endif ?>
-                                                <!-- Botón Evaluar Tarea -->
-
-                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ELIMINAR)): ?>
-                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                        <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-
-                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Eliminar?id=\">
-                                                            <i class="fa-solid fa-fw fa-trash-can"></i>
-                                                        </div>
-                                                    </div>
-                                                <?php endif ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach ?>
                             </tbody>
                         </table>
                     </div>
@@ -156,45 +116,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tareasVencidas as $tarea): ?>
-                                    <tr>
-                                        <td><?= $tarea->id ?></td>
-                                        <td><?= $tarea->area->getNombre() ?></td> <!-- Nombre del área -->
-                                        <td><?= $tarea->departamento->getNombre() ?></td> <!-- Nombre del departamento -->
-                                        <td><?= htmlspecialchars($tarea->descripcion) ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($tarea->fechaCreacion)) ?></td>
-                                        <td><?= $tarea->getEstado() ?></td>
-                                        <td>
-                                            <div class="d-flex justify-content-evenly w-100 gap-3">
-
-                                                <!-- Botón Ver Detalles -->
-                                                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
-                                                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Detalle?id=<?= $tarea->id ?>">
-                                                        <i class="fa-solid fa-fw fa-eye"></i> <!-- Icono para ver -->
-                                                    </div>
-                                                </div>
-
-                                                <!-- Botón Evaluar Tarea -->
-                                                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Evaluar">
-                                                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Evaluar?id=<?= $tarea->id ?>">
-                                                        <i class="fa-solid fa-fw fa-clipboard-check"></i> <!-- Icono para evaluar -->
-                                                    </div>
-                                                </div>
-                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ELIMINAR)): ?>
-                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                        <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-
-                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Eliminar?id=\">
-                                                            <i class="fa-solid fa-fw fa-trash-can"></i>
-                                                        </div>
-                                                    </div>
-                                                <?php endif ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach ?>
+                               
                             </tbody>
                         </table>
                     </div>
@@ -215,46 +137,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tareasComunes as $tarea): ?>
-                                    <tr>
-                                        <td><?= $tarea->id ?></td>
-                                        <td><?= $tarea->area->getNombre() ?></td> <!-- Nombre del área -->
-                                        <td><?= $tarea->departamento->getNombre() ?></td> <!-- Nombre del departamento -->
-                                        <td><?= htmlspecialchars($tarea->descripcion) ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($tarea->fechaCreacion)) ?></td>
-                                        <td><?= $tarea->getEstado() ?></td>
-                                        <td>
-                                            <div class="d-flex justify-content-evenly w-100 gap-3">
-
-                                                <!-- Botón Ver Detalles -->
-                                                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
-                                                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Detalle?id=<?= $tarea->id ?>">
-                                                        <i class="fa-solid fa-fw fa-eye"></i> <!-- Icono para ver -->
-                                                    </div>
-                                                </div>
-                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
-                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
-                                                        <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Actualizar?id=\">
-                                                            <i class="fa-solid fa-fw fa-pen-to-square"></i>
-                                                        </div>
-                                                    </div>
-                                                <?php endif ?>
-
-                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ELIMINAR)): ?>
-                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                        <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-
-                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Eliminar?id=\">
-                                                            <i class="fa-solid fa-fw fa-trash-can"></i>
-                                                        </div>
-                                                    </div>
-                                                <?php endif ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach ?>
+                               
                             </tbody>
                         </table>
                     </div>
@@ -274,46 +157,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tareasComunes as $tarea): ?>
-                                    <tr>
-                                        <td><?= $tarea->id ?></td>
-                                        <td><?= $tarea->area->getNombre() ?></td> <!-- Nombre del área -->
-                                        <td><?= $tarea->departamento->getNombre() ?></td> <!-- Nombre del departamento -->
-                                        <td><?= htmlspecialchars($tarea->descripcion) ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($tarea->fechaCreacion)) ?></td>
-                                        <td><?= $tarea->getEstado() ?></td>
-                                        <td>
-                                            <div class="d-flex justify-content-evenly w-100 gap-3">
-
-                                                <!-- Botón Ver Detalles -->
-                                                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
-                                                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Detalle?id=<?= $tarea->id ?>">
-                                                        <i class="fa-solid fa-fw fa-eye"></i> <!-- Icono para ver -->
-                                                    </div>
-                                                </div>
-                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
-                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
-                                                        <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Actualizar?id=\">
-                                                            <i class="fa-solid fa-fw fa-pen-to-square"></i>
-                                                        </div>
-                                                    </div>
-                                                <?php endif ?>
-
-                                                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ELIMINAR)): ?>
-                                                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                        <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-
-                                                            data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Eliminar?id=\">
-                                                            <i class="fa-solid fa-fw fa-trash-can"></i>
-                                                        </div>
-                                                    </div>
-                                                <?php endif ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach ?>
+                               
                             </tbody>
                         </table>
                     </div>
@@ -325,152 +169,208 @@
     </div>
 </div>
 
-<?php renderComponent('ModalEliminar') ?>
+<?php renderComponent('ModalCancelar') ?>
 <?php renderComponent('ModalGenerico') ?>
 
 
  <!-- Scripts necesarios -->
  <script>
-    document.addEventListener('DOMContentLoaded', e => {
-        console.log("Index.php DOMContentLoaded");
+    $(document).ready(function() {
 
-        new DataTable('#tabla-activas', {
-        pagingType: 'simple_numbers',
-        language: {
-            url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
-        }
-    });
-    
-    new DataTable('#tabla-vencidas', {
-        pagingType: 'simple_numbers',
-        language: {
-            url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
-        }
-    });
-    
-    new DataTable('#tabla-comunes', {
-        pagingType: 'simple_numbers',
-        language: {
-            url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
-        }
-    });
-    new DataTable('#tabla-evaluada', {
-        pagingType: 'simple_numbers',
-        language: {
-            url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
-        }
-    });
+       cargarDatos();
 
-        // Modal Generico escuhca
-        const modalGenerico = document.getElementById('modal-generico');
-        if (modalGenerico) {
-            modalGenerico.addEventListener('shown.bs.modal', function () {
-                console.log("Modal se muestraxd");
-
-                // Inicializar selects múltiples dentro del modal
-                modalGenerico.querySelectorAll('.select2-multiple').forEach(el => {
-                    const select = el;
-                    select.classList.add('form-select');
-                    select.setAttribute('style', 'width: 100%');
-                    // select.setAttribute('size', select.options.length);
-                    // Evitar añadir la opción por defecto varias veces si el modal se muestra/oculta
-                    if (!select.querySelector('option[value=""][disabled][selected]')) {
-                         select.insertAdjacentHTML('afterbegin', `<option value="" disabled selected>Seleccione opciones</option>`);
-                    }
-                });
-
-                // Añadir listeners para los botones 'siguiente' dentro del modal
-                modalGenerico.querySelectorAll('.siguiente').forEach(el => {
-                    el.addEventListener('click', function() {
-                        const nextTab = this.dataset.next;
-                        const targetTabButton = modalGenerico.querySelector(`#tabs-tarea .nav-link[href="#${nextTab}"]`);
-                        if (targetTabButton) {
-                            targetTabButton.click();
-                        } else {
-                            console.error(`Botón de pestaña destino con href="#${nextTab}" no encontrado en el modal.`);
-                        }
-                    });
-                });
-
-                // Añadir listeners para los botones 'anterior' dentro del modal
-                modalGenerico.querySelectorAll('.anterior').forEach(el => {
-                    el.addEventListener('click', function() {
-                        const prevTab = this.dataset.prev;
-                        const targetTabButton = modalGenerico.querySelector(`#tabs-tarea .nav-link[href="#${prevTab}"]`);
-                        if (targetTabButton) {
-                            targetTabButton.click();
-                        } else {
-                             console.error(`Botón de pestaña destino con href="#${prevTab}" no encontrado en el modal.`);
-                        }
-                    });
-                });
-
-                // Añadir listener de cambio para el select 'tipo-tarea' dentro del modal
-                const tipoTareaSelect = modalGenerico.querySelector('#tipo-tarea');
-                if (tipoTareaSelect) {
-                    console.log("Select tipo-tarea encontrado en el modal");
-                    tipoTareaSelect.addEventListener('change', function() {
-                        console.log("tipo-tarea cambiado");
-                        const personalSelect = modalGenerico.querySelector('#personal');
-                        const seccionPersonalDiv = modalGenerico.querySelector('#seccion-personal');
-
-                        if (this.value === 'comun') {
-                            if (personalSelect) {
-                                 personalSelect.disabled = true;
-                                 // Resetear valor - ajusta si usas Select2
-                                 personalSelect.value = null; // O '';
-                                 // Si Select2: $(personalSelect).val(null).trigger('change');
-                            } else {
-                                console.warn("Elemento con ID 'personal' no encontrado en el modal.");
-                            }
-
-                            if (seccionPersonalDiv) {
-                                seccionPersonalDiv.style.display = 'none';
-                            } else {
-                                 console.warn("Elemento con ID 'seccion-personal' no encontrado en el modal.");
-                            }
-
-                        } else {
-                             if (personalSelect) {
-                                personalSelect.disabled = false;
-                             } else {
-                                 console.warn("Elemento con ID 'personal' no encontrado en el modal.");
-                             }
-
-                             if (seccionPersonalDiv) {
-                                seccionPersonalDiv.style.display = 'block';
-                             } else {
-                                 console.warn("Elemento con ID 'seccion-personal' no encontrado en el modal.");
-                             }
-                        }
-                    });
-                } else {
-                    console.warn("Elemento con ID 'tipo-tarea' no encontrado en el modal después de mostrarse.");
+    function cargarDatos() {
+        $.get('<?= LOCAL_DIR ?>/Tareas?ajax=true', function(data) {
+            // Destruir DataTables si ya existen
+            if ($.fn.DataTable.isDataTable('#tabla-activas')) {
+                $('.datatable').DataTable().destroy();
+            }
+            
+            // Poblar tablas
+            poblarTabla('#tabla-activas', data.activo);
+            poblarTabla('#tabla-vencidas', data.vencida);
+            poblarTabla('#tabla-comunes', data.comun);
+            poblarTabla('#tabla-evaluada', data.evaluada);
+            
+            // Inicializar DataTables
+            $('.datatable').DataTable({
+                pagingType: 'simple_numbers',
+                language: {
+                    url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
                 }
-
-                 // Añadir listener de submit para el formulario dentro del modal
-                 const formTarea = modalGenerico.querySelector('#form-tarea');
-                 if (formTarea) {
-                     formTarea.addEventListener('submit', function(e) {
-                         
-                         // Lógica para enviar el formulario aquí
-                         console.log("Formulario enviado desde el modal");
-                         // Puedes querer cerrar el modal después de un envío exitoso
-                         // const modal = bootstrap.Modal.getInstance(modalGenerico);
-                         // modal.hide();
-                     });
-                 } else {
-                     console.warn("Formulario con ID 'form-tarea' no encontrado en el modal después de mostrarse.");
-                 }
-
             });
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.error("Error al cargar datos:", textStatus, errorThrown);
+        });
+    }
+
+    function poblarTabla(selector, datos) {
+        const $tabla = $(selector);
+        const tbody = $tabla.find('tbody');
+        tbody.empty();
+        
+        datos.forEach(tarea => {
+            const fila = `
+                <tr>
+                    <td>${tarea.id}</td>
+                    <td>${tarea.area}</td>
+                    <td>${tarea.departamento}</td>
+                    <td>${tarea.descripcion}</td>
+                    <td>${tarea.fecha}</td>
+                    <td>${tarea.estado}</td>
+                    <td>
+                        <div class="d-flex justify-content-evenly w-100 gap-3">
+                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
+                                <div data-bs-toggle="modal" data-bs-target="#modal-generico"
+                                    data-bs-url="<?= LOCAL_DIR ?>/Tareas/Detalle?id=${tarea.id}">
+                                    <i class="fa-solid fa-fw fa-eye"></i>
+                                </div>
+                            </div>
+                            <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
+                                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
+                                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
+                                        data-bs-url="<?= LOCAL_DIR ?>/Tarea/Actualizar?id=${tarea.id}">
+                                        <i class="fa-solid fa-fw fa-pen-to-square"></i>
+                                    </div>
+                                </div>
+                            <?php endif ?>
+                            <?php if (tienePermiso(Modulo::TAREAS, Permiso::ELIMINAR)): ?>
+                                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Cancelar">
+                                    <div data-bs-toggle="modal" data-bs-target="#modal-cancelar"
+                                        data-bs-url="<?= LOCAL_DIR ?>/Tarea/Cancelar?id=${tarea.id}">
+                                        <i class="fa-solid fa-ban"></i>
+                                    </div>
+                                </div>
+                            <?php endif ?>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tbody.append(fila);
+        });
+    }
+
+    window.recargarDatos = function() {
+        cargarDatos();
+    };
+
+    function inicializarDataTables() {
+        $('.datatable').DataTable({
+            pagingType: 'simple_numbers',
+            language: {
+                url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
+            }
+        });
+    }
+
+    // Función para recargar todos los datos
+    window.recargarTablas = function() {
+        $.get('<?= LOCAL_DIR ?>/Tareas?ajax=true', function(data) {
+            poblarTabla('#tabla-activas', data.activo);
+            poblarTabla('#tabla-vencidas', data.vencida);
+            poblarTabla('#tabla-comunes', data.comun);
+            poblarTabla('#tabla-evaluada', data.evaluada);
+            
+            // Re-inicializar DataTables
+            $('.datatable').DataTable().destroy();
+            inicializarDataTables();
+        });
+    };
+
+        $('#modal-generico').on('shown.bs.modal', function() {
+            console.log("Modal se muestra");
+        
+           $(this).find('.select2-multiple').each(function() {
+                $(this).select2({
+                    width: '100%',
+                    placeholder: $(this).data('placeholder') || 'Seleccione opciones',
+                    allowClear: true,
+                    dropdownParent: $(this).closest('.modal-content') // Importante para que funcione en modales
+                });
+            });
+
+            // Botones Siguiente - versión mejorada
+    $(this).find('.siguiente').off('click').on('click', function() {
+        
+        const nextTab = $(this).data('next');
+        const targetTabButton = $(this).closest('.modal-content').find(`#tabs-tarea .nav-link[href="#${nextTab}"]`);
+        if (targetTabButton.length) {
+            targetTabButton.tab('show'); // Usar el método tab() de Bootstrap
         } else {
-            console.warn("Modal con ID 'modal-generico' no encontrado al cargar la página.");
+            console.error(`Botón de pestaña destino con href="#${nextTab}" no encontrado en el modal.`);
         }
+    });
 
-        // El console.log original del handler DOMContentLoaded
-        console.log("asd"); // Manteniendo el console log original
+    // Botones Anterior - versión mejorada
+    $(this).find('.anterior').off('click').on('click', function() {
+        const prevTab = $(this).data('prev');
+        const targetTabButton = $(this).closest('.modal-content').find(`#tabs-tarea .nav-link[href="#${prevTab}"]`);
+        if (targetTabButton.length) {
+            targetTabButton.tab('show'); // Usar el método tab() de Bootstrap
+        } else {
+            console.error(`Botón de pestaña destino con href="#${prevTab}" no encontrado en el modal.`);
+        }
+    });
 
+             // Añadir listener de submit para el formulario dentro del modal
+             const formTarea = $(this).find('#form-tarea');
+             if (formTarea.length) {
+                       // Manejar el envío del formulario
+                        $('#form-tarea').off('submit').on('submit', function(e) {
+                            e.preventDefault();
+                            
+                            // Obtener los datos del formulario
+                            const formData = new FormData(this);
+                            
+                            // Obtener los selects múltiples
+                            const personal = $('#personal').select2('data').map(item => item.id);
+                            const materiales = $('#materiales').select2('data').map(item => item.id);
+                            
+                            // Agregar los arrays al formData
+                            formData.delete('personal[]');
+                            formData.delete('materiales[]');
+                            personal.forEach(id => formData.append('personal[]', id));
+                            materiales.forEach(id => formData.append('materiales[]', id));
+                            
+                            // Mostrar loader o feedback al usuario
+                            const submitBtn = $(this).find('button[type="submit"]');
+                            submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Procesando...');
+                            console.log('Personal seleccionado:', $('#personal').select2('data').map(item => item.id));
+                            console.log('Materiales seleccionados:', $('#materiales').select2('data').map(item => item.id));
+                            // Enviar por AJAX
+                            $.ajax({
+                                url: '<?= LOCAL_DIR ?>/Tareas/Registrar', // Ajusta la ruta según tu controlador
+                                type: 'POST',
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function(response) {
+                                    // Cerrar el modal si el envío fue exitoso
+                                    $('#modal-generico').modal('hide');
+                                    console.log("Tarea registrada correctamente");
+                                    mostrarExito("Tarea registrada correctamente")
+                                    // Recargar la tabla
+                                  recargarDatos();
+                                    // Recargar datos si es necesario
+                                    // location.reload(); o actualizar tabla con AJAX
+                                },
+                                error: function(xhr, status, error) {
+                                    // Mostrar mensaje de error
+                                    console.error("Error al registrar la tarea:", error);
+                                    console.error(xhr.responseText);
+                                    mostrarError('Error al registrar la tarea: ' + xhr.responseText);
+                                    
+                                    // Reactivar el botón
+                                    submitBtn.prop('disabled', false).html('<i class="fa-solid fa-check me-2"></i> Guardar Tarea');
+                                }
+                            });
+                        });
+                     
+                  
+             } else {
+                 console.warn("Formulario con ID 'form-tarea' no encontrado en el modal después de mostrarse.");
+             }
+        });
     });
 </script>
 

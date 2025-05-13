@@ -14,20 +14,20 @@
     <script>
         <?php require_once 'public/js/constantes.php'; ?>
     </script>
+    <script src="<?= LOCAL_DIR ?>/public/lib/jquery-3.7.1.min.js"></script>
 
-    <title><?= APP_NAME ?></title>
+<title><?= APP_NAME ?></title>
 </head>
-    <!-- Menu Lateral -->
-    <?php require "Views/_Componentes/MenuLateral.php" ?>
-    
-    <!-- Header -->
-    <?php require "Views/_Componentes/Header.php" ?>
+<!-- Menu Lateral -->
+<?php require "Views/_Componentes/MenuLateral.php" ?>
 
-    <!-- Contenido Principal -->
-    <main class="main-content">
-        <?= $GLOBALS['view'] ?>
-    </main>
-    
+<!-- Header -->
+<?php require "Views/_Componentes/Header.php" ?>
+
+<!-- Contenido Principal -->
+<main class="main-content">
+    <?= $GLOBALS['view'] ?>
+</main>
     <script src="<?= LOCAL_DIR ?>/public/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="<?= LOCAL_DIR ?>/public/lib/DataTables/datatables.min.js"></script>
     <script src="<?= LOCAL_DIR ?>/public/lib/toastify/toastify.min.js"></script>
