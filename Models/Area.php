@@ -35,6 +35,30 @@ class Area extends Model
         }
     }
 
+    public function actualizar() : bool
+    {
+        $sql = "UPDATE area SET nombre = :nombre, idArea = :idArea WHERE id = :id";
+
+        try {
+            $this->db->connect();
+
+            $stmt = $this->prepare($sql);
+            $stmt->bindValue('nombre', $this->nombre);
+            $stmt->bindValue('idArea', $this->idArea);
+            $stmt->bindValue('id', $this->id);
+
+            $stmt->execute();
+            
+            $this->db->disconnect();
+
+            return true;
+        } catch (\Throwable $th) {
+            if (DEVELOPER_MODE) debug($th);
+            $_SESSION['errores'][] = "Ha ocurrido un error al actualizar el área.";
+            return false;
+        }
+    }
+
     public function mapearFormulario() : bool
     {
         try {
