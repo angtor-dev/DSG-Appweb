@@ -1,12 +1,12 @@
 <?php
-requiereAutenticacion();
-requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
+//requiereAutenticacion();
+//requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
 
 // Endpoint para AJAX
 if (isset($_GET['ajax'])) {
     header('Content-Type: application/json');
     
-    $estados = ['activo', 'vencida', 'comun', 'evaluada'];
+    $estados = ['activo', 'vencida', 'cancelado', 'evaluada'];
     $datos = [];
     
     foreach ($estados as $estado) {
