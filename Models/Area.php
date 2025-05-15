@@ -13,6 +13,37 @@ class Area extends Model
         return true;
     }
 
+    /**
+     * Lista las areas que tienen como padre el area especificada
+     * @param int $idArea
+     * @return Area[]
+     */
+    public function listarSubareas() : array
+    {
+        $query = "SELECT * FROM area WHERE idArea = :idArea";
+
+        try {
+            $this->db->connect();
+
+            $stmt = $this->prepare($query);
+            $stmt->bindValue("idArea", $this->id);
+            $stmt->execute();
+
+            $this->db->disconnect();
+
+            $stmt->setFetchMode(PDO::FETCH_CLASS, $this::class);
+
+            if ($stmt->rowCount() <= 0) {
+                return [];
+            }
+            return $stmt->fetchAll();
+        } catch (\Throwable $th) {
+            if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
+            $_SESSION['errores'][] = "Ocurrio un error al listar las subáreas de {$this->nombre}";
+            return [];
+        }
+    }
+
     public function registrar() : bool {
         $query = "INSERT INTO area (nombre, idArea) VALUES (:nombre, :idArea)";
 
@@ -29,7 +60,7 @@ class Area extends Model
 
             return true;
         } catch (\Throwable $th) {
-            if (DEVELOPER_MODE) debug($th);
+            if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = "Ocurrio un error al registrar el área";
             return false;
         }
