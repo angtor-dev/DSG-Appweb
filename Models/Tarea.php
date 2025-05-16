@@ -224,6 +224,24 @@ class Tarea extends Model
         }
     }
 
+public function cancelar() {
+    $this->db->connect();
+    
+    try {
+        $query = "UPDATE tarea SET estado_tarea = 'cancelado' WHERE id = :id";
+        $stmt = $this->db->pdo()->prepare($query);
+        $stmt->bindValue(":id", $this->id, PDO::PARAM_INT);
+        
+        if (!$stmt->execute()) {
+            throw new Exception("No se pudo cancelar la tarea");
+        }
+        
+      
+    } finally {
+        $this->db->disconnect();
+    }
+}
+
 
     // Método compatible con Model::cargar()
     public static function cargar(int $id) : null|self
