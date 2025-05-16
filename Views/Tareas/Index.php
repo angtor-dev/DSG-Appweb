@@ -29,6 +29,15 @@
                         Mostrar Orden
                     </button>
                 </div>
+                <div>
+                    <button style="padding: .65rem 1.4rem;"
+                        class="btn btn-outline-light rounded-pill"
+                        data-bs-toggle="modal" data-bs-target="#modal-generico" 
+                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Reporte">
+                        <i class="fa-solid fa-file-alt me-2"></i>
+                        Reporte de tareas
+                    </button>
+                </div>
             <?php endif ?>
         </div>
     </div>
@@ -200,9 +209,7 @@
 <script src="public/js/tareas.js"></script>
 
   <script>
-$(document).ready(function() {
-   
-});
+
 
 
 
