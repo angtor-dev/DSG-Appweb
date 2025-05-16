@@ -77,6 +77,9 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="evaluada-tab" data-bs-toggle="tab" data-bs-target="#evaluada-tab-pane" type="button" role="tab" aria-controls="evaluada-tab-pane" aria-selected="false">Evaluadas</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="comun-tab" data-bs-toggle="tab" data-bs-target="#comun-tab-pane" type="button" role="tab" aria-controls="comun-tab-pane" aria-selected="false">Comunes</button>
+                </li>
 
             </ul>
             <div class="tab-content" id="myTabContent">
@@ -162,6 +165,26 @@
                         </table>
                     </div>
                 </div>
+                <div class="tab-pane fade" id="comun-tab-pane" role="tabpanel" aria-labelledby="comun-tab" tabindex="0">
+                    <div class="table-responsive table-dsg">
+                        <table class="datatable table table-striped table-hover" id="tabla-comun"> 
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Area</th>
+                                    <th>Departamento</th>
+                                    <th>Descripcion</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
             </div>
 
@@ -176,10 +199,42 @@
 <?php //agregarScript("tareas.js"); ?>
 <script src="public/js/tareas.js"></script>
 
-    <script> 
-
+  <script>
+$(document).ready(function() {
    
-</script>
+});
+
+
+
+    function addMaterial() {
+        let container = document.getElementById('materiales-container');
+        let index = container.children.length;
+        let html = `
+            <div class="input-group mb-3">
+                <select class="form-select" id="materiales-${index}" name="materiales[${index}][id]">
+                    <option value="" selected disabled>Seleccione un material</option>
+                    <option value="1">Tornillos Milimetrico 2"</option>
+                    <option value="2">Tuercas 10mm  </option>
+                    <option value="3">Madera Liston 2Mtrs</option>
+                    <option value="4">Pintura amarilla aceite galón</option>
+                    <option value="5">Herramientas</option>
+                </select>
+                <input type="number" class="form-control" id="materiales-${index}-cantidad" name="materiales[${index}][cantidad]" min="1" value="1">
+                <button type="button" class="btn btn-outline-secondary" onclick="removeMaterial(${index})">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
+    function removeMaterial(index) {
+        let container = document.getElementById('materiales-container');
+        container.children[index].remove();
+    }
+
+
+</script> 
 
 
  <!-- Scripts necesarios -->

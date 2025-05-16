@@ -6,7 +6,7 @@
 if (isset($_GET['ajax'])) {
     header('Content-Type: application/json');
     
-    $estados = ['activo', 'vencida', 'cancelado', 'evaluada'];
+    $estados = ['activo', 'vencida', 'cancelado', 'evaluada', 'comun'];
     $datos = [];
     
     foreach ($estados as $estado) {
