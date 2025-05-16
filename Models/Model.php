@@ -145,7 +145,8 @@ abstract class Model
 
             return true;
         } catch (\Throwable $th) {
-            if (DEVELOPER_MODE) var_dump($th); // Eliminar esto al crear vista para errores
+            $_SESSION['errores'][] = DEVELOPER_MODE;
+            if (DEVELOPER_MODE) debug($th); // Eliminar esto al crear vista para errores
             $_SESSION['errores'][] = "Ha ocurrido un error al eliminar $tabla.";
             return false;
         }

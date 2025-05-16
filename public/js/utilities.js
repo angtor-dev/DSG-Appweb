@@ -16,6 +16,12 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(tooltipEl => {
     new bootstrap.Tooltip(tooltipEl)
 })
 
+// Select2
+document.querySelectorAll('select.select2').forEach(s => $(s).select2({
+    minimumResultsForSearch: 5,
+    theme: 'bootstrap-5'
+}))
+
 /* Utilidades */
 
 /**

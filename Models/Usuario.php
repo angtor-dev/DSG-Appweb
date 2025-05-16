@@ -196,20 +196,16 @@ class Usuario extends Model
 
     public function esValido() : bool
     {
-        if (empty(trim($this->nombre))) {
-            $_SESSION['errores'][] = "El campo 'Nombre' es obligatorio";
+        if (empty(trim($this->cedula))) {
+            $_SESSION['errores'][] = "El campo 'Cedula' es obligatorio";
             return false;
         }
-        if (!preg_match(REG_ALFANUMERICO, $this->nombre)) {
-            $_SESSION['errores'][] = "El campo 'Nombre' solo puede contener letras y números";
+        if (!preg_match(REG_CEDULA, $this->cedula)) {
+            $_SESSION['errores'][] = "El campo 'Cedula' solo puede contener números";
             return false;
         }
-        if (empty(trim($this->apellido))) {
-            $_SESSION['errores'][] = "El campo 'Apellido' es obligatorio";
-            return false;
-        }
-        if (!preg_match(REG_ALFANUMERICO, $this->apellido)) {
-            $_SESSION['errores'][] = "El campo 'Apellido' solo puede contener letras y números";
+        if (empty($this->idTrabajador)) {
+            $_SESSION['errores'][] = "El usuario debe estar asociado a un trabajador";
             return false;
         }
         return true;
