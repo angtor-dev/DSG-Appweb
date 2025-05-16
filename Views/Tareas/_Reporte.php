@@ -244,136 +244,17 @@
     ventanaImpresion.document.close();
 } */
 
-function generarPDFInforme() {
-    // Implementación similar a imprimir pero para PDF
-    alert("Función de generación de PDF se implementará con la librería correspondiente");
-}
 
-// Variables para los gráficos
-let graficoEstados, graficoTiempos, graficoFrecuencia;
 
 $(document).ready(function() {
-    // Inicializar gráficos
-    inicializarGraficos();
-    
+   
     // Configurar periodo del informe
     const fechaInicio = '01/01/2023';
     const fechaFin = '31/12/2023';
     $('#informe-periodo').text(`${fechaInicio} - ${fechaFin}`);
 });
 
-function inicializarGraficos() {
-    // Gráfico de distribución de tareas
-    const ctxEstados = document.getElementById('grafico-estados').getContext('2d');
-    graficoEstados = new Chart(ctxEstados, {
-        type: 'pie',
-        data: {
-            labels: ['Completadas', 'Pendientes', 'Canceladas', 'En Progreso'],
-            datasets: [{
-                data: [87, 9, 4, 0],
-                backgroundColor: [
-                    '#28a745',
-                    '#ffc107',
-                    '#dc3545',
-                    '#17a2b8'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'right',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}%`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-    
-    // Gráfico de tiempos de ejecución
-    const ctxTiempos = document.getElementById('grafico-tiempos').getContext('2d');
-    graficoTiempos = new Chart(ctxTiempos, {
-        type: 'bar',
-        data: {
-            labels: ['Urgentes', 'Programadas', 'Preventivas', 'Correctivas'],
-            datasets: [{
-                label: 'Tiempo Promedio (días)',
-                data: [2.4, 5.2, 3.7, 4.5],
-                backgroundColor: [
-                    'rgba(220, 53, 69, 0.7)',
-                    'rgba(40, 167, 69, 0.7)',
-                    'rgba(23, 162, 184, 0.7)',
-                    'rgba(108, 117, 125, 0.7)'
-                ],
-                borderColor: [
-                    'rgba(220, 53, 69, 1)',
-                    'rgba(40, 167, 69, 1)',
-                    'rgba(23, 162, 184, 1)',
-                    'rgba(108, 117, 125, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Días'
-                    }
-                }
-            }
-        }
-    });
-    
-    // Gráfico de frecuencia de tareas
-    const ctxFrecuencia = document.getElementById('grafico-frecuencia').getContext('2d');
-    graficoFrecuencia = new Chart(ctxFrecuencia, {
-        type: 'doughnut',
-        data: {
-            labels: ['Rep. tuberías', 'Mant. eléctrico', 'Podas', 'Limpieza', 'Rep. equipos', 'Otros'],
-            datasets: [{
-                data: [45, 32, 28, 25, 20, 100],
-                backgroundColor: [
-                    '#007bff',
-                    '#6610f2',
-                    '#6f42c1',
-                    '#e83e8c',
-                    '#fd7e14',
-                    '#6c757d'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'right',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const value = context.raw;
-                            const percentage = Math.round((value / total) * 100);
-                            return `${context.label}: ${value} (${percentage}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
+
 
 function actualizarGrafico(tipo) {
     graficoEstados.config.type = tipo;
