@@ -352,7 +352,7 @@ class Asistencia extends Model
             $stmt->bindValue("fecha", $this->fecha);
             $stmt->bindValue("turno", $this->turno);
             $stmt->execute();
-            $resp = [];
+            $resp = ["success" => true];
             if ($stmt->rowCount() > 0) {
                 $resp["fechaAsistencia"] = $stmt->fetchColumn();
             }
@@ -375,9 +375,17 @@ class Asistencia extends Model
             }
             $this->db->disconnect();
             if($print) {
-                echo json_encode(["error" => $th->getMessage()]);
+                echo json_encode([
+                    "success" => false, 
+                    "message" => "Error al obtener la lista de asistencias",
+                    "error" => $th->getMessage()
+                ]);
             }
-            return ["error" => $th->getMessage()];
+            return [
+                "success" => false, 
+                "message" => "Error al obtener la lista de asistencias" ,
+                "error" => $th->getMessage()
+            ];
         }
     }
 
