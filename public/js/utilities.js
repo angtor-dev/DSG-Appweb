@@ -55,6 +55,22 @@ function mostrarExito(mensaje) {
     }).showToast();
 }
 
+function mostrarAdvertencia(mensaje) {
+    Toastify({
+        duration: 5000,
+        text: mensaje,
+        gravity: "bottom",
+        position: "center",
+        stopOnFocus: true,
+        close: true,
+        style: {
+            background: "var(--bs-warning)",
+            borderRadius: "8px",
+            color: "var(--bs-dark)"
+        }
+    }).showToast();
+}
+
 
 /**
  * Hace una peticion fetch y retorna la respuesta o false en caso de error
@@ -182,16 +198,38 @@ HTMLSelectElement.prototype.setValidStatus = HTMLInputElement.prototype.setValid
         this.classList.remove('is-invalid')
         this.setCustomValidity("");
         smsContainer ? smsContainer.textContent = "":null;
+        this.isValid = ()=>{ return true }
     } else if(control === false) {
         this.classList.add('is-invalid')
         this.classList.remove('is-valid')
         this.setCustomValidity(mensaje);
         smsContainer ? smsContainer.textContent = mensaje:null;
+        this.isValid = ()=>{ return false }
     }
     else {
         this.classList.remove('is-valid')
         this.classList.remove('is-invalid')
         this.setCustomValidity("");
         smsContainer ? smsContainer.textContent = "":null;
+        this.isValid = ()=>{ return false }
+    }
+}
+
+/**
+ * Parses a JSON string and returns the corresponding JavaScript object.
+ * If parsing fails, logs the error and displays an error message.
+ * 
+ * @param {string} json - The JSON string to be parsed.
+ * @returns {Object} The parsed JavaScript object.
+ */
+function parsearJson(json) {
+    try {
+        return JSON.parse(json);
+    } catch (error) {
+        return {
+            success: false,
+            message: "Error en la solicitud parser",
+            Error: error
+        }
     }
 }
