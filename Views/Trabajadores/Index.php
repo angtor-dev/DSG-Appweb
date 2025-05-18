@@ -1,6 +1,6 @@
 <?php /** @var Trabajador[] $trabajadores */ ?>
 
-<div class="panel-header" style="background-color: red;">
+<div class="panel-header">
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
