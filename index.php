@@ -1,9 +1,9 @@
 <?php
 if (file_exists("user_config.php"))
     require_once "user_config.php";
-require_once "config.php";
-require_once "utilities.php";
-require_once "autoload.php";
+
+require_once "vendor/autoload.php";
+
 session_start();
 
 $defaultController = "Index";
