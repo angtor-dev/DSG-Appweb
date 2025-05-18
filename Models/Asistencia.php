@@ -1,5 +1,6 @@
 
 <?php
+//TODO onchange para onload de hora de entrada
 class Asistencia extends Model
 {
     public int|string $idDepartamento;
@@ -9,11 +10,13 @@ class Asistencia extends Model
     private string $fechaOut;
     private string $status;
     private string $idTrabajador;
+    private string $idAsistencia;
     public Departamento|string $departamento;
-    public Trabajador $trabajador;
     private array $trabajadores;
     // lista de acciones para validar
     const LISTAR_TRABAJADORES = 1;
+    const REGISTRAR_ASISTENCIA = 2;
+    const ELIMINAR_ASISTENCIA = 3;
 
     public function __construct() {
         parent::__construct();
@@ -28,46 +31,78 @@ class Asistencia extends Model
      */
     public function mapearFormulario(){
         if(empty($_POST)) return;
-        $this->fechaIn = $_POST["fechaIn"] ?? "";
-        $this->fechaOut = $_POST["fechaOut"] ?? "";
-        $this->status = $_POST["status"] ?? "";
-        $this->idTrabajador = $_POST["idTrabajador"] ?? "";
-        $this->idDepartamento = $_POST["idDepartamento"] ?? "";
-        $this->fecha = $_POST["fecha"] ?? "";
-        $this->turno = $_POST["turno"] ?? "";
+        $this->fechaIn = trim($_POST["fechaIn"] ?? "");
+        $this->fechaOut = trim($_POST["fechaOut"] ?? "");
+        $this->status = trim($_POST["status"] ?? "");
+        $this->idTrabajador = trim($_POST["idTrabajador"] ?? "");
+        $this->idDepartamento = trim($_POST["idDepartamento"] ?? "");
+        $this->fecha = trim($_POST["fecha"] ?? "");
+        $this->turno = trim($_POST["turno"] ?? "");
         $this->trabajadores = ( isset($_POST['trabajadores']) and is_array($_POST['trabajadores']) ) ? $_POST['trabajadores'] : Array();
+        $this->idAsistencia = trim($_POST["idAsistencia"] ?? "");
     }
-
+    /**
+     * Se debe hacer la conexion antes de llamar a esta funcion
+     * @param mixed $control
+     * @throws \Exception
+     * @return bool
+     */
     public function esValido($control) : bool {
-        if($control == self::LISTAR_TRABAJADORES) {
-            // se espera que el departamento este seteado con el nombre del departametno
-            // y se verifica con la base de datos su existencia
-            if(empty($this->idDepartamento)) {
-                throw new Exception("El departamento no esta seteado");
+        // si el control es listar trabajadores o registrar ajuste
+        // valida el departamento
+        try{
+            
+            if(
+                $control == self::LISTAR_TRABAJADORES
+            ) {
+                    $this->idDepartamento = trim($this->idDepartamento ?? "");
+                    if(empty($this->idDepartamento)) {
+                        $sms = (DEVELOPER_MODE) ? "El departamento no esta seteado":"Debe seleccionar un departamento" ;
+                        throw new Exception($sms);
+                    }
+                    if(!preg_match("/^\d+$/", trim($this->idDepartamento))) {
+                        $sms = (DEVELOPER_MODE) ? "El departamento no es valido ".$this->idDepartamento:"El departamento no es valido" ;
+                        throw new Exception($sms);
+                    }
+                    $stmt = $this->db->pdo();
+                    $stmt = $stmt->prepare("SELECT id FROM departamento WHERE id = :departamento");
+                    $stmt->bindValue("departamento", $this->idDepartamento);
+                $stmt->execute();
+                if($stmt->rowCount() == 0) {
+                    
+                    throw new Exception("El departamento seleccionado no existe en la base de datos");
+                }
+                
+                $this->idDepartamento = $stmt->fetchColumn();
             }
-            if(!preg_match("/^\d$/", trim($this->idDepartamento))) {
-                throw new Exception("El departamento no es valido ".$this->idDepartamento);
+
+            if($control == self::ELIMINAR_ASISTENCIA){
+                if(empty($this->idAsistencia)) {
+                    $sms = (DEVELOPER_MODE) ? "El id de asistencia no esta seteado":"Debe seleccionar un asistencia" ;
+                    throw new Exception($sms);
+                }
+                if(!preg_match("/^\d+$/", $this->idAsistencia)) {
+                    $sms = (DEVELOPER_MODE) ? "El id de asistencia no es valido ".$this->idAsistencia:"El id de asistencia no es valido" ;
+                    throw new Exception($sms);
+                }
             }
-            $this->db->connect();
-            $stmt = $this->db->pdo();
-            $stmt = $stmt->prepare("SELECT id FROM departamento WHERE id = :departamento");
-            $stmt->bindValue("departamento", $this->idDepartamento);
-            $stmt->execute();
-            $this->db->disconnect();
-            if($stmt->rowCount() == 0) {
-                throw new Exception("El departamento no existe en la base de datos");
-            }
-            $this->idDepartamento = $stmt->fetchColumn();
+
+           
             return true;
-        }
-        else {
-            return false;
+       }
+        finally {
+            
         }
     }
 
 
+        /**
+         * Registra la asistencia de los trabajadores en la tabla asistencia y fechaasistencia
+         * @param bool $print Si es true imprime los resultados y no retorna nada
+         * @return array Un array con el resultado de la operacion
+         * @throws Exception Si ocurre un error al registrar la asistencia
+         */
     public function registrar($print) : array {
-        $var = "";
         try {
             // Primero registrar la fecha de asistencia en la tabla fechaasistencia si no existe
             $this->db->connect();
@@ -93,49 +128,76 @@ class Asistencia extends Model
     
             // Ahora registrar las asistencias de los trabajadores en la tabla asistencia
             foreach ($this->trabajadores as $trabajador) {
+
+
                 
-                if ($trabajador['idAsistencia']) {
-                    // Si el trabajador ya tiene un registro de asistencia actualizarlo
-                    if(!preg_match("/^\d+$/", $trabajador['idAsistencia'])) {
-                        throw new Exception("El id de asistencia no es valido");
+                if($trabajador['no_aplica'] == 0 ) {
+                        
+                    if (isset($trabajador['idAsistencia'] )) {
+
+                        // Si el trabajador ya tiene un registro de asistencia actualizarlo
+
+                        $trabajador['idAsistencia'] = trim($trabajador['idAsistencia']);
+                        if(!preg_match("/^\d+$/", $trabajador['idAsistencia'])) {
+                            throw new Exception("El id de asistencia no es valido");
+                        }
+                        $stmt = $this->db->pdo()->prepare("UPDATE asistencia SET fechaIn = :fechaIn, fechaOut = :fechaOut, `status` = :status WHERE id = :idAsistencia");
+                        $stmt->bindValue("fechaIn", ($trabajador['fechaIn'] !="")?$trabajador['fechaIn']:NULL);
+                        $stmt->bindValue("fechaOut", ($trabajador['fechaOut'] != "")?$trabajador['fechaOut']:NULL);
+                        $stmt->bindValue("status", ($trabajador['inasistencia'] !="")?$trabajador['inasistencia']:0);
+                        $stmt->bindValue("idAsistencia", $trabajador['idAsistencia']);
+                        $stmt->execute();
+                        $this->idAsistencia = $idAsistencia = $trabajador['idAsistencia'];
+                    } else {
+                        // Si el trabajador no tiene un registro de asistencia crear
+                        $stmt = $this->db->pdo()->prepare("INSERT INTO asistencia (idTrabajador, idFechaAsistencia, fechaIn, fechaOut, `status`) VALUES (:idTrabajador, :idFechaAsistencia, :fechaIn, :fechaOut, :status)");
+                        $stmt->bindValue("idTrabajador", $trabajador['idTrabajador']);
+                        $stmt->bindValue("idFechaAsistencia", $idFechaAsistencia);
+                        $stmt->bindValue("fechaIn", ($trabajador['fechaIn'] !="")?$trabajador['fechaIn']:NULL);
+                        $stmt->bindValue("fechaOut", ($trabajador['fechaOut'] != "")?$trabajador['fechaOut']:NULL);
+                        $stmt->bindValue("status", ($trabajador['inasistencia'] !="")?$trabajador['inasistencia']:0);
+                        $stmt->execute();
+                        $this->idAsistencia = $idAsistencia = $this->db->pdo()->lastInsertId();
                     }
-                    $stmt = $this->db->pdo()->prepare("UPDATE asistencia SET fechaIn = :fechaIn, fechaOut = :fechaOut, `status` = :status WHERE id = :idAsistencia");
-                    $stmt->bindValue("fechaIn", ($trabajador['fechaIn'] !="")?$trabajador['fechaIn']:NULL);
-                    $stmt->bindValue("fechaOut", ($trabajador['fechaOut'] != "")?$trabajador['fechaOut']:NULL);
-                    $stmt->bindValue("status", ($trabajador['inasistencia'] !="")?$trabajador['inasistencia']:0);
-                    $stmt->bindValue("idAsistencia", $trabajador['idAsistencia']);
-                    $stmt->execute();
-                    $idAsistencia = $trabajador['idAsistencia'];
-                } else {
-                    // Si el trabajador no tiene un registro de asistencia crear
-                    $stmt = $this->db->pdo()->prepare("INSERT INTO asistencia (idTrabajador, idFechaAsistencia, fechaIn, fechaOut, `status`) VALUES (:idTrabajador, :idFechaAsistencia, :fechaIn, :fechaOut, :status)");
-                    $stmt->bindValue("idTrabajador", $trabajador['idTrabajador']);
-                    $stmt->bindValue("idFechaAsistencia", $idFechaAsistencia);
-                    $stmt->bindValue("fechaIn", ($trabajador['fechaIn'] !="")?$trabajador['fechaIn']:NULL);
-                    $stmt->bindValue("fechaOut", ($trabajador['fechaOut'] != "")?$trabajador['fechaOut']:NULL);
-                    $stmt->bindValue("status", ($trabajador['inasistencia'] !="")?$trabajador['inasistencia']:0);
-                    $stmt->execute();
-                    $idAsistencia = $this->db->pdo()->lastInsertId();
+        
+                    // Si el trabajador tiene una inasistencia y si tiene o no una justificacion la registramos
+                    if (intval($trabajador['inasistencia']) == 1) {
+                        $stmt = $this->db->pdo()->prepare("INSERT INTO justificacion (idAsistencias, tipo, observacion) VALUES (:idAsistencias, :tipo, :observacion)
+                        ON DUPLICATE KEY UPDATE tipo = :tipoUpdate, observacion = :observacionUpdate");
+                        $stmt->bindValue(":idAsistencias", $idAsistencia);
+                        $stmt->bindValue(":tipo", ($trabajador['justificacion'] !="")? intval($trabajador['justificacion']):1);
+                        $stmt->bindValue(":observacion", $trabajador['justificacion_descripcion']);
+                        $stmt->bindValue(":tipoUpdate", ($trabajador['justificacion'] !="")? intval($trabajador['justificacion']):1);
+                        $stmt->bindValue(":observacionUpdate", $trabajador['justificacion_descripcion']);
+                        $stmt->execute();
+                    }
+                    // si no tiene en el arreglo pasamos un delete a la justificacion
+                    else{
+                        $stmt = $this->db->pdo()->prepare("DELETE FROM justificacion WHERE idAsistencias = :idAsistencias");
+                        $stmt->bindValue("idAsistencias", $idAsistencia);
+                        $stmt->execute();
+                    }
                 }
-    
-                // Si el trabajador tiene una inasistencia y no tiene justificación debemos registrarla
-                if (intval($trabajador['inasistencia']) == 1) {
-                    $stmt = $this->db->pdo()->prepare("INSERT INTO justificacion (idAsistencias, tipo, observacion) VALUES (:idAsistencias, :tipo, :observacion)
-                    ON DUPLICATE KEY UPDATE tipo = :tipoUpdate, observacion = :observacionUpdate");
-                    $stmt->bindValue(":idAsistencias", $idAsistencia);
-                    $stmt->bindValue(":tipo", ($trabajador['justificacion'] !="")? intval($trabajador['justificacion']):1);
-                    $stmt->bindValue(":observacion", $trabajador['justificacion_descripcion']);
-                    $stmt->bindValue(":tipoUpdate", ($trabajador['justificacion'] !="")? intval($trabajador['justificacion']):1);
-                    $stmt->bindValue(":observacionUpdate", $trabajador['justificacion_descripcion']);
-                    $stmt->execute();
-                }
-                // si no tiene en el arreglo pasamos un delete a la justificacion
                 else{
-                    $stmt = $this->db->pdo()->prepare("DELETE FROM justificacion WHERE idAsistencias = :idAsistencias");
-                    $stmt->bindValue("idAsistencias", $idAsistencia);
-                    $stmt->execute();
+                    if(isset($trabajador['idAsistencia'])) {
+                        $stmt = $this->db->pdo()->prepare("DELETE FROM asistencia WHERE id = :idAsistencia");
+                        $stmt->bindValue("idAsistencia", $trabajador['idAsistencia']);
+                        $stmt->execute();
+                    }
                 }
             }
+
+            // verifico que si se hallan guardado las asistencias, se haga el commit, si una asistencia no tiene guardada los trabajadores se lanza un error
+
+            $stmt = $this->db->pdo()->prepare("SELECT * FROM asistencia WHERE idFechaAsistencia = :idFechaAsistencia");
+            $stmt->bindValue("idFechaAsistencia", $idFechaAsistencia);
+            $stmt->execute();
+            if($stmt->rowCount() == 0) {
+                throw new Exception("No es posible registrar la asistencia sin registro de entrada/salida de almenos un trabajador");
+            }
+
+
+
 
             $this->db->pdo()->commit();
             $this->db->disconnect();
@@ -143,13 +205,19 @@ class Asistencia extends Model
                 "success" => true,
                 "message" => "Asistencia registrada con exito"
             ];
-
-            
     
         } catch (\Throwable $th) {
+            if( 
+                isset($this->db) &&
+                $this->db->pdo() instanceof \PDO &&
+                $this->db->pdo()->inTransaction()
+            ){
+                $this->db->pdo()->rollBack();
+                $this->db->disconnect();
+            }
             $response = [
                 "success" => false,
-                "message" => "Error al registrar la asistencia",
+                "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al registrar la asistencia"),
                 "Error" => $th->getMessage()." : linea: ".$th->getLine(),
             ];
         }
@@ -160,8 +228,45 @@ class Asistencia extends Model
         return $response;
     }
 
-    // si $print es true imprime los resultados y no retorna nada
-    
+    public function eliminarFechaAsistencia($print = false): array {
+        try {
+            $this->db->connect();
+            $this->esValido(self::ELIMINAR_ASISTENCIA);
+            $pdo = $this->db->pdo();
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare("DELETE FROM fechaAsistencia WHERE id = :idAsistencia");
+            $stmt->bindValue("idAsistencia", $this->idAsistencia);
+            $stmt->execute();
+            $this->db->pdo()->commit();
+            $this->db->disconnect();
+            $response = [
+                "success" => true,
+                "message" => "Asistencia eliminada con exito"
+            ];
+            if ($print) {
+                echo json_encode($response);
+            }
+        } catch (\Throwable $th) {
+            if( 
+                isset($this->db) &&
+                $this->db->pdo() instanceof \PDO &&
+                $this->db->pdo()->inTransaction()
+            ){
+                $this->db->pdo()->rollBack();
+                $this->db->disconnect();
+            }
+            $response = [
+                "success" => false,
+                "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al eliminar la asistencia"),
+                "Error" => $th->getMessage()." : linea: ".$th->getLine(),
+            ];
+            if ($print) {
+                echo json_encode($response);
+            }
+        }
+        return $response;
+    }  
+
     /**
      * Muestra la lista de asistencias de los trabajadores
      * @param bool $print Si es true imprime los resultados y no retorna nada
@@ -170,8 +275,8 @@ class Asistencia extends Model
      */
     public function listarAsistenciasTrabajadores($print = false)  {
         try {
-            $this->esValido(self::LISTAR_TRABAJADORES);
             $this->db->connect();
+            $this->esValido(self::LISTAR_TRABAJADORES);
             $pdo = $this->db->pdo();
             $pdo->beginTransaction();
             // optengo la lista de registros de asistencias que cumplan con los filtros
@@ -230,13 +335,8 @@ class Asistencia extends Model
             // se crea un objeto con la lista final a mostrar
 
             $listaFinal = new stdClass();
-            $listaAjustes = [];
             foreach ($asistenciasRegistros as $asistencia) {
                 $asistencia["registro"] = 1;
-                // guardo el ajuste si existe
-                if(isset($asistencia["idAjuste"])) {
-                    $listaAjustes[] = [ "idAjuste" => $asistencia["idAjuste"],"idAsistencia" => $asistencia["idAsistencia"]];
-                }
                 $listaFinal->{"idTrabajador_".$asistencia["idTrabajador"]} = $asistencia;
             }
             foreach ($trabajadoresRegistros as $trabajador) {
@@ -246,40 +346,31 @@ class Asistencia extends Model
                 }
             }
 
-            // si tiene un ajuste se obtiene los datos del ajuste de la base de datos
-            // esta ves no tienen que ver los filtros
-
-            if (count($listaAjustes) > 0) {
-                $query = "SELECT 
-                        a.id
-                        ,a.fechaIn
-                        ,a.fechaOut
-                        ,fa.idDepartamento
-                        ,fa.fecha
-                        ,fa.turno
-
-                        FROM asistencia as a 
-                        LEFT JOIN ajusteasistencia as aj on aj.idAsistenciaAjuste = a.id
-                        LEFT JOIN fechaasistencia as fa on fa.id = a.idFechaAsistencia
-                        WHERE a.id IN";
-                $query .= "(";
-                $query .= implode(",", array_fill(0, count($listaAjustes), "?"));
-                $query .= ")";
-
-                $stmt = $pdo->prepare($query);
-                $stmt->execute(array_column($listaAjustes, "idAsistencia"));
-                foreach ($stmt->fetchAll() as $ajuste) {
-                    $listaFinal->{"idTrabajador_".$ajuste["idTrabajador"]}["Ajuste"] = $ajuste;
-                }
+            // obtener la fechaAsistencia si existe
+            $stmt = $pdo->prepare("
+                SELECT id FROM fechaasistencia WHERE idDepartamento = :idDepartamento AND fecha = :fecha AND turno = :turno
+            ");
+            $stmt->bindValue("idDepartamento", $this->idDepartamento);
+            $stmt->bindValue("fecha", $this->fecha);
+            $stmt->bindValue("turno", $this->turno);
+            $stmt->execute();
+            $resp = [];
+            if ($stmt->rowCount() > 0) {
+                $resp["fechaAsistencia"] = $stmt->fetchColumn();
             }
+            else {
+                $resp["fechaAsistencia"] = "";
+            }
+
+            $resp["listaTrabajadores"] = $listaFinal;
 
             $pdo->commit();
             $pdo = null;
             $this->db->disconnect();
             if($print) {
-                echo json_encode($listaFinal);
+                echo json_encode($resp);
             }
-            return $listaFinal;
+            return $resp;
         } catch (Exception $th) {
             if(isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
                 $pdo->rollBack();
@@ -290,6 +381,125 @@ class Asistencia extends Model
             }
             return ["error" => $th->getMessage()];
         }
+    }
+
+    /**
+     * Generates a report of attendances.
+     *
+     * @param string $fechaInicio The start date for the report in 'YYYY-MM-DD' format.
+     * @param string $fechaFin The end date for the report in 'YYYY-MM-DD' format.
+     * @param string $idDepartamento The ID of the department to filter the report.
+     * @param string $grupo The grouping criteria for the report (e.g., trabajadores, departamentos).
+     * @return array The generated report as an array.
+     * @throws Exception If a database error occurs.
+     */
+
+    public function reporte(?string $fechaInicio, ?string $fechaFin, ?string $idDepartamento = null, ?string $turno = null, ?string $grupo = null) :array {
+
+        try {
+            $this->db->connect();
+            $pdo = $this->db->pdo();
+
+
+            $pdo->beginTransaction();
+            $queryGroup = " ";
+
+            if($grupo == null)
+            {
+                $querySelect ="SELECT
+                t.cedula,
+                t.nombre,
+                t.apellido,
+                fa.fecha,
+                a.fechaIn,
+                a.fechaOut,
+                d.nombre,
+                fa.turno,
+                if(a.status=1,'Asistente','Inasistente') as status ";
+            }
+            else if($grupo == "trabajadores")
+            {
+                $querySelect ="SELECT
+                    t.cedula,
+                    t.nombre,
+                    t.apellido,
+                    COUNT(if(a.status=0,1,NULL)) as inasitencias,
+                    COUNT(if(a.status=0,NULL,1)) as asitencias
+                    ";
+                $queryGroup = "GROUP BY t.cedula";
+            }
+            else if($grupo == "departamentos")
+            {
+                $querySelect ="SELECT
+                    d.id,
+                    d.nombre,
+                    COUNT(if(a.status=0,1,NULL)) as inasitencias,
+                    COUNT(if(a.status=0,NULL,1)) as asitencias
+                    ";
+                $queryGroup = "GROUP BY d.id";
+            }
+            else if($grupo == "turnos")
+            {
+                $querySelect ="SELECT
+                    fa.turno,
+                    COUNT(if(a.status=0,1,NULL)) as inasitencias,
+                    COUNT(if(a.status=0,NULL,1)) as asitencias
+                    ";
+                $queryGroup = "GROUP BY fa.turno";
+            }
+            $queryWhere = " ";
+
+            if($idDepartamento != null){
+                $queryWhere .= "AND fa.idDepartamento = :idDepartamento";
+            }
+
+            if($turno != null){
+                $queryWhere .= " AND fa.turno = :turno";
+            }
+                
+
+
+            $query = "
+            $querySelect 
+            FROM
+                `asistencia` AS a
+            JOIN fechaasistencia AS fa on fa.id = a.idFechaAsistencia
+            JOIN trabajador as t on t.id = a.idTrabajador
+            JOIN departamento as d on d.id = fa.idDepartamento
+            WHERE fa.fecha >= :fechaInicio AND fa.fecha <= :fechaFinal $queryWhere
+            $queryGroup
+            ";
+
+
+
+
+
+            $stmt = $pdo->prepare($query);
+
+            $stmt->bindValue("fechaInicio", $fechaInicio);
+            $stmt->bindValue("fechaFinal", $fechaFin);
+            if($idDepartamento != null){
+                $stmt->bindValue("idDepartamento", $idDepartamento);
+            }
+            if($turno != null){
+                $stmt->bindValue("turno", $turno);
+            }
+
+
+
+            $stmt->execute();
+            $listaFinal = $stmt->fetchAll(PDO::FETCH_NUM);
+            $pdo->commit();
+            $pdo = null;
+            $this->db->disconnect();
+            return $listaFinal;
+            
+        } catch (\Throwable $th) {
+            die ($th->getMessage());
+        }
+
+        return [];
+        
     }
 
     
