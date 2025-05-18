@@ -291,7 +291,6 @@ class Asistencia extends Model
                 ,a.id as idAsistencia
                 ,j.tipo + 0 as tipo_justificacion
                 ,j.observacion as observacion_justificacion
-                ,aj.idAsistenciaAjuste as idAjuste
                 ,1 as registro
                 
                 
@@ -301,7 +300,6 @@ class Asistencia extends Model
             JOIN fechaasistencia as fa on fa.id = a.idFechaAsistencia
             JOIN departamento as d on d.id = fa.idDepartamento
             LEFT JOIN justificacion as j on j.idAsistencias = a.id
-            LEFT JOIN ajusteasistencia as aj on aj.idAsistencia = a.id
             WHERE fa.fecha = :fecha AND d.id = :idDepartamento and fa.turno= :turno
             ");
             $stmt->bindValue("idDepartamento", $this->idDepartamento);
