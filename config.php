@@ -6,7 +6,7 @@ define("APP_NAME", "DSG");
 // en el archivo user_config.php)
 defined('LOCAL_DIR') or define("LOCAL_DIR", "/DSG-Appweb");
 
-defined('DEVELOPER_MODE') or define("DEVELOPER_MODE", false);
+defined('DEVELOPER_MODE') or define("DEVELOPER_MODE", true);
 
 defined('DB_HOST') or define("DB_HOST", "localhost");
 defined('DB_NAME') or define("DB_NAME", "dsg_db");
