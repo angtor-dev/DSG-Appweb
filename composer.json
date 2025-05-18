@@ -1,0 +1,17 @@
+{
+    "name": "uptaeb/dsg",
+    "description": "gestor de tareas del dsg",
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+           "classmap": ["Models"],
+           "files":[
+               "config.php",
+               "utilities.php",
+                "Models/Enums/Turno.php",
+                "Models/Enums/Cargo.php",
+                "Models/Enums/Justificacion.php"
+            ]
+    }
+}
