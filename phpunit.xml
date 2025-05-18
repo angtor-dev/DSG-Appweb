@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit bootstrap="vendor/autoload.php" stopOnFailure="false"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
+	<testsuites>
+		<testsuite name="Asistencias">
+			<directory suffix=".php">
+				test/Asistencias
+			</directory>
+		</testsuite>
+		<!-- 
+		otro se agrega aqui 
+		<testsuite name="Trabajadores (EL nombre aqui no importa solo no se debe repetir)">
+			<directory suffix=".php">
+				test/Trabajadores 
+				(la ruta de la carpeta donde estaran los archivos *test.php )
+				por ejemplo en esa carpeta podrian estar los archivos
+				TrabajadorRegistrarTest.php
+				TrabajadorEliminarTest.php
+				TrabajadorActualizarTest.php
+
+			</directory>
+			El testsuite es para agrupar las pruebas asistencias, inventario, usuarios etc
+		</testsuite> 
+		-->
+
+	</testsuites>
+	
+</phpunit>
