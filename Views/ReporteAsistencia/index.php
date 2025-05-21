@@ -15,70 +15,70 @@
     <div class="card border-0 box-shadow-alt">
         <div class="card-body p-4">
         	<div class="d-table w-100">
-        		<div class="d-table-row">
-        			<div class="d-table-cell px-1">
-        				<label for="fechaInicio" class="form-label">Desde </label>
-        				<input type="date" class="form-control" id="fechaInicio" name="fechaInicio" data-formText="form-text-fechaInicio">
-        				<div id="form-text-fechaInicio" class="form-text invalid-feedback"></div>
-        			</div>
-        			<div class="d-table-cell px-1">
-        				<label for="hasta" class="form-label">Hasta </label>
-        				<input type="date" class="form-control" id="hasta" name="hasta" data-formText="form-text-hasta">
-        				<div id="form-text-hasta" class="form-text invalid-feedback"></div>
-        			</div>
-        			<div class="d-table-cell px-1">
-        				<label for="departamento" class="form-label">Departamento</label>
-        				<select name="departamento" id="departamento" class="form-select">
-								<option value="0">Todos</option>
-							<?php foreach ($departamentos as $departamento): ?>
-								<option value="<?= $departamento->id ?>"><?= $departamento->getNombre() ?></option>
-							<?php endforeach; ?>
-						</select>
-        				<div id="form-text-departamento" class="form-text invalid-feedback"></div>
-        			</div>
+				<div style="display: table-row-group;">
+					<div class="d-table-row">
+						<div class="d-table-cell">
+							<div class="row">
+							
 
-					<div class="d-table-cell px1">
-						<label for="turno" class="form-label">Turno </label>
-						<select name="turno" id="turno" class="form-select">
-							<option value="0">Todos</option>
-							<?php foreach (Turno::cases() as $turno): ?>
-								<option value="<?= $turno->value ?>"><?= ucfirst($turno->value) ?></option>
-							<?php endforeach ?>
-        					
-        				</select>
-						<div id="form-text-turno" class="form-text invalid-feedback"></div>
+
+						
+						
+								<div class="col px-1">
+									<label for="fechaInicio" class="form-label">Desde </label>
+									<input type="date" class="form-control" id="fechaInicio" name="fechaInicio" data-formText="form-text-fechaInicio">
+									<div id="form-text-fechaInicio" class="form-text invalid-feedback"></div>
+								</div>
+								<div class="col px-1">
+									<label for="hasta" class="form-label">Hasta </label>
+									<input type="date" class="form-control" id="hasta" name="hasta" data-formText="form-text-hasta">
+									<div id="form-text-hasta" class="form-text invalid-feedback"></div>
+								</div>
+								<div class="col px-1">
+									<label for="departamento" class="form-label">Departamento</label>
+									<select name="departamento" id="departamento" class="form-select">
+											<option value="">Todos</option>
+										<?php foreach ($departamentos as $departamento): ?>
+											<option value="<?= $departamento->id ?>"><?= $departamento->getNombre() ?></option>
+										<?php endforeach; ?>
+									</select>
+									<div id="form-text-departamento" class="form-text invalid-feedback"></div>
+								</div>
+
+								<div class="col px1">
+									<label for="turno" class="form-label">Turno </label>
+									<select name="turno" id="turno" class="form-select">
+										<option value="">Todos</option>
+										<?php foreach (Turno::cases() as $turno): ?>
+											<option value="<?= $turno->value ?>"><?= ucfirst($turno->value) ?></option>
+										<?php endforeach ?>
+										
+									</select>
+									<div id="form-text-turno" class="form-text invalid-feedback"></div>
+								</div>
+
+								<div class="col px-1">
+									<label for="agrupar" class="form-label">Agrupar por</label>
+									<select name="agrupar" id="agrupar" class="form-select">
+										<option value=""></option>
+										<option value="trabajadores">Trabajadores</option>
+										<option value="departamentos">Departamentos</option>
+										<option value="turnos">Turnos</option>
+									</select>
+									<div id="form-text-agrupar" class="form-text invalid-feedback"></div>
+								</div>
+							</div>
+						</div>
 					</div>
 
-        			<div class="d-table-cell px-1">
-        				<label for="agrupar" class="form-label">Agrupar por</label>
-        				<select name="agrupar" id="agrupar" class="form-select">
-							<option value=""></option>
-        					<option value="trabajadores">Trabajadores</option>
-        					<option value="departamentos">Departamentos</option>
-							<option value="turnos">Turnos</option>
-        				</select>
-        				<div id="form-text-agrupar" class="form-text invalid-feedback"></div>
-        			</div>
-        		</div>
-				<div class="d-table-row">
-					<hr>
-				</div>
-				<div class="d-table-row">
-					<div class="d-table-cell">
-						<table class="table table-borderless table-striped">
-							<tbody>
-								<?php if(isset($lista)): ?>
-									<?php foreach ($lista as $item): ?>
-										<tr>
-											<?php foreach ($item as $data): ?>
-											<td><?= $data ?></td>
-											<?php endforeach ?>
-										</tr>
-									<?php endforeach; ?>
-								<?php endif ?>
-								
-							</tbody>
-						</table>
+
+					<div class="d-table-row">
+						<hr>
+					</div>
+					<div class="d-table-row">
+						<div>
+							<table class="table table-borderless table-striped" id="reporteAsistencia"></table>
+						</div>
 					</div>
 				</div>
         	</div>
@@ -86,10 +86,26 @@
     </div>
 </div>
 
+<?php agregarScript("reporteAsistencias.js") ?>
 
-<script>
+
+
+<!-- <script>
+	document.addEventListener("DOMContentLoaded", () => {
+		const fecha = new Date();
+		// el mes debe obtenerse con los dos digitos
+		const mes = `${fecha.getMonth()+1}`.padStart(2, '0');
+		const anio = fecha.getFullYear();
+		var lastDayOfMonth = new Date(fecha.getFullYear(), fecha.getMonth()+1, 0);
+		document.getElementById("fechaInicio").value = `${anio}-${mes}-01`;
+		document.getElementById("hasta").value = `${anio}-${mes}-${lastDayOfMonth.getDate()}`;
+	})
+
+
+
 	// en la carga de la pagina coloca el rango del mes actual
 	document.addEventListener("DOMContentLoaded", () => {
+		return false;
 		if(!window.location.search){
 			const fecha = new Date();
 			// el mes debe obtenerse con los dos digitos
@@ -109,6 +125,7 @@
 		}
 
 		// si la url no tiene ningun campo get llama a enviar
+		// este se enviara con la fecha actual desde el dia 1 del mes actual hasta el ultimo del mes actual
 		if(!window.location.search) enviar();
 
 		const fechaInicio = document.getElementById("fechaInicio");
@@ -129,6 +146,24 @@
 	
 
 	function enviar (){
+		// enviar por post
+		const fechaInicio = document.getElementById("fechaInicio").value;
+		const hasta = document.getElementById("hasta").value;
+		const departamento = document.getElementById("departamento").value;
+		const turno = document.getElementById("turno").value;
+		const agrupar = document.getElementById("agrupar").value;
+
+
+
+
+
+
+
+
+
+
+
+		return false;
 		setTimeout(() => {
 			
 			const fechaInicio = document.getElementById("fechaInicio").value;
@@ -141,11 +176,11 @@
 			if(turno !== "0") location += `&turno=${turno}`;
 			if(agrupar !== "") location += `&agrupar=${agrupar}`;
 
-			// get url witahout search params
+			// optener url sin los parametros
 			locationTemp = window.location.protocol + "//" + window.location.host + window.location.pathname;
 
 			
 			window.location = locationTemp + location;
 		}, 500);
 	}
-</script>
+</script> -->
