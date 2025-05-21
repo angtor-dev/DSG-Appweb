@@ -400,7 +400,8 @@ class Asistencia extends Model
      * @throws Exception If a database error occurs.
      */
 
-    public function reporte(?string $fechaInicio, ?string $fechaFin, ?string $idDepartamento = null, ?string $turno = null, ?string $grupo = null) :array {
+    public function reporte(?string $fechaInicio, ?string $fechaFin, ?string $idDepartamento = null, ?string $turno = null, ?string $grupo = null, ?bool $print = false) :array {
+
 
         try {
             $this->db->connect();
@@ -408,6 +409,7 @@ class Asistencia extends Model
 
 
             $pdo->beginTransaction();
+            $headerTable = [];
             $queryGroup = " ";
 
             if($grupo == null)
@@ -421,7 +423,18 @@ class Asistencia extends Model
                 a.fechaOut,
                 d.nombre,
                 fa.turno,
-                if(a.status=1,'Asistente','Inasistente') as status ";
+                if(a.status=0,'Asistente','Inasistente') as status ";
+                $headerTable = [
+                    "Cedula",
+                    "Nombre",
+                    "Apellido",
+                    "Fecha",
+                    "Entrada",
+                    "Salida",
+                    "Departamento",
+                    "Turno",
+                    "Estado"
+                ];
             }
             else if($grupo == "trabajadores")
             {
@@ -429,20 +442,33 @@ class Asistencia extends Model
                     t.cedula,
                     t.nombre,
                     t.apellido,
-                    COUNT(if(a.status=0,1,NULL)) as inasitencias,
-                    COUNT(if(a.status=0,NULL,1)) as asitencias
+                    COUNT(if(a.status=1,1,NULL)) as inasitencias,
+                    COUNT(if(a.status=1,NULL,1)) as asitencias
                     ";
                 $queryGroup = "GROUP BY t.cedula";
+                $headerTable = [
+                    "Cedula",
+                    "Nombre",
+                    "Apellido",
+                    "Inasistencias",
+                    "Asistencias"
+                ];
             }
             else if($grupo == "departamentos")
             {
                 $querySelect ="SELECT
                     d.id,
                     d.nombre,
-                    COUNT(if(a.status=0,1,NULL)) as inasitencias,
-                    COUNT(if(a.status=0,NULL,1)) as asitencias
+                    COUNT(if(a.status=1,1,NULL)) as inasitencias,
+                    COUNT(if(a.status=1,NULL,1)) as asitencias
                     ";
                 $queryGroup = "GROUP BY d.id";
+                $headerTable = [
+                    "Id",
+                    "Departamento",
+                    "Inasistencias",
+                    "Asistencias"
+                ];
             }
             else if($grupo == "turnos")
             {
@@ -452,6 +478,11 @@ class Asistencia extends Model
                     COUNT(if(a.status=0,NULL,1)) as asitencias
                     ";
                 $queryGroup = "GROUP BY fa.turno";
+                $headerTable = [
+                    "Turno",
+                    "Inasistencias",
+                    "Asistencias"
+                ];
             }
             $queryWhere = " ";
 
@@ -498,17 +529,33 @@ class Asistencia extends Model
             $pdo->commit();
             $pdo = null;
             $this->db->disconnect();
-            return $listaFinal;
-            
+            $respuesta = [ 
+                "success" => true,
+                "headers" => $headerTable,
+                "data" => $listaFinal 
+            ];
+
         } catch (\Throwable $th) {
-            die ($th->getMessage());
+
+            if( 
+                isset($this->db) &&
+                $this->db->pdo() instanceof \PDO &&
+                $this->db->pdo()->inTransaction()
+            ){
+                $this->db->pdo()->rollBack();
+                $this->db->disconnect();
+            }
+            $respuesta = [
+                "success" => false,
+                "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al reportar asistencias")
+            ];
         }
 
-        return [];
-        
+        if($print) {
+                echo json_encode($respuesta);
+            }
+        return $respuesta;
     }
-
-    
 
 
     // Getters
