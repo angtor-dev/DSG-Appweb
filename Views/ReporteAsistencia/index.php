@@ -75,6 +75,12 @@
 					<div class="d-table-row">
 						<hr>
 					</div>
+					<style>
+						#reporteAsistencia td,
+						#reporteAsistencia th{
+							text-align: left!important;
+						}
+					</style>
 					<div class="d-table-row">
 						<div>
 							<table class="table table-borderless table-striped" id="reporteAsistencia"></table>
