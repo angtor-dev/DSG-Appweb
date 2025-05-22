@@ -9,6 +9,7 @@ class Database
     private string $user;
     private string $password;
     private string $charset;
+    private bool $connected = false;
 
     private function __construct()
     {
@@ -41,6 +42,7 @@ class Database
                 PDO::ATTR_EMULATE_PREPARES => false
             ];
             $this->pdo = new PDO($dns, $this->user, $this->password, $options);
+            $this->connected = true;
             
             return true;
         } catch (\PDOException $e) {
@@ -52,10 +54,16 @@ class Database
     public function disconnect() : void
     {
         unset($this->pdo);
+        $this->connected = false;
     }
 
     public function __serialize(): array
     {
         return array();
+    }
+
+    public function connected() : bool
+    {
+        return $this->connected;
     }
 }
