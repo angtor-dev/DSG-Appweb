@@ -71,50 +71,59 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
+
+
 function changeChart(type = 'line'){
-    if(asistenciasChart){
-        asistenciasChart.config.type = type;
+    const ctx = document.getElementById('asistenciasChart').getContext('2d');
+    
+    if(type == 'bar'){
+        asistenciasChart.data.datasets[0].borderColor = 'rgb(75, 192, 192)';
+        asistenciasChart.data.datasets[0].backgroundColor = 'rgb(75, 192, 192)';
+        asistenciasChart.data.datasets[1].borderColor = 'rgb(255, 99, 132)';
+        asistenciasChart.data.datasets[1].backgroundColor = 'rgb(255, 99, 132)';
 
-        if(type == 'bar'){
-            asistenciasChart.data.datasets[0].borderColor = 'rgb(75, 192, 192)';
-            asistenciasChart.data.datasets[0].backgroundColor = 'rgb(75, 192, 192)';
-            asistenciasChart.data.datasets[1].borderColor = 'rgb(255, 99, 132)';
-            asistenciasChart.data.datasets[1].backgroundColor = 'rgb(255, 99, 132)';
+        // pasa a negativo las inasistencias 
+        asistenciasChart.data.datasets[1].data = asistenciasChart.data.datasets[1].data.map(x => {
+            if(x > 0) return -x;
+            return x;
+        });
 
-            // pasa a negativo las inasistencias 
-            asistenciasChart.data.datasets[1].data = asistenciasChart.data.datasets[1].data.map(x => {
-                if(x > 0) return -x;
-                return x;
-            });
+        
 
-            
-
-        }
-        else if(type == 'line'){
-            asistenciasChart.data.datasets[0].borderColor = 'rgb(75, 192, 192)';
-            asistenciasChart.data.datasets[0].backgroundColor = '';
-            asistenciasChart.data.datasets[1].borderColor = 'rgb(255, 99, 132)';
-            asistenciasChart.data.datasets[1].backgroundColor = '';
-
-            asistenciasChart.data.datasets[1].data = asistenciasChart.data.datasets[1].data.map(x => {
-                if(x < 0) return -x;
-                return x;
-            });
-
-        }
-
-
-        asistenciasChart.update();
     }
+    else if(type == 'line'){
+        asistenciasChart.data.datasets[0].borderColor = 'rgb(75, 192, 192)';
+        asistenciasChart.data.datasets[0].backgroundColor = '';
+        asistenciasChart.data.datasets[1].borderColor = 'rgb(255, 99, 132)';
+        asistenciasChart.data.datasets[1].backgroundColor = '';
+
+        asistenciasChart.data.datasets[1].data = asistenciasChart.data.datasets[1].data.map(x => {
+            if(x < 0) return -x;
+            return x;
+        });
+
+    }
+
+    let data = asistenciasChart.data;
+
+
+
+    asistenciasChart.destroy(); // Destruir la gráfica anterior
+
+    createChart(type);
+
+    asistenciasChart.data = data;
+    asistenciasChart.update();
+
 }
- function createChart(){
+ function createChart(type = 'line'){
         const ctx = document.getElementById('asistenciasChart').getContext('2d');
         if(asistenciasChart){
             asistenciasChart.destroy();
         }
         // Crear la gráfica inicial
              asistenciasChart = new Chart(ctx, {
-                type: "line",
+                type: type,
                 data: {
                     labels: [],
                     datasets: [
@@ -136,7 +145,7 @@ function changeChart(type = 'line'){
                     maintainAspectRatio: false,
                     scales: {
                         y: {
-                            beginAtZero: true,
+                            //beginAtZero: true,
                             title: {
                                 display: true,
                                 text: 'Cantidad'
@@ -177,12 +186,18 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
         
 
         let labels = [];
+        let datos = [];
         let asistencias = [];
         let inasistencias = [];
         
         if(data.success) {
+            if(data.lista.length == 0){
+                mostrarError("No se encontraron datos");
+                //return;
+            }
             data.lista.forEach(element => {
                 labels.push(element[0]);
+                datos.push([element[1], element[2]]);
                 inasistencias.push(element[1]);
                 asistencias.push(element[2]);
             })
