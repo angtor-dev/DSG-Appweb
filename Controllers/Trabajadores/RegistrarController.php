@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         require_once "Models/Trabajador.php";
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
 
-        if($Trabajador instanceof Trabajador){
+        if($Trabajador instanceof Trabajador and $Trabajador->getEstado() == $Trabajador::TRABAJADOR_ACTIVO){
             echo json_encode([
                 "cedula" => $Trabajador->getCedula(),
                 ]);

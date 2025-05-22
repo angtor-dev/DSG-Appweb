@@ -14,11 +14,14 @@ class Trabajador extends Model
     private Cargo|string $cargo;
     private Turno|string $turno;
     public Departamento $departamento;
+    private string $estado;
 
     const REGISTRAR_TRABAJADOR = 1;
     const ELIMINAR_TRABAJADOR = 2;
     const ACTUALIZAR_TRABAJADOR = 3;
     const SHOW_EXCEPTION = 1001;
+    const TRABAJADOR_ACTIVO = "1";
+    const TRABAJADOR_INACTIVO = "0";
 
     public function __construct() {
         parent::__construct();
@@ -129,7 +132,8 @@ class Trabajador extends Model
 
         if($control == self::REGISTRAR_TRABAJADOR){
             $trabajador = Trabajador::cargarPorCedula($this->cedula);
-            if(!empty($trabajador)){
+            $this->estado = "";
+            if(!empty($trabajador) and ( $this->estado = $trabajador->getEstado() ) == self::TRABAJADOR_ACTIVO){
                 throw new Exception("El trabajador con cedula $this->cedula ya existe en la base de datos", self::SHOW_EXCEPTION);
             }
         }
@@ -185,14 +189,21 @@ class Trabajador extends Model
 
     public function registrar($print = true) : Array
     {
-        $query = "INSERT INTO trabajador (cedula, nombre, apellido, telefono, cargo, turno, idDepartamento,fechaIngreso) VALUES (:cedula, :nombre, :apellido, :telefono, :cargo, :turno, :idDepartamento, :fechaIngreso);";
         try {
             
-
+            
             $this->esValido(self::REGISTRAR_TRABAJADOR);
-
+            
             $this->db->connect();
             $this->db->pdo()->beginTransaction();
+
+            
+            if($this->estado == self::TRABAJADOR_INACTIVO){
+                $query = "UPDATE trabajador SET nombre = :nombre, apellido = :apellido, telefono = :telefono, cargo = :cargo, turno = :turno, idDepartamento = :idDepartamento, fechaIngreso = :fechaIngreso, estado = :estado WHERE cedula = :cedula;";
+            }
+            else{
+                $query = "INSERT INTO trabajador (cedula, nombre, apellido, telefono, cargo, turno, idDepartamento,fechaIngreso) VALUES (:cedula, :nombre, :apellido, :telefono, :cargo, :turno, :idDepartamento, :fechaIngreso);";
+            }
 
             $stmt = $this->prepare($query);
 
@@ -204,11 +215,14 @@ class Trabajador extends Model
             $stmt->bindValue("turno", $this->turno);
             $stmt->bindValue("idDepartamento", $this->idDepartamento);
             $stmt->bindValue("fechaIngreso", $this->fechaIngreso);
+            if($this->estado == self::TRABAJADOR_INACTIVO){
+                $stmt->bindValue("estado", 1);
+            }
             $stmt->execute();
 
             Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' registrado", $this->db->pdo());
 
-            //$this->db->pdo()->commit();
+            $this->db->pdo()->commit();
             $this->db->disconnect();
 
             $resp = array(
@@ -412,5 +426,8 @@ class Trabajador extends Model
     }
     public function getIdDepartamento() : int {
         return ($this->departamento instanceof Departamento) ? $this->departamento->id : $this->idDepartamento?? "";
+    }
+    public function getEstado() : string {
+        return $this->estado;
     }
 }
