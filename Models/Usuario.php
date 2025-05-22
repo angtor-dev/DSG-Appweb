@@ -80,7 +80,7 @@ class Usuario extends Model
     public static function cargarPorCedula(string $cedula, int $estado = 1) : Usuario | null
     {
         $bd = Database::getInstance();
-        $query = "SELECT u.*, t.id as idTrabajador FROM Trabajador as t left join usuario as u on t.id = u.id WHERE t.cedula = :cedula AND u.estado = :estado";
+        $query = "SELECT u.*, t.id as idTrabajador FROM Trabajador as t left join usuario as u on t.id = u.idTrabajador WHERE t.cedula = :cedula AND u.estado = :estado";
 
         $bd->connect();
         
