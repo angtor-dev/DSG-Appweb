@@ -93,6 +93,7 @@ async function peticion (url,obj = {}) {
     const beforeHandler = ()=> {
         if(obj.useLoader) mostrarLoader(obj.useLoader,true);
         if(obj.before) obj.before();
+        if(obj.blur) document.activeElement.blur();
         if(obj.focus) {
             focusElement = document.activeElement;
             focusElement.blur();
@@ -232,4 +233,13 @@ function parsearJson(json) {
             Error: error
         }
     }
+}
+
+FormData.prototype.json = function () {
+    let data = {};
+    this.forEach((value, key) => data[key] = value);
+    return data;
+}
+FormData.prototype.text = function () {
+    return JSON.stringify(this.json());
 }
