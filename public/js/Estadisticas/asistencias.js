@@ -186,7 +186,6 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
         
 
         let labels = [];
-        let datos = [];
         let asistencias = [];
         let inasistencias = [];
         
@@ -197,10 +196,16 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
             }
             data.lista.forEach(element => {
                 labels.push(element[0]);
-                datos.push([element[1], element[2]]);
                 inasistencias.push(element[1]);
                 asistencias.push(element[2]);
             })
+
+            /*
+             * se necesita organizar los datos de tal manera que 
+             * labels = ["2022-01", "2022-02", "2022-03"]
+             * asistencias = [1,2,3]
+             * inasistencias = [4,5,6]
+             */
 
             console.log(labels);
             console.log(asistencias);
