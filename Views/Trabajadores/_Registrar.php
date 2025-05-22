@@ -1,5 +1,3 @@
-<?php require_once 'Models/Enums/Turno.php'; ?>
-<?php require_once 'Models/Enums/Cargo.php'; ?>
 <div class="modal-dialog modal-lg">
 <div class="modal-content">
         <div class="modal-header bg-white">
@@ -9,6 +7,7 @@
         </div>
         <div class="modal-body">
             <form method="post" id="form-trabajador">
+                <input type="hidden" id="modificar" value="">
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label for="cedula" class="form-label">Cedula </label>
