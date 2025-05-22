@@ -1,0 +1,109 @@
+
+
+<div class="panel-header">
+    <div class="page-inner">
+        <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
+            <div class="text-white">
+                <h3 class="pb-2">Estadísticas de Asistencias</h3>
+                <span class="opacity-75 mb-2">Muestra las estadísticas de asistencias con filtros</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-inner mt--5">
+    <div class="card border-0 box-shadow-alt">
+        <div class="card-body p-4">
+        	<div class="d-table w-100">
+				<div style="display: table-row-group;">
+					<div class="d-table-row">
+						<div class="d-table-cell">
+							<div class="row">
+						
+								<div class="col px-1">
+									<label for="fechaInicio" class="form-label">Desde </label>
+									<input type="date" class="form-control" id="fechaInicio" name="fechaInicio" data-formText="form-text-fechaInicio">
+									<div id="form-text-fechaInicio" class="form-text invalid-feedback"></div>
+								</div>
+								<div class="col px-1">
+									<label for="hasta" class="form-label">Hasta </label>
+									<input type="date" class="form-control" id="hasta" name="hasta" data-formText="form-text-hasta">
+									<div id="form-text-hasta" class="form-text invalid-feedback"></div>
+								</div>
+								<div class="col px-1">
+									<label for="trabajador" class="form-label">Cedula Trabajador</label>
+									<input type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
+									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
+								</div>
+								<div class="col px-1">
+									<label for="departamento" class="form-label">Departamento</label>
+									<select name="departamento" id="departamento" class="form-select">
+											<option value="">Todos</option>
+										<?php foreach ($departamentos as $departamento): ?>
+											<option value="<?= $departamento->id ?>"><?= $departamento->getNombre() ?></option>
+										<?php endforeach; ?>
+									</select>
+									<div id="form-text-departamento" class="form-text invalid-feedback"></div>
+								</div>
+
+								<div class="col px1 d-none">
+									<label for="turno" class="form-label">Turno </label>
+									<select name="turno" id="turno" class="form-select">
+										<option value="">Todos</option>
+										<?php foreach (Turno::cases() as $turno): ?>
+											<option value="<?= $turno->value ?>"><?= ucfirst($turno->value) ?></option>
+										<?php endforeach ?>
+										
+									</select>
+									<div id="form-text-turno" class="form-text invalid-feedback"></div>
+								</div>
+
+								<div class="col px-1 d-none">
+									<label for="agrupar" class="form-label">Agrupar por</label>
+									<select name="agrupar" id="agrupar" class="form-select">
+										<option value=""></option>
+										<option value="trabajadores">Trabajadores</option>
+										<option value="departamentos">Departamentos</option>
+										<option value="turnos">Turnos</option>
+									</select>
+									<div id="form-text-agrupar" class="form-text invalid-feedback"></div>
+								</div>
+								<div class="col px-1">
+									<button id="filtrar-btn" class="btn btn-primary">Filtrar</button>
+								</div>
+								<div class="col px-1">
+									<button class="btn btn-info" onclick="changeChart()">Lineal</button>
+									<button class="btn btn-info" onclick="changeChart('bar')">Barras</button>
+
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="d-table-row">
+						<hr>
+					</div>
+					<style>
+						#asistenciaChart{
+							width: 100%;
+							height: 400px;
+						}
+					</style>
+					<div class="d-table-row">
+						<div>
+							<canvas id="asistenciasChart" height="400" width="400"></canvas>
+						</div>
+					</div>
+				</div>
+        	</div>
+        </div>
+    </div>
+</div>
+
+<?php agregarLib("chartJs/chart.umd.js") ?>
+<?php agregarScript("Estadisticas/asistencias.js") ?>
+
+
+
+

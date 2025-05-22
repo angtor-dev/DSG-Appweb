@@ -181,6 +181,15 @@
                                         
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                        <a href="/DSG-Appweb/EstadisticasAsistencias" class="mx-3">
+                                            <i class="fa-solid fa-list-check"></i>
+                                            Estadisticas temporal
+                                        </a>
+                                    </td>
+                                    <td></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
