@@ -1,4 +1,6 @@
 <?php
+
+use PhpParser\Node\Expr\Isset_;
 abstract class Model
 {
     public int $id;
@@ -44,11 +46,13 @@ abstract class Model
     public function listar(int $estado = null): array
     {
         $table = strtolower(static::class);
-        $query = "SELECT * FROM $table" . (isset($estado) ? " WHERE estado = $estado" : "");
+        $query = "SELECT * FROM $table" . (isset($estado) ? " WHERE estado = :estado" : "");
 
         $this->db->connect();
 
-        $stmt = $this->db->pdo()->query($query);
+        $stmt = $this->db->pdo()->prepare($query);
+        if(Isset($estado)) $stmt->bindValue('estado', $estado);
+        $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS, $table);
 
         $this->db->disconnect();
