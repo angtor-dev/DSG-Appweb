@@ -127,6 +127,25 @@ function imprimirScripts() : void {
         }
     }
 }
+/**
+* Alamecena el nombre de un script de las lib que sera utilizado en la vista
+* @param string $scriptName Nombre del script (debe estar almacenado en public/lib/)
+*/
+function agregarLib($scriptName) : void {
+    global $viewLibs;
+
+    $viewLibs[] = $scriptName;
+}
+
+function imprimirLibs() : void{
+    global $viewLibs;
+    
+    if (!empty($viewLibs)) {
+        foreach ($viewLibs as $script) {
+            echo '<script src="'.LOCAL_DIR.'/public/lib/'.$script.'"></script>';
+        }
+    }
+}
 
 /**
 * Alamecena el nombre de un archivo css que sera utilizado en la vista
@@ -206,4 +225,19 @@ function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null): string
     }
 
     return $html;
+}
+
+
+/**
+ * Lee el contenido de php://input y lo parsea a un array asociativo
+ * Si el contenido es un array lo pone en $_POST
+ * 
+ * @return void
+ */
+function cargarPost():void {
+    $__TEMP_POST = json_decode(file_get_contents("php://input"), true);
+    // si la encuentra la pone en $_POST
+    if (is_array($__TEMP_POST)) {
+        $_POST = $__TEMP_POST;
+    }
 }
