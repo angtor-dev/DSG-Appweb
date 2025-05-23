@@ -161,12 +161,11 @@ function agregarCss($styleName) : void {
  * Imprime el contenido de una variable en un formato legible y finaliza el programa
  * @param mixed $var variable a imprimir
  */
-function debug(mixed $var,$control=true) : void {
+function debug(mixed $var, bool $endProgram = true) : void {
     echo "<pre>";
     print_r($var);
     echo "</pre>";
-    if($control)
-        die();
+    if($endProgram) exit;
 }
 
 function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null): string {

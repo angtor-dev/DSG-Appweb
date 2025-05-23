@@ -170,26 +170,6 @@
                                     <td>Ejemplo de columna de tabla</td>
                                     <td>6</td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <a href="/DSG-Appweb/ReporteAsistencia" class="mx-3">
-                                            <i class="fa-solid fa-list-check"></i>
-                                            Reportes temporal
-                                        </a>
-                                    </td>
-                                    <td>
-                                        
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a href="/DSG-Appweb/EstadisticasAsistencias" class="mx-3">
-                                            <i class="fa-solid fa-list-check"></i>
-                                            Estadisticas temporal
-                                        </a>
-                                    </td>
-                                    <td></td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
