@@ -6,5 +6,4 @@ enum Turno: string
     case Noche = 'Noche';
     case fin_semana = 'Fin de semana';
     case especial = 'Especial';
-    case Full = 'Full';
 }

@@ -1,9 +1,9 @@
 <?php
 if (file_exists("user_config.php"))
     require_once "user_config.php";
-require_once "config.php";
-require_once "utilities.php";
-require_once "autoload.php";
+
+require_once "vendor/autoload.php";
+
 session_start();
 
 $defaultController = "Index";
@@ -39,3 +39,5 @@ if (is_file("Controllers/".$controllerPath.$controllerName."Controller.php")) {
 http_response_code(404);
 require_once "Views/Home/404.php";
 // TODO ayudas , reportes, estadisticas
+// TODO entender bien que verga es un perfil para nuestros usuarios
+// TODO diagrama de carriles agregar de nuevo en modoficar asistencias que se guarde inconclusa

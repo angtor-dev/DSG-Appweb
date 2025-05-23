@@ -1,13 +1,21 @@
 <?php /** @var Departamento[] $departamentos */ ?>
 
 <style>
-    .cell-justificacion {
-        display: none;
-    }
-    .cell-inasistencia.inasistencia-true + .cell-horas {
+    .cell-justificacion,
+    .cell-inasistencia.inasistencia-true + .cell-horas,
+    .no-aplica-cell {
         display: none;
     }
     .cell-inasistencia.inasistencia-true ~ .cell-justificacion {
+        display: table-cell;
+    }
+    .cell-inasistencia.no-aplica + .cell-horas,
+    .cell-inasistencia.no-aplica > .inasistencia-label,
+    .cell-inasistencia.no-aplica ~ .cell-justificacion,
+    .cell-inasistencia.no-aplica ~ .cell-ajuste {
+        display: none !important;
+    }
+    .cell-inasistencia.no-aplica ~ .no-aplica-cell {
         display: table-cell;
     }
     .cursor-pointer{
@@ -51,8 +59,26 @@
         border-radius: 100%;
     }
 
+    label.check-radio-like > input[type="checkbox"]{
+        display: none;
+    }
+
+    label.check-radio-like > input[type="checkbox"]:checked + .check-feedback::after{
+        background-color: var(--color);
+        
+    }
+
+
     .inasistencia-check:checked+.check-feedback::after{
         background-color: var(--color);
+    }
+
+    .ajuste-btn{
+        display: none;
+    }
+
+    .cell-inasistencia.inasistencia-true ~ .cell-ajuste > .ajuste-btn.ajuste-btn-active{
+        display: block;
     }
 
 </style>
@@ -83,6 +109,7 @@
     <div class="card border-0 box-shadow-alt">
         <div class="card-body p-4">
             <div class="container w-100 overflow-auto">
+                <input type="hidden" name="fecha" id="fechaAsistencia">
                 <form id="form-table-asistencias" class="d-table w-100">
                     <div style="display: table-row-group">
                         <div class="d-table-row">
@@ -113,9 +140,9 @@
                                         <input required type="date" name="fecha" class="form-control" id="fecha" min="2000-01-01">
                                         <div class="form-text invalid-feedback"></div>
                                     </div>
-                                    <div class="col d-flex justify-content-lg-start">
+                                    <div class="col">
                                         <label style="opacity: 0 ;" class="no-select">l</label>
-                                        <button type="button" class="btn btn-primary text-nowrap" id="btn-cargar" onclick="cargarDepartamentos()">Ver Asistencias</button>
+                                        <button type="button" class="btn btn-primary text-nowrap no-select" id="btn-cargar" onclick="cargarDepartamentos()">Ver Asistencias</button>
                                     </div>
                                 </div>
                             </div>
@@ -134,20 +161,27 @@
                                         </tbody>
                                     </table>
                                     <div class="container">
-                                        <?php if (tienePermiso('asistencia', Permiso::REGISTRAR)): ?>
-                                            <div class="row justify-content-end">
-                                                <div class="col-3 text-center">
-                                                    <button type="submit" class="btn btn-primary" id="submit-asistencias">Guardar</button>
+                                        <div class="row justify-content-end">
+
+                                            <?php if (tienePermiso('asistencias', Permiso::ELIMINAR)): ?>
+                                                <div class="col-auto text-center d-none">
+                                                    <button type="button" class="btn btn-danger" id="eliminar-asistencias">Eliminar</button>
                                                 </div>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="row justify-content-end">
-                                                <div class="col-3 text-center">
-                                                    No posee los permisos para realizar registros
-                                                </div>
-                                            </div>
-                                            <div id="submit-asistencias" class="d-none"></div>
-                                        <?php endif ?>
+                                            <?php endif ?>
+
+                                        
+                                            <?php if (tienePermiso('asistencias', Permiso::REGISTRAR)): ?>
+                                                    <div class="col-auto text-center">
+                                                        <button type="submit" class="btn btn-primary" id="submit-asistencias">Guardar</button>
+                                                    </div>
+                                            <?php else: ?>
+                                                    <div class="col-auto text-center">
+                                                        No posee los permisos para realizar registros
+                                                    </div>
+                                                <div id="submit-asistencias" class="d-none"></div>
+                                            <?php endif ?>
+
+                                        </div>
                                     </div>
                                 </div>
 
@@ -161,8 +195,8 @@
 </div>
 
 <?php renderComponent('ModalGenerico') ?>
+<?php renderComponent('modalEliminarPromise') ?>
 
 
 
 <?php agregarScript("asistencias.js") ?>
-<?php // agregarScript("validaciones/trabajador.js") ?>

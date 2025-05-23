@@ -1,6 +1,6 @@
 <?php /** @var Trabajador[] $trabajadores */ ?>
 
-<div class="panel-header" style="background-color: red;">
+<div class="panel-header">
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
@@ -53,17 +53,14 @@
                                         <?php if (tienePermiso(Modulo::TRABAJADORES, Permiso::ACTUALIZAR)): ?>
                                             <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
                                                 <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Actualizar?id=<?= $trabajador->id ?>">
+                                                    data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Actualizar?cedula=<?= $trabajador->getCedula() ?>" >
                                                     <i class="fa-solid fa-fw fa-pen-to-square"></i>
                                                 </div>
                                             </div>
                                         <?php endif ?>
                                         <?php if (tienePermiso(Modulo::TRABAJADORES, Permiso::ELIMINAR)): ?>
-                                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-                                                    data-bs-modelo="al trabajador" 
-                                                    data-bs-nombre="<?= $trabajador->getNombreCompleto() ?>"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Eliminar?id=<?= $trabajador->id ?>">
+                                            <div class="accion pointer accion-eliminar" data-bs-toggle="tooltip" data-bs-title="Eliminar" data-trabajador ="<?= $trabajador->getCedula() ?>" data-nombre="<?= $trabajador->getNombreCompleto() ?>">
+                                                <div>
                                                     <i class="fa-solid fa-fw fa-trash-can"></i>
                                                 </div>
                                             </div>
@@ -79,7 +76,7 @@
     </div>
 </div>
 
-<?php renderComponent('ModalEliminar') ?>
+<?php renderComponent('modalEliminarPromise') ?>
 <?php renderComponent('ModalGenerico') ?>
 
 <script>

@@ -1,4 +1,5 @@
 <?php
+cargarPost();
 requiereAutenticacion();
 requierePermiso(Modulo::TRABAJADORES, Permiso::REGISTRAR);
 
@@ -10,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         require_once "Models/Trabajador.php";
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
 
-        if($Trabajador instanceof Trabajador){
+        if($Trabajador instanceof Trabajador and $Trabajador->getEstado() == $Trabajador::TRABAJADOR_ACTIVO){
             echo json_encode([
                 "cedula" => $Trabajador->getCedula(),
                 ]);
@@ -26,24 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 }
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
+    
     $Trabajador = new Trabajador();
     $Trabajador->mapearFormulario();
 
-    if ($Trabajador->esValido() && $Trabajador->registrar()) {
+    if ($Trabajador->registrar()["success"]) {
         $_SESSION['exitos'][] = "Trabajador registrado con exito";
-        Bitacora::registrar("Trabajador '".$Trabajador->getNombreCompleto()."' registrado");
     }
 
-    redirigir(LOCAL_DIR."/Trabajadores");
-    // $usuario = new Usuario();
-    // $usuario->mapearFormulario();
-
-    // if ($usuario->esValido() && $usuario->registrar()) {
-    //     $_SESSION['exitos'][] = "Usuario registrado con exito";
-    //     Bitacora::registrar("Usuario '".$usuario->getCorreo()."' registrado");
-    // }
-
-    // redirigir(LOCAL_DIR."/Usuarios");
 }
 else
 {

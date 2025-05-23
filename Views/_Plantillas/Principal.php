@@ -37,6 +37,8 @@
     <script src="<?= LOCAL_DIR ?>/public/js/main.js"></script>
     <script src="<?= LOCAL_DIR ?>/public/js/utilities.js"></script>
 
+    <?php imprimirLibs(); ?>
+
     <!-- Agrega scripts adicionales -->
     <?php imprimirScripts(); ?>
     

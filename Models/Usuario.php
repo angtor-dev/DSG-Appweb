@@ -80,7 +80,7 @@ class Usuario extends Model
     public static function cargarPorCedula(string $cedula, int $estado = 1) : Usuario | null
     {
         $bd = Database::getInstance();
-        $query = "SELECT u.*, t.id as idTrabajador FROM Trabajador as t left join usuario as u on t.id = u.id WHERE t.cedula = :cedula AND u.estado = :estado";
+        $query = "SELECT u.*, t.id as idTrabajador FROM Trabajador as t left join usuario as u on t.id = u.idTrabajador WHERE t.cedula = :cedula AND u.estado = :estado";
 
         $bd->connect();
         
@@ -123,16 +123,24 @@ class Usuario extends Model
 
     public function registrar() : bool
     {  
+        if(!$this->esValido()) return false;
+
+
         
 
-        $query = "INSERT INTO usuario (idTrabajador, idRol, correo, clave)
-            VALUES (:idTrabajador, :idRol, :correo, :clave)";
             
         try {
             $this->db->connect();
 
-            //$this->db->pdo()->beginTransaction();
+            $stmt = $this->prepare("SELECT id FROM usuario WHERE correo = :correo");
+            $stmt->execute(array("correo" => $this->correo));
+            if ($stmt->rowCount() > 0) {
+                $_SESSION['errores'][] = "El correo ya esta registrado";
+                return false;
+            }
 
+            $query = "INSERT INTO usuario (idTrabajador, idRol, correo, clave)
+                VALUES (:idTrabajador, :idRol, :correo, :clave)";
             $stmt = $this->prepare($query);
             $stmt->bindValue("idRol", $this->idRol);
             $stmt->bindValue("correo", $this->correo);
@@ -142,6 +150,7 @@ class Usuario extends Model
             $stmt->execute();
 
             $this->db->disconnect();
+            Bitacora::registrar("Usuario '".$this->getCorreo()."' registrado");
 
             return true;
         } catch (\Throwable $th) {
@@ -179,9 +188,9 @@ class Usuario extends Model
     public function mapearFormulario() : bool
     {
         try {
-            $this->cedula = $_POST['cedula'];
+            $this->cedula = trim($_POST['cedula']);
             $this->idRol = $_POST['idRol'];
-            $this->correo = $_POST['correo'];
+            $this->correo = trim($_POST['correo']);
             if (!empty($_POST['id'])) {
                 $this->id = $_POST['id'];
             } else {
@@ -196,19 +205,21 @@ class Usuario extends Model
 
     public function esValido() : bool
     {
-        if (empty(trim($this->cedula))) {
-            $_SESSION['errores'][] = "El campo 'Cedula' es obligatorio";
-            return false;
+        $ok = true;
+
+        if (empty(trim($this->correo))) {
+            $ok = false;
+            $_SESSION['errores'][] = "El correo es requerido";
         }
-        if (!preg_match(REG_CEDULA, $this->cedula)) {
-            $_SESSION['errores'][] = "El campo 'Cedula' solo puede contener números";
-            return false;
-        }
-        if (empty($this->idTrabajador)) {
-            $_SESSION['errores'][] = "El usuario debe estar asociado a un trabajador";
-            return false;
-        }
-        return true;
+
+        if(!filter_var( $this->correo , FILTER_VALIDATE_EMAIL)){
+			$_SESSION['errores'][] = "El correo es invalido";
+            $ok = false;
+		}
+
+        // verifico que no exista un duplicado en la base de datos
+
+        return $ok;
     }
 
     // Getters

@@ -1,7 +1,7 @@
 <?php
 $_POST = json_decode(file_get_contents("php://input"), true);
 requiereAutenticacion();
-requierePermiso("usuarios", "registrar");
+requierePermiso(Modulo::ASISTENCIAS, Permiso::REGISTRAR);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
@@ -30,6 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 
     }
     else{
+        require_once "Models/Enums/Turno.php";
+        
+        $departamentos = (new Departamento())->listar();
+        
         require_once "Views/Asistencias/_registrar.php";
     }
     
@@ -43,6 +47,13 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 
         $asistencia->mapearFormulario();
         $asistencia->registrar(true);
+        
+    }
+    else if (isset($_POST['action']) and $_POST['action'] == "Eliminar") {
+        http_response_code(200);
+        $asistencia = new Asistencia;
+        $asistencia->mapearFormulario();
+        $asistencia->eliminar();
         
     }
     else{

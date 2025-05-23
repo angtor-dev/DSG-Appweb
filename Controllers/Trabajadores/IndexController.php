@@ -6,6 +6,6 @@ require_once("Models/Enums/Cargo.php");
 
 $trabajadorObj = new Trabajador();
 
-$trabajadores = $trabajadorObj->listar();
+$trabajadores = $trabajadorObj->listar(1);
 
 renderView();

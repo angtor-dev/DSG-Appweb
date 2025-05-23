@@ -6,7 +6,7 @@ define("APP_NAME", "DSG");
 // en el archivo user_config.php)
 defined('LOCAL_DIR') or define("LOCAL_DIR", "/DSG-Appweb");
 
-defined('DEVELOPER_MODE') or define("DEVELOPER_MODE", false);
+defined('DEVELOPER_MODE') or define("DEVELOPER_MODE", true);
 
 defined('DB_HOST') or define("DB_HOST", "localhost");
 defined('DB_NAME') or define("DB_NAME", "dsg_db");
@@ -20,3 +20,4 @@ define("REG_ALFANUMERICO", "/^\s*[0-9a-zA-ZáÁéÉíÍóÓúÚüÜñÑ., ]*\s*$
 define("REG_CEDULA", "/^[0-9]{7,8}$/");
 define("REG_TELEFONO", "/^[0-9]{11}$/");
 define("REG_CLAVE", "/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/");
+define("REG_FECHA", "/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/");
