@@ -73,6 +73,8 @@
 }
 .acordeon .acordeon-body .acordeon-items {
     min-height: 0;
+    padding: 0;
+    transition: padding .3s;
 }
 .acordeon .acordeon-items a::before {
     content: '';
@@ -106,6 +108,8 @@
 }
 .acordeon.show .acordeon-body {
     grid-template-rows: 1fr;
+}.acordeon.show .acordeon-items {
+    padding: .5rem 0;
 }
 .acordeon.show .acordeon-toggle::before {
     transform: rotate(0deg);
