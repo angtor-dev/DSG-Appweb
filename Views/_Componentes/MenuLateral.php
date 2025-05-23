@@ -87,6 +87,46 @@
         </div>
     <?php endif ?>
 
+    <?php if (true/* Validar permiso o algo */): ?>
+        <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "reportes" ? "show" : "" ?>">
+            <button class="acordeon-toggle sidebar-button
+                <?= strtolower($uriParts[0]) == "reportes" ? "active" : "" ?>">
+                <i class="fa-solid fa-file-invoice"></i>
+                Reportes
+            </button>
+            <div class="acordeon-body">
+                <div class="acordeon-items">
+                    <?php if (true/* Validar permiso o algo */): ?>
+                        <a href="<?= LOCAL_DIR ?>/ReporteAsistencia"
+                            class="<?= strtolower($uriParts[1]) == "reporteasistencia" ? "active" : "" ?>">
+                            de Asistencias
+                        </a>
+                    <?php endif ?>
+                </div>
+            </div>
+        </div>
+    <?php endif ?>
+
+    <?php if (true/* Validar permiso o algo */): ?>
+        <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "estadisticas" ? "show" : "" ?>">
+            <button class="acordeon-toggle sidebar-button
+                <?= strtolower($uriParts[0]) == "estadisticas" ? "active" : "" ?>">
+                <i class="fa-solid fa-chart-line"></i>
+                Estadísticas
+            </button>
+            <div class="acordeon-body">
+                <div class="acordeon-items">
+                    <?php if (true/* Validar permiso o algo */): ?>
+                        <a href="<?= LOCAL_DIR ?>/EstadisticasAsistencias"
+                            class="<?= strtolower($uriParts[1]) == "estadisticaasistencia" ? "active" : "" ?>">
+                            de Asistencias
+                        </a>
+                    <?php endif ?>
+                </div>
+            </div>
+        </div>
+    <?php endif ?>
+
     <?php if (tienePermiso(Modulo::AREAS, Permiso::CONSULTAR)
         || tienePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR)
         || tienePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR)): ?>
