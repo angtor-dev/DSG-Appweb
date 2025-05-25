@@ -1,11 +1,11 @@
-<?php /** @var array $lista */ ?>
+
 
 <div class="panel-header">
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Reporte de Asistencias</h3>
-                <span class="opacity-75 mb-2">Muestra los reporte de asistencias con filtros</span>
+                <h3 class="pb-2">Estadísticas de Asistencias</h3>
+                <span class="opacity-75 mb-2">Muestra las estadísticas de asistencias con filtros</span>
             </div>
         </div>
     </div>
@@ -19,10 +19,6 @@
 					<div class="d-table-row">
 						<div class="d-table-cell">
 							<div class="row">
-							
-
-
-						
 						
 								<div class="col px-1">
 									<label for="fechaInicio" class="form-label">Desde </label>
@@ -35,6 +31,11 @@
 									<div id="form-text-hasta" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1">
+									<label for="trabajador" class="form-label">Cedula Trabajador</label>
+									<input type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
+									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
+								</div>
+								<div class="col px-1">
 									<label for="departamento" class="form-label">Departamento</label>
 									<select name="departamento" id="departamento" class="form-select">
 											<option value="">Todos</option>
@@ -45,7 +46,7 @@
 									<div id="form-text-departamento" class="form-text invalid-feedback"></div>
 								</div>
 
-								<div class="col px1">
+								<div class="col px1 d-none">
 									<label for="turno" class="form-label">Turno </label>
 									<select name="turno" id="turno" class="form-select">
 										<option value="">Todos</option>
@@ -57,7 +58,7 @@
 									<div id="form-text-turno" class="form-text invalid-feedback"></div>
 								</div>
 
-								<div class="col px-1">
+								<div class="col px-1 d-none">
 									<label for="agrupar" class="form-label">Agrupar por</label>
 									<select name="agrupar" id="agrupar" class="form-select">
 										<option value=""></option>
@@ -66,6 +67,14 @@
 										<option value="turnos">Turnos</option>
 									</select>
 									<div id="form-text-agrupar" class="form-text invalid-feedback"></div>
+								</div>
+								<div class="col px-1">
+									<button id="filtrar-btn" class="btn btn-primary">Filtrar</button>
+								</div>
+								<div class="col px-1">
+									<button class="btn btn-info" onclick="changeChart()">Lineal</button>
+									<button class="btn btn-info" onclick="changeChart('bar')">Barras</button>
+
 								</div>
 							</div>
 						</div>
@@ -76,14 +85,14 @@
 						<hr>
 					</div>
 					<style>
-						#reporteAsistencia td,
-						#reporteAsistencia th{
-							text-align: left!important;
+						#asistenciaChart{
+							width: 100%;
+							height: 400px;
 						}
 					</style>
 					<div class="d-table-row">
 						<div>
-							<table class="table table-borderless table-striped" id="reporteAsistencia"></table>
+							<canvas id="asistenciasChart" height="400" width="400"></canvas>
 						</div>
 					</div>
 				</div>
@@ -92,4 +101,9 @@
     </div>
 </div>
 
-<?php agregarScript("reporteAsistencias.js") ?>
+<?php agregarLib("chartJs/chart.umd.js") ?>
+<?php agregarScript("Estadisticas/asistencias.js") ?>
+
+
+
+

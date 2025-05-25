@@ -75,6 +75,23 @@ class Bitacora extends Model
         $db->disconnect();
     }
 
+    public static function registrarTransaccion(string $registro,\PDO $pdo) 
+    {
+        global $requestUri;
+        $idUsuario = !empty($_SESSION['usuario']->id) ? $_SESSION['usuario']->id : "NULL";
+        $ruta = $requestUri."/";
+        
+        $query = "INSERT INTO bitacora(idUsuario, registro, ruta)
+        VALUES($idUsuario, :registro, :ruta)";
+
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam('registro', $registro);
+        $stmt->bindParam('ruta', $ruta);
+
+        $stmt->execute();
+        
+    }
+
     // Override para impedir eliminar
     public function eliminar(bool $eliminadoLogico = true) : bool
     {

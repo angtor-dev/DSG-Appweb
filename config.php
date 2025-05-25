@@ -20,3 +20,4 @@ define("REG_ALFANUMERICO", "/^\s*[0-9a-zA-ZáÁéÉíÍóÓúÚüÜñÑ., ]*\s*$
 define("REG_CEDULA", "/^[0-9]{7,8}$/");
 define("REG_TELEFONO", "/^[0-9]{11}$/");
 define("REG_CLAVE", "/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/");
+define("REG_FECHA", "/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/");

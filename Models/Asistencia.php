@@ -557,6 +557,78 @@ class Asistencia extends Model
         return $respuesta;
     }
 
+    public function reporteEstadistica($print = false) {
+        try {
+            $this->db->connect();
+            $pdo = $this->db->pdo();
+            $pdo->beginTransaction();
+            $query ="SELECT
+                        DATE_FORMAT(fa.fecha, '%Y-%m') as mes,
+                        COUNT(if(a.status=1,1,NULL)) as inasitencias,
+                        COUNT(if(a.status=1,NULL,1)) as asitencias
+                        
+                    FROM
+                        asistencia AS a
+                    JOIN fechaasistencia AS fa
+                    ON
+                        fa.id = a.idFechaAsistencia
+                    left join Trabajador as t on t.id = a.idTrabajador
+                    WHERE";
+
+            if(!empty($this->idTrabajador)){
+                $query .= " t.cedula = :cedula AND";
+            }
+            else if(!empty($this->idDepartamento)){
+                $query .= " fa.idDepartamento = :idDepartamento AND";
+            }
+
+            $query .= " 1 AND fa.fecha BETWEEN :inicio AND :fin GROUP BY mes";
+
+
+
+            $stmt = $pdo->prepare($query);
+
+            $stmt->bindValue("inicio", $this->fechaIn);
+            $stmt->bindValue("fin", $this->fechaOut);
+
+            if(!empty($this->idTrabajador)){
+                $stmt->bindValue("cedula", $this->idTrabajador);
+            }
+            else if(!empty($this->idDepartamento)){
+                $stmt->bindValue("idDepartamento", $this->idDepartamento);
+            }
+
+            $stmt->execute();
+            $listaFinal = $stmt->fetchAll(PDO::FETCH_NUM);
+            $pdo->commit();
+            $pdo = null;
+            $this->db->disconnect();
+            $respuesta = [
+                "success" => true,
+                "lista" => $listaFinal
+            ];
+            
+        } catch (\Throwable $th) {
+            if( 
+                isset($this->db) && $this->db->connected() &&
+                $this->db->pdo() instanceof \PDO &&
+                $this->db->pdo()->inTransaction()
+            ){
+                $this->db->pdo()->rollBack();
+                $this->db->disconnect();
+            }
+            $respuesta = [
+                "success" => false,
+                "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al reportar asistencias")
+            ];
+
+        }
+        if($print) {
+            echo json_encode($respuesta);
+        }
+        return $respuesta;
+    }
+
 
     // Getters
 

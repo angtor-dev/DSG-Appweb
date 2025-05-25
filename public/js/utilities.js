@@ -99,6 +99,7 @@ async function peticion (url,obj = {}) {
     const beforeHandler = ()=> {
         if(obj.useLoader) mostrarLoader(obj.useLoader,true);
         if(obj.before) obj.before();
+        if(obj.blur) document.activeElement.blur();
         if(obj.focus) {
             focusElement = document.activeElement;
             focusElement.blur();
@@ -141,7 +142,10 @@ async function peticion (url,obj = {}) {
 
         afterHandler(response,data);
     } catch (error) {
-        if(obj.signal && obj.signal.aborted) return false;
+        if(obj.signal && obj.signal.aborted){
+            if(obj.useLoader) mostrarLoader(obj.useLoader,false);
+            return false;
+        } 
         afterHandler({},error);
         mostrarError("Error de solicitud");
         console.error(error)
@@ -166,10 +170,15 @@ function mostrarLoader(element, show = true) {
         console.error("Elemento no encontrado para el loader");
         return false;
     }
+    let loaderCount = (element.loaderCount || 0);
     if (show) {
+        
+        loaderCount++;
+        element.loaderCount = loaderCount;
         if(element.querySelector(".loader")) return false;
         let loader = document.createElement("div");
         loader.className = "loader";
+
         loader.setAttribute("role", "status");
         loader.setAttribute("aria-hidden", "true");
         if(element.tagName == document.body.tagName) loader.classList.add("loader-body");
@@ -181,11 +190,20 @@ function mostrarLoader(element, show = true) {
             element.classList.add("position-relative");
         }
     } else {
+        loaderCount--;
+        if(loaderCount <= 0) loaderCount = 0;
+        if(loaderCount > 0) {
+            element.loaderCount = loaderCount;
+            return false
+        };
+
+        if(!element.querySelector(".loader")) return false;
         element.querySelector(".loader").remove();
         if(element.havedPosition){
             element.classList.remove("position-relative");
             delete element.havedPosition;
         }
+        delete element.loaderCount;
     }
 }
 
@@ -238,4 +256,13 @@ function parsearJson(json) {
             Error: error
         }
     }
+}
+
+FormData.prototype.json = function () {
+    let data = {};
+    this.forEach((value, key) => data[key] = value);
+    return data;
+}
+FormData.prototype.text = function () {
+    return JSON.stringify(this.json());
 }

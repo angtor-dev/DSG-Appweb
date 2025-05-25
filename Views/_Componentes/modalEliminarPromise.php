@@ -26,7 +26,7 @@
 <script>
     // crea una promesa que abra el modal de bootstrap v5 lo muestra y devuelve la promesa que se resuelva con el boton de eliminar
     // el argumento sera texto que aparecera en el modal
-    function abrirModalEliminar(texto) {
+    function abrirModalEliminar(texto, value = "") {
         return new Promise((resolve, reject) => {
             const modal = new bootstrap.Modal(document.getElementById('modal-eliminar'));
             document.getElementById('modal-eliminar').Modal = modal;
@@ -35,7 +35,7 @@
             modal.show();
             const eliminar = document.querySelector('#modal-eliminar .btn-eliminar');
             eliminar.addEventListener("click", () => {
-                resolve();
+                resolve(value);
             });
             const cancelar = document.querySelector('#modal-eliminar .btn-cancelar-eliminar');
             cancelar.addEventListener("click", () => {

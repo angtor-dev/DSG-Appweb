@@ -3,6 +3,39 @@ const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
 const regCedula = /^[0-9]{7,8}$/
 const regTelefono = /^[0-9]{11}$/
 
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll(".accion-eliminar").forEach(el => {
+        console.log("hola");
+        el.addEventListener("click", async () => {
+            abrirModalEliminar(`Eliminar al trabajador ${el.dataset.trabajador} ${el.dataset.nombre}`).then(async () => {
+                let response = await peticion("/Trabajadores/Eliminar", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        cedulaSeleccion: el.dataset.trabajador,
+                        action: "Eliminar"
+                    })
+                })
+                if (response = parsearJson(response)) {
+                    if (response.success) {
+                        mostrarExito(response.message)
+                        setTimeout(() => {
+                            location.reload()
+                        }, 1000);
+                    } else {
+                        mostrarError(response.message)
+                    }
+                }
+            }).finally(() => {
+                document.activeElement.blur();
+                document.getElementById('modal-eliminar').Modal.hide();
+            });
+        })
+    })
+})
+
+
+
 // validaciones
 function validarNombre(id) {
     const iNombre = document.getElementById(id)
@@ -90,6 +123,10 @@ function validarFecha(id) {
     };
 }
 
+function actualizarTrabajador (){
+
+}
+
 
 
 
@@ -118,68 +155,103 @@ function agregarValidaciones() {
     iTelefono.addEventListener('blur', () => {validarTelefono('telefono')})
     iFechaIngreso.addEventListener('change', () => {validarFecha('fecha_ingreso')})
 
+    // carga los campos desde el local storage
+    
 
 
-    iCedula.onkeyup= async function(e){
-        iNombre.disabled = true
-        iApellido.disabled = true
-        iCargo.disabled = true
-        iTurno.disabled = true
-        iDepartamento.disabled = true
-        iTelefono.disabled = true
-        iFechaIngreso.disabled = true
-        document.getElementById("btn-submit-registrar").disabled = true
+    if(/Registrar$/.test(formulario.action)){
+        iCedula.onkeyup= async function(e){
+            iNombre.disabled = true
+            iApellido.disabled = true
+            iCargo.disabled = true
+            iTurno.disabled = true
+            iDepartamento.disabled = true
+            iTelefono.disabled = true
+            iFechaIngreso.disabled = true
+            document.getElementById("btn-submit-registrar").disabled = true
 
 
-        if(regCedula.test(this.value)){
-            let data = await peticion(`/Trabajadores/Registrar?cedula=${this.value}`)
-            data = JSON.parse(data)
-            console.log(data)
-            if(data.cedula){
-                iCedula.classList.add('is-invalid')
-                iCedula.classList.remove('is-valid')
-                iCedula.parentElement.querySelector('.form-text').textContent = "La cedula ya se encuentra registrada"
-                
+            if(regCedula.test(this.value)){
+                let data = await peticion(`/Trabajadores/Registrar?cedula=${this.value}`)
+                data = JSON.parse(data)
+                console.log(data)
+                if(data.cedula){
+                    iCedula.classList.add('is-invalid')
+                    iCedula.classList.remove('is-valid')
+                    iCedula.parentElement.querySelector('.form-text').textContent = "La cedula ya se encuentra registrada"
+                    
+                }
+                else{
+                    iCedula.classList.remove('is-invalid')
+                    iCedula.classList.add('is-valid')
+                    iCedula.parentElement.querySelector('.form-text').textContent = ""
+                    iNombre.disabled = false
+                    iApellido.disabled = false
+                    iCargo.disabled = false
+                    iTurno.disabled = false
+                    iDepartamento.disabled = false
+                    iTelefono.disabled = false
+                    iFechaIngreso.disabled = false
+                    document.getElementById("btn-submit-registrar").disabled = false;
+                    console.log("entro")
+                }
             }
             else{
-                iCedula.classList.remove('is-invalid')
-                iCedula.classList.add('is-valid')
-                iCedula.parentElement.querySelector('.form-text').textContent = ""
-                iNombre.disabled = false
-                iApellido.disabled = false
-                iCargo.disabled = false
-                iTurno.disabled = false
-                iDepartamento.disabled = false
-                iTelefono.disabled = false
-                iFechaIngreso.disabled = false
-                document.getElementById("btn-submit-registrar").disabled = false;
-                console.log("entro")
+                iCedula.classList.add('is-invalid')
+                iCedula.classList.remove('is-valid')
+                iCedula.parentElement.querySelector('.form-text').textContent = "La cedula debe ser de 7 u 8 digitos"
             }
         }
-        else{
-            iCedula.classList.add('is-invalid')
-            iCedula.classList.remove('is-valid')
-            iCedula.parentElement.querySelector('.form-text').textContent = "La cedula debe ser de 7 u 8 digitos"
-        }
+        
     }
-
     
+    formulario.addEventListener('submit',async event => {
 
 
-    
-    formulario.addEventListener('submit', event => {
+        console.log("entro formulario");
+        event.preventDefault()
+        event.stopPropagation()
         if (
-            !validarNombre('nombre') ||
-            !validarNombre('apellido') ||
-            !validarSelect('cargo') ||
-            !validarSelect('turno') ||
-            !validarCedula('cedula') ||
-            !validarSelect('departamento') ||
-            !validarTelefono('telefono') ||
-            !validarFecha('fecha_ingreso')
+            validarNombre('nombre') ||
+            validarNombre('apellido') ||
+            validarSelect('cargo') ||
+            validarSelect('turno') ||
+            validarCedula('cedula') ||
+            validarSelect('departamento') ||
+            validarTelefono('telefono') ||
+            validarFecha('fecha_ingreso')
         ) {
-            event.preventDefault()
-            event.stopPropagation()
+
+            let datos = new FormData(formulario);
+
+            let url = formulario.action
+            url = url.replace(/^.*\/DSG-Appweb/, "")
+
+            datos.append("action", (/Registrar$/.test(url)) ? "Registrar" : "Actualizar");
+
+            let respuesta = await peticion(url, {
+                method: 'POST',
+                body: datos.text(),
+                useLoader: 'body',
+                blur: true
+            });
+
+            respuesta = parsearJson(respuesta);
+
+            if (respuesta.success) {
+                mostrarLoader("body");
+                location.reload();
+            } else {
+                mostrarError(respuesta.message);
+            }
+            
         }
     })
+
+
+    
+
+
+    
+    
 }

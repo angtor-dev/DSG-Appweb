@@ -70,6 +70,13 @@
 			if(resp.success){
 				// mostrar el reporte
 
+
+				let table;
+				if (DataTable.isDataTable(document.querySelector("#reporteAsistencia"))) {
+					table = new DataTable(document.querySelector("#reporteAsistencia"));
+					table.destroy();
+				}
+
 				// si todo sale bien se optiene un objeto con las propiedades "headers" y "data" que contienen las cabeceras y los datos en forma de arrelgo
 				let headers = resp.headers;
 				let data = resp.data;
@@ -104,6 +111,38 @@
 				
 				tabla.appendChild(thead);
 				tabla.appendChild(tbody);
+
+				//*************************************
+
+
+				
+				
+				//document.querySelector("#reporteAsistencia tbody").innerHTML = '';
+				
+				if (!DataTable.isDataTable(document.querySelector("#reporteAsistencia"))) {
+				    table = new DataTable("#reporteAsistencia",{
+				            pagingType: 'simple_numbers',
+				            language: {
+				                url: LOCAL_DIR+'/public/lib/DataTables/datatables-spanish.json'
+				            },
+				            layout: {
+				                topStart: {
+				                    buttons: ['excel', 'pdf', 'print']
+				                },
+				                bottom1Start: {
+				                    pageLength: true
+				                }
+				            },
+				            ordering: false
+				        });
+				}
+
+
+				//*************************************
+
+
+
+
 				
 
 
