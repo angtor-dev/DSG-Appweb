@@ -15,6 +15,10 @@ class Modulo extends Model
     public const NOTIFICACIONES = 'notificaciones';
     public const TAREAS = 'tareas';
     public const TRABAJADORES = 'trabajadores';
+    public const ARTICULOS = 'articulos';
+    public const AJUSTES = 'ajustes';
+    public const MOVIMIENTOS = 'movimientos';
+    public const NOTASENTREGA = 'notasentrega';
 
     // Override para impedir eliminar
     public function eliminar(bool $eliminadoLogico = true) : bool

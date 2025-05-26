@@ -56,27 +56,27 @@
         </a>
     <?php endif ?>
     <?php if (tienePermiso(Modulo::INVENTARIO, Permiso::CONSULTAR)): ?>
-        <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "Inventario" ? "show" : "" ?>">
+        <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "inventario" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
-                <?= strtolower($uriParts[0]) == "Inventario" ? "active" : "" ?>">
-                <i class="fa-solid fa-lock"></i>
+                <?= strtolower($uriParts[0]) == "inventario" ? "active" : "" ?>">
+                <i class="fa-solid fa-toolbox"></i>
                 Inventario
             </button>
             <div class="acordeon-body">
                 <div class="acordeon-items">
-                    <?php if (tienePermiso(Modulo::INVENTARIO/*Articulos*/, Permiso::CONSULTAR)): ?>
+                    <?php if (tienePermiso(Modulo::ARTICULOS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Articulos"
                             class="<?= strtolower($uriParts[1]) == "articulos" ? "active" : "" ?>">
                             Artículos
                         </a>
                     <?php endif ?>
-                    <?php if (tienePermiso(Modulo::INVENTARIO/*Ajustes*/, Permiso::CONSULTAR)): ?>
+                    <?php if (tienePermiso(Modulo::AJUSTES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Ajustes"
                             class="<?= strtolower($uriParts[1]) == "ajustes" ? "active" : "" ?>">
                             Ajustes
                         </a>
                     <?php endif ?>
-                    <?php if (tienePermiso(Modulo::INVENTARIO/*Movimientos*/, Permiso::CONSULTAR)): ?>
+                    <?php if (tienePermiso(Modulo::MOVIMIENTOS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Movimientos"
                             class="<?= strtolower($uriParts[1]) == "movimientos" ? "active" : "" ?>">
                             Movimientos
