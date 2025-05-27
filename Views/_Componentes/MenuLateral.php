@@ -55,7 +55,9 @@
             Asistencias
         </a>
     <?php endif ?>
-    <?php if (tienePermiso(Modulo::INVENTARIO, Permiso::CONSULTAR)): ?>
+    <?php if (tienePermiso(Modulo::ARTICULOS, Permiso::CONSULTAR)
+        || tienePermiso(Modulo::AJUSTES, Permiso::CONSULTAR)
+        || tienePermiso(Modulo::MOVIMIENTOS, Permiso::CONSULTAR)): ?>
         <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "inventario" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
                 <?= strtolower($uriParts[0]) == "inventario" ? "active" : "" ?>">

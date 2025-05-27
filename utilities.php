@@ -168,7 +168,7 @@ function debug(mixed $var, bool $endProgram = true) : void {
     if($endProgram) exit;
 }
 
-function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null): string {
+function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null, string $modulo): string {
     if (empty($models)) return '';
     $html = '';
     $table = strtolower(get_class($models[0]));
@@ -190,7 +190,7 @@ function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null): string
                     <span class="node-name">'.$area->getNombre().'</span>
                 </button>
                 <div class="node-actions">';
-            if (tienePermiso(Modulo::AREAS, Permiso::ACTUALIZAR)) {
+            if (tienePermiso($modulo, Permiso::ACTUALIZAR)) {
                 $html .= '
                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
                     <div data-bs-toggle="modal" data-bs-target="#modal-generico"
@@ -199,7 +199,7 @@ function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null): string
                     </div>
                 </div>';
             }
-            if (tienePermiso(Modulo::AREAS, Permiso::ELIMINAR)) {
+            if (tienePermiso($modulo, Permiso::ELIMINAR)) {
                 $html .= '
                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
                     <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
@@ -216,7 +216,7 @@ function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null): string
             </div>';
             if ($tieneSubAreas) {
                 $html .= '<div id="collapse-'.$area->id.'" class="accordion-collapse collapse show">';
-                $html .= ImprimirAcordeonesAnidados($models, $area->id);
+                $html .= ImprimirAcordeonesAnidados($models, $area->id, $modulo);
                 $html .= '</div></div>';
             }
         }

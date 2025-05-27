@@ -148,8 +148,12 @@ abstract class Model
             $this->db->disconnect();
 
             return true;
+        } catch (\PDOException $th) {
+            $_SESSION['errores'][] = ($th->getCode() == '23000') 
+                ? "Existen datos relacionados al item seleccionado." 
+                : "Ha ocurrido un error al eliminar $tabla.";
+            return false;
         } catch (\Throwable $th) {
-            $_SESSION['errores'][] = DEVELOPER_MODE;
             if (DEVELOPER_MODE) debug($th); // Eliminar esto al crear vista para errores
             $_SESSION['errores'][] = "Ha ocurrido un error al eliminar $tabla.";
             return false;
