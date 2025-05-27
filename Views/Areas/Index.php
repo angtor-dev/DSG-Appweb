@@ -25,7 +25,7 @@
 <div class="page-inner mt--5">
     <div class="card border-0">
         <div class="card-body p-4 d-flex flex-column gap-3">
-            <?= ImprimirAcordeonesAnidados($areas) ?>
+            <?= ImprimirAcordeonesAnidados($areas, null, Modulo::AREAS) ?>
         </div>
     </div>
 </div>
