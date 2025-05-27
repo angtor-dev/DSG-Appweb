@@ -29,6 +29,7 @@
                     <thead>
                         <tr>
                             <th>Id</th>
+                            <th>Cedula</th>
                             <th>Nombre y apellido</th>
                             <th>Correo</th>
                             <th>Rol</th>
@@ -39,6 +40,7 @@
                         <?php foreach ($usuarios as $usuario): ?>
                             <tr>
                                 <td><?= $usuario->id ?></td>
+                                <td><?= $usuario->trabajador->getCedula() ?></td>
                                 <td><?= $usuario->getNombreCompleto() ?></td>
                                 <td><?= $usuario->getCorreo() ?></td>
                                 <td><?= $usuario->rol->getNombre() ?></td>
@@ -53,11 +55,8 @@
                                             </div>
                                         <?php endif ?>
                                         <?php if (tienePermiso('usuarios', Permiso::ELIMINAR)): ?>
-                                            <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar">
-                                                <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
-                                                    data-bs-modelo="a el usuario" 
-                                                    data-bs-nombre="<?= $usuario->getNombreCompleto() ?>"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Usuarios/Eliminar?id=<?= $usuario->id ?>">
+                                            <div class="accion pointer accion-eliminar" data-bs-toggle="tooltip" data-bs-title="Eliminar" data-nombre="<?= $usuario->getNombreCompleto() ?>"data-url="/Usuarios/Eliminar?id=<?= $usuario->id ?>">
+                                                <div >
                                                     <i class="fa-solid fa-fw fa-trash-can"></i>
                                                 </div>
                                             </div>
@@ -73,7 +72,7 @@
     </div>
 </div>
 
-<?php renderComponent('ModalEliminar') ?>
+<?php renderComponent('modalEliminarPromise') ?>
 <?php renderComponent('ModalGenerico') ?>
 
 <script>
