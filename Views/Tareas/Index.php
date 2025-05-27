@@ -13,7 +13,7 @@
                 <div>
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"
-                        data-bs-toggle="modal" data-bs-target="#modal-generico" data-backdrop="static"
+                        data-bs-toggle="modal" data-bs-target="#modal-tareas" data-backdrop="static"
                         data-bs-url="<?= LOCAL_DIR ?>/Tareas/Registrar">
                         <i class="fa-solid fa-plus me-2"></i>
                         Nueva tarea
@@ -203,9 +203,9 @@
 
 <?php renderComponent('ModalCancelar') ?>
 <?php renderComponent('ModalGenerico') ?>
+<?php renderComponent('ModalTareas') ?>
 
 
-<?php //agregarScript("tareas.js"); ?>
 <script src="public/js/tareas.js"></script>
 
   <script>
@@ -242,9 +242,3 @@
 
 
 </script> 
-
-
- <!-- Scripts necesarios -->
- 
-<?php //agregarScript("validaciones/trabajador.js") 
-?>

@@ -13,7 +13,7 @@ class Tarea extends Model
     public string $estado_tarea = 'activo';
     public bool $es_comun = false;
     public string $turno;
-    public string $fecha_inicio;
+    public ?string $fecha_inicio = null;
     
     public ?Area $area = null;
     public ?Departamento $departamento = null;
@@ -61,9 +61,9 @@ class Tarea extends Model
             }
 
             // Asignar materiales si existen
-            if (!empty($this->materiales)) {
+            /* if (!empty($this->materiales)) {
                 $this->asignarMateriales($this->materiales);
-            }
+            } */
 
             $this->db->pdo()->commit();
             return true;
@@ -174,27 +174,44 @@ class Tarea extends Model
      * @param array $idsTrabajadores IDs de los trabajadores a asignar
      * @throws Exception Si no se puede asignar el personal
      */
-    private function asignarPersonal(array $idsTrabajadores): void 
-    {
-        if (empty($idsTrabajadores)) {
-            return;
-        }
-
-        $query = "INSERT INTO tarea_personal (idTarea, idTrabajador) VALUES ";
-        $placeholders = [];
-        $values = [":idTarea" => $this->id];
-        
-        foreach ($idsTrabajadores as $i => $id) {
-            $placeholders[] = "(:idTarea, :idTrabajador_$i)";
-            $values[":idTrabajador_$i"] = (int)$id;
-        }
-        
-        $stmt = $this->db->pdo()->prepare($query . implode(", ", $placeholders));
-        
-        if (!$stmt->execute($values)) {
-            throw new Exception("No se pudo asignar el personal a la tarea");
-        }
+   private function asignarPersonal(array $idsTrabajadores): void 
+{
+    if (empty($idsTrabajadores)) {
+        return;
     }
+
+    $query = "INSERT INTO tarea_personal (idTarea, idTrabajador) VALUES ";
+    $placeholders = [];
+    $values = [];
+
+    foreach ($idsTrabajadores as $i => $id) {
+        $idParam = ":idTarea_" . $i;
+        $trabajadorParam = ":trabajador_" . $i;
+
+        $placeholders[] = "($idParam, $trabajadorParam)";
+        $values[$idParam] = (int)$this->id;
+        $values[$trabajadorParam] = (int)$id;
+    }
+
+    $sql = $query . implode(", ", $placeholders);
+
+    $stmt = $this->db->pdo()->prepare($sql);
+
+    ob_start();
+    var_dump($this->id);
+    $_SESSION['errores'][] = "Valor de idTarea: " . ob_get_clean();
+
+    ob_start();
+    var_dump($idsTrabajadores);
+    $_SESSION['errores'][] = "Valor de trabajadores: " . ob_get_clean();
+
+    if (!$stmt->execute($values)) {
+        $error = $stmt->errorInfo();
+        throw new Exception("Error al asignar personal: " . $error[2]);
+    }
+}
+
+
 
     /**
      * Asigna materiales a la tarea
@@ -263,19 +280,7 @@ public function cancelar() {
         return $consulta->fetch();
     }
 
-    /* public function listar(int $estado = null) : array {
-        $bd = Database::getInstance();
-        $bd->connect();
-        $query = "SELECT * FROM `tarea` ORDER BY fechaCreacion DESC;";
-
-        $consulta = $bd->pdo()->prepare($query);
-        $consulta->execute();
-        $consulta->setFetchMode(PDO::FETCH_CLASS, "Tarea");
-
-        $bd->disconnect();
-
-        return $consulta->fetchAll();
-    } */
+  
     public function listarPorEstado($estado) {
 
         $bd = Database::getInstance();

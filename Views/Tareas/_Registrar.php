@@ -47,12 +47,14 @@
                         <label for="departamento" class="form-label fw-semibold">Departamento/Área</label>
                         <select class="form-select " id="departamento" name="idDepartamento" required>
                             <option value="" selected disabled>Seleccione un departamento</option>
-                            <option value="1">Plomería</option>
-                            <option value="2">Electricidad</option>
-                            <option value="3">Mecánica</option>
-                            <option value="4">Jardinería</option>
-                            <option value="5">Limpieza</option>
-                            <option value="6">Mantenimiento General</option>
+                          <?php foreach ($departamentos as $departamento): ?>
+                                <option value="<?= $departamento->id ?>">
+                                    <?= $departamento->getNombre() ?>
+                                    <?php if ($departamento->departamentoPadre !== null): ?>
+                                        (<?= $departamento->departamentoPadre->getNombre() ?? '' ?>)
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback">Seleccione un departamento</div>
                     </div>
@@ -75,11 +77,17 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="area" class="form-label fw-semibold">Área específica</label>
-                        <select class="form-select " id="area" name="idArea" required>
+                        <select class="form-select" id="area" name="idArea" required>
                             <option value="" selected disabled>Seleccione un área</option>
-                            <option value="1">Producción</option>
-                            <option value="2">Mantenimiento</option>
-                            <option value="3">Almacén</option>
+                            <?php foreach ($areas as $area): ?>
+                                <option value="<?= $area->id ?>">
+                                    <?= $area->getNombre() ?>
+                                    <?php if ($area->areaPadre !== null): ?>
+                                        (<?= $area->areaPadre->getNombre() ?? '' ?>)
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; ?>
+                           
                         </select>
                         <div class="invalid-feedback">Seleccione un área</div>
                     </div>
@@ -96,6 +104,9 @@
                 </div>
             </div>
 
+<!-- Script para inicializar select2 -->
+
+
             <hr class="my-4">
 
             <!-- Sección 3: Asignación -->
@@ -109,14 +120,21 @@
                             <option value="comun">Común (Plantilla)</option>
                         </select>
                     </div>
+                    <div class="col-md-6">
+                        <label for="fecha-inicio" class="form-label fw-semibold">Fecha de Inicio</label>
+                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                        <div class="invalid-feedback">Seleccione una fecha</div>
+                    </div>
                     <div class="col-12">
                         <label for="personal" class="form-label fw-semibold">Personal asignado</label>
                         <select class="form-select select2-multiple" id="personal" name="personal[]" multiple="multiple" 
                             data-placeholder="Busque y seleccione personal">
-                            <option value="1">Juan Pérez (Plomería)</option>
-                            <option value="2">María García (Electricidad)</option>
-                            <option value="3">Carlos López (Mecánica)</option>
-                            <option value="4">Ana Martínez (Jardinería)</option>
+                              <?php foreach ($trabajadores as $trabajador): ?>
+                                <option value="<?= $trabajador->id ?>">
+                                    <?= $trabajador->getNombreCompleto() ?> - <?= $trabajador->getCedula() ?>
+                                    (<?= $trabajador->departamento->getNombre() ?? 'Sin departamento' ?>)
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                         <small class="text-muted">Puede seleccionar múltiples personas</small>
                         <div class="invalid-feedback">Seleccione al menos un trabajador</div>

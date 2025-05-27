@@ -2,8 +2,14 @@
 requiereAutenticacion();
 requierePermiso(Modulo::TAREAS, Permiso::REGISTRAR);
 
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Cargar datos necesarios para el formulario
+
+    $trabajadorObj = new Trabajador(); // mi vista te sigue cuando cambias de archivo 
+    $trabajadores = $trabajadorObj->listar(1);
+
     $departamentoObj = new Departamento();
     $departamentos = $departamentoObj->listar();
     
@@ -12,22 +18,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     
     require_once "Views/Tareas/_Registrar.php";
 }
+
+
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-
-    // RegistrarController.php
+    // Limpiar errores previos de sesión si existen
+    unset($_SESSION['errores']);
+    
     $tarea = new Tarea();
+    $response = ['success' => false];
 
     if ($tarea->registrar($_POST)) {
-        $_SESSION['exitos'][] = "Tarea registrada con éxito";
+        $response = [
+            'success' => true,
+            'message' => "Tarea registrada con éxito",
+            'data' => [
+                'id' => $tarea->id
+            ]
+        ];
         Bitacora::registrar("Tarea registrada: " . $tarea->descripcion);
     } else {
-        // Los errores ya fueron agregados a $_SESSION por el modelo
+        // Si hay errores en la sesión, los pasamos a la respuesta
+        $response = [
+            'success' => false,
+            'errors' => $_SESSION['errores'] ?? ['Error desconocido al registrar la tarea'],
+            'message' => 'Error al registrar la tarea'
+        ];
     }
 
-    redirigir(LOCAL_DIR."/Tareas");
-
-
+    // Devolver respuesta JSON
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
 }
 else {
     http_response_code(405);
