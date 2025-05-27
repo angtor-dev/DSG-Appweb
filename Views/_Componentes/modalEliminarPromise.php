@@ -28,7 +28,8 @@
     // el argumento sera texto que aparecera en el modal
     function abrirModalEliminar(texto, value = "") {
         return new Promise((resolve, reject) => {
-            const modal = new bootstrap.Modal(document.getElementById('modal-eliminar'));
+            const modalElement = document.getElementById('modal-eliminar');
+            const modal = new bootstrap.Modal(modalElement);
             document.getElementById('modal-eliminar').Modal = modal;
             const modalTexto = document.querySelector('#modal-eliminar .modal-texto');
             modalTexto.textContent = texto;
@@ -37,10 +38,13 @@
             eliminar.addEventListener("click", () => {
                 resolve(value);
             });
-            const cancelar = document.querySelector('#modal-eliminar .btn-cancelar-eliminar');
-            cancelar.addEventListener("click", () => {
+
+            modalElement.addEventListener('hide.bs.modal', () => {
                 reject();
-            });
+            })
+        }).finally(() => {
+            document.activeElement.blur();
+            document.getElementById('modal-eliminar').Modal.hide();
         });
     }
     
