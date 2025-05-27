@@ -11,4 +11,13 @@ class Medida extends Model
     public function getSubUnidad() : string {
         return $this->subUnidad;
     }
+
+    // Setters
+    public function setDatos(int $id = null, string $unidad, string $subUnidad): void {
+        if (isset($id)) {
+            $this->id = $id;
+        }
+        $this->unidad = $unidad;
+        $this->subUnidad = $subUnidad;
+    }
 }

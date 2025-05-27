@@ -56,27 +56,27 @@
         </a>
     <?php endif ?>
     <?php if (tienePermiso(Modulo::INVENTARIO, Permiso::CONSULTAR)): ?>
-        <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "Inventario" ? "show" : "" ?>">
+        <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "inventario" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
-                <?= strtolower($uriParts[0]) == "Inventario" ? "active" : "" ?>">
-                <i class="fa-solid fa-lock"></i>
+                <?= strtolower($uriParts[0]) == "inventario" ? "active" : "" ?>">
+                <i class="fa-solid fa-toolbox"></i>
                 Inventario
             </button>
             <div class="acordeon-body">
                 <div class="acordeon-items">
-                    <?php if (tienePermiso(Modulo::INVENTARIO/*Articulos*/, Permiso::CONSULTAR)): ?>
+                    <?php if (tienePermiso(Modulo::ARTICULOS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Articulos"
                             class="<?= strtolower($uriParts[1]) == "articulos" ? "active" : "" ?>">
                             Artículos
                         </a>
                     <?php endif ?>
-                    <?php if (tienePermiso(Modulo::INVENTARIO/*Ajustes*/, Permiso::CONSULTAR)): ?>
+                    <?php if (tienePermiso(Modulo::AJUSTES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Ajustes"
                             class="<?= strtolower($uriParts[1]) == "ajustes" ? "active" : "" ?>">
                             Ajustes
                         </a>
                     <?php endif ?>
-                    <?php if (tienePermiso(Modulo::INVENTARIO/*Movimientos*/, Permiso::CONSULTAR)): ?>
+                    <?php if (tienePermiso(Modulo::MOVIMIENTOS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Movimientos"
                             class="<?= strtolower($uriParts[1]) == "movimientos" ? "active" : "" ?>">
                             Movimientos
@@ -87,6 +87,42 @@
         </div>
     <?php endif ?>
 
+    <?php if (tienePermiso(Modulo::AREAS, Permiso::CONSULTAR)
+        || tienePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR)
+        || tienePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR)
+        || tienePermiso(Modulo::CATEGORIAS, Permiso::CONSULTAR)): ?>
+        <h4>Definiciones</h4>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::AREAS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Areas" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "areas" ? "active" : "" ?>">
+            <i class="fa-solid fa-map-location"></i>
+            Areas
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::CATEGORIAS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Categorias" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "categorias" ? "active" : "" ?>">
+            <i class="fa-solid fa-layer-group"></i>
+            Categorias
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Departamentos" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "departamentos" ? "active" : "" ?>">
+            <i class="fa-solid fa-building"></i>
+            Departamentos
+        </a>
+    <?php endif ?>
+    <?php if (tienePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR)): ?>
+        <a href="<?= LOCAL_DIR ?>/Medidas" class="sidebar-button mx-3
+            <?= strtolower($uriParts[0]) == "medidas" ? "active" : "" ?>">
+            <i class="fa-solid fa-ruler-vertical"></i>
+            Medidas
+        </a>
+    <?php endif ?>
+
+    <h4>Datos</h4>
     <?php if (true/* Validar permiso o algo */): ?>
         <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "reportes" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
@@ -125,33 +161,6 @@
                 </div>
             </div>
         </div>
-    <?php endif ?>
-
-    <?php if (tienePermiso(Modulo::AREAS, Permiso::CONSULTAR)
-        || tienePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR)
-        || tienePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR)): ?>
-        <h4>Definiciones</h4>
-    <?php endif ?>
-    <?php if (tienePermiso(Modulo::AREAS, Permiso::CONSULTAR)): ?>
-        <a href="<?= LOCAL_DIR ?>/Areas" class="sidebar-button mx-3
-            <?= strtolower($uriParts[0]) == "areas" ? "active" : "" ?>">
-            <i class="fa-solid fa-map-location"></i>
-            Areas
-        </a>
-    <?php endif ?>
-    <?php if (tienePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR)): ?>
-        <a href="<?= LOCAL_DIR ?>/Departamentos" class="sidebar-button mx-3
-            <?= strtolower($uriParts[0]) == "departamentos" ? "active" : "" ?>">
-            <i class="fa-solid fa-building"></i>
-            Departamentos
-        </a>
-    <?php endif ?>
-    <?php if (tienePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR)): ?>
-        <a href="<?= LOCAL_DIR ?>/Medidas" class="sidebar-button mx-3
-            <?= strtolower($uriParts[0]) == "medidas" ? "active" : "" ?>">
-            <i class="fa-solid fa-ruler-vertical"></i>
-            Medidas
-        </a>
     <?php endif ?>
 
     <?php if (tienePermiso(Modulo::USUARIOS, Permiso::CONSULTAR)
