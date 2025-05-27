@@ -19,8 +19,7 @@
 
             const url = boton.getAttribute('data-bs-url')
 
-            let response = fetch(url).then(response => {
-                console.log(response)
+            let response = fetch(url,{cache: "no-store"}).then(response => {
                 if (!response.ok) {
                     throw new Error(response.statusText)
                 }
