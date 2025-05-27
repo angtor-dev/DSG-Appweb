@@ -96,6 +96,7 @@
                 url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
             },
             layout: {
+                topStart: {},
                 bottom1Start: {
                     pageLength: true
                 },
