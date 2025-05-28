@@ -13,7 +13,7 @@
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label for="cedula" class="form-label">Cedula </label>
-                        <input required autocomplete="off" pattern="^[0-9]{7,8}$" value="" type="text" class="form-control" id="cedula" name="cedula" data-formText="invalid-span-cedula">
+                        <input maxlength="8" required autocomplete="off" pattern="^[0-9]{7,8}$" value="" type="text" class="form-control" id="cedula" name="cedula" data-formText="invalid-span-cedula">
                         <div id="invalid-span-cedula" class="form-text invalid-feedback"></div>
                     </div>
                 </div>
