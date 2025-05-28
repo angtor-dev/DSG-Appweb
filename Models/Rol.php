@@ -84,6 +84,11 @@ class Rol extends Model
         }
     }
 
+    public function SincronizarPermisos() : void
+    {
+        $this->permisos = (!empty($this->id)) ? Permiso::listarPorRelacion($this->id, get_class()) : [];
+    }
+
     public function esValido() : bool
     {
         if (empty(trim($this->nombre))) {

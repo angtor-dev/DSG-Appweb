@@ -240,3 +240,16 @@ function cargarPost():void {
         $_POST = $__TEMP_POST;
     }
 }
+
+/**
+ * Sincroniza los permisos del usuario en la sesión con la BD
+ **/
+function sincronizarPermisosEnSesion() : void {
+    if (!isset($_SESSION['usuario']) || !$_SESSION['usuario'] instanceof Usuario) {
+        return;
+    }
+    
+    /** @var Usuario */
+    $usuarioSesion = $_SESSION['usuario'];
+    $usuarioSesion->rol->SincronizarPermisos();
+}

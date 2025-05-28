@@ -5,6 +5,7 @@ if (file_exists("user_config.php"))
 require_once "vendor/autoload.php";
 
 session_start();
+sincronizarPermisosEnSesion();
 
 $defaultController = "Index";
 $defaultPath = "Home/";
