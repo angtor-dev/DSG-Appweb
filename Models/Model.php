@@ -4,6 +4,7 @@ use PhpParser\Node\Expr\Isset_;
 abstract class Model
 {
     public int $id;
+    private bool $testingMode = false;
     protected Database $db;
 
     public function __construct()
@@ -191,5 +192,14 @@ abstract class Model
     protected function prepare(string $query): PDOStatement
     {
         return $this->db->pdo()->prepare($query);
+    }
+
+    public function setTestingMode(bool $testingMode) : void
+    {
+        $this->testingMode = $testingMode;
+    }
+    public function getTestingMode() : bool
+    {
+        return $this->testingMode;
     }
 }

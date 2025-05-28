@@ -31,9 +31,12 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
     $usuario = new Usuario();
     $usuario->mapearFormulario();
 
-    if ($usuario->registrar()) {
-        $_SESSION['exitos'][] = "Usuario registrado con exito";
-        
+    if(($resp = $usuario->registrar(false))['success']) {
+        $_SESSION['exitos'][] = $resp['mensaje'];
+    }
+    else{
+        if(isset($resp['consoleError'])) $_SESSION['errores'][] = $resp['consoleError'];
+        $_SESSION['errores'][] = $resp['mensaje'];
     }
 
     redirigir(LOCAL_DIR."/Usuarios");

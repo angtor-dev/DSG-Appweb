@@ -4,68 +4,55 @@
 // expresiones regulares
 const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
 const regCedula = /^[0-9]{7,8}$/
+const regCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 
 // validaciones
-function validarNombre() {
-    const iNombre = document.getElementById('nombre')
-    let valor = iNombre.value.trim()
-    const elTexto = iNombre.parentElement.querySelector('.form-text')
 
-    if (valor.length <= 0) {
-        elTexto.textContent = "Este campo es obligatorio"
-        iNombre.classList.add('is-invalid')
-        return false
-    }
-    if (!regAlfanumerico.test(valor)) {
-        elTexto.textContent = "Solo puede contener letras y números"
-        iNombre.classList.add('is-invalid')
-        return false
-    }
-    iNombre.classList.remove('is-invalid')
-    iNombre.classList.add('is-valid')
-    return true
-}
-
-function validarApellido() {
-    const iApellido = document.getElementById('apellido')
-    let valor = iApellido.value.trim()
-    const elTexto = iApellido.parentElement.querySelector('.form-text')
-
-    if (valor.length <= 0) {
-        elTexto.textContent = "Este campo es obligatorio"
-        iApellido.classList.add('is-invalid')
-        return false
-    }
-    if (!regAlfanumerico.test(valor)) {
-        elTexto.textContent = "Solo puede contener letras y números"
-        iApellido.classList.add('is-invalid')
-        return false
-    }
-    iApellido.classList.remove('is-invalid')
-    iApellido.classList.add('is-valid')
-    return true
-}
-
-function validarClave() {
+function validarClave(allowEmpty = false) {
     const iClave = document.getElementById('clave')
     let valor = iClave.value.trim()
-    const elTexto = iClave.parentElement.parentElement.parentElement.querySelector('.form-text')
-    elTexto.classList.add('d-block')
 
-    if (valor.length <= 0) {
-        elTexto.textContent = "Este campo es obligatorio"
-        iClave.classList.add('is-invalid')
+
+    if(!(allowEmpty && valor.length == 0)){
+        
+        if (valor.length <= 0) {
+            iClave.setValidStatus(false, "Este campo es obligatorio")
+            return false
+        }
+        if (!regClave.test(valor)) {
+            iClave.setValidStatus(false, "La clave debe contener al menos una letra y un numero, y ser 6 caracteres de longitud")
+            return false;
+        }
+
+    }
+    iClave.setValidStatus(true);
+    return true
+}
+
+function validarCedula(noValidar = false) {
+    const iCedula = document.getElementById('cedula');
+    const cedula = iCedula.value || "";
+    let ok = true;
+    if (noValidar) {
+        return ok;
+    }
+    else if (!regCedula.test(cedula)) {
+        iCedula.setValidStatus(false, "La cedula debe ser de 7 u 8 digitos")
+        ok = false
+    }
+    iCedula.setValidStatus(true);
+    return ok
+}
+
+function validarCorreo(){
+    const iCorreo = document.getElementById('correo')
+    const correo = iCorreo.value
+    if(!regCorreo.test(correo)){
+        iCorreo.setValidStatus(false, "El correo no es valido")
         return false
     }
-    if (!regClave.test(valor)) {
-        elTexto.textContent = "La clave debe contener al menos una letra y un numero, y ser 6 caracteres de longitud"
-        iClave.classList.add('is-invalid')
-        return false
-    }
-    iClave.classList.remove('is-invalid')
-    iClave.classList.add('is-valid')
-    elTexto.classList.remove('d-block')
+    iCorreo.setValidStatus(true);
     return true
 }
 
@@ -76,81 +63,98 @@ function agregarValidaciones() {
 
     
 
-    // TODO deshabilitar el submit
     // formulario
     const formulario = document.getElementById('form-usuario')
     // campos
     const iNombre = document.getElementById('nombre')
+    const iDepartamento = document.getElementById('departamento')
     const iCorreo = document.getElementById('correo')
     const iIdRol = document.getElementById('idRol')
     const iClave = document.getElementById('clave')
     const iCedula = document.getElementById('cedula')
-    const iDepartamento = document.getElementById('departamento')
     const isubmit = document.getElementById('submit-modal')
     const iGenerador = document.getElementById('generarClave-btn')
+    const boolActualizando = /Actualizar/.test(formulario.action)
 
     // validar al desenfocar campo o al enviar formulario
-    iClave.addEventListener('blur', validarClave)
+    iClave.addEventListener('blur', ()=>{
+
+        validarClave((/Actualizar/.test(formulario.action)))
+
+    });
+
+
+    if(!boolActualizando){
+        iCedula.onkeyup= async function(e){
+
+
+            if(iCedula.abortController) iCedula.abortController.abort("nueva peticion");
+            const abortHolder = new AbortController();
+            iCedula.abortController = abortHolder;
+            [iCorreo, iIdRol, iClave].forEach(element => {
+                element.disabled = true
+                element.setValidStatus();
+                element.value = ""
+            })
+            iNombre.textContent = ""
+            iDepartamento.textContent = ""
+            this.setValidStatus();
+            isubmit.disabled = true
+            iGenerador.disabled = true
 
 
 
-      iCedula.onkeyup= async function(e){
-
-
-        if(iCedula.abortController) iCedula.abortController.abort("nueva peticion");
-        const abortHolder = new AbortController();
-        iCedula.abortController = abortHolder;
-        [iCorreo, iIdRol, iClave].forEach(element => {
-            element.disabled = true
-            element.setValidStatus();
-            element.value = ""
-        })
-        iNombre.textContent = ""
-        iDepartamento.textContent = ""
-        this.setValidStatus();
-        isubmit.disabled = true
-        iGenerador.disabled = true
-
-
-
-        if(regCedula.test(this.value)){
-            
-            fetchObj = {useLoader:"#modal-generico .modal-content", signal:abortHolder.signal}
-            let data = await peticion(`/Usuarios/Registrar?cedula=${this.value}`,fetchObj)
-            if(abortHolder.signal.aborted) {return;}
-            data = JSON.parse(data)
-            if(data.cedula && !data.usuario){
-
-                iCedula.setValidStatus(true)
-
-                iNombre.textContent = data.nombre
-                iDepartamento.textContent = data.departamento
-
-                iCorreo.disabled = false
-                iIdRol.disabled = false
-                iClave.disabled = false
-                isubmit.disabled = false
-                iGenerador.disabled = false
-
-
+            if(regCedula.test(this.value)){
                 
+                fetchObj = {useLoader:"#modal-generico .modal-content", signal:abortHolder.signal}
+                let data = await peticion(`/Usuarios/Registrar?cedula=${this.value}`,fetchObj)
+                if(abortHolder.signal.aborted) {
+                    return;
+                }
+                data = JSON.parse(data)
+                if(data.cedula && !data.usuario){
+
+                    iCedula.setValidStatus(true)
+
+                    iNombre.textContent = data.nombre
+                    iDepartamento.textContent = data.departamento
+
+                    iCorreo.disabled = false
+                    iIdRol.disabled = false
+                    iClave.disabled = false
+                    isubmit.disabled = false
+                    iGenerador.disabled = false
+
+
+                    
+                }
+                else{
+                    iCedula.setValidStatus(false,(data.usuario? "El usuario ya existe" : "El trabajador no existe"))
+                    // document.getElementById("btn-submit-registrar").disabled = false;
+                }
             }
             else{
-                iCedula.setValidStatus(false,(data.usuario? "El usuario ya existe" : "El trabajador no existe"))
-                // document.getElementById("btn-submit-registrar").disabled = false;
+                iCedula.setValidStatus(false,"La cedula debe ser de 7 u 8 digitos")
             }
+            iCedula.abortController = null;
         }
-        else{
-            iCedula.setValidStatus(false,"La cedula debe ser de 7 u 8 digitos")
-        }
-        iCedula.abortController = null;
     }
+
+   
 
     
     formulario.addEventListener('submit', event => {
-        if (!validarNombre() || !validarClave() || !validarApellido()) {
+        if (
+            !validarClave( boolActualizando ) ||
+            !validarCedula( boolActualizando ) ||
+            !validarCorreo()
+        ) {
             event.preventDefault()
             event.stopPropagation()
+        }
+        else { // TODO quitar esto
+            mostrarLoader('body');
+            
         }
     })
 }

@@ -23,13 +23,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 }
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST') 
 {
+    if(isset($_GET['id'])){
+        $_POST['id'] = $_GET['id'];
+    }
     $usuario = new Usuario();
+
     $usuario->mapearFormulario();
 
-    if ($usuario->esValido() && $usuario->actualizar()) {
-        $_SESSION['exitos'][] = "Usuario actualizado con exito";
-        Bitacora::registrar("Usuario '".$usuario->getCorreo()."' actualizado");
+    if (($resp = $usuario->actualizarUsuario(false))['success']) {
+        $_SESSION['exitos'][] = $resp['mensaje'];
     }
+    else
+    {
+        if(DEVELOPER_MODE) $_SESSION['errores'][] = $resp['consoleError'];
+        $_SESSION['errores'][] = $resp['mensaje'];
+    }
+
+    
 
     redirigir(LOCAL_DIR."/Usuarios");
 }

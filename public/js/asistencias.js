@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async function(){
             return;
         };
 
-        if(objSend.trabajadores.length === 0) {
+        if(!Array.isArray(objSend.trabajadores) || objSend.trabajadores.length === 0) {
             mostrarAdvertencia("No hay registros de asistencias nuevos para guardar");
             return;
         };

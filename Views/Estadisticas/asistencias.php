@@ -69,11 +69,13 @@
 									<div id="form-text-agrupar" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1">
+									<label class="fade no-select form-label d-block">l</label>
 									<button id="filtrar-btn" class="btn btn-primary">Filtrar</button>
 								</div>
 								<div class="col px-1">
-									<button class="btn btn-info" onclick="changeChart()">Lineal</button>
-									<button class="btn btn-info" onclick="changeChart('bar')">Barras</button>
+									<label class="fade no-select form-label d-block">l</label>
+									<button class="btn btn-info text-white" onclick="changeChart()">Lineal</button>
+									<button class="btn btn-info text-white" onclick="changeChart('bar')">Barras</button>
 
 								</div>
 							</div>
@@ -95,6 +97,41 @@
 							<canvas id="asistenciasChart" height="400" width="400"></canvas>
 						</div>
 					</div>
+
+					<div class="d-table-row">
+						<hr>
+					</div>
+					<div class="d-table-row">
+						<div class="container">
+							<div class="row justify-content-center">
+								<div class="col-auto p-2">
+									<span style=" font-size: .8rem; ">Pico de asistencias</span>
+									<div class="d-flex flex-column">
+										<div class="text-center fw-bold" id="picoAsistencias"></div>
+										<div class="text-center" id="mesPicoAsistencias"></div>
+										<div>
+											<hr>
+										</div>
+										<span style="font-size: .8rem;">Promedio de Asistencias</span>
+										<div class="text-center fw-bold" id="promedioAsistencias"></div>
+									</div>
+								</div>
+								<div class="col-auto p-2">
+									<span style=" font-size: .8rem; ">Pico de Inasistencias</span>
+									<div class="d-flex flex-column">
+										<div class="text-center fw-bold" id="picoInasistencias"></div>
+										<div class="text-center" id="mesPicoInasistencias"></div>
+										<div>
+											<hr>
+										</div>
+										<span style="font-size: .8rem;">Promedio de Inasistencias</span>
+										<div class="text-center fw-bold" id="promedioInasistencias"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
 				</div>
         	</div>
         </div>

@@ -190,15 +190,63 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
         let inasistencias = [];
         
         if(data.success) {
-            if(data.lista.length == 0){
-                mostrarError("No se encontraron datos");
-                //return;
-            }
+            
+
             data.lista.forEach(element => {
                 labels.push(element[0]);
                 inasistencias.push(element[1]);
                 asistencias.push(element[2]);
             })
+
+
+            if(data.lista.length == 0){
+                mostrarError("No se encontraron datos");
+                document.getElementById("picoAsistencias").closest("div.row").classList.add("d-none");
+            }
+            else{
+                document.getElementById("picoAsistencias").closest("div.row").classList.remove("d-none");
+
+
+                
+                let picoAsistencias = Math.max(...asistencias);
+                let picoInasistencias = Math.max(...inasistencias);
+
+                let promedioAsistencias = asistencias.reduce((a, b) => a + b, 0) / asistencias.length;
+                let promedioInasistencias = inasistencias.reduce((a, b) => a + b, 0) / inasistencias.length;
+                // formatear a dos decimales
+                promedioAsistencias = promedioAsistencias.toFixed(2);
+                promedioInasistencias = promedioInasistencias.toFixed(2);
+
+                document.getElementById("promedioAsistencias").innerHTML = promedioAsistencias;
+                document.getElementById("promedioInasistencias").innerHTML = promedioInasistencias;
+                
+                let labelPicoAsistencias = asistencias.indexOf(picoAsistencias);
+                let labelPicoInasistencias = inasistencias.indexOf(picoInasistencias);
+                
+                let mesPicoAsistencias = labels[labelPicoAsistencias];
+                let mesPicoInasistencias = labels[labelPicoInasistencias];
+                
+                console.log(mesPicoAsistencias);
+                console.log(mesPicoInasistencias);
+                
+                
+                document.getElementById("picoAsistencias").innerHTML = picoAsistencias;
+                document.getElementById("picoInasistencias").innerHTML = picoInasistencias;
+                document.getElementById("mesPicoAsistencias").innerHTML = getMeses(mesPicoAsistencias);
+                document.getElementById("mesPicoInasistencias").innerHTML = getMeses(mesPicoInasistencias);
+                
+                document.getElementById("picoAsistencias").parentNode.parentNode.style.backgroundColor = 'rgb(75, 192, 192)';
+                document.getElementById("picoAsistencias").parentNode.parentNode.style.color = '#006363';
+                
+                document.getElementById("picoInasistencias").parentNode.parentNode.style.backgroundColor = 'rgb(255, 99, 132)';
+                document.getElementById("picoInasistencias").parentNode.parentNode.style.color = '#950020';
+            }
+
+
+
+
+
+        
 
             /*
              * se necesita organizar los datos de tal manera que 
@@ -207,9 +255,6 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
              * inasistencias = [4,5,6]
              */
 
-            console.log(labels);
-            console.log(asistencias);
-            console.log(inasistencias);
             // Actualizar la gráfica
             if(asistenciasChart.config.type == 'bar'){ 
                 inasistencias = inasistencias.map(x=> -x);
@@ -228,13 +273,26 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
         }
 }
 
+/**
+ * Convierte un string o un arreglo de strings en formato AAAA-MM en un string o arreglo de strings en formato AAAA-Mes
+ * @param {string|Array<string>} fechaArreglo
+ * @returns {string|Array<string>}
+ */
 function getMeses(fechaArreglo){
     let meses = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
     let resp = [];
-    fechaArreglo.forEach(element => {
-        let mes = element.split('-')[1].replace('0', '');
-        let anio = element.split('-')[0];
+    if(Array.isArray(fechaArreglo)){
+
+        fechaArreglo.forEach(element => {
+            let mes = element.split('-')[1].replace('0', '');
+            let anio = element.split('-')[0];
+            resp.push(anio + "-" + meses[mes]);
+        })
+    }
+    else if(typeof fechaArreglo == 'string'){
+        let mes = fechaArreglo.split('-')[1].replace('0', '');
+        let anio = fechaArreglo.split('-')[0];
         resp.push(anio + "-" + meses[mes]);
-    })
-    return resp;
+    }
+        return resp;
 }
