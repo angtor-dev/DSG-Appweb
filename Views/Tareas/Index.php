@@ -196,6 +196,8 @@
 <?php renderComponent('ModalGenerico') ?>
 <?php renderComponent('ModalTareas') ?>
 <?php renderComponent('ModalOrden') ?>
+<?php renderComponent('ModalEvaluar') ?>
+<?php renderComponent('ModalDetalles') ?>
 
 
 <script src="public/js/tareas.js"></script>

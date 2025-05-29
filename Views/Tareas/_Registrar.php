@@ -131,7 +131,7 @@
                                         <select class="form-select select2-multiple" id="personal" name="personal[]" multiple="multiple"
                                             data-placeholder="Busque y seleccione personal">
                                             <?php foreach ($trabajadores as $trabajador): ?>
-                                                <option value="<?= $trabajador->id ?>">
+                                                <option value="<?= $trabajador->id ?>" data-departamento="<?= $trabajador->departamento->id ?>">
                                                     <?= $trabajador->getNombreCompleto() ?> - <?= $trabajador->getCedula() ?>
                                                     (<?= $trabajador->departamento->getNombre() ?? 'Sin departamento' ?>)
                                                 </option>
@@ -145,7 +145,7 @@
                                         <select class="form-select select2" id="supervisor" name="supervisor"
                                             data-placeholder="Busque y seleccione supervisor">
                                             <?php foreach ($trabajadores as $trabajador): ?>
-                                                <option value="<?= $trabajador->id ?>">
+                                                <option value="<?= $trabajador->id ?>" data-departamento="<?= $trabajador->departamento->id ?>">
                                                     <?= $trabajador->getNombreCompleto() ?> - <?= $trabajador->getCedula() ?>
                                                     (<?= $trabajador->departamento->getNombre() ?? 'Sin departamento' ?>)
                                                 </option>
