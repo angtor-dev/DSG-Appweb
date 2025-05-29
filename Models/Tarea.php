@@ -14,6 +14,12 @@ class Tarea extends Model
     public bool $es_comun = false;
     public string $turno;
     public ?string $fecha_inicio = null;
+//-------Evaluar
+    public $idAsignacion;
+    public $tipo;
+    public $evaluacion;
+    public $observaciones;
+    public $aprobado;
     
     public ?Area $area = null;
     public ?Departamento $departamento = null;
@@ -238,6 +244,85 @@ class Tarea extends Model
         
         if (!$stmt->execute($values)) {
             throw new Exception("No se pudieron asignar los materiales a la tarea");
+        }
+    }
+
+
+    //----------------------Evaluar metodos--------------------------------------------
+
+    public function registrarEval(array $datos): bool {
+        $this->db->connect();
+        $this->db->pdo()->beginTransaction();
+
+        try {
+            $this->mapearDatosEval($datos);
+
+            if (!$this->esValidoEval()) {
+                throw new Exception("Datos inválidos para la evaluación");
+            }
+
+            $this->guardarEvaluacion();
+
+            if (!empty($datos['materiales'])) {
+                $this->guardarMateriales($datos['materiales']);
+            }
+
+            $this->db->pdo()->commit();
+            return true;
+        } catch (\Throwable $th) {
+            $this->db->pdo()->rollBack();
+            $_SESSION['errores'][] = $th->getMessage();
+            return false;
+        } finally {
+            $this->db->disconnect();
+        }
+    }
+
+    private function mapearDatosEval(array $datos): void {
+        $this->idAsignacion = (int)$datos['idAsignacion'];
+        $this->tipo = $datos['tipo'] ?? 'supervisor';
+        $this->evaluacion = $datos['evaluacion'];
+        $this->observaciones = trim($datos['observaciones']);
+        $this->aprobado = isset($datos['aprobado']) ? 1 : 0;
+    }
+
+    private function esValidoEval(): bool {
+        return $this->idAsignacion > 0 && in_array($this->evaluacion, ['excelente', 'bueno', 'regular', 'deficiente']);
+    }
+
+    private function guardarEvaluacion(): void {
+        $query = "INSERT INTO evaluacion 
+                 (idAsignacion, tipo, evaluacion, observaciones, aprobado) 
+                 VALUES (:idAsignacion, :tipo, :evaluacion, :observaciones, :aprobado)";
+
+        $stmt = $this->db->pdo()->prepare($query);
+        $stmt->bindValue(':idAsignacion', $this->idAsignacion);
+        $stmt->bindValue(':tipo', $this->tipo);
+        $stmt->bindValue(':evaluacion', $this->evaluacion);
+        $stmt->bindValue(':observaciones', $this->observaciones);
+        $stmt->bindValue(':aprobado', $this->aprobado, PDO::PARAM_BOOL);
+        
+        if (!$stmt->execute()) {
+            throw new Exception("Error al guardar la evaluación");
+        }
+    }
+
+    private function guardarMateriales(array $materiales): void {
+        foreach ($materiales as $mat) {
+            $query = "UPDATE material_tarea SET 
+                        cantidad_utilizada = :utilizada, 
+                        cantidad_devuelta = :devuelta, 
+                        estado = :estado 
+                      WHERE id = :id";
+
+            $stmt = $this->db->pdo()->prepare($query);
+            $stmt->bindValue(':utilizada', $mat['utilizada']);
+            $stmt->bindValue(':devuelta', $mat['devuelta']);
+            $stmt->bindValue(':estado', $mat['estado']);
+            $stmt->bindValue(':id', $mat['id']);
+            if (!$stmt->execute()) {
+                throw new Exception("No se pudo actualizar el material ID: " . $mat['id']);
+            }
         }
     }
 

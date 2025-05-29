@@ -27,12 +27,16 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tarea = new Tarea();
     $response = ['success' => false];
 
+    
     if ($tarea->registrar($_POST)) {
+        $tareaCompleta = Tarea::obtenerPorId($tarea->id);
         $response = [
             'success' => true,
             'message' => "Tarea registrada con éxito",
             'data' => [
-                'id' => $tarea->id
+                'id' => $tarea->id,
+                'tarea' => $tareaCompleta, // Incluir todos los datos de la tarea
+                'redirect' => 'Tareas/Orden/' . $tarea->id // Opcional: ruta para obtener la orden
             ]
         ];
         Bitacora::registrar("Tarea registrada: " . $tarea->descripcion);

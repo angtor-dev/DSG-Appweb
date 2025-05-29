@@ -24,15 +24,6 @@
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"
                         data-bs-toggle="modal" data-bs-target="#modal-generico" 
-                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Orden">
-                        <i class="fa-solid fa-plus me-2"></i>
-                        Mostrar Orden
-                    </button>
-                </div>
-                <div>
-                    <button style="padding: .65rem 1.4rem;"
-                        class="btn btn-outline-light rounded-pill"
-                        data-bs-toggle="modal" data-bs-target="#modal-generico" 
                         data-bs-url="<?= LOCAL_DIR ?>/Tareas/Reporte">
                         <i class="fa-solid fa-file-alt me-2"></i>
                         Reporte de tareas
@@ -204,6 +195,7 @@
 <?php renderComponent('ModalCancelar') ?>
 <?php renderComponent('ModalGenerico') ?>
 <?php renderComponent('ModalTareas') ?>
+<?php renderComponent('ModalOrden') ?>
 
 
 <script src="public/js/tareas.js"></script>

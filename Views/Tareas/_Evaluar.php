@@ -1,185 +1,166 @@
+
+<style>
+  .card-header .badge {
+    font-size: 0.8rem;
+  }
+  #tabla-materialesDevueltos input {
+    max-width: 80px;
+  }
+  #tabla-materialesDevueltos select {
+    max-width: 120px;
+  }
+</style>
+
+
 <!-- Modal para Evaluar Tarea -->
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
-        <!-- Encabezado del Modal -->
-        <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">Evaluación de Tarea</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        
-        <!-- Cuerpo del Modal -->
-        <div class="modal-body">
-            <!-- Barra de progreso de evaluación -->
+        <form id="form-evaluacion">
+            <!-- Encabezado del Modal -->
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Evaluación de Tarea</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Cuerpo del Modal -->
+            <div class="modal-body">
+               <!-- Progreso de Evaluación -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h6 class="mb-3">Progreso de Evaluación</h6>
-                    <div class="progress" style="height: 30px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                             id="progreso-evaluacion" role="progressbar" style="width: 0%">
-                            0% completado
+                <h6 class="mb-3">Progreso de Evaluación</h6>
+                <div class="progress" style="height: 30px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                        id="progreso-evaluacion" role="progressbar" style="width: 0%">
+                    0% completado
+                    </div>
+                </div>
+                <div class="mt-2" id="estado-evaluacion">
+                    <small class="text-muted">Falta evaluar por supervisor y director</small>
+                </div>
+                </div>
+            </div>
+
+                <!-- Materiales utilizados -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Materiales Utilizados</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm" id="tabla-materialesDevueltos">
+                                <thead>
+                                    <tr>
+                                        <th>Material</th>
+                                        <th width="100px">Asignado</th>
+                                        <th width="100px">Utilizado</th>
+                                        <th width="100px">Devuelto</th>
+                                        <th width="120px">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-id="1">
+                                        <td>Tornillos 3/8"</td>
+                                        <td>50</td>
+                                        <td><input type="number" class="form-control form-control-sm" value="45" min="0" max="50"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="5" min="0" max="5"></td>
+                                        <td>
+                                            <select class="form-select form-select-sm">
+                                                <option>Buen estado</option>
+                                                <option>Dañado</option>
+                                                <option>Perdido</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr data-id="2">
+                                        <td>Cable eléctrico 14 AWG</td>
+                                        <td>10m</td>
+                                        <td><input type="number" class="form-control form-control-sm" value="8.5" step="0.1" min="0" max="10"></td>
+                                        <td><input type="number" class="form-control form-control-sm" value="1.5" step="0.1" min="0" max="1.5"></td>
+                                        <td>
+                                            <select class="form-select form-select-sm">
+                                                <option>Buen estado</option>
+                                                <option selected>Dañado</option>
+                                                <option>Perdido</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <div class="mt-2" id="estado-evaluacion">
-                        <small class="text-muted">Falta evaluar por supervisor y director</small>
+                </div>
+
+                <!-- Evaluación del Supervisor -->
+                <div class="card mb-4" id="seccion-supervisor">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Evaluación del Supervisor</h6>
+                        <span class="badge bg-info">Pendiente</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Ponderación:</strong></label>
+                            <select class="form-select" id="ponderacion-supervisor" name="ponderacion">
+                                <option value="" disabled selected>Seleccione una ponderación</option>
+                                <option value="buenobueno">Bueno-Bueno</option>
+                                <option value="buenomedio">Bueno-Medio</option>
+                                <option value="buenomalo">Bueno-Malo</option>
+                                <option value="mediomedio">Medio-Medio</option>
+                                <option value="mediomalo">Medio-Malo</option>
+                                <option value="malomalo">Malo-Malo</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="comentarios-supervisor" class="form-label"><strong>Comentarios:</strong></label>
+                            <textarea class="form-control" id="comentarios-supervisor" name="comentarios" rows="3"
+                                      placeholder="Describa su evaluación de la tarea"></textarea>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="aprobacion-supervisor" name="aprobacion">
+                            <label class="form-check-label" for="aprobacion-supervisor">
+                                Aprobar finalización de tarea
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evaluación del Director -->
+                <div class="card mb-4" id="seccion-director">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Evaluación del Director</h6>
+                        <span class="badge bg-secondary">No disponible</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            Esta sección se habilitará después de la aprobación del supervisor.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmación -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Confirmación de Evaluación</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="confirmacion-evaluacion" name="confirmacion">
+                            <label class="form-check-label" for="confirmacion-evaluacion">
+                                Confirmo que la información proporcionada es correcta y completa
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Información general de la tarea -->
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0">Detalles de la Tarea</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Nombre:</strong> <span id="tarea-nombre">Cargando...</span></p>
-                            <p><strong>Descripción:</strong> <span id="tarea-descripcion">Cargando...</span></p>
-                            <p><strong>Estado actual:</strong> <span id="tarea-estado" class="badge bg-warning text-dark">En evaluación</span></p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Departamento:</strong> <span id="tarea-departamento">Cargando...</span></p>
-                            <p><strong>Fecha asignación:</strong> <span id="tarea-fecha">Cargando...</span></p>
-                            <p><strong>Personal asignado:</strong> <span id="tarea-personal">Cargando...</span></p>
-                        </div>
-                    </div>
-                </div>
+            <!-- Pie del Modal -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="btn-guardar-evaluacion">
+                    <i class="fa-solid fa-floppy-disk me-2"></i>Guardar Evaluación
+                </button>
             </div>
-            
-            <!-- Materiales utilizados -->
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0">Materiales Utilizados</h6>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-sm" id="tabla-materialesDevueltos">
-                            <thead>
-                                <tr>
-                                    <th>Material</th>
-                                    <th width="100px">Asignado</th>
-                                    <th width="100px">Utilizado</th>
-                                    <th width="100px">Devuelto</th>
-                                    <th width="120px">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Ejemplo de datos - en producción esto vendría de la base de datos -->
-                                <tr>
-                                    <td>Tornillos 3/8"</td>
-                                    <td>50</td>
-                                    <td><input type="number" class="form-control form-control-sm" value="45" min="0" max="50"></td>
-                                    <td><input type="number" class="form-control form-control-sm" value="5" min="0" max="5"></td>
-                                    <td>
-                                        <select class="form-select form-select-sm">
-                                            <option>Buen estado</option>
-                                            <option>Dañado</option>
-                                            <option>Perdido</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Cable eléctrico 14 AWG</td>
-                                    <td>10m</td>
-                                    <td><input type="number" class="form-control form-control-sm" value="8.5" step="0.1" min="0" max="10"></td>
-                                    <td><input type="number" class="form-control form-control-sm" value="1.5" step="0.1" min="0" max="1.5"></td>
-                                    <td>
-                                        <select class="form-select form-select-sm">
-                                            <option>Buen estado</option>
-                                            <option selected>Dañado</option>
-                                            <option>Perdido</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Evaluación del supervisor -->
-            <div class="card mb-4" id="seccion-supervisor">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Evaluación del Supervisor</h6>
-                    <span class="badge bg-info">Pendiente</span>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label"><strong>Ponderación:</strong></label>
-                        <select class="form-select" id="ponderacion-supervisor">
-                            <option value="" disabled selected>Seleccione una ponderación</option>
-                            <option value="buenobueno">Bueno-Bueno</option>
-                            <option value="buenomedio">Bueno-Medio</option>
-                            <option value="buenomalo">Bueno-Malo</option>
-                            <option value="mediomedio">Medio-Medio</option>
-                            <option value="mediomalo">Medio-Malo</option>
-                            <option value="malomalo">Malo-Malo</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="comentarios-supervisor" class="form-label"><strong>Comentarios:</strong></label>
-                        <textarea class="form-control" id="comentarios-supervisor" rows="3" 
-                                  placeholder="Describa su evaluación de la tarea"></textarea>
-                    </div>
-                    
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="aprobacion-supervisor">
-                        <label class="form-check-label" for="aprobacion-supervisor">
-                            Aprobar finalización de tarea
-                        </label>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Evaluación del director -->
-            <div class="card mb-4" id="seccion-director">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Evaluación del Director</h6>
-                    <span class="badge bg-secondary">No disponible</span>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        Esta sección se habilitará después de la aprobación del supervisor.
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Firma y confirmación -->
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0">Confirmación de Evaluación</h6>
-                </div>
-                <div class="card-body">
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="confirmacion-evaluacion">
-                        <label class="form-check-label" for="confirmacion-evaluacion">
-                            Confirmo que la información proporcionada es correcta y completa
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Pie del Modal -->
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-primary" id="btn-guardar-evaluacion">
-                <i class="fa-solid fa-floppy-disk me-2"></i>Guardar Evaluación
-            </button>
-        </div>
+        </form>
     </div>
 </div>
-
-<!-- Estilos adicionales -->
-<style>
-    .card-header .badge {
-        font-size: 0.8rem;
-    }
-    #tabla-materiales input {
-        max-width: 80px;
-    }
-    #tabla-materiales select {
-        max-width: 120px;
-    }
-</style>

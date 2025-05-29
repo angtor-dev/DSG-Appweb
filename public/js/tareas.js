@@ -37,19 +37,11 @@ function renderButtons(row) {
         switch(row.estado.toLowerCase()) {
             case 'activo':
                 buttons += `
-                    <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
-                
-                       <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
-                                <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                    data-bs-url="Tarea/Actualizar?id=${row.id}">
-                                    <i class="fa-solid fa-fw fa-pen-to-square"></i>
-                                </div>
-                            </div>
-                    <?php endif; ?>
+                    
 
                         <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
-                            <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                data-bs-url="Tareas/Detalle?id=${row.id}">
+                            <div data-bs-toggle="modal" data-bs-target="#modal-orden"
+                                data-bs-url="Tareas/Orden?id=${row.id}" data-valor="${row.id}">
                                 <i class="fa-solid fa-fw fa-eye"></i>
                             </div>
                         </div>
@@ -125,6 +117,74 @@ function renderButtons(row) {
         buttons += '</div>';
         return buttons;
     }
+
+            //----------------------------------------LLENAR ORDEN-------------------------------- - - - -
+
+         function obtenerOrdenPorId(idTarea) {
+                $.ajax({
+                    url: 'Tareas/Orden', // Asegúrate que este sea el path correcto
+                    type: 'POST',
+                    data: { id: idTarea },
+                    success: function(response) {
+                        if (response.success) {
+                            console.log("Datos de la orden:", response.data);
+                            // Aquí puedes llamar funciones para llenar los campos
+                            console.log(response);
+                            mostrarModalOrden(response);
+                        } else {
+                            mostrarError(response.message || 'Error al obtener la orden');
+                        }
+                    },
+                    error: function(xhr) {
+                        mostrarError('Error del servidor al obtener la orden');
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+
+            
+
+            function mostrarModalOrden(tareaData) {
+            const modal = $('#modal-orden');
+           
+            // Cargar plantilla base primero
+            modal.find('.modal-content').load('Tareas/Orden', function() {
+               /*  console.log(tareaData);
+                console.log(tareaData.personal);
+                console.log(tareaData.departamento_nombre);
+                console.log(tareaData.area_nombre);
+                console.log(tareaData.descripcion); */
+                // Llenar los datos dinámicamente
+                const fechaHora = tareaData.data.tarea.fechaCreacion; // "2025-05-28 18:35:40"
+                const [fecha, hora] = fechaHora.split(' ');
+
+                // Insertar en los elementos correspondientes
+                $('#orden-fecha').text(fecha);
+                $('#orden-hora').text(hora);
+                $('#orden-departamento').text(tareaData.data.tarea.departamento_nombre);
+                $('#orden-area').text(tareaData.data.tarea.area_nombre);
+                $('#orden-descripcion').text(tareaData.data.tarea.descripcion);
+                
+                // Personal asignado
+                let personalHtml = '';
+                if (tareaData.data.tarea.personal && tareaData.data.tarea.personal.length > 0) {
+                    tareaData.data.tarea.personal.forEach((persona, index) => {
+                        personalHtml += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${persona.nombre} ${persona.apellido}</td>
+                                <td>${persona.departamento}</td>
+                                <td class="firma-placeholder" style="height: 30px;"></td>
+                            </tr>
+                        `;
+                    });
+                }
+                $('#personal-lista').html(personalHtml);
+                
+                // Mostrar el modal
+                modal.modal('show');
+            });
+        }
 
 
     //-------------------------------------- Barra de progreso -----------------------
@@ -298,8 +358,50 @@ function renderButtons(row) {
         function CargaModalComponentsGenerico(modal) {
             console.log("Modal generico se muestra");
 
+            //----------------------------------DATOS DE EVALUACION---------------------------
+
+            $('#form-evaluacion').on('submit', function(e) {
+                e.preventDefault();
+
+                const form = $(this);
+                const formData = new FormData(this);
+
+                // Recolectar materiales
+                const materiales = [];
+                $('#tabla-materialesDevueltos tbody tr').each(function() {
+                    const row = $(this);
+                    materiales.push({
+                        id: row.data('id'), // debes tener en el <tr> data-id="..." con el ID del material_tarea
+                        utilizada: row.find('input').eq(0).val(),
+                        devuelta: row.find('input').eq(1).val(),
+                        estado: row.find('select').val()
+                    });
+                });
+                formData.append('materiales', JSON.stringify(materiales));
+
+                $.ajax({
+                    url: 'Evaluaciones/Evaluar',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#modal-generico').modal('hide');
+                            mostrarExito(response.message);
+                            tablaActivas.ajax.reload();
+                        } else {
+                            response.errors?.forEach(mostrarError);
+                        }
+                    },
+                    error: function() {
+                        mostrarError("Error al comunicarse con el servidor");
+                    }
+                });
+            });
+
             
-//------------------------------- PERIODICIDAD ---------------------------------------    
+            //------------------------------- PERIODICIDAD ---------------------------------------    
                 $('#periodicidad').change(function() {
                 const periodicidad = $(this).val();
                 
@@ -434,7 +536,45 @@ function renderButtons(row) {
             
             //--------------------------------------------------------- FIN EVALUACIÓN --------------------------------------------//
                 
-    }
+        }
+        //-------------------------------------------------Modal Orden-------------------------------
+
+        $(document).on('show.bs.modal', '#modal-orden', function(e) {
+            const modal = $(this); // <<<<<< IMPORTANTE
+            const button = $(e.relatedTarget);
+            url = button.data('bs-url');
+            const valorId = button.data('valor');
+
+            
+            if (typeof url === 'undefined') {
+                // Cargar el contenido del modal
+               
+            } else {
+               
+               $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function(data) {
+                        console.log(valorId);
+                        modal.find('.modal-content').html(data);
+                      
+                        obtenerOrdenPorId(valorId);
+                        
+                    },
+                    error: function() {
+                       
+                    }
+                });
+            }
+            /* if (!url || url.indexOf('/') === -1) {
+                url = '/DSG-Appweb/Tareas/Orden';
+                return;
+            } */
+
+            
+        });
+
+
            
         //--------------------------------------------------- Modal Tareas ----------------------------
        $(document).on('show.bs.modal', '#modal-tareas', function(e) {
@@ -473,6 +613,14 @@ function renderButtons(row) {
                 dropdownParent: modal.find('#personal').parent()
             });
 
+            modal.find('#supervisor').select2({
+                placeholder: "Busque y seleccione personal",
+                allowClear: true,
+                width: '100%',
+                closeOnSelect: false,
+                dropdownParent: modal.find('#supervisor').parent()
+            });
+
             // Botones siguiente y anterior
             modal.find('.siguiente').off('click').on('click', function() {
                 const nextTab = $(this).data('next');
@@ -502,37 +650,42 @@ function renderButtons(row) {
                     submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Procesando...');
 
                     $.ajax({
-                        url: 'Tareas/Registrar',
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            if (response.success) {
-                                $('#modal-generico').modal('hide');
-                                mostrarExito(response.message);
-                                tablaActivas.ajax.reload();
-                            } else {
-                                if (response.errors?.length) {
-                                    response.errors.forEach(mostrarError);
-                                } else {
-                                    mostrarError(response.message);
-                                }
-                                submitBtn.prop('disabled', false).html('<i class="fa-solid fa-check me-2"></i> Guardar Tarea');
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("Error en la petición:", error);
-                            mostrarError('Error al comunicarse con el servidor');
-                            submitBtn.prop('disabled', false).html('<i class="fa-solid fa-check me-2"></i> Guardar Tarea');
+                    url: 'Tareas/Registrar',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                    if (response.success) {
+                        mostrarExito(response.message);
+                        tablaActivas.ajax.reload();
+                        
+                        obtenerOrdenPorId(response.data.id);
+                        
+                        $('#modal-tareas').modal('hide');
+                      
+                    } else {
+                        if (response.errors?.length) {
+                            response.errors.forEach(mostrarError);
+                        } else {
+                            mostrarError(response.message);
                         }
-                    });
+                        submitBtn.prop('disabled', false).html('<i class="fa-solid fa-check me-2"></i> Guardar Tarea');
+                    }
+                },
+                    error: function(xhr, status, error) {
+                        console.error("Error en la petición:", error);
+                        mostrarError('Error al comunicarse con el servidor');
+                        submitBtn.prop('disabled', false).html('<i class="fa-solid fa-check me-2"></i> Guardar Tarea');
+                    }
+                });
                 });
             } else {
                 console.warn("Formulario con ID 'form-tarea' no encontrado en el modal.");
             }
-
             
+            //--------------------------------------Mostrar orden----------------------------------
+           
         //------------------------------------------------------- MATERIALES ----------------------------------------
             // Variable para almacenar los materiales seleccionados
             let materialesSeleccionados = [];
@@ -561,7 +714,7 @@ function renderButtons(row) {
                     {
                         data: null,
                         render: function(data, type, row) {
-                            return `<button class="btn btn-sm btn-primary agregar-material" data-id="${row.id}">
+                            return `<button type="button" class="btn btn-sm btn-primary agregar-material" data-id="${row.id}">
                                         <i class="fa-solid fa-plus"></i>
                                     </button>`;
                         }
@@ -587,7 +740,8 @@ function renderButtons(row) {
             });
 
             // Agregar material a la selección
-            $('#tabla-materiales tbody').on('click', '.agregar-material', function() {
+            $('#tabla-materiales tbody').on('click', '.agregar-material', function(e) {
+                 e.preventDefault();
                 const rowData = tablaMateriales.row($(this).closest('tr')).data();
                 const cantidad = parseFloat($(this).closest('tr').find('.cantidad-material').val());
                 

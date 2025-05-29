@@ -3,7 +3,7 @@
         "id": 1,
         "nombre": "Tornillos 3/8\"",
         "categoria": "tornilleria",
-        "unidad": "Pieza",
+        "unidad": "Unidad",
         "disponible": 250
     },
     {
@@ -17,7 +17,7 @@
         "id": 3,
         "nombre": "Tablero de yeso 1/2\"",
         "categoria": "construccion",
-        "unidad": "Plancha",
+        "unidad": "Unidad",
         "disponible": 18
     },
     {
