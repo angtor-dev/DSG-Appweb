@@ -96,10 +96,10 @@ class Trabajador extends Model
                 throw new Exception("El campo 'Apellido' solo puede contener letras y números",self::SHOW_EXCEPTION );
             }
             if (empty(trim($this->telefono))) {
-                throw new Exception("El campo 'Telefono' es obligatorio",self::SHOW_EXCEPTION );
+                throw new Exception("El campo 'Teléfono' es obligatorio",self::SHOW_EXCEPTION );
             }
             if (!preg_match(REG_TELEFONO, $this->telefono)) {
-                throw new Exception("El campo 'Telefono' solo puede contener números", self::SHOW_EXCEPTION);
+                throw new Exception("El campo 'Teléfono' solo puede contener números", self::SHOW_EXCEPTION);
             }
             if (empty($this->cargo)) {
                 throw new Exception("El campo 'Cargo' es obligatorio",self::SHOW_EXCEPTION );
@@ -140,7 +140,7 @@ class Trabajador extends Model
         if($control == self::ACTUALIZAR_TRABAJADOR || $control == self::ELIMINAR_TRABAJADOR){
             $trabajador = Trabajador::cargarPorCedula($this->cedulaSeleccion);
             if(empty($trabajador)){
-                throw new Exception("El trabajador selecionado no existe en la base de datos", self::SHOW_EXCEPTION);
+                throw new Exception("El trabajador seleccionado no existe en la base de datos", self::SHOW_EXCEPTION);
             }
 
 
@@ -160,18 +160,18 @@ class Trabajador extends Model
 
             $departamento = Departamento::cargar($this->idDepartamento);
             if(empty($departamento)){
-                throw new Exception("El departamento selecionado no existe en la base de datos", self::SHOW_EXCEPTION);
+                throw new Exception("El departamento seleccionado no existe en la base de datos", self::SHOW_EXCEPTION);
             }
 
             // valida el turno 
             $turno = Turno::from($this->turno);
             if(empty($turno)){
-                throw new Exception("El turno selecionado no es valido", self::SHOW_EXCEPTION);
+                throw new Exception("El turno seleccionado no es valido", self::SHOW_EXCEPTION);
             }
             //valida el cargo
             $cargo = Cargo::from($this->cargo);
             if(empty($cargo)){
-                throw new Exception("El cargo selecionado no es valido", self::SHOW_EXCEPTION);
+                throw new Exception("El cargo seleccionado no es valido", self::SHOW_EXCEPTION);
             }
             
         }
@@ -181,7 +181,7 @@ class Trabajador extends Model
             // verifico la existencia de un usuario relacionado al trabajador
             $usuario = Usuario::cargarPorCedula($this->cedulaSeleccion);
             if(!empty($usuario)){
-                throw new Exception("El trabajador selecionado tiene un usuario asociado y no puede ser eliminado", self::SHOW_EXCEPTION);
+                throw new Exception("El trabajador seleccionado tiene un usuario asociado y no puede ser eliminado", self::SHOW_EXCEPTION);
             }
         }
 

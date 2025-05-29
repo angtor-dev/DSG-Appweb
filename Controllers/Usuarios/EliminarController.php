@@ -2,21 +2,49 @@
 requiereAutenticacion();
 requierePermiso("usuarios", "eliminar");
 
-$usuario = Usuario::cargar($_GET['id']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+{
+    if(isset($_GET['id'])){
+        $_POST['id'] = $_GET['id'];
+    }
+    $usuario = new Usuario();
 
-if (empty($usuario)) {
-    $_SESSION['errores'][] = "El usuario que intenta eliminar no existe";
-    redirigir(LOCAL_DIR."/Usuarios");
+    $usuario->mapearFormulario();
+
+    if (($resp = $usuario->eliminarUsuario(false))['success']) {
+        echo json_encode($resp);
+        $_SESSION['exitos'][] = $resp['mensaje'];
+    }
+    else
+    {
+        echo json_encode($resp);
+    }
+
+    
+
+    //redirigir(LOCAL_DIR."/Usuarios");
+}
+else
+{
+    http_response_code(405);
+    exit;
 }
 
-if ($usuario->id == $_SESSION['usuario']->id) {
-    $_SESSION['errores'][] = "No puedes eliminar tu propio usuario";
-    redirigir(LOCAL_DIR."/Usuarios");
-}
+// $usuario = Usuario::cargar($_GET['id']);
 
-if ($usuario->eliminar(1)) {
-    $_SESSION['exitos'][] = "Usuario eliminado con exito";
-    Bitacora::registrar("Usuario '".$usuario->getCorreo()."' eliminado");
-}
+// if (empty($usuario)) {
+//     $_SESSION['errores'][] = "El usuario que intenta eliminar no existe";
+//     redirigir(LOCAL_DIR."/Usuarios");
+// }
 
-redirigir(LOCAL_DIR."/Usuarios");
+// if ($usuario->id == $_SESSION['usuario']->id) {
+//     $_SESSION['errores'][] = "No puedes eliminar tu propio usuario";
+//     redirigir(LOCAL_DIR."/Usuarios");
+// }
+
+// if ($usuario->eliminar(1)) {
+//     $_SESSION['exitos'][] = "Usuario eliminado con exito";
+//     Bitacora::registrar("Usuario '".$usuario->getCorreo()."' eliminado");
+// }
+
+//redirigir(LOCAL_DIR."/Usuarios");

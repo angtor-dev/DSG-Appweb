@@ -130,6 +130,7 @@ async function peticion (url,obj = {}) {
 
     try {
         beforeHandler ();
+        // LOCAL_DIR = '/DSG-Appweb';// constante global en el head
         
         url = LOCAL_DIR+url;
         let response = await fetch(url, obj);
@@ -208,6 +209,58 @@ function mostrarLoader(element, show = true) {
 }
 
 /**
+ * Solo para development
+ * 
+ * agrega al prototipo de los formularios un metodo para guardar en el localstorage 
+ * los valores de sus inputs y select y otro para agregarlos desde el localstorage
+ * esto solo se guardara en un item llamado savedForms
+ * y se guardan en formato JSON y para asegurarse de que pertenescan al formulario adecuado 
+ * utiliza el formdata para optener los valores y el name para identificarlos
+ * 
+ */
+HTMLFormElement.prototype.saveForm = function () {
+    let formData = new FormData(this);
+    let savedForms = localStorage.getItem("savedForms") || "{}";
+    savedForms = JSON.parse(savedForms);
+    savedForms[this.action] = {};
+    formData.forEach((value, key) => {
+        savedForms[this.action][key] = value;
+    });
+    localStorage.setItem("savedForms", JSON.stringify(savedForms));
+    mostrarAdvertencia("formulario guardado en el localstorage");
+}
+// loadForm
+
+HTMLFormElement.prototype.loadForm = function () {
+    let savedForms = localStorage.getItem("savedForms") || "{}";
+    savedForms = JSON.parse(savedForms);
+    // se carga sin el form data 
+
+    elementos = this.querySelectorAll('input[name], select[name]');
+    for (const item of elementos) {
+        if(!savedForms[this.action] || !savedForms[this.action][item.name]) continue;
+        item.value = savedForms[this.action][item.name];
+    }
+    mostrarAdvertencia("formulario cargado desde el localstorage");
+}
+
+// funcion para limpiar el localstorage de los formularios
+HTMLFormElement.prototype.clearForm = function () {
+    let savedForms = localStorage.getItem("savedForms") || "{}";
+    savedForms = JSON.parse(savedForms);
+    delete savedForms[this.action];
+    localStorage.setItem("savedForms", JSON.stringify(savedForms));
+    console.log(`forumulario ${this.action} limpiado`);
+}
+// funcion para vaciar el localstorage de los formularios
+HTMLFormElement.prototype.clearForms = function () {
+    localStorage.removeItem("savedForms");
+    console.log(`formularios limpiados`);
+}
+
+
+
+/**
  * @function setValidStatus
  * añade a las propiedades del prototipo de los inputs y select una funcion que establesca
  * las clases de bootstrap en los formularios si tiene la clase form-valid
@@ -216,18 +269,21 @@ function mostrarLoader(element, show = true) {
  * 
 */
 HTMLSelectElement.prototype.setValidStatus = HTMLInputElement.prototype.setValidStatus = function (control = null, mensaje = "INVALIDO") {
-    let smsContainer = document.getElementById(this.dataset.formText) || this.parentElement.querySelector('.form-text')
+    let smsContainer = document.getElementById(this.dataset.formText) || document.getElementById(this.dataset.formtext) || this.parentElement.querySelector('.form-text')
     if (control === true) {
         this.classList.add('is-valid')
         this.classList.remove('is-invalid')
         this.setCustomValidity("");
         smsContainer ? smsContainer.textContent = "":null;
+        smsContainer ? smsContainer.classList.remove("d-block"):null;
         this.isValid = ()=>{ return true }
     } else if(control === false) {
         this.classList.add('is-invalid')
         this.classList.remove('is-valid')
         this.setCustomValidity(mensaje);
         smsContainer ? smsContainer.textContent = mensaje:null;
+        smsContainer ? smsContainer.classList.add("d-block"):null;
+
         this.isValid = ()=>{ return false }
     }
     else {

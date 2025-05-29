@@ -1,49 +1,77 @@
+
 <?php /** @var Usuario $usuario */ ?>
 <?php /** @var Rol[] $roles */ ?>
+<?php $Trabajador = $usuario->getTrabajador(); ?>
 
 <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+<div class="modal-content">
         <div class="modal-header bg-white">
             <h5 class="modal-title my-2">
-                Actualizar usuario
+                Registrar nuevo usuario
             </h5>
         </div>
         <div class="modal-body">
             <form method="post" id="form-usuario">
-                <input type="hidden" name="id" value="<?= $usuario->id ?>">
-                <div class="row gy-3 pb-2">
+                <div class="row gy-3">
                     <div class="col-md-6">
-                        <label for="nombre" class="form-label">Nombre</label>
-                        <input class="form-control" type="text" id="nombre" name="nombre" value="<?= $usuario->getNombre() ?>">
-                        <div class="form-text"></div>
+                        <div class="form-info-field" data-info="Cedula" id="cedula">
+                            <?= $Trabajador->getCedula() ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="row gy-3">
+                    <div class="col-md-6 ">
+                        <div class="form-info-field" data-info="Nombre" id="nombre">
+                            <?= $Trabajador->getNombreCompleto() ?>
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <label for="apellido" class="form-label">Apellido</label>
-                        <input class="form-control" type="text" id="apellido" name="apellido" value="<?= $usuario->getApellido() ?>">
-                        <div class="form-text"></div>
+                        <div class="form-info-field" data-info="Departamento" id="departamento">
+                            <?= $Trabajador->departamento->getNombre() ?>
+                        </div>
                     </div>
                     <div class="col-md-12">
                         <label for="correo" class="form-label">Correo</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-fw fa-at"></i></span>
-                            <input type="email" class="form-control" id="correo" name="correo" value="<?= $usuario->getCorreo() ?>">
+                            <input required value="<?= $usuario->getCorreo() ?>" type="email" class="form-control" id="correo" name="correo" data-formText="form-text-correo">
                         </div>
-                        <div class="form-text"></div>
+                        <div class="form-text invalid-feedback" id="form-text-correo"></div>
                     </div>
                     <div class="col-md-12">
                         <label for="idRol" class="form-label">Rol</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-regular fa-fw fa-user-circle"></i></span>
-                            <select class="form-select" name="idRol" id="idRol">
+                            <select class="form-select" name="idRol" id="idRol" data-formText="form-text-rol">
                                 <option value=""></option>
                                 <?php foreach ($roles as $rol): ?>
-                                    <option value="<?= $rol->id ?>" <?= $rol->id == $usuario->idRol ? "selected" : "" ?>>
-                                        <?= $rol->getNombre() ?>
-                                    </option>
+                                    <option <?php if($rol->id == $usuario->idRol) echo "selected"; ?> value="<?= $rol->id ?>"><?= $rol->getNombre() ?></option>
                                 <?php endforeach ?>
                             </select>
                         </div>
-                        <div class="form-text"></div>
+                        <div class="form-text invalid-feedback" id="form-text-rol"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="clave" class="form-label">Contraseña</label>
+                        <div class="position-relative">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-fw fa-lock"></i></span>
+                                <input class="form-control" type="password" id="clave" name="clave" data-formText="form-text-clave" placeholder="Sin Modificar">
+                            </div>
+                            <div class="toggle-password" onclick="alternarClave(event)">
+                                <i class="fa-solid fa-eye"></i>
+                                <i class="fa-solid fa-eye-slash"></i>
+                            </div>
+                        </div>
+                        <div class="form-text invalid-feedback" id="form-text-clave"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-white">.</label>
+                        <button type="button" class="btn btn-light w-100 border" onclick="generarClave()" id="generarClave-btn">
+                            <i class="fa-solid fa-rotate me-1"></i>
+                            Generar Contraseña
+                        </button>
+                        <div class="form-text invalid-feedback"></div>
                     </div>
                 </div>
             </form>
@@ -51,7 +79,7 @@
         <div class="modal-footer">
             <div class="d-flex justify-content-between gap-3">
                 <button data-bs-dismiss="modal" class="btn btn-outline-secondary">Cancelar</button>
-                <button type="submit" form="form-usuario" class="btn btn-primary">Guardar</button>
+                <button type="submit" form="form-usuario" class="btn btn-primary" id="submit-modal">Modificar</button>
             </div>
         </div>
     </div>

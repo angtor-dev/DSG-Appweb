@@ -1,12 +1,42 @@
 const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     + "0123456789!@#$%^&*()_-+={}[];':\"\\|,.<>/?";
-const longitudClave = 12
+const longitudClave = 12 // para el generador
 const regClave = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
 
 
 document.querySelectorAll('.toggle-password').forEach(el => {
     el.addEventListener("click", alternarClave)
 })
+
+
+document.querySelectorAll(".accion-eliminar").forEach(el => {
+    el.addEventListener("click", async () => {
+        console.log(el.dataset);
+        abrirModalEliminar(`Eliminar al usuario ${el.dataset.nombre}`).then(async () => {
+            let response = await peticion(el.dataset.url, {
+                method: "POST",
+                useLoader: "body",
+                body: JSON.stringify({
+                    action: "Eliminar"
+                })
+            })
+            if (response = parsearJson(response)) {
+                if (response.success) {
+                    mostrarLoader("body");
+                    location.reload()
+                    // mostrarExito(response.mensaje)
+                    // setTimeout(() => {
+                    //     console.log(response)
+                    //     mostrarAdvertencia("Se debe recargar la pagina");
+                    // }, 1000);
+                } else {
+                    mostrarError(response.mensaje)
+                }
+            }
+        });
+    })
+})
+
 
 function claveSegura() {
     let clave = "";

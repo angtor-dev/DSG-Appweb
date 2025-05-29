@@ -10,12 +10,15 @@ class Area extends Model
             $_SESSION['errores'][] = "El nombre del área es requerido";
             return false;
         }
+        if (!preg_match(REG_ALFANUMERICO, $this->nombre)) {
+            $_SESSION['errores'][] = "El nombre del área no puede contener caracteres especiales";
+            return false;
+        }
         return true;
     }
 
     /**
-     * Lista las areas que tienen como padre el area especificada
-     * @param int $idArea
+     * Lista las areas que tienen como padre el area actual
      * @return Area[]
      */
     public function listarSubareas() : array

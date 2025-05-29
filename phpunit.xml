@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit bootstrap="vendor/autoload.php" stopOnFailure="false"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
+<phpunit bootstrap="vendor/autoload.php" stopOnFailure="true"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
 	<testsuites>
 		<testsuite name="Asistencias">
 			<directory suffix=".php">
 				test/Asistencias
 			</directory>
 		</testsuite>
+		<testsuite name="Usuarios">
+			<directory suffix=".php">
+				test/Usuarios
+			</directory>
+		</testsuite>
+
 		<!-- 
 		otro se agrega aqui 
 		<testsuite name="Trabajadores (EL nombre aqui no importa solo no se debe repetir)">
