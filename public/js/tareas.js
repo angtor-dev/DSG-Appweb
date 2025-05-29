@@ -144,27 +144,24 @@ function renderButtons(row) {
 
             
 
-            function mostrarModalOrden(tareaData) {
+           function mostrarModalOrden(tareaData) {
             const modal = $('#modal-orden');
-           
+            
             // Cargar plantilla base primero
             modal.find('.modal-content').load('Tareas/Orden', function() {
-               /*  console.log(tareaData);
-                console.log(tareaData.personal);
-                console.log(tareaData.departamento_nombre);
-                console.log(tareaData.area_nombre);
-                console.log(tareaData.descripcion); */
-                // Llenar los datos dinámicamente
+                
+                // Fecha y hora
                 const fechaHora = tareaData.data.tarea.fechaCreacion; // "2025-05-28 18:35:40"
                 const [fecha, hora] = fechaHora.split(' ');
 
-                // Insertar en los elementos correspondientes
+                // Insertar datos básicos
                 $('#orden-fecha').text(fecha);
                 $('#orden-hora').text(hora);
                 $('#orden-departamento').text(tareaData.data.tarea.departamento_nombre);
                 $('#orden-area').text(tareaData.data.tarea.area_nombre);
                 $('#orden-descripcion').text(tareaData.data.tarea.descripcion);
-                
+                $('#orden-observaciones').val(tareaData.data.tarea.observaciones || '');
+
                 // Personal asignado
                 let personalHtml = '';
                 if (tareaData.data.tarea.personal && tareaData.data.tarea.personal.length > 0) {
@@ -180,11 +177,48 @@ function renderButtons(row) {
                     });
                 }
                 $('#personal-lista').html(personalHtml);
-                
+
+                // Materiales y descripción - llenar tabla tareas-lista
+                let tareasHtml = '';
+                // Como la descripción es única, la colocamos primero con índice 1
+                tareasHtml += `
+                    <tr>
+                        <td>1</td>
+                        <td>${tareaData.data.tarea.descripcion}</td>
+                        <td>
+                            <ul class="list-unstyled mb-0">
+                `;
+
+                if (tareaData.data.tarea.materiales && tareaData.data.tarea.materiales.length > 0) {
+                    tareaData.data.tarea.materiales.forEach(material => {
+                        tareasHtml += `<li>${material.cantidad} x ${material.nombre}</li>`;
+                    });
+                } else {
+                    tareasHtml += `<li>No hay materiales asignados.</li>`;
+                }
+
+                tareasHtml += `
+                            </ul>
+                        </td>
+                    </tr>
+                `;
+
+                $('#tareas-lista').html(tareasHtml);
+
+                // Supervisor (puede ser array con 1 elemento)
+                if (tareaData.data.tarea.supervisor && tareaData.data.tarea.supervisor.length > 0) {
+                    const sup = tareaData.data.tarea.supervisor[0];
+                    // Actualiza el texto en el área de supervisor (por ejemplo, con id supervisor-nombre)
+                    $('.firma-placeholder').next('p.mb-0').text(` ${sup.nombre} ${sup.apellido}`);
+                } else {
+                    $('.firma-placeholder').next('p.mb-0').text('Supervisor no asignado');
+                }
+
                 // Mostrar el modal
                 modal.modal('show');
             });
         }
+
 
 
     //-------------------------------------- Barra de progreso -----------------------
@@ -694,10 +728,14 @@ function renderButtons(row) {
             const tablaMateriales = $('#tabla-materiales').DataTable({
                 dom: '<"top"f>rt<"bottom"lip><"clear">',
                 ajax: {
-                    url: 'Tareas/Materiales',
-                    type: 'GET',
-                    dataSrc: ''
-                },
+                url: 'Tareas/Materiales',
+                type: 'GET',
+                dataSrc: function(json) {
+                    // Aquí puedes procesar los datos antes que DataTables los use
+                    setTimeout(actualizarCategorias, 0); // Usamos setTimeout para asegurar que DataTables ya procesó los datos
+                    return json;
+                }
+            },
                 columns: [
                     { data: 'id' },
                     { data: 'nombre' },
@@ -708,7 +746,7 @@ function renderButtons(row) {
                         data: null,
                         render: function(data, type, row) {
                             return `<input type="number" class="form-control form-control-sm cantidad-material" 
-                                    max="${row.disponible}" step="${row.unidad === 'Pieza' ? '1' : '0.1'}" value="1">`;
+                                    max="${row.disponible}" step="${row.unidad === 'Pieza' ? '1' : '0.1'}" value="0">`;
                         }
                     },
                     {
@@ -726,9 +764,33 @@ function renderButtons(row) {
                 responsive: true
             });
 
+           function actualizarCategorias() {
+                // Vaciar el select primero
+                $('#categoria').empty();
+                
+                // Opción por defecto (opcional)
+                $('#categoria').append('<option value="">Todas las categorías</option>');
+                
+                // Obtener categorías únicas de la tabla
+                const datos = tablaMateriales.data().toArray();
+                const categoriasUnicas = [...new Set(datos.map(item => item.categoria))];
+                
+                // Llenar el select con las categorías
+                categoriasUnicas.forEach(categoria => {
+                    $('#categoria').append(`<option value="${categoria}">${categoria}</option>`);
+                });
+            }
+
+            // Llamar la función cuando se cargue la tabla por primera vez
+           
+           // actualizarCategorias();
+            
+            
+             console.log(tablaMateriales);    
             // Filtrar materiales
             $('#buscar-material').on('keyup', function() {
                 tablaMateriales.search(this.value).draw();
+               
             });
 
             $('#categoria').on('change', function() {

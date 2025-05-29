@@ -11,6 +11,7 @@ class Tarea extends Model
     public string $descripcion;
     public string $fechaCreacion;
     public string $estado_tarea = 'activo';
+    public string $idSupervisor;
     public bool $es_comun = false;
     public string $turno;
     public ?string $fecha_inicio = null;
@@ -36,7 +37,8 @@ class Tarea extends Model
     }
     
     private array $personalAsignado = [];
-    private array $materiales = [];
+    /** @var array $materiales */
+    public array $materiales = [];
 
     // Métodos públicos
 
@@ -67,9 +69,9 @@ class Tarea extends Model
             }
 
             // Asignar materiales si existen
-            /* if (!empty($this->materiales)) {
+           if (!empty($this->materiales)) {
                 $this->asignarMateriales($this->materiales);
-            } */
+            }
 
             $this->db->pdo()->commit();
             return true;
@@ -96,13 +98,19 @@ class Tarea extends Model
         $this->es_comun = ($datos['tipoTarea'] ?? 'normal') === 'comun';
         $this->turno = $datos['turno'];
         $this->fecha_inicio = $datos['fecha_inicio'];
+        $this->idSupervisor = (int)$datos['supervisor'] ?? 0;
+        
         
         if (!$this->es_comun && isset($datos['personal'])) {
             $this->personalAsignado = (array)$datos['personal'];
         }
         
-        if (isset($datos['materiales'])) {
-            $this->materiales = (array)$datos['materiales'];
+       if (isset($datos['materiales'])) {
+            if (is_string($datos['materiales'])) {
+                $this->materiales = json_decode($datos['materiales'], true);
+            } else {
+                $this->materiales = (array)$datos['materiales'];
+            }
         }
     }
 
@@ -157,8 +165,8 @@ class Tarea extends Model
     private function guardarTarea(): int
     {
         $query = "INSERT INTO tarea 
-                 (idArea, idDepartamento, descripcion, fechaCreacion, estado_tarea, es_comun) 
-                 VALUES (:idArea, :idDepartamento, :descripcion, NOW(), :estado, :es_comun)";
+                 (idArea, idDepartamento, idSupervisor, descripcion, fecha_inicio, estado_tarea, es_comun) 
+                 VALUES (:idArea, :idDepartamento,:idSupervisor, :descripcion,:fecha_inicio, :estado, :es_comun)";
 
         $stmt = $this->db->pdo()->prepare($query);
         $stmt->bindValue(":idArea", $this->idArea, PDO::PARAM_INT);
@@ -166,6 +174,9 @@ class Tarea extends Model
         $stmt->bindValue(":descripcion", $this->descripcion);
         $stmt->bindValue(":estado", $this->estado_tarea);
         $stmt->bindValue(":es_comun", $this->es_comun, PDO::PARAM_BOOL);
+        $stmt->bindValue(":fecha_inicio", $this->fecha_inicio);
+        $stmt->bindValue(":idSupervisor", $this->idSupervisor, PDO::PARAM_INT);
+        
 
         
         if (!$stmt->execute()) {
@@ -203,14 +214,6 @@ class Tarea extends Model
 
     $stmt = $this->db->pdo()->prepare($sql);
 
-    ob_start();
-    var_dump($this->id);
-    $_SESSION['errores'][] = "Valor de idTarea: " . ob_get_clean();
-
-    ob_start();
-    var_dump($idsTrabajadores);
-    $_SESSION['errores'][] = "Valor de trabajadores: " . ob_get_clean();
-
     if (!$stmt->execute($values)) {
         $error = $stmt->errorInfo();
         throw new Exception("Error al asignar personal: " . $error[2]);
@@ -224,28 +227,65 @@ class Tarea extends Model
      * @param array $materiales Array de materiales con sus cantidades
      * @throws Exception Si no se pueden asignar los materiales
      */
+  
     private function asignarMateriales(array $materiales): void 
     {
         if (empty($materiales)) {
             return;
         }
 
-        $query = "INSERT INTO tarea_material (idTarea, idMaterial, cantidad) VALUES ";
+        $query = "INSERT INTO recurso (idTarea, idInventario, cantidad, devolucion, cantidadDevolucion) VALUES ";
         $placeholders = [];
-        $values = [":idTarea" => $this->id];
-        
+        $values = [];
+
         foreach ($materiales as $i => $material) {
-            $placeholders[] = "(:idTarea, :idMaterial_$i, :cantidad_$i)";
-            $values[":idMaterial_$i"] = (int)$material['id'];
-            $values[":cantidad_$i"] = (int)($material['cantidad'] ?? 1);
+            $idTareaParam = ":idTarea_$i";
+            $idInventarioParam = ":idInventario_$i";
+            $cantidadParam = ":cantidad_$i";
+            $devolucionParam = ":devolucion_$i";
+            $cantidadDevolucionParam = ":cantidadDev_$i";
+
+            $placeholders[] = "($idTareaParam, $idInventarioParam, $cantidadParam, $devolucionParam, $cantidadDevolucionParam)";
+
+            $values[$idTareaParam] = (int)$this->id;
+            $values[$idInventarioParam] = (int)$material['id'];
+            $values[$cantidadParam] = (int)$material['cantidad'];
+            $values[$devolucionParam] = 0; // 0 = no hay devolución aún
+            $values[$cantidadDevolucionParam] = 0;
         }
-        
-        $stmt = $this->db->pdo()->prepare($query . implode(", ", $placeholders));
-        
+
+        $sql = $query . implode(", ", $placeholders);
+        $stmt = $this->db->pdo()->prepare($sql);
+
         if (!$stmt->execute($values)) {
-            throw new Exception("No se pudieron asignar los materiales a la tarea");
+            $error = $stmt->errorInfo();
+            throw new Exception("Error al registrar materiales: " . $error[2]);
         }
+
+        // Restar stock de artículo
+
+        
+        foreach ($materiales as $material) {
+            $stmt = $this->db->pdo()->prepare("
+                UPDATE articulo 
+                SET cantidad = cantidad - :cantidad 
+                WHERE id = :id AND cantidad >= :cantidad_check
+            ");
+
+            $params = [
+                ':cantidad' => (int)$material['cantidad'],
+                ':cantidad_check' => (int)$material['cantidad'],
+                ':id' => (int)$material['id'],
+            ];
+
+            if (!$stmt->execute($params)) {
+                $error = $stmt->errorInfo();
+                throw new Exception("Error SQL: " . $error[2]);
+            }
+        }
+
     }
+
 
 
     //----------------------Evaluar metodos--------------------------------------------
@@ -414,14 +454,65 @@ public function cancelar() {
             $stmt->execute([':idTarea' => $id]);
             $tarea->personal = $stmt->fetchAll(PDO::FETCH_OBJ);
             
-            // materiales y comentarios
-            
+            // supervisor
+            $querySupervisor = "SELECT tr.id AS idSupervisor, tr.nombre, tr.apellido, d.nombre AS departamento
+                    FROM tarea t
+                    JOIN trabajador tr ON t.idSupervisor = tr.id
+                    JOIN departamento d ON tr.idDepartamento = d.id
+                    WHERE t.id = :idTarea";
+
+            $stmt = $pdo->prepare($querySupervisor);
+            $stmt->execute([':idTarea' => $id]);
+            $tarea->supervisor = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            // Obtener materiales asignados (recursos)
+            $queryMateriales = "SELECT 
+                        r.idInventario AS id, 
+                        a.nombre, 
+                        a.descripcion, 
+                        a.idMedida,
+                        r.cantidad, 
+                        r.devolucion, 
+                        r.cantidadDevolucion 
+                    FROM recurso r
+                    JOIN articulo a ON r.idInventario = a.id
+                    WHERE r.idTarea = :idTarea";
+
+                $stmt = $pdo->prepare($queryMateriales);
+                $stmt->execute([':idTarea' => $id]);
+                $tarea->materiales = $stmt->fetchAll(PDO::FETCH_OBJ);
+    
             return $tarea;
             
         } finally {
             $bd->disconnect();
         }
     }
+
+    //----------para llenar tabla de materiales
+       public function listarConCategoriaYUnidad()
+{
+    $bd = Database::getInstance();
+    $bd->connect();
+    $pdo = $bd->pdo();
+    
+    $query = "SELECT 
+                a.id,
+                a.nombre,
+                c.nombre AS categoria,
+                m.unidad,
+                a.cantidad AS disponible
+            FROM articulo a
+            JOIN categoria c ON a.idCategoria = c.id
+            JOIN medida m ON a.idMedida = m.id
+            WHERE a.cantidad > 0";  // <- Aquí agregamos la condición
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->execute();
+    
+    $bd->disconnect();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 
 
