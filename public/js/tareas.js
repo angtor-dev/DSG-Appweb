@@ -31,84 +31,98 @@ function renderButtons(row) {
   // Botones específicos por estado
   switch (row.estado.toLowerCase()) {
     case "activo":
-      buttons += `
-                    
-
-                        <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
-                            <div data-bs-toggle="modal" data-bs-target="#modal-orden"
-                                data-bs-url="Tareas/Orden?id=${row.id}" data-valor="${row.id}">
-                                <i class="fa-solid fa-fw fa-eye"></i>
-                            </div>
-                        </div>
-                       
-
-                    
-                         <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Cancelar" 
-                            onclick="cancelarTarea(${row.id}, this)">
-                            <i class="fa-solid fa-ban"></i>
-                        </div>
-                    
-                    
-                    
-                `;
-      break;
+        buttons += `
+            <div class="d-flex gap-2">
+                <!-- Ver Detalles -->
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalles">
+                    <div data-bs-toggle="modal" data-bs-target="#modal-orden"
+                        data-bs-url="Tareas/Orden?id=${row.id}" data-valor="${row.id}">
+                        <i class="fa-solid fa-fw fa-eye"></i>
+                    </div>
+                </div>
+                
+                <!-- Cancelar -->
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar Tarea" 
+                    onclick="cancelarTarea(${row.id}, this)">
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+            </div>
+        `;
+        break;
 
     case "vencida":
-      buttons += `
-                     <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
+        buttons += `
+            <div class="d-flex gap-2">
+                <?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?>
+                    <!-- Evaluar -->
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="Evaluar Tarea">
                         <button class="btn btn-sm btn-outline-success" 
                             data-bs-toggle="modal" 
                             data-bs-target="#modal-evaluar"
                             data-bs-url="Tareas/Evaluar?id=${row.id}" data-valor="${row.id}">
                             <i class="fas fa-check"></i> Evaluar
                         </button>
-                    <?php endif; ?>
-                `;
-      break;
+                    </span>
+                <?php endif; ?>
+            </div>
+        `;
+        break;
 
     case "cancelado":
-      buttons += `
-                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Ver Detalles">
-                            <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                data-bs-url="Tareas/Detalle?id=${row.id}">
-                                <i class="fa-solid fa-fw fa-eye"></i>
-                            </div>
-                        </div>
-                `;
-      break;
+        buttons += `
+            <div class="d-flex gap-2">
+                <!-- Ver Detalles -->
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalles">
+                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
+                        data-bs-url="Tareas/Detalle?id=${row.id}">
+                        <i class="fa-solid fa-fw fa-eye"></i>
+                    </div>
+                </div>
+            </div>
+        `;
+        break;
 
     case "evaluada":
-      buttons += `
-                    <?php if (tienePermiso(Modulo::TAREAS, Permiso::CONSULTAR)): ?>
+        buttons += `
+            <div class="d-flex gap-2">
+                <?php if (tienePermiso(Modulo::TAREAS, Permiso::CONSULTAR)): ?>
+                    <!-- Ver Detalles -->
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalles de Evaluación">
                         <button class="btn btn-sm btn-outline-secondary" 
                             data-bs-toggle="modal" 
                             data-bs-target="#modal-detalles"
                             data-bs-url="Tareas/Detalle?id=${row.id}" data-valor="${row.id}">
                             <i class="fas fa-eye"></i> Detalle
                         </button>
-                    <?php endif; ?>
-                `;
-      break;
+                    </span>
+                <?php endif; ?>
+            </div>
+        `;
+        break;
 
     case "comun":
-      buttons += `
-                    <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Configurar">
-                        <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                            data-bs-url="Tareas/Configuracion?id=${row.id}">
-                            <i class="fa-solid fa-fw fa-gear"></i>
-                        </div>
+        buttons += `
+            <div class="d-flex gap-2">
+                <!-- Configurar -->
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Configurar Tarea">
+                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
+                        data-bs-url="Tareas/Configuracion?id=${row.id}">
+                        <i class="fa-solid fa-fw fa-gear"></i>
                     </div>
-                     <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Eliminar" 
-                            onclick="eliminarTarea(${row.id}, this)">
-                            <i class="fa-solid fa-trash"></i>
-                        </div>
-                    
-                `;
-      break;
-  }
+                </div>
+                
+                <!-- Eliminar -->
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar Tarea" 
+                    onclick="eliminarTarea(${row.id}, this)">
+                    <i class="fa-solid fa-trash"></i>
+                </div>
+            </div>
+        `;
+        break;
+}
 
-  buttons += "</div>";
-  return buttons;
+buttons += "</div>";
+return buttons;
 }
 //---------------------------------------- LLENAR EVALUACION---------------------------------------
 function mostrarModalEvaluacion(tareaData) {
@@ -536,6 +550,7 @@ $(document).ready(function () {
       {
         data: null,
         render: function (data, type, row) {
+          $('[data-bs-toggle="tooltip"]').tooltip('dispose').tooltip();
           return renderButtons(row);
         },
       },
@@ -1118,10 +1133,17 @@ $(document).ready(function () {
         {
           data: null,
           render: function (data, type, row) {
-            return `<button type="button" class="btn btn-sm btn-primary agregar-material" data-id="${row.id}">
-                                        <i class="fa-solid fa-plus"></i>
-                                    </button>`;
-          },
+            $('[data-bs-toggle="tooltip"]').tooltip();
+            return `
+                <button type="button" 
+                        class="btn btn-sm btn-primary agregar-material" 
+                        data-id="${row.id}"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="Agregar material">
+                    <i class="fa-solid fa-plus"></i>
+                </button>`;
+        },
         },
       ],
       language: {
