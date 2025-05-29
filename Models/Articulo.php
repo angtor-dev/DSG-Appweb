@@ -5,7 +5,7 @@ class Articulo extends Model
     public int $idMedida;
     private string $nombre;
     private ?string $descripcion;
-    private int $cantidad;
+    private float $cantidad;
     private bool $esConsumible;
     public Categoria $categoria;
     public Medida $medida;
