@@ -21,7 +21,7 @@ class AsistenciasListarTest extends TestCase
 
         $this->asistenciaObj->mapearFormulario();
 
-        $respuesta = $this->asistenciaObj->listarAsistenciasTrabajadores(false);
+        $respuesta = $this->asistenciaObj->verAsistencias(false);
         
 
         $mensaje = "caso ($num_caso)";
