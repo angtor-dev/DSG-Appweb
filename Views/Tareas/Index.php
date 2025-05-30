@@ -23,16 +23,6 @@
                 <div>
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"
-                        data-bs-toggle="modal" data-bs-target="#modal-generico"
-                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Reporte">
-                        <i class="fa-solid fa-file-alt me-2"></i>
-                        Reporte de tareas
-                    </button>
-                </div>
-
-                <div>
-                    <button style="padding: .65rem 1.4rem;"
-                        class="btn btn-outline-light rounded-pill"
                         data-bs-toggle="modal" data-bs-target="#modal-estadistica"
                         data-bs-url="<?= LOCAL_DIR ?>/Tareas/ReporteA">
                         <i class="fa-solid fa-file-alt me-2"></i>
@@ -213,18 +203,19 @@
 <?php renderComponent('ModalReporteA') ?>
 
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script src="public/js/tareas.js"></script>
+<script src="public/lib/chart.js"></script>
+<script src="public/lib/jspdf.umd.min.js"></script>
+<script src="public/lib/jspdf.plugin.autotable.min.js"></script>
+<script src="public/lib/html2canvas.min.js"></script>
 
 
 <script>
 
     async function generarPDF() {
     try {
-        // 1. Asegurarse que las librerías están cargadas
+        
         if (!window.jspdf || !window.html2canvas) {
             throw new Error("Las librerías necesarias no están cargadas");
         }
@@ -232,7 +223,7 @@
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'pt', 'a4');
         
-        // 2. Seleccionar el elemento correcto
+       
         const modal = document.querySelector('#modal-estadistica');
         if (!modal) {
             throw new Error("El modal no está presente en el DOM");
