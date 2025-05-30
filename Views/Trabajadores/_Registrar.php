@@ -74,7 +74,7 @@
         <div class="modal-footer">
             <div class="d-flex justify-content-between gap-3">
                 <button data-bs-dismiss="modal" class="btn btn-outline-secondary">Cancelar</button>
-                <button id="btn-submit-registrar" type="submit" form="form-trabajador" class="btn btn-primary">Registrar</button>
+                <button disabled id="btn-submit-registrar" type="submit" form="form-trabajador" class="btn btn-primary">Registrar</button>
             </div>
         </div>
     </div>
