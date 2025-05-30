@@ -153,11 +153,15 @@
                                 <div id="tabla-asistencias" class="d-none">
 
                                     <table class="table table-responsive table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Cedula</th>
+                                                <th>Nombre</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
                                             <!-- dinamic content  -->
-
-
-
                                         </tbody>
                                     </table>
                                     <div class="container">

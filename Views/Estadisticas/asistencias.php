@@ -31,8 +31,8 @@
 									<div id="form-text-hasta" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1">
-									<label for="trabajador" class="form-label">Cedula Trabajador</label>
-									<input type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
+									<label for="trabajador" class="form-label text-nowrap">Cedula Trabajador</label>
+									<input maxlength="8" type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
 									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1">
@@ -68,7 +68,7 @@
 									</select>
 									<div id="form-text-agrupar" class="form-text invalid-feedback"></div>
 								</div>
-								<div class="col px-1">
+								<div class="col-auto px-1">
 									<label class="fade no-select form-label d-block">l</label>
 									<button id="filtrar-btn" class="btn btn-primary">Filtrar</button>
 								</div>
@@ -89,11 +89,11 @@
 					<style>
 						#asistenciaChart{
 							width: 100%;
-							height: 400px;
+							max-height: 400%;
 						}
 					</style>
 					<div class="d-table-row">
-						<div>
+						<div style="position:relative; width: 100%; max-height: 400px;">
 							<canvas id="asistenciasChart" height="400" width="400"></canvas>
 						</div>
 					</div>
@@ -109,11 +109,11 @@
 									<div class="d-flex flex-column">
 										<div class="text-center fw-bold" id="picoAsistencias"></div>
 										<div class="text-center" id="mesPicoAsistencias"></div>
-										<div>
+										<!-- <div>
 											<hr>
 										</div>
 										<span style="font-size: .8rem;">Promedio de Asistencias</span>
-										<div class="text-center fw-bold" id="promedioAsistencias"></div>
+										<div class="text-center fw-bold" id="promedioAsistencias"></div> -->
 									</div>
 								</div>
 								<div class="col-auto p-2">
@@ -121,11 +121,11 @@
 									<div class="d-flex flex-column">
 										<div class="text-center fw-bold" id="picoInasistencias"></div>
 										<div class="text-center" id="mesPicoInasistencias"></div>
-										<div>
+										<!-- <div>
 											<hr>
 										</div>
 										<span style="font-size: .8rem;">Promedio de Inasistencias</span>
-										<div class="text-center fw-bold" id="promedioInasistencias"></div>
+										<div class="text-center fw-bold" id="promedioInasistencias"></div> -->
 									</div>
 								</div>
 							</div>

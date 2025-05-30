@@ -403,10 +403,10 @@ class Usuario extends Model
             public $claveRequerida = "La clave es requerida";
             public $calveInvalida = "La clave debe tener al menos 6 caracteres, una letra mayúscula, una letra minúscula y un número";
             public $cedulaRequerida = "La cedula es requerida";
-            public $cedulaInvalida = "La cedula es invalida debe contener entre 7 y 8 digitos";
+            public $cedulaInvalida = "La cedula es invalida debe contener entre 7 y 8 dígitos";
             public $correoRegistradoUserActive = "El correo ya se encuentra registrado con un usuario activo";
             public $correoRegistradoUserInactive = "El correo ya se encuentra registrado con un usuario inactivo";
-            public $cedulaNoTrabajador = "La cedula no pertenece a ningun trabajador";
+            public $cedulaNoTrabajador = "La cedula no pertenece a ningún trabajador";
             public $userNoExist = "El usuario no existe";
         };
 
@@ -474,7 +474,7 @@ class Usuario extends Model
         if($controlAction == self::REGISTRAR_USUARIO || $controlAction == self::ACTUALIZAR_USUARIO) {
             $query = "SELECT u.*, t.cedula, t.id as idTrabajador FROM usuario AS u left join trabajador as t on u.idTrabajador = t.id WHERE correo = :correo";
             if($controlAction == self::ACTUALIZAR_USUARIO) {
-                $query .= " AND u.id != :id";
+                $query .= " AND u.id <> :id";
             }
 
             $stmt = $this->prepare($query);

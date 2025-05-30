@@ -10,7 +10,7 @@ require_once("Models/Enums/Justificacion.php");
 if(!empty($_POST)){
     $asistenciaObj = new Asistencia();
     $asistenciaObj->mapearFormulario();
-    $asistenciaObj->listarAsistenciasTrabajadores(true);
+    $asistenciaObj->verAsistencias(true);
     die;
 }
 
