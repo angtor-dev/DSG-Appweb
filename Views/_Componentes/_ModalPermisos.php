@@ -26,6 +26,9 @@
                         </thead>
                         <tbody>
                             <?php foreach ($modulos as $modulo): ?>
+                                <?php
+                                if ($modulo->getNombre() == 'reporteAsistencias') continue;
+                                ?>
                                 <tr>
                                     <td class="text-end text-nowrap"><b><?= $modulo->getNombre() == "roles" ? "roles y permisos" : $modulo->getNombre() ?></b></td>
                                     <td class="text-center">
