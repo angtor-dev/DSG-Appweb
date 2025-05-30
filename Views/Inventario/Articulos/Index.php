@@ -32,6 +32,7 @@
                             <th>Descripción</th>
                             <th>Categoría</th>
                             <th>Cantidad</th>
+                            <th>Med.</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -46,12 +47,13 @@
                                     </span>
                                 </td>
                                 <td><?= $articulo->getCantidad() ?></td>
+                                <td><?= $articulo->medida->getSubUnidad() ?></td>
                                 <td>
                                     <div class="d-flex justify-content-evenly w-100 gap-3">
                                         <?php if (tienePermiso(Modulo::ARTICULOS, Permiso::ACTUALIZAR)): ?>
                                             <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
                                                 <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Articulos/Actualizar?id=<?= $articulo->id ?>">
+                                                    data-bs-url="<?= LOCAL_DIR ?>/Inventario/Articulos/Actualizar?id=<?= $articulo->id ?>">
                                                     <i class="fa-solid fa-fw fa-pen-to-square"></i>
                                                 </div>
                                             </div>
@@ -61,7 +63,7 @@
                                                 <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
                                                     data-bs-modelo="el artículo" 
                                                     data-bs-nombre="<?= $articulo->getNombre() ?>"
-                                                    data-bs-url="<?= LOCAL_DIR ?>/Articulos/Eliminar?id=<?= $articulo->id ?>">
+                                                    data-bs-url="<?= LOCAL_DIR ?>/Inventario/Articulos/Eliminar?id=<?= $articulo->id ?>">
                                                     <i class="fa-solid fa-fw fa-trash-can"></i>
                                                 </div>
                                             </div>

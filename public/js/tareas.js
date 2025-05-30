@@ -747,14 +747,14 @@ $(document).ready(function () {
 
       // Validación de confirmación
       if (!$("#confirmacion-evaluacion").is(":checked")) {
-        alert("Debe confirmar que la información es correcta");
+        mostrarError("Debe confirmar que la información es correcta");
         return;
       }
 
       // Validar evaluación del supervisor si está pendiente
       if ($("#seccion-supervisor .badge").text() === "Pendiente") {
         if (!$("#ponderacion-supervisor").val()) {
-          alert("Seleccione una ponderación para la evaluación del supervisor");
+          mostrarError("Seleccione una ponderación para la evaluación del supervisor");
           return;
         }
 
@@ -771,7 +771,8 @@ $(document).ready(function () {
         $("#seccion-director .badge").text() === "Pendiente"
       ) {
         if (!$("#ponderacion-director").val()) {
-          alert("Seleccione una ponderación para la evaluación del director");
+          
+          mostrarError("Seleccione una ponderación para la evaluación del director");
           return;
         }
 
@@ -1199,13 +1200,13 @@ $(document).ready(function () {
         $(this).closest("tr").find(".cantidad-material").val()
       );
 
-      if (isNaN(cantidad) || cantidad <= 0) {
-        alert("Ingrese una cantidad válida");
+      if (isNaN(cantidad) || cantidad <= 0) {("Ingrese una cantidad válida");
+        mostrarError("Ingrese una cantidad válida");
         return;
       }
 
       if (cantidad > rowData.disponible) {
-        alert(
+         mostrarError(
           `No hay suficiente stock. Disponible: ${rowData.disponible} ${rowData.unidad}`
         );
         return;

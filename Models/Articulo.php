@@ -105,6 +105,39 @@ class Articulo extends Model
         }
     }
 
+    public function actualizar(): bool
+    {
+        $query = "UPDATE articulo SET 
+                    idCategoria = :idCategoria,
+                    idMedida = :idMedida,
+                    nombre = :nombre,
+                    descripcion = :descripcion,
+                    esConsumible = :esConsumible
+                  WHERE id = :id";
+
+        try {
+            $this->db->connect();
+
+            $stmt = $this->prepare($query);
+            $stmt->bindValue("idCategoria", $this->idCategoria);
+            $stmt->bindValue("idMedida", $this->idMedida);
+            $stmt->bindValue("nombre", $this->nombre);
+            $stmt->bindValue("descripcion", $this->descripcion);
+            $stmt->bindValue("esConsumible", $this->esConsumible ?? false, PDO::PARAM_BOOL);
+            $stmt->bindValue("id", $this->id);
+
+            $stmt->execute();
+
+            $this->db->disconnect();
+
+            return true;
+        } catch (\Throwable $th) {
+            if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
+            $_SESSION['errores'][] = "Ocurrió un error al actualizar el artículo";
+            return false;
+        }
+    }
+
     public function mapearFormulario() : bool
     {
         try {if (!empty($_POST['id'])) {
