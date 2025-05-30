@@ -136,4 +136,19 @@ class Articulo extends Model
     public function getEsConsumible() : bool {
         return $this->esConsumible;
     }
+
+    // Setters
+    public function setDatos(int $id = null, int $idCategoria, int $idMedida, string $nombre,
+        ?string $descripcion, float $cantidad, bool $esConsumible) : void
+    {
+        if (isset($id)) {
+            $this->id = $id;
+        }
+        $this->idCategoria = $idCategoria;
+        $this->idMedida = $idMedida;
+        $this->nombre = $nombre;
+        $this->descripcion = $descripcion;
+        $this->cantidad = $cantidad;
+        $this->esConsumible = $esConsumible;
+    }
 }
