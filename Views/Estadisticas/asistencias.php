@@ -31,7 +31,7 @@
 									<div id="form-text-hasta" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1">
-									<label for="trabajador" class="form-label">Cedula Trabajador</label>
+									<label for="trabajador" class="form-label text-nowrap">Cedula Trabajador</label>
 									<input type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
 									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
 								</div>
@@ -68,7 +68,7 @@
 									</select>
 									<div id="form-text-agrupar" class="form-text invalid-feedback"></div>
 								</div>
-								<div class="col px-1">
+								<div class="col-auto px-1">
 									<label class="fade no-select form-label d-block">l</label>
 									<button id="filtrar-btn" class="btn btn-primary">Filtrar</button>
 								</div>
@@ -89,11 +89,11 @@
 					<style>
 						#asistenciaChart{
 							width: 100%;
-							height: 400px;
+							max-height: 400%;
 						}
 					</style>
 					<div class="d-table-row">
-						<div>
+						<div style="position:relative; width: 100%; max-height: 400px;">
 							<canvas id="asistenciasChart" height="400" width="400"></canvas>
 						</div>
 					</div>
