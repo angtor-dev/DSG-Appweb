@@ -32,7 +32,7 @@
 								</div>
 								<div class="col px-1">
 									<label for="trabajador" class="form-label text-nowrap">Cedula Trabajador</label>
-									<input type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
+									<input maxlength="8" type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
 									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1">
@@ -109,11 +109,11 @@
 									<div class="d-flex flex-column">
 										<div class="text-center fw-bold" id="picoAsistencias"></div>
 										<div class="text-center" id="mesPicoAsistencias"></div>
-										<div>
+										<!-- <div>
 											<hr>
 										</div>
 										<span style="font-size: .8rem;">Promedio de Asistencias</span>
-										<div class="text-center fw-bold" id="promedioAsistencias"></div>
+										<div class="text-center fw-bold" id="promedioAsistencias"></div> -->
 									</div>
 								</div>
 								<div class="col-auto p-2">
@@ -121,11 +121,11 @@
 									<div class="d-flex flex-column">
 										<div class="text-center fw-bold" id="picoInasistencias"></div>
 										<div class="text-center" id="mesPicoInasistencias"></div>
-										<div>
+										<!-- <div>
 											<hr>
 										</div>
 										<span style="font-size: .8rem;">Promedio de Inasistencias</span>
-										<div class="text-center fw-bold" id="promedioInasistencias"></div>
+										<div class="text-center fw-bold" id="promedioInasistencias"></div> -->
 									</div>
 								</div>
 							</div>

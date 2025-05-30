@@ -239,8 +239,8 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
                 promedioAsistencias = promedioAsistencias.toFixed(2);
                 promedioInasistencias = promedioInasistencias.toFixed(2);
 
-                document.getElementById("promedioAsistencias").innerHTML = promedioAsistencias;
-                document.getElementById("promedioInasistencias").innerHTML = promedioInasistencias;
+                //document.getElementById("promedioAsistencias").innerHTML = promedioAsistencias;
+                //document.getElementById("promedioInasistencias").innerHTML = promedioInasistencias;
                 
                 let labelPicoAsistencias = asistencias.indexOf(picoAsistencias);
                 let labelPicoInasistencias = inasistencias.indexOf(picoInasistencias);

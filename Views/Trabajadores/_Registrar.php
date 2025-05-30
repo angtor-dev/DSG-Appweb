@@ -11,7 +11,7 @@
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label for="cedula" class="form-label">Cedula </label>
-                        <input required value="0000000" type="text" class="form-control" id="cedula" name="cedula" data-span="invalid-span-cedula">
+                        <input maxlength="8" required value="0000000" type="text" class="form-control" id="cedula" name="cedula" data-span="invalid-span-cedula">
                         <div id="invalid-span-cedula" class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-6 m-0"></div>

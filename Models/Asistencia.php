@@ -201,12 +201,12 @@ class Asistencia extends Model
 
             // verifico que si se hallan guardado las asistencias, se haga el commit, si una asistencia no tiene guardada los trabajadores se lanza un error
 
-            $stmt = $this->db->pdo()->prepare("SELECT * FROM asistencia WHERE idFechaAsistencia = :idFechaAsistencia");
-            $stmt->bindValue("idFechaAsistencia", $idFechaAsistencia);
-            $stmt->execute();
-            if($stmt->rowCount() == 0) {
-                throw new Exception("No es posible registrar la asistencia sin registro de entrada/salida de almenos un trabajador");
-            }
+            // $stmt = $this->db->pdo()->prepare("SELECT * FROM asistencia WHERE idFechaAsistencia = :idFechaAsistencia");
+            // $stmt->bindValue("idFechaAsistencia", $idFechaAsistencia);
+            // $stmt->execute();
+            // if($stmt->rowCount() == 0) {
+            //     throw new Exception("No es posible registrar la asistencia sin registro de entrada/salida de almenos un trabajador");
+            // }
 
 
 
@@ -215,7 +215,7 @@ class Asistencia extends Model
             $this->db->disconnect();
             $response = [
                 "success" => true,
-                "message" => "Asistencia registrada con exito"
+                "message" => "Asistencia registrada con éxito"
             ];
     
         } catch (\Throwable $th) {
