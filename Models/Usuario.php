@@ -1,6 +1,4 @@
 <?php
-
-use function PHPUnit\Framework\throwException;
 class Usuario extends Model
 {
     public int|null $idRol = null;

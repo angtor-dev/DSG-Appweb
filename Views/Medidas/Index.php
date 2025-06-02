@@ -30,7 +30,7 @@
                         <tr>
                             <th>Id</th>
                             <th>Unidad</th>
-                            <th>SubUnidad</th>
+                            <th>Siglas</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>

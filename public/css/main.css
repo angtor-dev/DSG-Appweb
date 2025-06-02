@@ -317,3 +317,16 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
+
+/* Datatables overrides */
+.dt-export-button {
+    background-color: transparent !important;
+    border: none;
+    cursor: default !important;
+    color: black;
+    font-weight: 500;
+}
+.dt-export-button:hover,
+.dt-export-button:active {
+    color: black !important;
+}

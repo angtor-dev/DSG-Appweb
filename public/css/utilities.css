@@ -262,3 +262,9 @@ input:disabled+.slider {
 .slider.round:before {
     border-radius: 50%;
 }
+
+/* Custom badges */
+.category-badge {
+    border: 1px solid var(--color, black);
+    color: var(--color, black);
+}

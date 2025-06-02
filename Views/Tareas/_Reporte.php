@@ -30,15 +30,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="card text-white bg-warning mb-3">
-                                    <div class="card-body text-center">
-                                        <h1 class="card-title" id="tareas-pendientes">9%</h1>
-                                        <p class="card-text">Tareas Pendientes</p>
-                                        <small class="opacity-75">↓ 0% vs periodo anterior</small>
-                                    </div>
-                                </div>
-                            </div>
+                           
                             <div class="col-md-4">
                                 <div class="card text-white bg-danger mb-3">
                                     <div class="card-body text-center">
@@ -72,7 +64,7 @@
                                     <tr>
                                         <th>Departamento</th>
                                         <th>T. Completadas</th>
-                                        <th>T. Pendientes</th>
+                                       
                                         <th>T. Canceladas</th>
                                         <th>Eficiencia</th>
                                         <th>Tendencia</th>
@@ -82,7 +74,7 @@
                                     <tr>
                                         <td>Plomería</td>
                                         <td>120</td>
-                                        <td>8</td>
+                                       
                                         <td>5</td>
                                         <td>90%</td>
                                         <td><span class="badge bg-success">↑ 5%</span></td>
