@@ -9,7 +9,12 @@ require_once("Models/Enums/Justificacion.php");
 
 if(!empty($_POST)){
     $asistenciaObj = new Asistencia();
-    $asistenciaObj->mapearFormulario();
+    //$asistenciaObj->mapearFormulario();
+    $asistenciaObj->setterArray([
+        "idDepartamento" => $_POST['idDepartamento'],
+        "fecha" => $_POST['fecha'],
+        "turno" => $_POST['turno']
+    ]);
     $asistenciaObj->verAsistencias(true);
     die;
 }
