@@ -160,27 +160,76 @@ abstract class Model
             return false;
         }
     }
-
     /**
-     * Ejecuta un query de forma segura
-     * 
-     * @param string $query El query a ejecutar
-     * @param mixed $parametros Los parametros a preparar en el query
+     * Ejecuta un query SQL con los parámetros proporcionados y devuelve los resultados.
+     *
+     * @param string $query El query SQL a ejecutar.
+     * @param mixed ...$parametros Los parámetros para el query SQL.
+     * @param mixed $fetchMode El modo de obtención de resultados. Por defecto es PDO::FETCH_ASSOC.
+     * @param mixed $fetchArg1 Argumento opcional para el modo de obtención de resultados.
+     * @param mixed $fetchArg2 Segundo argumento opcional para el modo de obtención de resultados.
+     * @return array Un array con los resultados obtenidos del query.
+     * @throws \Throwable Lanza una excepción si ocurre un error durante la ejecución del query.
      */
-    protected function ejecutar(string $query, mixed ...$parametros) : void
+    protected function ejecutar(string $query, array $parametros = [], mixed $fetchMode = PDO::FETCH_ASSOC, mixed $fetchArg1 = null, mixed $fetchArg2 = null) : array
     {
         try {
-            $this->db->connect();
-
             $stmt = $this->prepare($query);
+
+            $stmt->setFetchMode($fetchMode);
+            if(isset($fetchArg1)){
+                $stmt->setFetchMode($fetchMode, $fetchArg1);
+                if(isset($fetchArg2)) {
+                    $stmt->setFetchMode($fetchMode,$fetchArg1, $fetchArg2);
+                }
+            }
             $stmt->execute($parametros);
 
-            $this->db->disconnect();
+            return $stmt->fetchAll();
+
         } catch (\Throwable $th) {
-            //TODO: almacenar error en log para mejorar depuracion
             throw $th;
         }
     }
+
+
+
+    /**
+     * Ejecuta un query SQL con los parámetros proporcionados y devuelve el PDOStatement.
+     * 
+     * para casos en los que se requiera hacer cosas como 
+     * - $stmt->rowCount()
+     * - $stmt->fetchColumn()
+     *
+     * @param string $query El query SQL a ejecutar.
+     * @param mixed ...$parametros Los parámetros para el query SQL.
+     * @param mixed $fetchMode El modo de obtención de resultados. Por defecto es PDO::FETCH_ASSOC.
+     * @param mixed $fetchArg1 Argumento opcional para el modo de obtención de resultados.
+     * @param mixed $fetchArg2 Segundo argumento opcional para el modo de obtención de resultados.
+     * @return \PDOStatement El PDOStatement después de haber ejecutado el query.
+     * @throws \Throwable Lanza una excepción si ocurre un error durante la ejecución del query.
+     */
+    protected function ejecutarStatement(string $query, array $parametros = [], mixed $fetchMode = PDO::FETCH_ASSOC, mixed $fetchArg1 = null, mixed $fetchArg2 = null) : \PDOStatement
+    {
+        try {
+            $stmt = $this->prepare($query);
+
+            $stmt->setFetchMode($fetchMode);
+            if(isset($fetchArg1)){
+                $stmt->setFetchMode($fetchMode, $fetchArg1);
+                if(isset($fetchArg2)) {
+                    $stmt->setFetchMode($fetchMode,$fetchArg1, $fetchArg2);
+                }
+            }
+            $stmt->execute($parametros);
+
+            return $stmt;
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
 
     /** Shorthand para PDO::query() */
     protected function query(string $query): PDOStatement
@@ -221,4 +270,6 @@ abstract class Model
     {
         return $this->testingMode;
     }
+
+    abstract public function setterArray(array $data):void;
 }

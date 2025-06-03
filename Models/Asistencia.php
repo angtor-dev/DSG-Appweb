@@ -5,8 +5,8 @@ class Asistencia extends Model
     public int|string $idDepartamento;
     private string $turno;
     private string $fecha;
-    private string $fechaIn;
-    private string $fechaOut;
+    private string $fechaIn; // hora de ingreso
+    private string $fechaOut; // hora de salida
     private string $status;
     private string $idTrabajador;
     private string $idAsistencia;
@@ -16,6 +16,8 @@ class Asistencia extends Model
     const LISTAR_TRABAJADORES = 1;
     const REGISTRAR_ASISTENCIA = 2;
     const ELIMINAR_ASISTENCIA = 3;
+
+    const SHOW_EXCEPTIONS = 1001;
 
     public function __construct() {
         parent::__construct();
@@ -40,6 +42,19 @@ class Asistencia extends Model
         $this->trabajadores = ( isset($_POST['trabajadores']) and is_array($_POST['trabajadores']) ) ? $_POST['trabajadores'] : Array();
         $this->idAsistencia = trim($_POST["idAsistencia"] ?? "");
     }
+
+    public function setterArray(array $data) : void
+    {
+        foreach ($data as $key => $value) {
+            $propiedad = $key;
+            $setterMethod = 'set_' . $propiedad;
+            if(method_exists($this, $setterMethod)){
+                $this->$setterMethod($value);
+            } elseif(property_exists($this, $propiedad)){
+                $this->$propiedad = $value;
+            }
+        }
+    }
     /**
      * Se debe hacer la conexion antes de llamar a esta funcion
      * @param mixed $control
@@ -49,72 +64,67 @@ class Asistencia extends Model
     public function esValido($control) : bool {
         // si el control es listar trabajadores o registrar ajuste
         // valida el departamento
-        try{
+
+        $messages = new class{
+            public string $fecha_no_select = "Debe seleccionar una fecha";
+            public string $fecha_invalida = "La fecha no es valida";
+            public string $turno_no_select = "Debe seleccionar un turno";
+            public string $turno_ivalido = "El turno no es valido";
+            public string $departamento_no_select = "Debe seleccionar un departamento";
+            public string $departamento_invalido = "El departamento no es valido";
+            public string $departamento_no_existe = "El departamento seleccionado no existe";
+            public string $idAsistencia_no_select = "Debe seleccionar una asistencia";
+            public string $idAsistencia_invalido = "La asistencia no es valida";
+            public string $idAsistencia_no_existe = "La asistencia seleccionada no existe";
+
+        };
+
+        if(
+            $control == self::LISTAR_TRABAJADORES ||
+            $control == self::REGISTRAR_ASISTENCIA
+        ) {
+            // valido la fecha de asistencia
+
+            if(!isset($this->turno) || empty(trim($this->turno))) {
+                throw new Exception($messages->turno_no_select, self::SHOW_EXCEPTIONS);
+            }
+
+            if(!isset($this->fecha) || empty(trim($this->fecha))) {
+                throw new Exception($messages->fecha_no_select, self::SHOW_EXCEPTIONS);
+            }
+            if(!preg_match("/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", trim($this->fecha))) {
+                throw new Exception($messages->fecha_invalida, self::SHOW_EXCEPTIONS);
+            }
+
+            if(!isset($this->idDepartamento) || empty(trim($this->idDepartamento))) {
+                throw new Exception($messages->departamento_no_select, self::SHOW_EXCEPTIONS);
+            }
             
-            if(
-                $control == self::LISTAR_TRABAJADORES ||
-                $control == self::REGISTRAR_ASISTENCIA
-            ) {
-                // valido la fecha de asistencia
-
-                if(!isset($this->fecha) || empty($this->fecha)) {
-                    $sms = (DEVELOPER_MODE) ? "La fecha no esta seteada":"Debe seleccionar una fecha" ;
-                    throw new Exception($sms);
-                }
-                $this->fecha = trim($this->fecha ?? "");
-                if(empty($this->fecha)) {
-                    $sms = (DEVELOPER_MODE) ? "La fecha no esta seteada":"Debe seleccionar una fecha" ;
-                    throw new Exception($sms);
-                }
-                if(!preg_match("/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", trim($this->fecha))) {
-                    $sms = (DEVELOPER_MODE) ? "La fecha no es valida ".$this->fecha:"La fecha no es valida" ;
-                    throw new Exception($sms);
-                }
-
-                if(!isset($this->idDepartamento) || empty($this->idDepartamento)) {
-                    $sms = (DEVELOPER_MODE) ? "El departamento no esta seteado":"Debe seleccionar un departamento" ;
-                    throw new Exception($sms);
-                }
-
-
-                $this->idDepartamento = trim($this->idDepartamento ?? "");
-                if(empty($this->idDepartamento)) {
-                    $sms = (DEVELOPER_MODE) ? "El departamento no esta seteado":"Debe seleccionar un departamento" ;
-                    throw new Exception($sms);
-                }
-                if(!preg_match("/^\d+$/", trim($this->idDepartamento))) {
-                    $sms = (DEVELOPER_MODE) ? "El departamento no es valido ".$this->idDepartamento:"El departamento no es valido" ;
-                    throw new Exception($sms);
-                }
-                
-                $stmt = $this->prepare("SELECT id FROM departamento WHERE id = :departamento");
-                $stmt->bindValue("departamento", $this->idDepartamento);
-                $stmt->execute();
-                if($stmt->rowCount() == 0) {
-                    
-                    throw new Exception("El departamento seleccionado no existe en la base de datos");
-                }
-                
-                $this->idDepartamento = $stmt->fetchColumn();
+            if(!preg_match("/^\d+$/", trim($this->idDepartamento))) {
+                throw new Exception($messages->departamento_invalido, self::SHOW_EXCEPTIONS);
             }
 
-            if($control == self::ELIMINAR_ASISTENCIA){
-                if(empty($this->idAsistencia)) {
-                    $sms = (DEVELOPER_MODE) ? "El id de asistencia no esta seteado":"Debe seleccionar un asistencia" ;
-                    throw new Exception($sms);
-                }
-                if(!preg_match("/^\d+$/", $this->idAsistencia)) {
-                    $sms = (DEVELOPER_MODE) ? "El id de asistencia no es valido ".$this->idAsistencia:"El id de asistencia no es valido" ;
-                    throw new Exception($sms);
-                }
+            $stmt = $this->ejecutarStatement("SELECT id FROM departamento WHERE id = :departamento", ["departamento" => $this->idDepartamento]);
+            
+            if($stmt->rowCount() == 0) {
+                throw new Exception($messages->departamento_no_existe, self::SHOW_EXCEPTIONS);
             }
 
-           
-            return true;
-       }
-        finally {
+        }
+
+        if($control == self::ELIMINAR_ASISTENCIA){
+            if(empty($this->idAsistencia)) {
+                throw new Exception($messages->idAsistencia_no_select, self::SHOW_EXCEPTIONS);
+            }
+            if(!preg_match("/^\d+$/", $this->idAsistencia)) {
+                throw new Exception($messages->idAsistencia_invalido, self::SHOW_EXCEPTIONS);
+            }
+            // TODO validar eliminar asistencia
             
         }
+
+    
+        return true;
     }
 
 
@@ -295,8 +305,7 @@ class Asistencia extends Model
             $this->esValido(self::LISTAR_TRABAJADORES);
             $this->beginTransaction();
             // optengo la lista de registros de asistencias que cumplan con los filtros
-            $stmt = $this->prepare("
-            SELECT 
+            $query = "SELECT 
                 t.id as idTrabajador
                 ,t.cedula
                 ,CONCAT(t.nombre,' ',t.apellido) as nombre
@@ -316,18 +325,22 @@ class Asistencia extends Model
             JOIN departamento as d on d.id = fa.idDepartamento
             LEFT JOIN justificacion as j on j.idAsistencias = a.id
             WHERE fa.fecha = :fecha AND d.id = :idDepartamento and fa.turno= :turno
-            ");
-            $stmt->bindValue("idDepartamento", $this->idDepartamento);
-            $stmt->bindValue("fecha", $this->fecha);
-            $stmt->bindValue("turno", $this->turno);
-            $stmt->execute();
+            ";
 
-            $asistenciasRegistros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $parametros = [
+                "idDepartamento" => $this->idDepartamento,
+                "fecha" => $this->fecha,
+                "turno" => $this->turno
+            ];
+
+            $asistenciasRegistros = $this->ejecutar($query, $parametros);
+            
+
+            //$asistenciasRegistros = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // optengo la lista de trabajadores que cumplan con los filtros
 
-            $stmt = $this->prepare("
-                SELECT
+            $query = "SELECT
                     t.id as idTrabajador
                     ,t.cedula
                     ,CONCAT(t.nombre,' ',t.apellido) as nombre
@@ -338,13 +351,9 @@ class Asistencia extends Model
                     trabajador AS t
                 JOIN departamento as d on d.id = t.idDepartamento
                 WHERE t.turno = :turno AND d.id = :idDepartamento and :fecha > t.fechaIngreso;
-            ");
-            $stmt->bindValue("idDepartamento", $this->idDepartamento);
-            $stmt->bindValue("turno", $this->turno);
-            $stmt->bindValue("fecha", $this->fecha);
-            $stmt->execute();
+            ";
 
-            $trabajadoresRegistros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $trabajadoresRegistros = $this->ejecutar($query, $parametros);
 
             // se crea un objeto con la lista final a mostrar
             
@@ -360,14 +369,14 @@ class Asistencia extends Model
                 }
             }
             // obtener la fechaAsistencia si existe
-            $stmt = $this->prepare("
-                SELECT id FROM fechaasistencia WHERE idDepartamento = :idDepartamento AND fecha = :fecha AND turno = :turno
-            ");
-            $stmt->bindValue("idDepartamento", $this->idDepartamento);
-            $stmt->bindValue("fecha", $this->fecha);
-            $stmt->bindValue("turno", $this->turno);
-            $stmt->execute();
+
+
+            $query = "SELECT id FROM fechaasistencia WHERE idDepartamento = :idDepartamento AND fecha = :fecha AND turno = :turno";
+
+            $stmt = $this->ejecutarStatement($query, $parametros);
+
             $resp = ["success" => true];
+            
             if ($stmt->rowCount() > 0) {
                 $resp["fechaAsistencia"] = $stmt->fetchColumn();
             }
@@ -387,18 +396,20 @@ class Asistencia extends Model
         } catch (Exception $th) {
             $this->rollBack();
             $this->db->disconnect();
-            if($print) {
-                echo json_encode([
-                    "success" => false, 
-                    "message" => "Error al obtener la lista de asistencias",
-                    "error" => $th->getMessage()
-                ]);
-            }
-            return [
+            $resp = [
                 "success" => false, 
-                "message" => "Error al obtener la lista de asistencias" ,
+                "message" => "Error al obtener la lista de asistencias",
                 "error" => $th->getMessage()
             ];
+
+            if($th->getCode() == self::SHOW_EXCEPTIONS) {
+                $resp["message"] = $th->getMessage();
+            }
+
+            if($print) {
+                echo json_encode($resp);
+            }
+            return $resp;
         }
     }
 
