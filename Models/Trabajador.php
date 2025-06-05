@@ -33,7 +33,26 @@ class Trabajador extends Model
     public static function cargarPorCedula (string $cedula) : mixed{
         $bd = Database::getInstance();
         $bd->connect();
-        $query = "SELECT * FROM `trabajador` WHERE cedula = :cedula;";
+
+        $query = "SELECT
+                t.*
+                ,al.idTurno
+                ,tu.nombre as turno
+                ,al.idDepartamento
+                ,c.nombre as cargo
+                ,al.id as idAsignacionLaboral
+            FROM
+                trabajador AS t
+            JOIN asignacion_laboral AS al
+            ON
+                al.idTrabajador = t.id AND al.esActual = 1
+            left JOIN turno as tu on al.idTurno = tu.id
+            left JOIN cargo as c on c.id = al.idCargo
+
+            WHERE
+                cedula = :cedula;";
+//        $query = "SELECT * FROM `trabajador` WHERE cedula = :cedula;";
+
 
         $consulta = $bd->pdo()->prepare($query);
         $consulta->execute([':cedula'=>$cedula]);
@@ -365,7 +384,6 @@ class Trabajador extends Model
             if( 
                 isset($this->db) && 
                 $this->db->connected() &&
-                $this->db->pdo() instanceof \PDO &&
                 $this->db->pdo()->inTransaction()
             ){
                 $this->db->pdo()->rollBack();
@@ -421,6 +439,62 @@ class Trabajador extends Model
         }
     }
 
+    public function listar ($json = false):array {
+        
+        try {
+            $this->db->connect();
+            $fetchMode = $json ? PDO::FETCH_ASSOC : PDO::FETCH_CLASS;
+            $fetchArg = $json ? null : Trabajador::class;
+            $query = "SELECT
+                t.*
+                ,al.idTurno
+                ,tu.nombre as turno
+                ,al.idDepartamento
+                ,c.nombre as cargo
+                ,al.id as idAsignacionLaboral
+            FROM
+                trabajador AS t
+            JOIN asignacion_laboral AS al
+            ON
+                al.idTrabajador = t.id AND al.esActual = 1
+            JOIN turno as tu on al.idTurno = tu.id
+            JOIN cargo as c on c.id = al.idCargo
+
+            WHERE
+                estado = 1;";
+
+
+            $resp = $this->ejecutar($query, array(), $fetchMode, $fetchArg);
+            $this->db->disconnect();
+            if($json) {
+                $resp = json_encode([
+                    "success" => true,
+                    "data" => $resp                    
+                ]);
+            }
+        } catch (\Throwable $th) {
+
+            if(isset($this->db) && $this->db->connected()) {
+                $this->db->disconnect();
+            }
+            
+            $resp = array();
+            if($json) {
+                $resp = json_encode([
+                    "success" => false,
+                    "message" => "Ocurrio un error al listar los trabajadores",
+                    "data" => array()
+                ]);
+            }
+            if(DEVELOPER_MODE) {
+                debug($th->getMessage().":: Linea: ".$th->getLine());
+            }
+            
+
+        }
+        return $resp;
+    }
+
 
 
 
@@ -440,11 +514,13 @@ class Trabajador extends Model
     public function getTelefono() : string {
         return $this->telefono;
     }
-    public function getCargo() : Cargo {
-        return is_string($this->cargo) ? Cargo::from(lcfirst($this->cargo)) : $this->cargo;
+    public function getCargo() : string {
+        // TODO get desde el modelo
+        return $this->cargo;
     }
-    public function getTurno() : Turno {
-        return is_string($this->turno) ? Turno::from(ucfirst($this->turno)) : $this->turno;
+    public function getTurno() : string {
+        // TODO get desde el modelo
+        return $this->turno;
     }
     public function getFechaIngreso() : string {
         return $this->fechaIngreso; 

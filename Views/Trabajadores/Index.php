@@ -45,8 +45,8 @@
                                 <td><?= $trabajador->getNombreCompleto() ?></td>
                                 <td><?= $trabajador->getCedula() ?></td>
                                 <td><?= $trabajador->getTelefono() ?></td>
-                                <td><?= ucfirst($trabajador->getTurno()->value) ?></td>
-                                <td><?= ucfirst($trabajador->getCargo()->value) ?></td>
+                                <td><?= ucfirst($trabajador->getTurno()) ?></td>
+                                <td><?= ucfirst($trabajador->getCargo()) ?></td>
                                 <td><?= $trabajador->departamento->getNombre() ?></td>
                                 <td>
                                     <div class="d-flex justify-content-evenly w-100 gap-3">

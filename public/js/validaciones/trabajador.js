@@ -1,4 +1,5 @@
 // expresiones regulares
+// TODO abortar cedula en registro
 const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
 const regCedula = /^[0-9]{7,8}$/
 const regTelefono = /^[0-9]{11}$/
