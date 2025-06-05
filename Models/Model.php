@@ -176,13 +176,14 @@ abstract class Model
         try {
             $stmt = $this->prepare($query);
 
-            $stmt->setFetchMode($fetchMode);
-            if(isset($fetchArg1)){
+            if(isset($fetchArg1) && isset($fetchArg2)) {
+                $stmt->setFetchMode($fetchMode, $fetchArg1, $fetchArg2);
+            } elseif(isset($fetchArg1)) {
                 $stmt->setFetchMode($fetchMode, $fetchArg1);
-                if(isset($fetchArg2)) {
-                    $stmt->setFetchMode($fetchMode,$fetchArg1, $fetchArg2);
-                }
+            } else {
+                $stmt->setFetchMode($fetchMode);
             }
+            
             $stmt->execute($parametros);
 
             return $stmt->fetchAll();
@@ -214,12 +215,12 @@ abstract class Model
         try {
             $stmt = $this->prepare($query);
 
-            $stmt->setFetchMode($fetchMode);
-            if(isset($fetchArg1)){
+            if(isset($fetchArg1) && isset($fetchArg2)) {
+                $stmt->setFetchMode($fetchMode, $fetchArg1, $fetchArg2);
+            } elseif(isset($fetchArg1)) {
                 $stmt->setFetchMode($fetchMode, $fetchArg1);
-                if(isset($fetchArg2)) {
-                    $stmt->setFetchMode($fetchMode,$fetchArg1, $fetchArg2);
-                }
+            } else {
+                $stmt->setFetchMode($fetchMode);
             }
             $stmt->execute($parametros);
 
