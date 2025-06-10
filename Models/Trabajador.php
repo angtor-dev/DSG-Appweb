@@ -433,6 +433,82 @@ class Trabajador extends Model
         return $resp;
     }
 
+    public function listraFiltro($print = true):array{
+
+        try {
+            $this->db->connect();
+            $query = "SELECT t.*, c.id as idCargo, c.nombre as cargo, tu.id as idTurno, tu.nombre as turno FROM trabajador as t join asignacion_laboral al on al.idTrabajador = t.id and al.esActual = 1 join cargo c on c.id = al.idCargo join turno tu on tu.id = al.idTurno where ";
+            $where ="";
+            $list = [];
+            $parametros = [];
+            if(isset($this->cedula)){
+                $list[] = "cedula LiKE :cedula";
+                $parametros["cedula"] = "%".$this->cedula."%";
+
+            }
+            if(isset($this->nombre)){
+                $list[] = "t.nombre LIKE :nombre";
+                $parametros["nombre"] = "%".$this->nombre."%";
+            }
+            if(isset($this->apellido)){
+                $list[] = "t.apellido LIKE :apellido";
+                $parametros["apellido"] = "%".$this->apellido."%" ;
+            }
+            if(isset($this->telefono)){
+                $list[] = "t.telefono LIKE :telefono";
+                $parametros["telefono"] = "%".$this->telefono."%" ;
+            }
+            if(isset($this->cargo)){
+                $list[] = "c.id = :cargo";
+                $parametros["cargo"] = $this->cargo;
+            }
+            if(isset($this->turno)){
+                $list[] = "tu.id = :turno";
+                $parametros["turno"] = $this->turno;
+            }
+            if(isset($this->idDepartamento)){
+                $list[] = "idDepartamento = :idDepartamento";
+                $parametros["idDepartamento"] = $this->idDepartamento;
+            }
+            $list[] = "estado = 1";
+            $where = implode(" AND ", $list);
+            $query .= $where;
+
+            $lista = $this->ejecutar($query, $parametros);
+            $this->db->disconnect();
+
+            $resp = array(
+                "success" => true,
+                "data" => $lista
+            );
+            
+            
+            
+            
+        } catch (\Throwable $th) {
+            if(isset($this->db)) $this->db->disconnect();
+            $resp = array(
+                "success" => false,
+                "message" => "Ocurrio un error al listar a los trabajadores"
+            );
+            if(DEVELOPER_MODE) {
+                $resp["error"] = $th->getMessage().":: Linea: ".$th->getLine();
+                $resp["trace"] = $th->getTraceAsString();
+            }
+            if($th instanceof Exception && $th->getCode() == self::SHOW_EXCEPTION){ 
+                $resp["message"] = $th->getMessage();
+            }
+        }
+
+        if ($print) {
+            echo json_encode($resp);
+        }
+
+        return $resp;
+
+        
+    }
+
     /**
      * Establece valores en propiedades de la clase.
      *
