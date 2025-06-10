@@ -11,6 +11,16 @@
 				test/Usuarios
 			</directory>
 		</testsuite>
+		<testsuite name="turno">
+			<directory suffix=".php">
+				test/Turnos
+			</directory>
+		</testsuite>
+		<testsuite name="Cargos">
+			<directory suffix=".php">
+				test/Cargo
+			</directory>
+		</testsuite>
 
 		<!-- 
 		otro se agrega aqui 

@@ -2,3 +2,4 @@ user_config.php
 .vscode/settings.json
 jsconfig.json
 vendor/*
+.phpunit.result.cache
