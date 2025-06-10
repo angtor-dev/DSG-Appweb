@@ -9,8 +9,6 @@
            "files":[
                "config.php",
                "utilities.php",
-                "Models/Enums/Turno.php",
-                "Models/Enums/Cargo.php",
                 "Models/Enums/Justificacion.php",
                 "Models/Enums/EstadoNotif.php"
             ]
