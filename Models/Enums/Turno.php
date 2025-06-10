@@ -1,5 +1,5 @@
 <?php
-enum Turno: string
+enum TurnoQQQQ: string
 {
     case Maniana = 'Mañana';
     case Tarde = 'Tarde';
