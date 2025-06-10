@@ -177,8 +177,20 @@
                                             Reportes temporal
                                         </a>
                                     </td>
+                                </tr>
+                                <tr>
                                     <td>
-                                        
+                                        <div>
+                                            <a href="/DSG-Appweb/Cargos" class="mx-3 d-block">
+                                                <i class="fa-solid fa-list-check"></i>
+                                                Cargos temporal
+                                            </a>
+                                            <a href="/DSG-Appweb/Turnos" class="mx-3 d-block">
+                                                <i class="fa-solid fa-list-check"></i>
+                                                turnos temporal
+                                            </a>
+                                        </div>
+
                                     </td>
                                 </tr>
                             </tbody>

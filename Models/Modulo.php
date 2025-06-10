@@ -19,6 +19,8 @@ class Modulo extends Model
     public const AJUSTES = 'ajustes';
     public const MOVIMIENTOS = 'movimientos';
     public const NOTASENTREGA = 'notasentrega';
+    public const CARGOS = 'cargos';
+    public const TURNOS = 'turnos';
 
     // Override para impedir eliminar
     public function eliminar(bool $eliminadoLogico = true) : bool

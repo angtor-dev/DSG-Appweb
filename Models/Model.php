@@ -272,5 +272,14 @@ abstract class Model
         return $this->testingMode;
     }
 
+    PUBLIC function set_id($value):void{
+        // verifica si es un entero o se puede convertir a entero
+        if(filter_var($value, FILTER_VALIDATE_INT) !== false){
+            $this->id = (int)$value;
+        }
+    }
+
+    
+
     abstract public function setterArray(array $data):void;
 }

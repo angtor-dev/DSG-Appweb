@@ -1,5 +1,5 @@
 <?php
-enum Cargo: string {
+enum CargoQQQQQ: string {
     case Director = 'director';
     case Secretario = 'secretario de direccion';
     case Coordinador = 'coordinador';
