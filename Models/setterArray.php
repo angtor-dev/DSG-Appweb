@@ -14,7 +14,6 @@
  */
 // public function setterArray(array $data) : void
 // {
-// 	// comentar en español
 //     foreach ($data as $key => $value) {
 //         $propiedad = $key;
 //         $setterMethod = 'set_' . $propiedad;
