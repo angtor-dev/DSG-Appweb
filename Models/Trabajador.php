@@ -2,6 +2,25 @@
 // TODO agregar indice unico a la cedula del trabajador
 // TODO agregar Alias a los trabajadores
 // (para que Sir Reginald Pomposo siga siendo Chui )
+
+/*
+
+    trabajador	CREATE TABLE `trabajador` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `cedula` varchar(10) NOT NULL,
+     `nombre` varchar(50) NOT NULL,
+     `apellido` varchar(50) NOT NULL,
+     `telefono` varchar(11) NOT NULL,
+     `fechaIngreso` date NOT NULL,
+     `estado` tinyint(4) NOT NULL DEFAULT 1,
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `cedula` (`cedula`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci	
+
+    */
+
+
+
 class Trabajador extends Model
 {
     public int|string $idDepartamento;
@@ -183,12 +202,12 @@ class Trabajador extends Model
             }
 
             // valida el turno 
-            $turno = Turno::from($this->turno);
+            $turno = $this->turno;
             if(empty($turno)){
                 throw new Exception("El turno seleccionado no es valido", self::SHOW_EXCEPTION);
             }
             //valida el cargo
-            $cargo = Cargo::from($this->cargo);
+            $cargo = $this->cargo;
             if(empty($cargo)){
                 throw new Exception("El cargo seleccionado no es valido", self::SHOW_EXCEPTION);
             }

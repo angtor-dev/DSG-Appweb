@@ -7,6 +7,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
     $departamentoObj = new Departamento();
     $departamentos = $departamentoObj->listar();
+    $cargosOptions = Cargo::getCargosOptions();
+    $turnosOptions = Turno::getTurnosOptions();
      if(!empty($_GET['cedula'])){
         require_once "Models/Trabajador.php";
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
