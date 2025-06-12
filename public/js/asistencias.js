@@ -14,26 +14,29 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
     // TODO quitar esta parte
-    //document.querySelector("#departamento").value = "1";
-    //document.querySelector("#turno").value = "Mañana";
+    document.querySelector("#departamento").value = "5";
+    document.querySelector("#turno").value = "5";
 
     // agrego la fecha actual al campo de fecha
     document.querySelector("#fecha").value = new Date().toISOString().split("T")[0];
+    document.querySelector("#fecha").value = "2025-11-15";
 
 
     // evento submit para el formulario
     document.querySelector("#form-table-asistencias").addEventListener("submit", async function(e){
         if(document.querySelector("#form-table-asistencias").sending) return;
         e.preventDefault();
+        
         let objSend = {
             fecha: document.querySelector("#fecha").value,
             turno: document.querySelector("#turno").value,
             idDepartamento: document.querySelector("#departamento").value,
-            trabajadores: getRowsObj(),
+            trabajadores: getTrabajadoresObject(),
             action:"Registrar"
         };
 
         if(objSend.trabajadores === false) {
+            console.error("no se puede listar los datos del trabajador");
             mostrarError("No se pudo enviar la información");
             return;
         };
@@ -86,6 +89,7 @@ document.addEventListener("DOMContentLoaded", async function(){
                     preventLostControl = false;
                 }
                 else {
+                    if(input.prevValue) input.value = input.prevValue;
                     e.preventDefault();
                     return;
                 }
@@ -106,13 +110,15 @@ document.addEventListener("DOMContentLoaded", async function(){
             }
 
             // valido que el valor del input sea un numero
-            if(isNaN(document.querySelector("#fechaAsistencia").value)) {
+            if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(document.querySelector("#fechaAsistencia").value)) {
                 mostrarError("La fecha de asistencia no es valida");
                 return;
             }
 
             let objSend = {
-                idAsistencia: document.querySelector("#fechaAsistencia").value,
+                fecha: document.querySelector("#fechaAsistencia").value,
+                turno: document.querySelector("#turno").value,
+                idDepartamento: document.querySelector("#departamento").value,
                 action:"Eliminar"
             };
 
@@ -257,8 +263,14 @@ document.addEventListener("DOMContentLoaded", async function(){
             });
             response = JSON.parse(response);
 
+
             if(response.success){
-                generateTable(response.listaTrabajadores);
+
+                [departamento, turno, fecha].forEach(input => {
+                    input.prevValue = input.value;
+                })
+
+                generateTable(response.listaTrabajadores, response.turnoHorario);
                 document.querySelector("#fechaAsistencia").value = response.fechaAsistencia;
                 document.querySelector("#fechaAsistencia").dispatchEvent(new Event("change"));
 
@@ -304,44 +316,24 @@ document.addEventListener("DOMContentLoaded", async function(){
      * @param {number} i
      * @param {boolean} fecha_registrada_control si la fecha de la asistencia ya fue registrada
      */
-    function tableRow ( obj, i , fecha_registrada_control) {
+    function tableRow ( obj, i ,horario, fecha_registrada_control) {
 
-        let objHoras = {
-            manana : {entrada: "08:00",salida: "12:00"},
-            tarde : {entrada: "13:00",salida: "17:00"},
-            noche : {entrada: "18:00",salida: "22:00"},
-            finSemana : {entrada: "08:00",salida: "17:00"},
-            especial : {entrada: "08:00",salida: "17:00"}
+        console.log(obj);
+
+
+        let hora_entrada = obj.horaEntrada ? obj.horaEntrada : (horario.hora_entrada) ? horario.hora_entrada : "";
+        let hora_salida = obj.horaSalida ? obj.horaSalida : (horario.hora_salida) ? horario.hora_salida : "";
+        if(hora_entrada != "" && hora_salida != "") {
+            hora_entrada = hora_entrada.split(":", 2).join(":");
+            hora_salida = hora_salida.split(":", 2).join(":");
         }
-        let entrada = null;
-        let salida = null;
-        switch (document.getElementById("turno").value) {
-            case "Mañana":
-                entrada = objHoras.manana.entrada;
-                salida = objHoras.manana.salida;
-                break;
-            case "Tarde":
-                entrada = objHoras.tarde.entrada;
-                salida = objHoras.tarde.salida;
-                break;
-            case "Noche":
-                entrada = objHoras.noche.entrada;
-                salida = objHoras.noche.salida;
-                break;
-            case "Fin de semana":
-                entrada = objHoras.finSemana.entrada;
-                salida = objHoras.finSemana.salida;
-                break;
-            case "Especial":
-                entrada = objHoras.especial.entrada;
-                salida = objHoras.especial.salida;
-                break;
-        
-            default:
-                break;
-        }
-        if(!obj.fechaIn) obj.fechaIn = entrada;
-        if(!obj.fechaOut) obj.fechaOut = salida;
+
+        let justificacionOptions = "";
+        for (const [key, value] of Object.entries(justificacionesEnum)) {
+            justificacionOptions += `<option ${(obj.tipo_justificacion && obj.tipo_justificacion == value) ? "selected" : ""} value="${value}">${key}</option>`;
+        }        
+
+       
 
         return `
                 <td class="align-content-center nombre">
@@ -349,13 +341,13 @@ document.addEventListener("DOMContentLoaded", async function(){
                 </td>
                 <td class="align-content-center nombre">
                     <span>
-                        ${obj.nombre}
+                        ${obj.nombre} ${obj.apellido}
                     </span>
                 </td>
                 <td class="cell-inasistencia align-content-center text-center px-3">
                     <label class="py-2 text-nowrap no-select cursor-pointer d-flex align-items-center justify-content-between inasistencia-label">
                         <span>Inasistencia</span>
-                        <input type="checkbox" id="inasistencia-check-${i}" class="inasistencia-check" name="inasistencia[]" ${(obj.status)? (parseInt(obj.status) == 1 ) ? "checked" : "" : ""}>
+                        <input type="checkbox" id="inasistencia-check-${i}" class="inasistencia-check" name="inasistencia[]" ${(obj.Es_Asistencia && obj.Es_Asistencia != "1")? "checked" : ""}>
                         <div class="check-feedback ms-1"></div>
                     </label>
                 </td>
@@ -363,12 +355,12 @@ document.addEventListener("DOMContentLoaded", async function(){
                     <div class="d-flex">
                         <div class="w-50 pe-1">
                             <label class="form-label text-nowrap" for="hora_entrada-${i}">Hora de Entrada</label>
-                            <input type="time" class="form-control hora-entrada-cl" id="hora_entrada-${i}" name="hora_entrada[]" data-form-text="invalid-span-hora_entrada-${i}" value="${ (obj.fechaIn) ? obj.fechaIn.split(":", 2).join(":"): "" }">
+                            <input required type="time" class="form-control hora-entrada-cl" id="hora_entrada-${i}" name="hora_entrada[]" data-form-text="invalid-span-hora_entrada-${i}" value="${hora_entrada}">
                             <div id="invalid-span-hora_entrada-${i}" class="form-text invalid-feedback"></div>
                         </div>
                         <div class="w-50 pe-1">
                             <label class="form-label text-nowrap" for="hora_salida-${i}">Hora de salida</label>
-                            <input type="time" class="form-control hora-salida-cl" id="hora_salida-${i}" name="hora_salida[]" data-form-text="invalid-span-hora_salida-${i}" value="${ (obj.fechaOut) ? obj.fechaOut.split(":", 2).join(":"): "" }">
+                            <input required type="time" class="form-control hora-salida-cl" id="hora_salida-${i}" name="hora_salida[]" data-form-text="invalid-span-hora_salida-${i}" value="${ hora_salida}">
                             <div id="invalid-span-hora_salida-${i}" class="form-text invalid-feedback"></div>
                         </div>
                     </div>
@@ -377,32 +369,29 @@ document.addEventListener("DOMContentLoaded", async function(){
                     <div class="d-flex">
                         <div class="w-50 pe-1">
                             <label for="justificacion-select-${i}" class="form-label text-nowrap">Justificación</label>
-                                <select name="justificacion[]" class="form-select justificacion-cl" id="justificacion-select-${i}" data-form-text="invalid-span-justificacion-${i}">
+                                <select required name="justificacion[]" class="form-select justificacion-cl" id="justificacion-select-${i}" data-form-text="invalid-span-justificacion-${i}">
                                     <option value=""></option>
-                                    <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 1 )? "selected"  :""} value="1">${justificacionesEnum[0]}</option>
-                                    <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 2 )? "selected"  :""} value="2">${justificacionesEnum[1]}</option>
-                                    <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 3 )? "selected"  :""} value="3">${justificacionesEnum[2]}</option>
-                                    <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 4 )? "selected"  :""} value="4">${justificacionesEnum[3]}</option>
-                                    <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 5 )? "selected"  :""} value="5">${justificacionesEnum[4]}</option>
-                                    <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 6 )? "selected"  :""} value="5">${justificacionesEnum[5]}</option>
-                                    <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 7 )? "selected"  :""} value="5">${justificacionesEnum[6]}</option>
+                                    ${justificacionOptions}
                                 </select>
                                 <div id="invalid-span-justificacion-${i}" class="form-text invalid-feedback"></div>
                         </div>
                         <div class="w-50 pe-1">
                             <label for="justificacion-descripcion-${i}" class="form-label text-nowrap">Descripción</label>
-                            <input type="text" class="form-control" id="justificacion-descripcion-${i}" name="justificacion-descripcion[]" data-span="invalid-span-justificacion-descripcion-${i}" value="${(obj.observacion_justificacion)? obj.observacion_justificacion : ""}">
+                            <input maxlength="255" type="text" class="form-control" id="justificacion-descripcion-${i}" name="justificacion-descripcion[]" data-span="invalid-span-justificacion-descripcion-${i}" value="${(obj.descripcion_justificacion)? obj.descripcion_justificacion : ""}">
                             <div id="invalid-span-justificacion-descripcion-${i}" class="form-text invalid-feedback"></div>
                         </div>
                     </div>
                 </td>
-        `
+        `;
 
     }
 
 
-    function generateTable(obj){
-        document.querySelector("#form-table-asistencias table tbody").innerHTML = "";
+    function generateTable(obj, horario){
+
+        
+        let tbody = document.querySelector("#form-table-asistencias table tbody");
+        tbody.innerHTML = "";
         document.querySelector("#submit-asistencias").disabled = false;
         let i = 0;
         let registrado_control = false; // si se encuentra un trabajador con registros de asistencias en la fecha se activa
@@ -413,7 +402,8 @@ document.addEventListener("DOMContentLoaded", async function(){
         
         // response es un objeto, recorre las propiedades no iterables
         for(const [key, value] of Object.entries(obj)) {
-            if(value.registro == 1) { // si hay almenos un registro los que no aplica se desactivan
+            // si hay almenos un registro se considera que la fecha esta registrada
+            if(value.registro == 1) { 
                 registrado_control = true;
                 break;
             }
@@ -422,24 +412,29 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
 
-
+        // crea las filas
         for (const [key, value] of Object.entries(obj)) {
             let tr = document.createElement("tr");
-            // value es otro objeto ahora se deben parsear todos los valores de value a string
+
+            
+            // paso a string los valores
             for (const [keyDos, valueDos] of Object.entries(value)) {
                 obj[key][keyDos] = String((valueDos) ? valueDos : "");
+                if(keyDos == "Es_Asistencia" && valueDos == "") {
+                    obj[key][keyDos] = "0";
+                }
             }
 
             
-            tr.innerHTML = tableRow(value, i++, registrado_control);
+            tr.innerHTML = tableRow(value, i++,horario, registrado_control);
             tr.objTrabajador = value;
-            document.querySelector("#form-table-asistencias table tbody").appendChild(tr);
+            tbody.appendChild(tr);
         }
         if(i === 0) {
             let tr = document.createElement("tr");
             tr.innerHTML = `<td colspan="4" class="text-center">No se encontraron registros</td>`;
             document.querySelector("#submit-asistencias").disabled = true;
-            document.querySelector("#form-table-asistencias table tbody").appendChild(tr);
+            tbody.appendChild(tr);
         }
         
 
@@ -469,7 +464,7 @@ document.addEventListener("DOMContentLoaded", async function(){
             })
             check.dispatchEvent(new Event("change"));
         });
-
+        // eventos a los inputs
         let fields = document.querySelectorAll("#form-table-asistencias tr input:not(.inasistencia-check):not(input[name='hora_entrada[]']), #form-table-asistencias tr select");
         fields.forEach(field => {
             field.addEventListener("change", () => {
@@ -487,90 +482,99 @@ document.addEventListener("DOMContentLoaded", async function(){
         });
     }
 
+    
     /**
      * funcion que devuelve un objeto con el departamento, el turno, la fecha y los valores de las form-table-asistencias
      */
-    function getRowsObj() {
+    function getTrabajadoresObject(){
         let tbody = document.querySelector("#form-table-asistencias table tbody");
         let rows = tbody.querySelectorAll("tr");
-        let rowsObj = [];
+        let trabajadores = [];
+        
+        let isset = (variable) => {
+            if(typeof variable !== "undefined") return variable;
+            else return "";
+        };
+
+            // procedure variables necesarias
+            // * IN p_id_asistencia_inasistencia INT, -- NULL para nuevo registro, valor para actualización
+            // * IN p_fecha DATE, -- Fecha de la asistencia/inasistencia
+            // * IN p_id_asignacion_laboral INT, -- ID de la asignación laboral del trabajador
+            // * IN p_tipo_registro ENUM('Asistencia', 'Inasistencia'), -- Tipo de registro
+            // -- Parámetros para asistencia
+
+            // * IN p_hora_entrada TIME, -- Solo para tipo 'Asistencia'
+            // * IN p_hora_salida TIME, -- Solo para tipo 'Asistencia'
+            // -- Parámetros para inasistencia
+            // * IN p_tipo_inasistencia ENUM('Injustificado','Vacaciones','Medico','Emergencia','Judicial','Enfermedad','Muerte De Un Familiar','Otro'), -- Solo para tipo 'Inasistencia'
+            // * IN p_descripcion TEXT, -- Solo para tipo 'Inasistencia'
         for(let tr of rows) {
-            let rowObj = {};
-            tr.querySelector("select[name='justificacion[]']").setValidStatus();
+            let fieldcheckInasistencia = tr.querySelector("input[name='inasistencia[]']");
+            let fieldvalueHoraEntrada = tr.querySelector("input[name='hora_entrada[]']");
+            let fieldvalueHoraSalida = tr.querySelector("input[name='hora_salida[]']");
+            let fieldvalueJustificacion = tr.querySelector("select[name='justificacion[]']");
+            let fieldvalueJustificacionDescripcion = tr.querySelector("input[name='justificacion-descripcion[]']");
 
-            rowObj.idAsistencia = tr.objTrabajador.idAsistencia ? tr.objTrabajador.idAsistencia : null;
-            rowObj.idTrabajador = tr.objTrabajador.idTrabajador;
 
-            rowObj.inasistencia = (tr.querySelector("input.inasistencia-check").checked) ? 1 : 0 ;
-            
-            
+            let valueCheckInasistencia = fieldcheckInasistencia.checked ? "2" : "1";
+            let valueHoraEntrada = fieldvalueHoraEntrada.value;
+            let valueHoraSalida = fieldvalueHoraSalida.value;
+            let valueJustificacion = fieldvalueJustificacion.value;
+            let valueJustificacionDescripcion = fieldvalueJustificacionDescripcion.value;
 
-            if(rowObj.inasistencia == 1){ 
-                rowObj.fechaIn = "";
-                rowObj.fechaOut = "";
-                rowObj.justificacion = tr.querySelector("select[name='justificacion[]']").value;
-                rowObj.justificacion_descripcion = tr.querySelector("input[name='justificacion-descripcion[]']").value;
-
-                if(rowObj.justificacion == ""){
-                    tr.querySelector("select[name='justificacion[]']").setValidStatus(false, "seleccione una justificacion");
-                    tr.querySelector("select[name='justificacion[]']").focus();
-                    
-
-                    return;
-                }
+            if(valueCheckInasistencia == "2") {
+                valueHoraEntrada = "";
+                valueHoraSalida = "";
             }
             else{
-                rowObj.fechaIn = tr.querySelector("input[name='hora_entrada[]']").value;
-                rowObj.fechaOut = tr.querySelector(`input[name='hora_salida[]']`).value;
-                rowObj.justificacion = "";
-                rowObj.justificacion_descripcion = "";
-                if(rowObj.fechaIn == "" && rowObj.fechaOut == ""){
-                    rowObj.inasistencia = 1;
+                valueJustificacion = "";
+                valueJustificacionDescripcion = "";
+            }
+
+
+
+            let trabajadorOrigen = tr.objTrabajador;
+
+            if(!trabajadorOrigen.idTrabajador) return false;
+
+
+
+            let objTrabajador = {
+                idTrabajador : trabajadorOrigen.idTrabajador,
+                idAsistencia_inasistencia : isset(trabajadorOrigen.idAsistencia_inasistencia),
+                tipo_registro : valueCheckInasistencia,
+                horaEntrada : valueHoraEntrada,
+                horaSalida : valueHoraSalida,
+                tipo_justificacion : valueJustificacion,
+                descripcion_justificacion : valueJustificacionDescripcion,
+                registrado : isset(trabajadorOrigen.registro)
+            };
+            // verificar si se ha modificado el registro
+            // de asistencia u inasistencia, horas de entrada y salida
+            // si asi fue se le agrega la propiedad modificado = 1 si no se le agrega la propiedad modificado = 0
+            if(isset(trabajadorOrigen.registro) == "1"){
+
+                let tipoAsistencia = (trabajadorOrigen.Es_Asistencia == "1") ? "1" : "2";
+
+                objTrabajador.modificado = "0";
+
+                if(
+                    isset(trabajadorOrigen.horaEntrada.split(":", 2).join(":")) != valueHoraEntrada ||
+                    isset(trabajadorOrigen.horaSalida.split(":", 2).join(":")) != valueHoraSalida ||
+                    tipoAsistencia != valueCheckInasistencia ||
+                    isset(trabajadorOrigen.tipo_justificacion) != valueJustificacion ||
+                    isset(trabajadorOrigen.descripcion_justificacion) != valueJustificacionDescripcion
+                ){
+                    objTrabajador.modificado = "1";
                 }
-                else if(rowObj.inasistencia == 1){
-                    rowObj.fechaIn = "";
-                    rowObj.fechaOut = "";
-                }
+
             }
 
-            // verifico si hay algun cambio con respecto al registro original
-            let ok = 0;
-
-            if(tr.objTrabajador.idAsistencia){
-
-                tr.objTrabajador.status = (tr.objTrabajador.status== 1 || tr.objTrabajador.status== "1" ) ? 1 : 0;
-                
-                if( String(rowObj.inasistencia) !== String(tr.objTrabajador.status) ) ok = 1;
-                if( String(rowObj.justificacion) !== String(tr.objTrabajador.tipo_justificacion) ) ok = 1;
-                if( String(rowObj.justificacion_descripcion) !== String(tr.objTrabajador.observacion_justificacion) ) ok = 1;
-                if( String(rowObj.fechaIn) !== String(tr.objTrabajador.fechaIn.split(":", 2).join(":")) ) ok = 1;
-                if( String(rowObj.fechaOut) !== String(tr.objTrabajador.fechaOut.split(":", 2).join(":")) ) ok = 1;
-                
-            }
-            if(rowObj.no_aplica && tr.objTrabajador.idAsistencia) ok = 1;
-
-            if(ok) {
-                rowObj.original = tr.objTrabajador;
-            }
-
-            if(
-                rowObj.fechaIn == "" && /^\d\d:\d\d$/.test(rowObj.fechaOut) ||
-                rowObj.fechaOut == "" && /^\d\d:\d\d$/.test(rowObj.fechaIn)
-            ){
-                rowObj.inconclusa = 1;
-            }
+            trabajadores.push(objTrabajador);
 
 
-            rowObj.modify = ok;
-
-            //console.log(rowObj.modify, rowObj.idAsistencia);
-
-            if((!rowObj.modify && rowObj.idAsistencia !== null) || ( rowObj.no_aplica && rowObj.idAsistencia === null ) ) continue;
-                
-            
-            rowsObj.push(rowObj);
         }
-        return rowsObj;
+        return trabajadores;
     }
 
     
