@@ -21,7 +21,7 @@
             
                 
                 <form method="post" id="form-trabajador">
-                    <input type="hidden" id="modificar" value="<?php echo $Trabajador->id ?>">
+                    <input type="hidden" id="modificar" name="idTrabajador" value="<?php echo $Trabajador->id ?>">
                     <div class="row gy-3">
                         <div class="col-md-6">
                             <label for="cedula" class="form-label">Cedula </label>
@@ -49,9 +49,7 @@
                             <label for="cargo" class="form-label">Cargo</label>
                             <select required name="cargo" id="cargo" class="form-select">
                                 <option value=""></option>
-                                <?php foreach (Cargo::cases() as $cargo): ?>
-                                    <option <?php if ($Trabajador->getCargo()->value == $cargo->value) echo "selected" ?> value="<?= $cargo->value ?>"><?= $cargo->name ?></option>
-                                <?php endforeach ?>
+                                <?= Cargo::getCargosOptions($Trabajador->idCargo); ?>
                             </select>
                             <div id="invalid-span-cargo" class="form-text invalid-feedback"></div>
                         </div>
@@ -59,9 +57,7 @@
                             <label for="turno" class="form-label">Turno</label>
                             <select required name="turno" id="turno" class="form-select">
                                 <option value=""></option>
-                                <?php foreach (Turno::cases() as $turno): ?>
-                                    <option <?php if ($Trabajador->getTurno()->value == $turno->value) echo "selected" ?> value="<?= $turno->value ?>"><?= ucfirst($turno->value) ?></option>
-                                <?php endforeach ?>
+                                <?= Turno::getTurnosOptions( $Trabajador->idTurno); ?>
                             </select>
                             <div id="invalid-span-turno" class="form-text invalid-feedback"></div>
                         </div>
@@ -85,7 +81,7 @@
                     </div>
                     <div class="modal-footer">
                         <div class="d-flex justify-content-between gap-3">
-                            <button data-bs-dismiss="modal" class="btn btn-outline-secondary">Cancelar</button>
+                            <button type="button" data-bs-dismiss="modal" class="btn btn-outline-secondary">Cancelar</button>
                             <button id="btn-submit-registrar" type="submit" form="form-trabajador" class="btn btn-primary">Modificar</button>
                         </div>
                     </div>
