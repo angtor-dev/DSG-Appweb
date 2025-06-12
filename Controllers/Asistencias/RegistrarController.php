@@ -1,5 +1,5 @@
 <?php
-$_POST = json_decode(file_get_contents("php://input"), true);
+cargarPost();
 requiereAutenticacion();
 requierePermiso(Modulo::ASISTENCIAS, Permiso::REGISTRAR);
 
@@ -41,19 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     if(isset($_POST['action']) and $_POST['action'] == "Registrar"){
-        http_response_code(200);
         $asistencia = new Asistencia;
 
+//        $asistencia->setTestingMode(true);
 
-        $asistencia->mapearFormulario();
+        $asistencia->setterArray(Array(
+            "idDepartamento" => $_POST["idDepartamento"],
+            "fecha" => $_POST["fecha"],
+            "turno" => $_POST["turno"],
+            "trabajadores" => $_POST["trabajadores"],
+        ));
+
+
         $asistencia->registrar(true);
-        
-    }
-    else if (isset($_POST['action']) and $_POST['action'] == "Eliminar") {
-        http_response_code(200);
-        $asistencia = new Asistencia;
-        $asistencia->mapearFormulario();
-        $asistencia->eliminar();
         
     }
     else{

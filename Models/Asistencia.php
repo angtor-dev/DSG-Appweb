@@ -61,7 +61,7 @@ class Asistencia extends Model
      * @throws \Exception
      * @return bool
      */
-    public function esValido($control) : bool {
+    public function esValido($control, mixed &$datosDevueltos = null) : bool {
         // si el control es listar trabajadores o registrar ajuste
         // valida el departamento
 
@@ -76,6 +76,7 @@ class Asistencia extends Model
             public string $idAsistencia_no_select = "Debe seleccionar una asistencia";
             public string $idAsistencia_invalido = "La asistencia no es valida";
             public string $idAsistencia_no_existe = "La asistencia seleccionada no existe";
+            public string $turno_no_existente = "El turno seleccionado no existe";
 
         };
 
@@ -123,6 +124,43 @@ class Asistencia extends Model
             
         }
 
+        if($control == self::LISTAR_TRABAJADORES){
+            // primero optengo los horarios del turno seleccionado
+
+            $stmt = $this->ejecutarStatement("SELECT * FROM turno WHERE id = :turno", ["turno" => $this->turno]);
+            
+            if($stmt->rowCount() == 0) {
+                throw new Exception($messages->turno_no_existente, self::SHOW_EXCEPTIONS);
+            }
+
+            $resp = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $datosDevueltos = [
+                "hora_entrada" => $resp["horario_entrada"],
+                "hora_salida" => $resp["horario_salida"]
+            ];
+
+             // validar que la fecha seleccionada sea valida para el turno seleccionado
+
+             $diaDeLaSemana = date("w", strtotime($this->fecha));
+             $dias = [
+                 "domingo",
+                 "lunes",
+                 "martes",
+                 "miercoles",
+                 "jueves",
+                 "viernes",
+                 "sabado"
+             ];
+
+             if($resp[$dias[$diaDeLaSemana]] == 0) {
+                throw new Exception("El turno selecciondado no esta programado para el dia seleccionado (".ucfirst($dias[$diaDeLaSemana]) .")", self::SHOW_EXCEPTIONS);
+             }
+             
+
+            
+
+        }
     
         return true;
     }
@@ -134,7 +172,7 @@ class Asistencia extends Model
          * @return array Un array con el resultado de la operacion
          * @throws Exception Si ocurre un error al registrar la asistencia
          */
-    public function registrar($print) : array {
+    public function registrarOld($print) : array {
         try {
             // Primero registrar la fecha de asistencia en la tabla fechaasistencia si no existe
             $this->db->connect();
@@ -209,16 +247,6 @@ class Asistencia extends Model
                         
             }
 
-            // verifico que si se hallan guardado las asistencias, se haga el commit, si una asistencia no tiene guardada los trabajadores se lanza un error
-
-            // $stmt = $this->db->pdo()->prepare("SELECT * FROM asistencia WHERE idFechaAsistencia = :idFechaAsistencia");
-            // $stmt->bindValue("idFechaAsistencia", $idFechaAsistencia);
-            // $stmt->execute();
-            // if($stmt->rowCount() == 0) {
-            //     throw new Exception("No es posible registrar la asistencia sin registro de entrada/salida de almenos un trabajador");
-            // }
-
-
 
 
             $this->db->pdo()->commit();
@@ -250,18 +278,124 @@ class Asistencia extends Model
         return $response;
     }
 
+
+    public function registrar($print = true):array {
+        try {
+            $this->db->connect();
+            $this->beginTransaction();
+
+            /*
+
+            CALL `sp_registrar_asistencia`(
+                p_id_asistencia_inasistencia INT,
+                p_fecha DATE,
+                p_trabajador_id INT,
+                p_tipo_registro ENUM,
+                p_hora_entrada TIME,
+                p_hora_salida TIME,
+                p_tipo_inasistencia ENUM,
+                p_descripcion TEXT
+            );
+            */
+            
+            $query = "CALL sp_registrar_asistencia(
+                :id_asistencia_inasistencia,
+                :fecha,
+                :trabajador_id,
+                :tipo_registro,
+                :hora_entrada,
+                :hora_salida,
+                :tipo_inasistencia,
+                :descripcion
+            )";
+
+            foreach ($this->trabajadores as $trabajador) {
+
+                $setterAuxiliar = function ($value){
+                    return (empty($value)) ? NULL : $value;
+                };
+                
+                $parametros = [
+                    "fecha" => $this->fecha,
+                    // datos desde el array de trabajador
+                    "id_asistencia_inasistencia" => $setterAuxiliar($trabajador["idAsistencia_inasistencia"]),
+                    "trabajador_id" => $setterAuxiliar($trabajador["idTrabajador"]),
+                    "tipo_registro" => $setterAuxiliar($trabajador["tipo_registro"]),
+                    "hora_entrada" => $setterAuxiliar($trabajador["horaEntrada"]),
+                    "hora_salida" => $setterAuxiliar($trabajador["horaSalida"]),
+                    "tipo_inasistencia" => $setterAuxiliar($trabajador["tipo_justificacion"]),
+                    "descripcion" => $setterAuxiliar($trabajador["descripcion_justificacion"])?? "",
+                ];
+
+                $this->ejecutarStatement($query, $parametros);
+                
+            }
+
+
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+
+            $this->commit();
+            $this->db->disconnect();
+            $response = [
+                "success" => true,
+                "message" => "Asistencia registrada con éxito"
+            ];
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+
+            $response = [
+                "success" => false,
+                "message" => "Error al registrar la asistencia"
+            ];
+            if(DEVELOPER_MODE){
+                $response['Error'] = $th->getMessage()." : linea: ".$th->getLine();
+                $response['Trace'] = $th->getTraceAsString();
+            }
+        }
+        if ($print) {
+            echo json_encode($response);
+        }
+        return $response;
+    }
+
     public function eliminarFechaAsistencia($print = false): array {
         try {
             $this->db->connect();
-            $this->esValido(self::ELIMINAR_ASISTENCIA);
+            //$this->esValido(self::ELIMINAR_ASISTENCIA);
             $this->beginTransaction();
-            $stmt = $this->prepare("DELETE FROM fechaAsistencia WHERE id = :idAsistencia");
-            $stmt->bindValue("idAsistencia", $this->idAsistencia);
-            $stmt->execute();
 
-            $bitacoraSms = "Asistencia eliminada";
+
+
+            $query = "DELETE ai
+            FROM asistencia_inasistencia as ai 
+            JOIN fechaasistencia as fa
+                ON fa.id = ai.idFechaAsistencia
+            JOIN asignacion_laboral al 
+                ON al.id = ai.idAsignacionLaboral
+            WHERE 
+            fa.fecha = :fecha AND al.idTurno = :turno AND al.idDepartamento =:idDepartamento;";
+
+            $parametros = [
+                "fecha" => $this->fecha,
+                "turno" => $this->turno,
+                "idDepartamento" => $this->idDepartamento
+            ];
+
+            $this->ejecutarStatement($query, $parametros);
+
+            
+
+            $bitacoraSms = "Asistencia eliminada de la fecha $this->fecha, turno $this->turno y departamento $this->idDepartamento con exito";
 
             Bitacora::registrarTransaccion($bitacoraSms, $this->db->pdo());
+
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
 
             $this->commit();
             $this->db->disconnect();
@@ -302,30 +436,34 @@ class Asistencia extends Model
     public function verAsistencias($print = false)  {
         try {
             $this->db->connect();
-            $this->esValido(self::LISTAR_TRABAJADORES);
+            $this->esValido(self::LISTAR_TRABAJADORES, $horarioDevuelto);
             $this->beginTransaction();
             // optengo la lista de registros de asistencias que cumplan con los filtros
-            $query = "SELECT 
-                t.id as idTrabajador
-                ,t.cedula
-                ,CONCAT(t.nombre,' ',t.apellido) as nombre
-                ,a.fechaIn
-                ,a.fechaOut
-                ,a.status
-                ,a.id as idAsistencia
-                ,j.tipo + 0 as tipo_justificacion
-                ,j.observacion as observacion_justificacion
-                ,1 as registro
-                
-                
-            FROM asistencia as a 
-            JOIN trabajador as t on t.id = a.idTrabajador
+            $query = "SELECT
+                    t.id as idTrabajador
+                    ,t.cedula
+                    ,t.nombre
+                    ,t.apellido
+                    ,CONCAT(t.nombre,' ',t.apellido) as fullName
+                    ,if(a.idAsistencia_inasistencia is NULL,0,1) as 'Es_Asistencia'
+                    ,a.horaEntrada
+                    ,a.horaSalida
+                    ,ai.id as idAsistencia_inasistencia
+                    ,i.tipo + 0 as tipo_justificacion
+                    ,i.descripcion descripcion_justificacion
+                    ,1 as registro
+                FROM
+                    asistencia_inasistencia ai
+                JOIN fechaasistencia fa 
+                    ON fa.id = ai.idFechaAsistencia
+                JOIN asignacion_laboral as al 
+                    ON al.id = ai.idAsignacionLaboral
+                JOIN trabajador as t on t.id = al.idTrabajador
 
-            JOIN fechaasistencia as fa on fa.id = a.idFechaAsistencia
-            JOIN departamento as d on d.id = fa.idDepartamento
-            LEFT JOIN justificacion as j on j.idAsistencias = a.id
-            WHERE fa.fecha = :fecha AND d.id = :idDepartamento and fa.turno= :turno
-            ";
+                LEFT JOIN inasistencia i on i.idAsistencia_inasistencia = ai.id
+                LEFT JOIN asistencia a on a.idAsistencia_inasistencia = ai.id
+
+                WHERE fa.fecha = :fecha AND al.idTurno = :turno and al.idDepartamento = :idDepartamento;";
 
             $parametros = [
                 "idDepartamento" => $this->idDepartamento,
@@ -333,34 +471,31 @@ class Asistencia extends Model
                 "turno" => $this->turno
             ];
 
-            $asistenciasRegistros = $this->ejecutar($query, $parametros);
+            $asistenciasRegistros = $this->ejecutar($query, $parametros, PDO::FETCH_ASSOC);
             
-
-            //$asistenciasRegistros = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // optengo la lista de trabajadores que cumplan con los filtros
 
             $query = "SELECT
-                    t.id as idTrabajador
-                    ,t.cedula
-                    ,CONCAT(t.nombre,' ',t.apellido) as nombre
-                    ,0 as registro
-                    
-
-                FROM
-                    trabajador AS t
-                JOIN departamento as d on d.id = t.idDepartamento
-                WHERE t.turno = :turno AND d.id = :idDepartamento and :fecha > t.fechaIngreso;
-            ";
+                        t.id as idTrabajador
+                        ,t.cedula
+                        ,t.nombre
+                        ,t.apellido
+                        ,CONCAT(t.nombre,' ',t.apellido) as fullName
+                        ,0 as registro
+                    FROM
+                        trabajador AS t
+                    JOIN asignacion_laboral al ON
+                        al.idTrabajador = t.id AND al.esActual = 1
+                    WHERE al.idTurno = :turno AND al.idDepartamento = :idDepartamento AND :fecha > t.fechaIngreso";
 
             $trabajadoresRegistros = $this->ejecutar($query, $parametros);
 
             // se crea un objeto con la lista final a mostrar
-            
+            $fechaAsistencia = "";
             $listaFinal = new stdClass();
             foreach ($asistenciasRegistros as $asistencia) {
                 $asistencia["registro"] = 1;
                 $listaFinal->{"idTrabajador_".$asistencia["idTrabajador"]} = $asistencia;
+                $fechaAsistencia = $this->fecha;
             }
             foreach ($trabajadoresRegistros as $trabajador) {
                 if (!isset($listaFinal->{"idTrabajador_".$trabajador["idTrabajador"]})) {
@@ -368,23 +503,12 @@ class Asistencia extends Model
                     $listaFinal->{"idTrabajador_".$trabajador["idTrabajador"]} = $trabajador;
                 }
             }
-            // obtener la fechaAsistencia si existe
 
-
-            $query = "SELECT id FROM fechaasistencia WHERE idDepartamento = :idDepartamento AND fecha = :fecha AND turno = :turno";
-
-            $stmt = $this->ejecutarStatement($query, $parametros);
 
             $resp = ["success" => true];
-            
-            if ($stmt->rowCount() > 0) {
-                $resp["fechaAsistencia"] = $stmt->fetchColumn();
-            }
-            else {
-                $resp["fechaAsistencia"] = "";
-            }
-
+            $resp["fechaAsistencia"] = $fechaAsistencia;
             $resp["listaTrabajadores"] = $listaFinal;
+            $resp["turnoHorario"] = $horarioDevuelto;
 
 
             $this->commit();
@@ -424,7 +548,14 @@ class Asistencia extends Model
      * @throws Exception If a database error occurs.
      */
 
-    public function reporte(?string $fechaInicio, ?string $fechaFin, ?string $idDepartamento = null, ?string $turno = null, ?string $grupo = null, ?bool $print = false) :array {
+    public function reporte(
+        ?string $fechaInicio, 
+        ?string $fechaFin,
+        ?string $idDepartamento = null,
+        ?string $turno = null,
+        ?string $grupo = null,
+        ?bool $print = false
+        ) :array {
 
 
         try {
@@ -434,20 +565,21 @@ class Asistencia extends Model
 
             $pdo->beginTransaction();
             $headerTable = [];
-            $queryGroup = " ";
+            $where = " WHERE fecha between :fechaInicio and :fechaFin";
+            $groupBy = "";
 
-            if($grupo == null)
-            {
-                $querySelect ="SELECT
-                t.cedula,
-                t.nombre,
-                t.apellido,
-                fa.fecha,
-                a.fechaIn,
-                a.fechaOut,
-                d.nombre,
-                fa.turno,
-                if(a.status=0,'Asistente','Inasistente') as status ";
+            if($grupo == null){
+                $querySelect = "SELECT 
+                 cedula,
+                 nombre,
+                 apellido,
+                 fecha,
+                 if(esAsistencia,horaEntrada,tipo) as entrada,
+                 if(esAsistencia,horaSalida,descripcion) as salida,
+                 departamento,
+                 turno,
+                 if(esAsistencia, 'Asistencia', 'Inasistencia') as status
+                 from vista_asistencias";
                 $headerTable = [
                     "Cedula",
                     "Nombre",
@@ -460,33 +592,35 @@ class Asistencia extends Model
                     "Estado"
                 ];
             }
-            else if($grupo == "trabajadores")
-            {
-                $querySelect ="SELECT
-                    t.cedula,
-                    t.nombre,
-                    t.apellido,
-                    COUNT(if(a.status=1,1,NULL)) as inasitencias,
-                    COUNT(if(a.status=1,NULL,1)) as asitencias
-                    ";
-                $queryGroup = "GROUP BY t.cedula";
+            else if($grupo == "trabajadores"){
+                $querySelect = "SELECT 
+                    cedula,
+                    nombre,
+                    apellido,
+                    COUNT(if((esAsistencia = 0 and (tipo+0) = 1 ), 1, NULL)) as injusti,
+                    COUNT(if(esAsistencia=0,1,NULL)) as inasitencias,
+                    COUNT(if(esAsistencia=1,1,NULL)) as asistencias,
+                    COUNT(cedula) as TOTAL
+                    from vista_asistencias";
+                $groupBy = " group by cedula";
                 $headerTable = [
                     "Cedula",
                     "Nombre",
                     "Apellido",
+                    "Inasistencias Injustificadas",
                     "Inasistencias",
-                    "Asistencias"
+                    "Asistencias",
+                    "Total"
                 ];
             }
-            else if($grupo == "departamentos")
-            {
-                $querySelect ="SELECT
-                    d.id,
-                    d.nombre,
-                    COUNT(if(a.status=1,1,NULL)) as inasitencias,
-                    COUNT(if(a.status=1,NULL,1)) as asitencias
-                    ";
-                $queryGroup = "GROUP BY d.id";
+            else if($grupo == "departamentos"){
+                $querySelect = "SELECT 
+                    idDepartamento,
+                    departamento,
+                    COUNT(if(esAsistencia=0,1,NULL)) as inasitencias,
+                    COUNT(if(esAsistencia=1,1,NULL)) as asistencias
+                    from vista_asistencias";
+                $groupBy = " group by idDepartamento";
                 $headerTable = [
                     "Id",
                     "Departamento",
@@ -494,61 +628,44 @@ class Asistencia extends Model
                     "Asistencias"
                 ];
             }
-            else if($grupo == "turnos")
-            {
-                $querySelect ="SELECT
-                    fa.turno,
-                    COUNT(if(a.status=0,1,NULL)) as inasitencias,
-                    COUNT(if(a.status=0,NULL,1)) as asitencias
-                    ";
-                $queryGroup = "GROUP BY fa.turno";
+            else if($grupo == "turnos"){
+                $querySelect = "SELECT 
+                turno,
+                COUNT(if(esAsistencia=0,1,NULL)) as inasitencias,
+                COUNT(if(esAsistencia=1,1,NULL)) as asistencias
+                from vista_asistencias";
+                $groupBy = " group by turno";
                 $headerTable = [
                     "Turno",
                     "Inasistencias",
                     "Asistencias"
                 ];
             }
-            $queryWhere = " ";
-
-            if($idDepartamento != null){
-                $queryWhere .= "AND fa.idDepartamento = :idDepartamento";
+            else{
+                throw new Exception("Error al generar el reporte", self::SHOW_EXCEPTIONS);
             }
 
-            if($turno != null){
-                $queryWhere .= " AND fa.turno = :turno";
+            
+            $parametros = [
+                "fechaInicio" => $fechaInicio,
+                "fechaFin" => $fechaFin
+            ];
+
+            if($idDepartamento != null) {
+                $where .= " and idDepartamento = :idDepartamento";
+                $parametros["idDepartamento"] = $idDepartamento;
             }
-                
-
-
-            $query = "
-            $querySelect 
-            FROM
-                `asistencia` AS a
-            JOIN fechaasistencia AS fa on fa.id = a.idFechaAsistencia
-            JOIN trabajador as t on t.id = a.idTrabajador
-            JOIN departamento as d on d.id = fa.idDepartamento
-            WHERE fa.fecha >= :fechaInicio AND fa.fecha <= :fechaFinal $queryWhere
-            $queryGroup
-            ";
-
-
-
-
-
-            $stmt = $pdo->prepare($query);
-
-            $stmt->bindValue("fechaInicio", $fechaInicio);
-            $stmt->bindValue("fechaFinal", $fechaFin);
-            if($idDepartamento != null){
-                $stmt->bindValue("idDepartamento", $idDepartamento);
-            }
-            if($turno != null){
-                $stmt->bindValue("turno", $turno);
+            if($turno != null) {
+                $where .= " and idTurno = :turno";
+                $parametros["turno"] = $turno;
             }
 
+            $querySelect = $querySelect . $where . $groupBy;
 
 
-            $stmt->execute();
+            $stmt = $this->ejecutarStatement($querySelect, $parametros, PDO::FETCH_NUM);
+
+
             $listaFinal = $stmt->fetchAll(PDO::FETCH_NUM);
             $pdo->commit();
             $pdo = null;
@@ -556,19 +673,12 @@ class Asistencia extends Model
             $respuesta = [ 
                 "success" => true,
                 "headers" => $headerTable,
-                "data" => $listaFinal 
+                "data" => $listaFinal
             ];
 
         } catch (\Throwable $th) {
 
-            if( 
-                isset($this->db) &&
-                $this->db->pdo() instanceof \PDO &&
-                $this->db->pdo()->inTransaction()
-            ){
-                $this->db->pdo()->rollBack();
-                $this->db->disconnect();
-            }
+           $this->disconectHandlerExeption();
             $respuesta = [
                 "success" => false,
                 "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al reportar asistencias")
@@ -586,6 +696,16 @@ class Asistencia extends Model
             $this->db->connect();
             $pdo = $this->db->pdo();
             $pdo->beginTransaction();
+
+            $queryN = "SELECT
+                        DATE_FORMAT(fecha, '%Y-%m') as mes,
+                        COUNT(if(esAsistencia=1,NULL,1)) as inasitencias,
+                        COUNT(if(esAsistencia=1,1,NULL)) as asitencias
+                        from vista_asistencias
+            ";
+            $where = " WHERE fecha Between :inicio AND :fin";
+
+
             $query ="SELECT
                         DATE_FORMAT(fa.fecha, '%Y-%m') as mes,
                         COUNT(if(a.status=1,1,NULL)) as inasitencias,
@@ -601,16 +721,20 @@ class Asistencia extends Model
 
             if(!empty($this->idTrabajador)){
                 $query .= " t.cedula = :cedula AND";
+                $where .= " AND cedula = :cedula";
             }
             else if(!empty($this->idDepartamento)){
                 $query .= " fa.idDepartamento = :idDepartamento AND";
+                $where .= " AND idDepartamento = :idDepartamento";
             }
 
             $query .= " 1 AND fa.fecha BETWEEN :inicio AND :fin GROUP BY mes";
 
+            $where .= " GROUP BY mes";
 
 
-            $stmt = $pdo->prepare($query);
+
+            $stmt = $pdo->prepare($queryN . $where);
 
             $stmt->bindValue("inicio", $this->fechaIn);
             $stmt->bindValue("fin", $this->fechaOut);
@@ -651,6 +775,101 @@ class Asistencia extends Model
             echo json_encode($respuesta);
         }
         return $respuesta;
+    }
+
+
+    public function llenarAsistenciasDatosDePrueba(){
+        try {
+            // NO INTENTEN ESTO EN CASA T_T
+            return false;
+            $this->setTestingMode(true);
+            ini_set('memory_limit', '256M');
+            set_time_limit(0);
+
+            $fechaInicio = "2024-05-10";
+            $fechaFinal = "2025-07-01";
+            // primero crear un bucle para recorrer las fechas
+            $fechaActual = new DateTime($fechaInicio);
+            $fechaFinal = new DateTime($fechaFinal);
+            $intervalo = new DateInterval('P1D'); // Intervalo de un día
+
+            // esto recorrera todas las fechas al usarse en un foreach
+            $fechas = new DatePeriod($fechaActual, $intervalo, $fechaFinal);
+
+            // ahora optenemos los departamentos y los turnos
+            $departamentos = (new Departamento)->listar();
+            $turnos = (new Turno())->listarPadre();
+
+            foreach ($fechas as $fecha) {
+                $fechaActual = $fecha->format('Y-m-d');
+                foreach ($departamentos as $departamento) {
+                    $idDepartamento = $departamento->id;
+                    foreach ($turnos as $turno) {
+                        $idTurno = $turno->id;
+
+                        $this->setterArray([
+                            "idDepartamento" => $idDepartamento,
+                            "turno" => $idTurno,
+                            "fecha" => $fechaActual
+                        ]);
+                        $respuestaVerAsistencias = $this->verAsistencias(false);
+                        if(!$respuestaVerAsistencias["success"]) continue;
+                        if ((new ArrayObject($respuestaVerAsistencias["listaTrabajadores"])) ->count() <=0 ) continue; 
+                        $objetoTrabajadores = $respuestaVerAsistencias["listaTrabajadores"];
+                        $turnoHorarios = $respuestaVerAsistencias["turnoHorario"];
+                        // pasar el turnoHorarios de formato HH:MM:SS a HH:MM
+                        $turnoHorarios["hora_entrada"] = substr($turnoHorarios["hora_entrada"], 0, 5);
+                        $turnoHorarios["hora_salida"] = substr($turnoHorarios["hora_salida"], 0, 5);
+                        $arregloTrabajadores = [];
+                        foreach ($objetoTrabajadores as $trabajador) {
+                            $prepareTrabajador = [
+                                "idTrabajador"=> $trabajador["idTrabajador"],
+                                "idAsistencia_inasistencia"=> $trabajador["idAsistencia_inasistencia"] ?? "",
+                                "tipo_registro"=> "",
+                                "horaEntrada"=> "",
+                                "horaSalida"=> "",
+                                "tipo_justificacion"=> "",
+                                "descripcion_justificacion"=> "",
+                                "registrado"=> ""
+                            ];
+
+
+                            // valor aleatorio entre 1 y 2
+                            // 1 = asistencia
+                            // 2 = inasistencia
+                            $tipoRegistro = rand(1, 2);
+                            $prepareTrabajador["tipo_registro"] = $tipoRegistro;
+
+                            if($tipoRegistro == 1){
+
+                                $prepareTrabajador["horaEntrada"] = generarHoraAleatoria($turnoHorarios["hora_entrada"], $turnoHorarios["hora_salida"]);
+                                $prepareTrabajador["horaSalida"] = generarHoraAleatoria($prepareTrabajador["horaEntrada"], $turnoHorarios["hora_salida"]);
+                                
+                            }
+                            else{
+                                $prepareTrabajador["tipo_justificacion"] = rand(1, 8);
+                            }
+
+
+                            $arregloTrabajadores[] = $prepareTrabajador;
+                        }
+
+                        $this->setterArray([
+                            "idDepartamento" => $idDepartamento,
+                            "turno" => $idTurno,
+                            "fecha" => $fechaActual,
+                            "trabajadores" => $arregloTrabajadores
+                        ]);
+                        $this->registrar(false);
+                    }
+                }
+            }
+            debug("Proceso de llenado de asistencias completado",false );
+            
+        } catch (\Throwable $th) {
+            debug( $th->getMessage(),false);
+            debug( $th->getTraceAsString(), false);
+        }
     }
 
 
@@ -706,6 +925,81 @@ class Asistencia extends Model
     public function getHora(string $value) :string {
         return substr($value, 11);
     }
+}
+
+
+/*
+    vista
+
+    CREATE OR REPLACE ALGORITHM = TEMPTABLE VIEW vista_asistencias AS
+    SELECT 
+        t.cedula
+        ,t.nombre
+        ,t.apellido
+        ,fa.fecha
+        ,a.horaEntrada
+        ,a.horaSalida
+        ,i.tipo
+        ,i.descripcion
+        ,d.id as idDepartamento
+        ,d.nombre as departamento
+        ,tu.id as idTurno
+        ,tu.nombre as turno
+        ,if(a.idAsistencia_inasistencia IS NOT NULL, 1, 0) as esAsistencia
+        
+    FROM asistencia_inasistencia AS ai 
+    JOIN fechaasistencia as fa 
+        on fa.id = ai.idFechaAsistencia
+    JOIN asignacion_laboral as al
+        on al.id = ai.idAsignacionLaboral
+    JOIN trabajador as t on t.id = al.idTrabajador
+    JOIN turno as tu on tu.id = al.idTurno
+    JOIN departamento as d on d.id = al.idDepartamento
+    LEFT JOIN asistencia as a on a.idAsistencia_inasistencia = ai.id
+    LEFT JOIN inasistencia as i on i.idAsistencia_inasistencia = ai.id;
+
+ */
+
+/**
+ * Generates a random time in HH:MM format within a specified range.
+ *
+ * @param string $horaInicio The start time in HH:MM format (e.g., "08:00").
+ * @param string $horaFin The end time in HH:MM format (e.g., "17:30").
+ * @return string A random time in HH:MM format, or an empty string if the input is invalid.
+ */
+function generarHoraAleatoria(string $horaInicio, string $horaFin): string
+{
+    // Validate input format
+    if (!preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $horaInicio) ||
+        !preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $horaFin)) {
+        return ""; // Or throw an exception for invalid format
+    }
+
+    // Convert times to total minutes from midnight for easier calculation
+    list($hInicio, $mInicio) = explode(':', $horaInicio);
+    $minutosInicio = (int)$hInicio * 60 + (int)$mInicio;
+
+    list($hFin, $mFin) = explode(':', $horaFin);
+    $minutosFin = (int)$hFin * 60 + (int)$mFin;
+
+    // Handle cases where the end time is on the next day (e.g., 22:00 - 02:00)
+    if ($minutosFin < $minutosInicio) {
+        $minutosFin += 24 * 60; // Add a day's worth of minutes
+    }
+
+    // Generate a random number of minutes within the range
+    $minutosAleatorios = mt_rand($minutosInicio, $minutosFin);
+
+    // If the random minutes exceed a day, subtract a day to bring it back to 0-23:59
+    if ($minutosAleatorios >= 24 * 60) {
+        $minutosAleatorios -= 24 * 60;
+    }
+
+    // Convert minutes back to HH:MM format
+    $hora = floor($minutosAleatorios / 60);
+    $minutos = $minutosAleatorios % 60;
+
+    return sprintf('%02d:%02d', $hora, $minutos);
 }
 
 ?>
