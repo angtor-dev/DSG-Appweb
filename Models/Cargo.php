@@ -248,7 +248,7 @@ class Cargo extends Model implements JsonSerializable
 
 	
 
-	public static function getCargosOptions() : string
+	public static function getCargosOptions($checkedId = null) : string
     {
 
         $cargoObj = new Cargo();
@@ -256,7 +256,7 @@ class Cargo extends Model implements JsonSerializable
         $cargos = $cargoObj->listarPadre();
         $options = "";
         foreach ($cargos as $cargo) {
-            $options .= "<option value='" . $cargo->id . "'>" . $cargo->get_nombre() . "</option>";
+            $options .= "<option ".($checkedId == $cargo->id ? "selected" : "")." value='" . $cargo->id . "'>" . $cargo->get_nombre() . "</option>";
         }
         return $options;
         

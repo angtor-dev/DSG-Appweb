@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response = parsearJson(response)) {
                     if (response.success) {
                         mostrarExito(response.message)
+                        mostrarLoader("body");
                         setTimeout(() => {
                             location.reload()
                         }, 1000);
@@ -234,7 +235,7 @@ function agregarValidaciones() {
                 method: 'POST',
                 body: datos.text(),
                 useLoader: 'body',
-                blur: true
+                blur: true,
             });
 
             respuesta = parsearJson(respuesta);

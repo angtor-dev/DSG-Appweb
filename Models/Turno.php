@@ -51,7 +51,7 @@ class Turno extends Model implements JsonSerializable
     }
 
 
-    public static function getTurnosOptions() : string
+    public static function getTurnosOptions($checkedId = null) : string
     {
 
         $turno = new Turno();
@@ -59,7 +59,7 @@ class Turno extends Model implements JsonSerializable
         $turnos = $turno->listarPadre();
         $options = "";
         foreach ($turnos as $turno) {
-            $options .= "<option value='" . $turno->id . "'>" . $turno->get_nombre() . "</option>";
+            $options .= "<option ".($checkedId == $turno->id ? "selected" : "")." value='" . $turno->id . "'>" . $turno->get_nombre() . "</option>";
         }
         return $options;
         

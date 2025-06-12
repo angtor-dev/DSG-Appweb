@@ -52,6 +52,5 @@ $_layout = "Login";
         document.querySelector('input[name="correo"]').value = localStorage.getItem('loginCorreo');
         document.getElementById('recordar').checked = true;
     }
-    localStorage.removeItem('correo');
 
 </script>

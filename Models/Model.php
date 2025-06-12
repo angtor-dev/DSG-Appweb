@@ -279,6 +279,18 @@ abstract class Model
         }
     }
 
+    public function disconectHandlerExeption() : void
+    {
+        if( 
+            isset($this->db) &&
+            $this->db->pdo() instanceof \PDO &&
+            $this->db->pdo()->inTransaction()
+        ){
+            $this->rollBack();
+            $this->db->disconnect();
+        }
+    }
+
     
 
     abstract public function setterArray(array $data):void;

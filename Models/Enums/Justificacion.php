@@ -22,3 +22,12 @@ function getJustificacionOptions(): string{
     return $html;
 
 }
+
+function getJustificacionJson():string{
+    $json = [];
+    foreach (Justificacion::cases() as $justificacion) {
+        $name = str_replace('_', ' ', $justificacion->name);
+        $json[$name] = $justificacion->value;
+    }
+    return json_encode($json);
+}
