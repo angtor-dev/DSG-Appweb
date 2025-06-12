@@ -23,7 +23,7 @@
 
 class Trabajador extends Model
 {
-    public int|string $idDepartamento;
+    public null|int|string $idDepartamento;
     private string $cedula;
     private string $cedulaSeleccion;
     private string $nombre;
@@ -32,7 +32,11 @@ class Trabajador extends Model
     private string $fechaIngreso;
     private Cargo|string $cargo;
     private Turno|string $turno;
+    private string $cargoNivel;
     public Departamento $departamento;
+    public null|string $idTurno;
+    public null|string $idCargo;
+
     private string $estado;
 
     const REGISTRAR_TRABAJADOR = 1;
@@ -56,13 +60,14 @@ class Trabajador extends Model
         $query = "SELECT
                 t.*
                 ,al.idTurno
-                ,tu.nombre as turno
+                ,COALESCE(tu.nombre,'') as turno
                 ,al.idDepartamento
-                ,c.nombre as cargo
+                ,COALESCE(c.nombre,'') as cargo
+                ,al.idCargo
                 ,al.id as idAsignacionLaboral
             FROM
                 trabajador AS t
-            JOIN asignacion_laboral AS al
+            left JOIN asignacion_laboral AS al
             ON
                 al.idTrabajador = t.id AND al.esActual = 1
             left JOIN turno as tu on al.idTurno = tu.id
@@ -70,7 +75,7 @@ class Trabajador extends Model
 
             WHERE
                 cedula = :cedula;";
-//        $query = "SELECT * FROM `trabajador` WHERE cedula = :cedula;";
+            //$query = "SELECT * FROM `trabajador` WHERE cedula = :cedula;";
 
 
         $consulta = $bd->pdo()->prepare($query);
@@ -171,9 +176,14 @@ class Trabajador extends Model
         if($control == self::REGISTRAR_TRABAJADOR){
             $trabajador = Trabajador::cargarPorCedula($this->cedula);
             $this->estado = "";
+
             if(!empty($trabajador) and ( $this->estado = $trabajador->getEstado() ) == self::TRABAJADOR_ACTIVO){
                 throw new Exception("El trabajador con cedula $this->cedula ya existe en la base de datos", self::SHOW_EXCEPTION);
             }
+            if(!empty($trabajador)){
+                $this->id = $trabajador->id;
+            }
+            
         }
         if($control == self::ACTUALIZAR_TRABAJADOR || $control == self::ELIMINAR_TRABAJADOR){
             $trabajador = Trabajador::cargarPorCedula($this->cedulaSeleccion);
@@ -183,7 +193,7 @@ class Trabajador extends Model
 
 
 
-            if($this->cedula != $this->cedulaSeleccion && $control == self::ACTUALIZAR_TRABAJADOR){
+            if( $control == self::ACTUALIZAR_TRABAJADOR && $this->cedula != $this->cedulaSeleccion){
                 $trabajador = Trabajador::cargarPorCedula($this->cedula);
                 if(!empty($trabajador)){
                     throw new Exception("El trabajador con cedula $this->cedula ya existe en la base de datos", self::SHOW_EXCEPTION);
@@ -217,10 +227,10 @@ class Trabajador extends Model
         if($control == self::ELIMINAR_TRABAJADOR){
 
             // verifico la existencia de un usuario relacionado al trabajador
-            $usuario = Usuario::cargarPorCedula($this->cedulaSeleccion);
-            if(!empty($usuario)){
-                throw new Exception("El trabajador seleccionado tiene un usuario asociado y no puede ser eliminado", self::SHOW_EXCEPTION);
-            }
+            // $usuario = Usuario::cargarPorCedula($this->cedulaSeleccion);
+            // if(!empty($usuario)){
+            //     throw new Exception("El trabajador seleccionado tiene un usuario asociado y no puede ser eliminado", self::SHOW_EXCEPTION);
+            // }
         }
 
     }
@@ -233,34 +243,56 @@ class Trabajador extends Model
             $this->esValido(self::REGISTRAR_TRABAJADOR);
             
             $this->db->connect();
-            $this->db->pdo()->beginTransaction();
+            $this->beginTransaction();
+
+            $parametros2 = array(
+                "idTrabajador" => $this->id ?? null,
+                "idDepartamento" => $this->idDepartamento,
+                "idTurno" => $this->turno,
+                "idCargo" => $this->cargo,
+                "fechaIngreso" => $this->fechaIngreso
+            );
+
 
             
             if($this->estado == self::TRABAJADOR_INACTIVO){
-                $query = "UPDATE trabajador SET nombre = :nombre, apellido = :apellido, telefono = :telefono, cargo = :cargo, turno = :turno, idDepartamento = :idDepartamento, fechaIngreso = :fechaIngreso, estado = :estado WHERE cedula = :cedula;";
+                $query = "UPDATE trabajador SET nombre = :nombre, apellido = :apellido, telefono = :telefono, fechaIngreso = :fechaIngreso, estado = 1 WHERE cedula = :cedula;";
+                $parametros2["fechaIngreso"] = null;
             }
             else{
-                $query = "INSERT INTO trabajador (cedula, nombre, apellido, telefono, cargo, turno, idDepartamento,fechaIngreso) VALUES (:cedula, :nombre, :apellido, :telefono, :cargo, :turno, :idDepartamento, :fechaIngreso);";
+                $query = "INSERT INTO trabajador (cedula, nombre, apellido, telefono,fechaIngreso) VALUES (:cedula, :nombre, :apellido, :telefono, :fechaIngreso);";
+
             }
 
-            $stmt = $this->prepare($query);
+            $query2 = "CALL sp_gestionar_asignacion_laboral(:idTrabajador, :idDepartamento, :idTurno, :idCargo, :fechaIngreso);";
+            
 
-            $stmt->bindValue("cedula", $this->cedula);
-            $stmt->bindValue("nombre", $this->nombre);
-            $stmt->bindValue("apellido", $this->apellido);
-            $stmt->bindValue("telefono", $this->telefono);
-            $stmt->bindValue("cargo", $this->cargo);
-            $stmt->bindValue("turno", $this->turno);
-            $stmt->bindValue("idDepartamento", $this->idDepartamento);
-            $stmt->bindValue("fechaIngreso", $this->fechaIngreso);
-            if($this->estado == self::TRABAJADOR_INACTIVO){
-                $stmt->bindValue("estado", 1);
+            $parametros = array(
+                "cedula" => $this->cedula,
+                "nombre" => $this->nombre,
+                "apellido" => $this->apellido,
+                "telefono" => $this->telefono,
+                "fechaIngreso" => $this->fechaIngreso
+            );
+
+            // registro el nuevo trabajador
+            $this->ejecutarStatement($query, $parametros);
+
+            if($this->estado != self::TRABAJADOR_INACTIVO){
+                $parametros2["idTrabajador"] = $this->db->pdo()->lastInsertId();
             }
-            $stmt->execute();
+
+            // registro la asignacion laboral
+            $this->ejecutarStatement($query2, $parametros2);
 
             Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' registrado", $this->db->pdo());
 
-            $this->db->pdo()->commit();
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+
+            $this->commit();
             $this->db->disconnect();
 
             $resp = array(
@@ -274,7 +306,7 @@ class Trabajador extends Model
                 $this->db->pdo() instanceof \PDO &&
                 $this->db->pdo()->inTransaction()
             ){
-                $this->db->pdo()->rollBack();
+                $this->rollBack();
                 $this->db->disconnect();
             }
 
@@ -309,24 +341,42 @@ class Trabajador extends Model
             $this->esValido(self::ACTUALIZAR_TRABAJADOR);
 
             $this->db->connect();
-            $this->db->pdo()->beginTransaction();
+            $this->beginTransaction();
 
-            $query = "UPDATE trabajador SET cedula = :cedula, nombre = :nombre, apellido = :apellido, telefono = :telefono, cargo = :cargo, turno = :turno, idDepartamento = :idDepartamento, fechaIngreso = :fechaIngreso WHERE cedula = :cedulaSeleccion;";
-            $stmt = $this->prepare($query);
-            $stmt->bindValue("cedula", $this->cedula);
-            $stmt->bindValue("nombre", $this->nombre);
-            $stmt->bindValue("apellido", $this->apellido);
-            $stmt->bindValue("telefono", $this->telefono);
-            $stmt->bindValue("cargo", $this->cargo);
-            $stmt->bindValue("turno", $this->turno);
-            $stmt->bindValue("idDepartamento", $this->idDepartamento);
-            $stmt->bindValue("fechaIngreso", $this->fechaIngreso);
-            $stmt->bindValue("cedulaSeleccion", $this->cedulaSeleccion);
-            $stmt->execute();
+            $parametros = array(
+                "cedula" => $this->cedula,
+                "nombre" => $this->nombre,
+                "apellido" => $this->apellido,
+                "telefono" => $this->telefono,
+                "fechaIngreso" => $this->fechaIngreso,
+                "idTrabajador" => $this->id
+            );
+
+            $query = "UPDATE trabajador SET cedula = :cedula, nombre = :nombre, apellido = :apellido, telefono = :telefono, fechaIngreso = :fechaIngreso WHERE id = :idTrabajador;";
+
+            $this->ejecutarStatement($query, $parametros);
+
+            $parametros = array(
+                "idTrabajador" => $this->id,
+                "idDepartamento" => $this->idDepartamento,
+                "idTurno" => $this->turno,
+                "idCargo" => $this->cargo,
+                "fechaIngreso" => null
+            );
+
+            $query = "CALL sp_gestionar_asignacion_laboral(:idTrabajador, :idDepartamento, :idTurno, :idCargo, :fechaIngreso);";
+
+            $this->ejecutarStatement($query, $parametros);
+            
 
             Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' actualizado", $this->db->pdo());
 
-            $this->db->pdo()->commit();
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+
+            $this->commit();
             $this->db->disconnect();
 
             $resp = array(
@@ -383,16 +433,25 @@ class Trabajador extends Model
             else{
 
                 $query = "UPDATE trabajador SET estado = 0 WHERE cedula = :cedulaSeleccion;";
-                $stmt = $this->prepare($query);
-                $stmt->bindValue("cedulaSeleccion", $this->cedulaSeleccion);
-                $stmt->execute();
+                $this->ejecutarStatement($query, ["cedulaSeleccion" => $this->cedulaSeleccion]);
+
+                $query = "UPDATE asignacion_laboral al join trabajador t on al.idTrabajador = t.id set al.fechaFin = CURRENT_TIMESTAMP() WHERE t.cedula = :cedulaSeleccion;";
+                $this->ejecutarStatement($query, ["cedulaSeleccion" => $this->cedulaSeleccion]);
+                
+
+            }
+
+
+            if($this->getTestingMode()){
+                $this->rollBack();
+                $this->beginTransaction();
             }
 
             
 
             
 
-            //$this->db->pdo()->commit();
+            $this->commit();
             $this->db->disconnect();
 
             $resp = array(
@@ -433,11 +492,16 @@ class Trabajador extends Model
         return $resp;
     }
 
+    /**
+     * Lista los trabajadores segun los filtros ingresados.
+     * Si no se ingresan filtros, se devuelve la lista completa de trabajadores.
+     * @param boolean $print si se imprime el resultado en formato json
+     * @return array un array con la lista de trabajadores y un mensaje de estado
+     */
     public function listraFiltro($print = true):array{
-
         try {
             $this->db->connect();
-            $query = "SELECT t.*, c.id as idCargo, c.nombre as cargo, tu.id as idTurno, tu.nombre as turno FROM trabajador as t join asignacion_laboral al on al.idTrabajador = t.id and al.esActual = 1 join cargo c on c.id = al.idCargo join turno tu on tu.id = al.idTurno where ";
+            $query = "SELECT t.*, c.id as idCargo, c.nombre as cargo, c.nivel as cargoNivel , tu.id as idTurno, tu.nombre as turno, d.id as idDepartamento, d.nombre as departamento FROM trabajador as t join asignacion_laboral al on al.idTrabajador = t.id and al.esActual = 1 join cargo c on c.id = al.idCargo join turno tu on tu.id = al.idTurno join departamento d on d.id = al.idDepartamento where ";
             $where ="";
             $list = [];
             $parametros = [];
@@ -469,6 +533,10 @@ class Trabajador extends Model
             if(isset($this->idDepartamento)){
                 $list[] = "idDepartamento = :idDepartamento";
                 $parametros["idDepartamento"] = $this->idDepartamento;
+            }
+            if(isset($this->cargoNivel)){
+                $list[] = "c.nivel = :cargoNivel";
+                $parametros["cargoNivel"] = $this->cargoNivel;
             }
             $list[] = "estado = 1";
             $where = implode(" AND ", $list);
