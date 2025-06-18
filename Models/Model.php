@@ -23,8 +23,14 @@ abstract class Model
         $bd = Database::getInstance();
         $table = strtolower(static::class);
         $query = "SELECT * FROM $table WHERE id = $id";
+        $conexiones = [
+            "desconectar_despues" => true,
+            "auxiliar_pdo" => null
+        ];
 
         $conexiones = $bd->conectarYmantener($userBD);
+        //  if($userBD) $bd->connectUser();
+        //  else $bd->connect();
         
         $stmt = $bd->pdo()->query($query);
         $stmt->setFetchMode(PDO::FETCH_CLASS, $table);

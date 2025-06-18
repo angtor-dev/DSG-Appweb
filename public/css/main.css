@@ -240,7 +240,7 @@ body {
 
 
 .form-info-field{
-    margin-top: var(--bs-gutter-y);
+    margin-top: 1rem;
     position: relative;
 
     display: block;

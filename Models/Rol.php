@@ -132,6 +132,17 @@ class Rol extends Model
         return $stmt->fetchAll();
     }
 
+    public static function getRolOptions($checkedId = null)
+    {
+        $rolObj = new Rol;
+        $lista =$rolObj->listar();
+        $options ="";
+        foreach ($lista as $rol) {
+            $options .= "<option ".($checkedId == $rol->id ? "selected" : "")." value='" . $rol->id . "'>" . $rol->getNombre() . "</option>";
+        }
+        return $options;
+    }
+
 
     public function esValido() : bool
     {
