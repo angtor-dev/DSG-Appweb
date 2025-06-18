@@ -779,9 +779,12 @@ class Asistencia extends Model
 
 
     public function llenarAsistenciasDatosDePrueba(){
-        try {
+        // para evitar que el devsense me moleste con el error del no reachable code
+        // phpcs:disable
+        try 
+        {
             // NO INTENTEN ESTO EN CASA T_T
-            return false;
+            return;
             $this->setTestingMode(true);
             ini_set('memory_limit', '256M');
             set_time_limit(0);
@@ -844,7 +847,7 @@ class Asistencia extends Model
 
                                 $prepareTrabajador["horaEntrada"] = generarHoraAleatoria($turnoHorarios["hora_entrada"], $turnoHorarios["hora_salida"]);
                                 $prepareTrabajador["horaSalida"] = generarHoraAleatoria($prepareTrabajador["horaEntrada"], $turnoHorarios["hora_salida"]);
-                                
+
                             }
                             else{
                                 $prepareTrabajador["tipo_justificacion"] = rand(1, 8);
@@ -870,6 +873,7 @@ class Asistencia extends Model
             debug( $th->getMessage(),false);
             debug( $th->getTraceAsString(), false);
         }
+        // phpcs:enable
     }
 
 
