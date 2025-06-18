@@ -81,6 +81,9 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="comun-tab" data-bs-toggle="tab" data-bs-target="#comun-tab-pane" type="button" role="tab" aria-controls="comun-tab-pane" aria-selected="false">Comunes</button>
                 </li>
+                 <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="diferida-tab" data-bs-toggle="tab" data-bs-target="#diferida-tab-pane" type="button" role="tab" aria-controls="diferida-tab-pane" aria-selected="false">DIferidas</button>
+                </li>
 
             </ul>
             <div class="tab-content" id="myTabContent">
@@ -169,6 +172,26 @@
                 <div class="tab-pane fade" id="comun-tab-pane" role="tabpanel" aria-labelledby="comun-tab" tabindex="0">
                     <div class="table-responsive table-dsg">
                         <table class="datatable table table-striped table-hover" id="tabla-comun">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Area</th>
+                                    <th>Departamento</th>
+                                    <th>Descripcion</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="diferida-tab-pane" role="tabpanel" aria-labelledby="diferida-tab" tabindex="0">
+                    <div class="table-responsive table-dsg">
+                        <table class="datatable table table-striped table-hover" id="tabla-diferida">
                             <thead>
                                 <tr>
                                     <th>Id</th>
