@@ -92,7 +92,7 @@
             
         }
     ?>
-    const justificacionesEnum = <?php echo json_encode($enumTemp); ?>;
+    const justificacionesEnum = <?php echo getJustificacionJson(); ?>;
 </script>
 
 <div class="panel-header" style="background-color: red;">
@@ -129,9 +129,7 @@
                                         <label for="turno">Turno </label>
                                         <select required name="turno" class="form-select" id="turno">
                                             <option value=""></option>
-                                            <?php foreach (Turno::cases() as $turno): ?>
-                                                <option value="<?= $turno->value ?>"><?= ucfirst($turno->value) ?></option>
-                                            <?php endforeach ?>
+                                            <?= Turno::getTurnosOptions(); ?>
                                         </select>
                                         <div class="form-text invalid-feedback"></div>
                                     </div>

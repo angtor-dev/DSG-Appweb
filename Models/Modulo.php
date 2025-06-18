@@ -19,6 +19,8 @@ class Modulo extends Model
     public const AJUSTES = 'ajustes';
     public const MOVIMIENTOS = 'movimientos';
     public const NOTASENTREGA = 'notasentrega';
+    public const CARGOS = 'cargos';
+    public const TURNOS = 'turnos';
 
     // Override para impedir eliminar
     public function eliminar(bool $eliminadoLogico = true) : bool
@@ -48,6 +50,31 @@ class Modulo extends Model
             return null;
         }
         return $stmt->fetch();
+    }
+
+    /**
+     * Establece valores en propiedades de la clase.
+     *
+     * Recibe un array asociativo clave-valor y asigna los valores a las
+     * propiedades correspondientes. Si la propiedad existe como setter, llama
+     * al setter. Si la propiedad existe como propiedad de lectura y escritura,
+     * asigna el valor directamente.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function setterArray(array $data) : void
+    {
+        // comentar en español
+        foreach ($data as $key => $value) {
+            $propiedad = $key;
+            $setterMethod = 'set_' . $propiedad;
+            if(method_exists($this, $setterMethod)){
+                $this->$setterMethod($value);
+            } elseif(property_exists($this, $propiedad)){
+                $this->$propiedad = $value;
+            }
+        }
     }
 
     // Getters

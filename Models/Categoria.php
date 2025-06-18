@@ -108,12 +108,37 @@ class Categoria extends Model
     }
 
     // Setters
-    public function setDatos(int $id = null, string $nombre, string $descripcion, string $color): void {
+    public function setDatos(string $nombre, string $descripcion, string $color, int $id = null): void {
         if (isset($id)) {
             $this->id = $id;
         }
         $this->nombre = $nombre;
         $this->descripcion = $descripcion;
         $this->color = $color;
+    }
+
+    /**
+     * Establece valores en propiedades de la clase.
+     *
+     * Recibe un array asociativo clave-valor y asigna los valores a las
+     * propiedades correspondientes. Si la propiedad existe como setter, llama
+     * al setter. Si la propiedad existe como propiedad de lectura y escritura,
+     * asigna el valor directamente.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function setterArray(array $data) : void
+    {
+        // comentar en español
+        foreach ($data as $key => $value) {
+            $propiedad = $key;
+            $setterMethod = 'set_' . $propiedad;
+            if(method_exists($this, $setterMethod)){
+                $this->$setterMethod($value);
+            } elseif(property_exists($this, $propiedad)){
+                $this->$propiedad = $value;
+            }
+        }
     }
 }

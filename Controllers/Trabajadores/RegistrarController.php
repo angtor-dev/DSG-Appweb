@@ -7,6 +7,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
     $departamentoObj = new Departamento();
     $departamentos = $departamentoObj->listar();
+    $cargosOptions = Cargo::getCargosOptions();
+    $turnosOptions = Turno::getTurnosOptions();
      if(!empty($_GET['cedula'])){
         require_once "Models/Trabajador.php";
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
@@ -29,7 +31,21 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     
     $Trabajador = new Trabajador();
-    $Trabajador->mapearFormulario();
+    //$Trabajador->setTestingMode(true);
+
+  
+
+    $Trabajador->setterArray([
+        "cedula" => $_POST["cedula"],
+        "nombre" => $_POST["nombre"],
+        "apellido" => $_POST["apellido"],
+        "telefono" => $_POST["telefono"],
+        "cargo" => $_POST["cargo"],
+        "turno" => $_POST["turno"],
+        "idDepartamento" => $_POST["departamento"],
+        "fechaIngreso" => $_POST["fecha_ingreso"],
+        
+    ]);
 
     if ($Trabajador->registrar()["success"]) {
         $_SESSION['exitos'][] = "Trabajador registrado con exito";

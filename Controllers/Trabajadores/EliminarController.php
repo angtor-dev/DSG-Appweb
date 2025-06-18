@@ -7,7 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     if($_POST["action"] == "Eliminar"){
         $Trabajador = new Trabajador();
-        $Trabajador->mapearFormulario();
+        $Trabajador->setterArray([
+            "cedulaSeleccion" => $_POST["cedulaSeleccion"]
+        ]);
+
+        $Trabajador->setTestingMode(true);
         $Trabajador->eliminarTrabajador();
     }
 

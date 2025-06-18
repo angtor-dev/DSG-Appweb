@@ -6,6 +6,28 @@ enum Justificacion: int {
     case Emergencia = 4;
     case Judicial = 5;
     case Enfermedad = 6;
-    case Otro = 7;
+    case Muerte_De_Un_Familiar = 7;
+    case Otro = 8;
 
+}
+
+function getJustificacionOptions(): string{
+    // option para html
+    $html = '';
+    foreach (Justificacion::cases() as $justificacion) {
+        // remplasa los _ por espacios
+        $name = str_replace('_', ' ', $justificacion->name);
+        $html .= '<option value="' . $justificacion->value . '">' . $name . '</option>';
+    }
+    return $html;
+
+}
+
+function getJustificacionJson():string{
+    $json = [];
+    foreach (Justificacion::cases() as $justificacion) {
+        $name = str_replace('_', ' ', $justificacion->name);
+        $json[$name] = $justificacion->value;
+    }
+    return json_encode($json);
 }

@@ -1,4 +1,5 @@
 // expresiones regulares
+// TODO abortar cedula en registro
 const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
 const regCedula = /^[0-9]{7,8}$/
 const regTelefono = /^[0-9]{11}$/
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response = parsearJson(response)) {
                     if (response.success) {
                         mostrarExito(response.message)
+                        mostrarLoader("body");
                         setTimeout(() => {
                             location.reload()
                         }, 1000);
@@ -233,7 +235,7 @@ function agregarValidaciones() {
                 method: 'POST',
                 body: datos.text(),
                 useLoader: 'body',
-                blur: true
+                blur: true,
             });
 
             respuesta = parsearJson(respuesta);

@@ -32,26 +32,6 @@
                         <div id="invalid-span-telefono" class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-4">
-                        <label for="cargo" class="form-label">Cargo</label>
-                        <select required disabled name="cargo" id="cargo" class="form-select">
-                            <option value=""></option>
-                            <?php foreach (Cargo::cases() as $cargo): ?>
-                                <option value="<?= $cargo->value ?>"><?= $cargo->name ?></option>
-                            <?php endforeach ?>
-                        </select>
-                        <div id="invalid-span-cargo" class="form-text invalid-feedback"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="turno" class="form-label">Turno</label>
-                        <select required disabled name="turno" id="turno" class="form-select">
-                            <option value=""></option>
-                            <?php foreach (Turno::cases() as $turno): ?>
-                                <option value="<?= $turno->value ?>"><?= ucfirst($turno->value) ?></option>
-                            <?php endforeach ?>
-                        </select>
-                        <div id="invalid-span-turno" class="form-text invalid-feedback"></div>
-                    </div>
-                    <div class="col-md-4">
                         <label for="departamento" class="form-label">Departamento</label>
                         <select required disabled name="departamento" id="departamento" class="form-select">
                             <option value=""></option>
@@ -62,6 +42,23 @@
                         </select>
                         <div id="invalid-span-departamento" class="form-text invalid-feedback"></div>           
                     </div>
+                    <div class="col-md-4">
+                        <label for="cargo" class="form-label">Cargo</label>
+                        <select required disabled name="cargo" id="cargo" class="form-select">
+                            <option value=""></option>
+                            <?= $cargosOptions  ?>
+                        </select>
+                        <div id="invalid-span-cargo" class="form-text invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="turno" class="form-label">Turno</label>
+                        <select required disabled name="turno" id="turno" class="form-select">
+                            <option value=""></option>
+                            <?= $turnosOptions ?>
+                        </select>
+                        <div id="invalid-span-turno" class="form-text invalid-feedback"></div>
+                    </div>
+                    
                     <div class="col-md-4">
                         <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
                         <input disabled required type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" data-span="invalid-span-fecha_ingreso">

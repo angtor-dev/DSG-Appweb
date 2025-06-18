@@ -50,9 +50,7 @@
 									<label for="turno" class="form-label">Turno </label>
 									<select name="turno" id="turno" class="form-select">
 										<option value="">Todos</option>
-										<?php foreach (Turno::cases() as $turno): ?>
-											<option value="<?= $turno->value ?>"><?= ucfirst($turno->value) ?></option>
-										<?php endforeach ?>
+										<?= Turno::getTurnosOptions(); ?>
 										
 									</select>
 									<div id="form-text-turno" class="form-text invalid-feedback"></div>

@@ -11,8 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 }
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
+    $nombre = $_POST['nombre'] ?? '';
+    $descripcion = $_POST['descripcion'] ?? '';
+    $color = substr($_POST['color'] ?? '', 1); // Eliminar el símbolo '#'
+
     $categoria = new Categoria();
-    $categoria->mapearFormulario();
+    $categoria->setDatos($nombre, $descripcion, $color);
 
     if ($categoria->esValido() && $categoria->registrar()) {
         $_SESSION['exitos'][] = "Categoría registrada con exito";

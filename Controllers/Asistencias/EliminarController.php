@@ -10,7 +10,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         $asistencia = new Asistencia;
 
 
-        $asistencia->mapearFormulario();
+        //$asistencia->setTestingMode(true);
+        $asistencia->setterArray(Array(
+            "fecha" => $_POST["fecha"],
+            "turno" => $_POST["turno"],
+            "idDepartamento" => $_POST["idDepartamento"],
+        ));
+
+
+        //$asistencia->mapearFormulario();
         $asistencia->eliminarFechaAsistencia(true);
         
     }
