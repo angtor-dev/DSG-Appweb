@@ -626,7 +626,7 @@ class Trabajador extends Model
             $parametros = [];
 
             if($estado!= null){
-                $query .=" WHERE estado = :estado";
+                $query .=" WHERE estado = :estado ";
                 $parametros["estado"] = $estado;
             }
 
@@ -686,5 +686,56 @@ class Trabajador extends Model
     }
     public function getEstado() : string {
         return $this->estado;
+    }
+    public function exporDataBase ():array{
+        $resp = array();
+
+        try {
+            $this->db->connect();// || $this->db->connectUser(); // para las distintas base de datos
+            $this->beginTransaction();
+
+            $resp = $this->db->exportDatabase();
+
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+
+            $this->commit();
+
+            $this->db->disconnect();
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+            $resp["success"] = false;
+            $resp["message"] = $th->getMessage();
+        }
+        return $resp;
+    }
+
+    public function importDatabase ($filePath) : array {
+        $resp = array();
+        $this->setTestingMode(true);
+        try {
+            $this->db->connect();// || $this->db->connectUser(); // para las distintas base de datos
+            $this->beginTransaction();
+            
+
+            $resp = $this->db->importDatabase($filePath);
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+            $this->commit();
+            $this->db->disconnect();
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+            $resp["success"] = false;
+            $resp["message"] = $th->getMessage();
+            if(DEVELOPER_MODE) {
+                $resp["trace"] = $th->getTraceAsString();
+                $resp["line"] = $th->getLine();
+            }
+        }
+        return $resp;
     }
 }
