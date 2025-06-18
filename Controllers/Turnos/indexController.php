@@ -1,7 +1,7 @@
 <?php
 cargarPost();
 requiereAutenticacion();
-//requierePermiso(Modulo::CARGOS, Permiso::CONSULTAR);
+requierePermiso(Modulo::TURNOS, Permiso::CONSULTAR);
 
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
