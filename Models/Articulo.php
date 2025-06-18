@@ -5,7 +5,7 @@ class Articulo extends Model
     public int $idMedida;
     private string $nombre;
     private ?string $descripcion;
-    private int $cantidad;
+    private float $cantidad;
     private bool $esConsumible;
     public Categoria $categoria;
     public Medida $medida;
@@ -105,6 +105,39 @@ class Articulo extends Model
         }
     }
 
+    public function actualizar(): bool
+    {
+        $query = "UPDATE articulo SET 
+                    idCategoria = :idCategoria,
+                    idMedida = :idMedida,
+                    nombre = :nombre,
+                    descripcion = :descripcion,
+                    esConsumible = :esConsumible
+                  WHERE id = :id";
+
+        try {
+            $this->db->connect();
+
+            $stmt = $this->prepare($query);
+            $stmt->bindValue("idCategoria", $this->idCategoria);
+            $stmt->bindValue("idMedida", $this->idMedida);
+            $stmt->bindValue("nombre", $this->nombre);
+            $stmt->bindValue("descripcion", $this->descripcion);
+            $stmt->bindValue("esConsumible", $this->esConsumible ?? false, PDO::PARAM_BOOL);
+            $stmt->bindValue("id", $this->id);
+
+            $stmt->execute();
+
+            $this->db->disconnect();
+
+            return true;
+        } catch (\Throwable $th) {
+            if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
+            $_SESSION['errores'][] = "Ocurrió un error al actualizar el artículo";
+            return false;
+        }
+    }
+
     public function mapearFormulario() : bool
     {
         try {if (!empty($_POST['id'])) {
@@ -135,5 +168,20 @@ class Articulo extends Model
     }
     public function getEsConsumible() : bool {
         return $this->esConsumible;
+    }
+
+    // Setters
+    public function setDatos(int $id = null, int $idCategoria, int $idMedida, string $nombre,
+        ?string $descripcion, float $cantidad, bool $esConsumible) : void
+    {
+        if (isset($id)) {
+            $this->id = $id;
+        }
+        $this->idCategoria = $idCategoria;
+        $this->idMedida = $idMedida;
+        $this->nombre = $nombre;
+        $this->descripcion = $descripcion;
+        $this->cantidad = $cantidad;
+        $this->esConsumible = $esConsumible;
     }
 }

@@ -1,3 +1,6 @@
+<?php /** @var Movimiento[] $movimientos */ ?>
+<?php /** @var Articulo[] $articulos */ ?>
+
 <div class="panel-header" style="background-color: red;">
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
@@ -16,16 +19,13 @@
                     <i class="fa-solid fa-filter"></i>
                 </div>
                 <select class="select2 flex-grow-1" name="articulo" id="articulo">
-                    <option value="entrada">Artículo</option>
-                    <option value="entrada">Destornillador Plano 6mm x 100mm</option>
-                    <option value="salida">Articulo 2</option>
-                    <option value="salida">Articulo 3</option>
-                    <option value="salida">Articulo 4</option>
-                    <option value="salida">Articulo 5</option>
-                    <option value="salida">Articulo 6</option>
+                    <option value="-1">Artículo</option>
+                    <?php foreach ($articulos as $articulo): ?>
+                        <option value="<?= $articulo->id ?>"><?= $articulo->getNombre() ?></option>
+                    <?php endforeach ?>
                 </select>
                 <select class="select2 flex-grow-1" name="tipo" id="tipo">
-                    <option value="entrada">Tipo</option>
+                    <option value="-1">Tipo</option>
                     <option value="entrada">Entrada</option>
                     <option value="salida">Salida</option>
                 </select>
@@ -45,14 +45,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Destornillador Plano 6mm x 100mm</td>
-                            <td>Entrada</td>
-                            <td>5</td>
-                            <td>0</td>
-                            <td>5</td>
-                            <td>01/04/2025</td>
-                        </tr>
+                        <?php foreach ($movimientos as $movimiento): ?>
+                            <tr>
+                                <td><?= $movimiento->articulo->getNombre() ?></td>
+                                <td><?= $movimiento->getTipo() ?></td>
+                                <td><?= $movimiento->getCantidad() ?></td>
+                                <td><?= $movimiento->getAntes() ?></td>
+                                <td><?= $movimiento->getDespues() ?></td>
+                                <td><?= $movimiento->getFechaLegible() ?></td>
+                            </tr>
+                        <?php endforeach ?>
                     </tbody>
                 </table>
             </div>

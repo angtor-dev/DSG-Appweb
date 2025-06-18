@@ -193,6 +193,25 @@ abstract class Model
     {
         return $this->db->pdo()->prepare($query);
     }
+    /** shorthand para PDO::beginTransaction*/
+    protected function beginTransaction() : void
+    {
+        $this->db->pdo()->beginTransaction();
+    }
+
+    /** shorthand para PDO::commit*/
+    protected function commit() : void
+    {
+        if(isset($this->db) and $this->db->connected() and $this->db->pdo()->inTransaction()){
+            $this->db->pdo()->commit();
+        }
+    }
+    protected function rollBack() : void
+    {
+        if(isset($this->db) and $this->db->connected() and $this->db->pdo()->inTransaction()){
+            $this->db->pdo()->rollBack();
+        }
+    }
 
     public function setTestingMode(bool $testingMode) : void
     {

@@ -67,3 +67,4 @@ class Database
         return $this->connected;
     }
 }
+// TODO manejar error de la conexión por try-catch internamente

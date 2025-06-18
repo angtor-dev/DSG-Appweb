@@ -3,7 +3,9 @@
 let departamento = document.getElementById("departamento");
 let turno = document.getElementById("turno");
 let fecha = document.getElementById("fecha");
+let preventLostControl = false;
 document.addEventListener("DOMContentLoaded", async function(){
+    window.addEventListener('beforeunload', preventLost);
     const modalEliminar = document.getElementById('modal-eliminar')
     // quito el evento del modal
 
@@ -12,11 +14,12 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
     // TODO quitar esta parte
-    document.querySelector("#departamento").value = "1";
-    document.querySelector("#turno").value = "Mañana";
+    //document.querySelector("#departamento").value = "1";
+    //document.querySelector("#turno").value = "Mañana";
 
     // agrego la fecha actual al campo de fecha
     document.querySelector("#fecha").value = new Date().toISOString().split("T")[0];
+
 
     // evento submit para el formulario
     document.querySelector("#form-table-asistencias").addEventListener("submit", async function(e){
@@ -61,17 +64,32 @@ document.addEventListener("DOMContentLoaded", async function(){
         if(response = parsearJson(response)) {
             if(response.success) {
                 mostrarExito(response.message);
-                cargarDepartamentos();
+                preventLostControl = false;
+                cargarDepartamentos(true,false);
+
+
+                
+
             }
             else {
                 mostrarError(response.message);
             }
         }
     });
+
     
     // evento onchange para los selectores principales
     [departamento, turno, fecha].forEach(input => {
-        input.addEventListener("change", () => {
+        input.addEventListener("change", (e) => {
+            if(preventLostControl){
+                if(confirm("Se perderan los cambios realizados. ¿Desea continuar?")) {
+                    preventLostControl = false;
+                }
+                else {
+                    e.preventDefault();
+                    return;
+                }
+            }
             document.querySelector("#form-table-asistencias table tbody").innerHTML = "";
             document.getElementById("tabla-asistencias").classList.add("d-none");
         });
@@ -115,6 +133,7 @@ document.addEventListener("DOMContentLoaded", async function(){
             if(response = parsearJson(response)) {
                 if(response.success) {
                     mostrarExito(response.message);
+                    preventLostControl = false;
                     cargarDepartamentos(false);
                 }
                 else {
@@ -146,7 +165,6 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
     
-    
 });
 
 
@@ -159,8 +177,27 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
 // Functions ************************************************************
+    
+    function preventLost(event = null){
+        if(preventLostControl) {
+            if(event) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
+        }
 
-    async function cargarDepartamentos(control = true) {
+    }
+
+    async function cargarDepartamentos(control = true, preventlostDefault = true) {
+
+        if(preventLostControl){
+            if(confirm("Se perderan los cambios realizados. ¿Desea continuar?")) {
+                preventLostControl = false;
+            }
+            else {
+                return;
+            }
+        }
 
         let departamento = document.getElementById("departamento");
         let turno = document.getElementById("turno");
@@ -220,12 +257,26 @@ document.addEventListener("DOMContentLoaded", async function(){
             });
             response = JSON.parse(response);
 
-            generateTable(response.listaTrabajadores);
-            document.querySelector("#fechaAsistencia").value = response.fechaAsistencia;
-            document.querySelector("#fechaAsistencia").dispatchEvent(new Event("change"));
+            if(response.success){
+                generateTable(response.listaTrabajadores);
+                document.querySelector("#fechaAsistencia").value = response.fechaAsistencia;
+                document.querySelector("#fechaAsistencia").dispatchEvent(new Event("change"));
 
 
-            document.getElementById("tabla-asistencias").classList.remove("d-none");
+                document.getElementById("tabla-asistencias").classList.remove("d-none");
+                let primeratd = document.querySelector("#tabla-asistencias table tbody tr > td");
+                if(primeratd.getAttribute("colspan") === "4") {
+                    preventLostControl = false;
+                }
+                else preventLostControl = preventlostDefault;
+
+                // TODO arreglar esto para que el mensaje aparezca si hay algun cambio despues de guardar 
+
+            }
+            else {
+                mostrarError(response.message);
+            }
+
             
         }
         else {
@@ -235,6 +286,7 @@ document.addEventListener("DOMContentLoaded", async function(){
             })
             document.querySelector("#form-table-asistencias table tbody").innerHTML = "";
             document.getElementById("tabla-asistencias").classList.add("d-none");
+            preventLostControl = false;
 
         }
 
@@ -248,36 +300,62 @@ document.addEventListener("DOMContentLoaded", async function(){
     /**
      * funcion que devuelve una fila de la tabla de asistencias
      * si la fecha de la asistencia ya fue registrada se agregan cambios extra a la fila:
-     *  1. se agrega la clase "no-aplica" a la celda de inasistencia
      * @param {object} obj trabajador
      * @param {number} i
      * @param {boolean} fecha_registrada_control si la fecha de la asistencia ya fue registrada
      */
     function tableRow ( obj, i , fecha_registrada_control) {
-        //split(":", 2).join(":")
 
-        let registrado = (fecha_registrada_control === true && obj.registro != "" ) ? true : false;
-
-        let no_aplica = (fecha_registrada_control === true && obj.registro == "" ) ? true : false;
-        // parametros para el modal tipo url get
+        let objHoras = {
+            manana : {entrada: "08:00",salida: "12:00"},
+            tarde : {entrada: "13:00",salida: "17:00"},
+            noche : {entrada: "18:00",salida: "22:00"},
+            finSemana : {entrada: "08:00",salida: "17:00"},
+            especial : {entrada: "08:00",salida: "17:00"}
+        }
+        let entrada = null;
+        let salida = null;
+        switch (document.getElementById("turno").value) {
+            case "Mañana":
+                entrada = objHoras.manana.entrada;
+                salida = objHoras.manana.salida;
+                break;
+            case "Tarde":
+                entrada = objHoras.tarde.entrada;
+                salida = objHoras.tarde.salida;
+                break;
+            case "Noche":
+                entrada = objHoras.noche.entrada;
+                salida = objHoras.noche.salida;
+                break;
+            case "Fin de semana":
+                entrada = objHoras.finSemana.entrada;
+                salida = objHoras.finSemana.salida;
+                break;
+            case "Especial":
+                entrada = objHoras.especial.entrada;
+                salida = objHoras.especial.salida;
+                break;
         
+            default:
+                break;
+        }
+        if(!obj.fechaIn) obj.fechaIn = entrada;
+        if(!obj.fechaOut) obj.fechaOut = salida;
 
         return `
                 <td class="align-content-center nombre">
-                <span class="">CI: ${obj.cedula}</span>
-                <span>
-                    ${obj.nombre}
-                </span>
+                    <span class="">${obj.cedula}</span>
                 </td>
-                <td class="cell-inasistencia align-content-center text-center px-3 ${(no_aplica) ? "no-aplica" : ""} ">
+                <td class="align-content-center nombre">
+                    <span>
+                        ${obj.nombre}
+                    </span>
+                </td>
+                <td class="cell-inasistencia align-content-center text-center px-3">
                     <label class="py-2 text-nowrap no-select cursor-pointer d-flex align-items-center justify-content-between inasistencia-label">
                         <span>Inasistencia</span>
                         <input type="checkbox" id="inasistencia-check-${i}" class="inasistencia-check" name="inasistencia[]" ${(obj.status)? (parseInt(obj.status) == 1 ) ? "checked" : "" : ""}>
-                        <div class="check-feedback ms-1"></div>
-                    </label>
-                    <label class="py-2 text-nowrap no-select cursor-pointer d-flex align-items-center justify-content-between check-radio-like">
-                        <span>No aplica</span>
-                        <input type="checkbox" id="no-aplica-check-${i}" class="no-aplica-check" name="no-aplica[]" ${(no_aplica) ? "checked" : ""}>
                         <div class="check-feedback ms-1"></div>
                     </label>
                 </td>
@@ -285,12 +363,12 @@ document.addEventListener("DOMContentLoaded", async function(){
                     <div class="d-flex">
                         <div class="w-50 pe-1">
                             <label class="form-label text-nowrap" for="hora_entrada-${i}">Hora de Entrada</label>
-                            <input type="time" class="form-control" id="hora_entrada-${i}" name="hora_entrada[]" data-form-text="invalid-span-hora_entrada-${i}" value="${ (obj.fechaIn) ? obj.fechaIn.split(":", 2).join(":"): "" }">
+                            <input type="time" class="form-control hora-entrada-cl" id="hora_entrada-${i}" name="hora_entrada[]" data-form-text="invalid-span-hora_entrada-${i}" value="${ (obj.fechaIn) ? obj.fechaIn.split(":", 2).join(":"): "" }">
                             <div id="invalid-span-hora_entrada-${i}" class="form-text invalid-feedback"></div>
                         </div>
                         <div class="w-50 pe-1">
                             <label class="form-label text-nowrap" for="hora_salida-${i}">Hora de salida</label>
-                            <input type="time" class="form-control" id="hora_salida-${i}" name="hora_salida[]" data-form-text="invalid-span-hora_salida-${i}" value="${ (obj.fechaOut) ? obj.fechaOut.split(":", 2).join(":"): "" }">
+                            <input type="time" class="form-control hora-salida-cl" id="hora_salida-${i}" name="hora_salida[]" data-form-text="invalid-span-hora_salida-${i}" value="${ (obj.fechaOut) ? obj.fechaOut.split(":", 2).join(":"): "" }">
                             <div id="invalid-span-hora_salida-${i}" class="form-text invalid-feedback"></div>
                         </div>
                     </div>
@@ -299,7 +377,7 @@ document.addEventListener("DOMContentLoaded", async function(){
                     <div class="d-flex">
                         <div class="w-50 pe-1">
                             <label for="justificacion-select-${i}" class="form-label text-nowrap">Justificación</label>
-                                <select name="justificacion[]" class="form-select" id="justificacion-select-${i}" data-form-text="invalid-span-justificacion-${i}">
+                                <select name="justificacion[]" class="form-select justificacion-cl" id="justificacion-select-${i}" data-form-text="invalid-span-justificacion-${i}">
                                     <option value=""></option>
                                     <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 1 )? "selected"  :""} value="1">${justificacionesEnum[0]}</option>
                                     <option ${(obj.tipo_justificacion && obj.tipo_justificacion == 2 )? "selected"  :""} value="2">${justificacionesEnum[1]}</option>
@@ -318,11 +396,6 @@ document.addEventListener("DOMContentLoaded", async function(){
                         </div>
                     </div>
                 </td>
-                <td class="no-aplica-cell text-center align-content-center">
-                    No aplica la asistencia seleccionada 
-                </td>
-
-                
         `
 
     }
@@ -397,38 +470,6 @@ document.addEventListener("DOMContentLoaded", async function(){
             check.dispatchEvent(new Event("change"));
         });
 
-        let no_aplica = document.querySelectorAll("input[id^='no-aplica-check-']");
-        // si no aplica deshabilita todos los campos en la fila
-        // si no esta checkeado habilita todos los campos y llama al evento change del checkbox .inasistencia-check
-        no_aplica.forEach(check => {
-
-            check.addEventListener("change", function(){
-                let check = this;
-                let td = check.closest("td");
-                let tr = td.closest("tr");
-                if (check.checked) {
-                    // desabilita la hora de entrada y salida de la fila
-                    td.classList.add("no-aplica");
-                    tr.querySelector("input[name='hora_entrada[]']").disabled = true;
-                    tr.querySelector("input[name='hora_salida[]']").disabled = true;
-                    // habilita la justificacion de la fila
-                    tr.querySelector("select[name='justificacion[]']").disabled = true;
-                    tr.querySelector("input[name='justificacion-descripcion[]']").disabled = true;
-                    tr.querySelector("input[name='inasistencia[]']").disabled = true;
-                } else {
-                    td.classList.remove("no-aplica");
-                    tr.querySelector("input[name='hora_entrada[]']").disabled = false;
-                    tr.querySelector("input[name='hora_salida[]']").disabled = false;
-                    tr.querySelector("select[name='justificacion[]']").disabled = false;
-                    tr.querySelector("input[name='justificacion-descripcion[]']").disabled = false;
-                    tr.querySelector("input[name='inasistencia[]']").disabled = false;
-                    tr.querySelector("input[name='inasistencia[]']").dispatchEvent(new Event("change"));
-
-                }
-            })
-            check.dispatchEvent(new Event("change"));
-        })
-
         let fields = document.querySelectorAll("#form-table-asistencias tr input:not(.inasistencia-check):not(input[name='hora_entrada[]']), #form-table-asistencias tr select");
         fields.forEach(field => {
             field.addEventListener("change", () => {
@@ -461,7 +502,6 @@ document.addEventListener("DOMContentLoaded", async function(){
             rowObj.idTrabajador = tr.objTrabajador.idTrabajador;
 
             rowObj.inasistencia = (tr.querySelector("input.inasistencia-check").checked) ? 1 : 0 ;
-            rowObj.no_aplica = (tr.querySelector("input.no-aplica-check").checked) ? 1 : 0 ;
             
             
 

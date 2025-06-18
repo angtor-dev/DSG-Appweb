@@ -133,7 +133,7 @@
 				                    pageLength: true
 				                }
 				            },
-				            ordering: false
+				            ordering: true
 				        });
 				}
 

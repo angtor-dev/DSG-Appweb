@@ -60,10 +60,28 @@ document.addEventListener('DOMContentLoaded', function() {
     createChart();
 
 
+
     
     // Cargar datos iniciales
     cargarDatos(fechaInicio.toISOString().split('T')[0], fechaFin.toISOString().split('T')[0]);
-   
+    
+
+
+    const div = document.getElementById('asistenciasChart').closest(".card-body.p-4");
+
+    const observer = new ResizeObserver(entries => {
+        let height = entries[0].contentRect.height;
+        let width = entries[0].contentRect.width;
+        const styles = window.getComputedStyle(entries[0].target);
+        const paddingLeft = parseFloat(styles.paddingLeft);
+        const paddingRight = parseFloat(styles.paddingRight);
+        width = width - (paddingLeft + paddingRight);
+        if(!asistenciasChart) return;
+        if(width<=400) width = 400;
+        asistenciasChart.resize(width,400);
+    });
+
+    observer.observe(div);
     
     
     
@@ -74,6 +92,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function changeChart(type = 'line'){
+    if(!asistenciasChart) return;
+    if(type == ''){
+        type = asistenciasChart.type;
+    }
     const ctx = document.getElementById('asistenciasChart').getContext('2d');
     
     if(type == 'bar'){
@@ -122,44 +144,44 @@ function changeChart(type = 'line'){
             asistenciasChart.destroy();
         }
         // Crear la gráfica inicial
-             asistenciasChart = new Chart(ctx, {
-                type: type,
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'Asistencias',
-                            data: [],
-                            borderColor: 'rgb(75, 192, 192)',
+        asistenciasChart = new Chart(ctx, {
+            type: type,
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Asistencias',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
 
-                        },
-                        {
-                            label: 'Inasistencias',
-                            data: [],
-                            borderColor: 'rgb(255, 99, 132)',
+                    },
+                    {
+                        label: 'Inasistencias',
+                        data: [],
+                        borderColor: 'rgb(255, 99, 132)',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        //beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Cantidad'
                         }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            //beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Cantidad'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Fecha'
-                            }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Fecha'
                         }
                     }
                 }
-            });
+            }
+        });
         
 
     }
@@ -217,8 +239,8 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
                 promedioAsistencias = promedioAsistencias.toFixed(2);
                 promedioInasistencias = promedioInasistencias.toFixed(2);
 
-                document.getElementById("promedioAsistencias").innerHTML = promedioAsistencias;
-                document.getElementById("promedioInasistencias").innerHTML = promedioInasistencias;
+                //document.getElementById("promedioAsistencias").innerHTML = promedioAsistencias;
+                //document.getElementById("promedioInasistencias").innerHTML = promedioInasistencias;
                 
                 let labelPicoAsistencias = asistencias.indexOf(picoAsistencias);
                 let labelPicoInasistencias = inasistencias.indexOf(picoInasistencias);

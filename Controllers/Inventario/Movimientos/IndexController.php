@@ -1,5 +1,8 @@
 <?php
 requiereAutenticacion();
-// requierePermiso(Modulo::AREAS, Permiso::CONSULTAR);
+requierePermiso(Modulo::MOVIMIENTOS, Permiso::CONSULTAR);
+
+$movimientos = (new Movimiento())->listar();
+$articulos = (new Articulo())->listar();
 
 renderView();
