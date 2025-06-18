@@ -40,7 +40,7 @@
                         <?php foreach ($usuarios as $usuario): ?>
                             <tr>
                                 <td><?= $usuario->id ?></td>
-                                <td><?= $usuario->trabajador->getCedula() ?></td>
+                                <td><?= $usuario->getCedula() ?></td>
                                 <td><?= $usuario->getNombreCompleto() ?></td>
                                 <td><?= $usuario->getCorreo() ?></td>
                                 <td><?= $usuario->rol->getNombre() ?></td>

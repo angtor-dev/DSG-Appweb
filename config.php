@@ -13,9 +13,23 @@ defined('DB_NAME') or define("DB_NAME", "dsg_db");
 defined('DB_USER') or define("DB_USER", "root");
 defined('DB_PASSWORD') or define("DB_PASSWORD", "");
 
+defined('DB_USERS_HOST') or define("DB_USERS_HOST", "localhost");
+defined('DB_USERS_NAME') or define("DB_USERS_NAME", "dsg_db_users");
+defined('DB_USERS_USER') or define("DB_USERS_USER", "root");
+defined('DB_USERS_PASSWORD') or define("DB_USERS_PASSWORD", "");
+defined('DB_USERS_PORT') or define("DB_USERS_PORT", "");
+
+
+// defined('DB_USERS_HOST') or define("DB_USERS_HOST", "61z0o.h.filess.io");
+// defined('DB_USERS_NAME') or define("DB_USERS_NAME", "dsgusers_tiredsleep");
+// defined('DB_USERS_USER') or define("DB_USERS_USER", "dsgusers_tiredsleep");
+// defined('DB_USERS_PASSWORD') or define("DB_USERS_PASSWORD", "4ace3bab5b2d174f65e4520361fb21c267a75084");
+// defined('DB_USERS_PORT') or define("DB_USERS_PORT", "port=61000;");
+
+
 // Expresiones regulares
 define("REG_NUMERICO", "/^[0-9]+$/");
-define("REG_ALFABETICO", "/^\s*[a-zA-ZáÁéÉíÍóÓúÚüÜñÑ., ]*\s*$/");
+define("REG_ALFABETICO", "/^[a-zA-ZáÁéÉíÍóÓúÚüÜñÑ.,\s]+$/");
 define("REG_ALFANUMERICO", "/^\s*[0-9a-zA-ZáÁéÉíÍóÓúÚüÜñÑ., ]*\s*$/");
 define("REG_CEDULA", "/^[0-9]{7,8}$/");
 define("REG_TELEFONO", "/^[0-9]{11}$/");

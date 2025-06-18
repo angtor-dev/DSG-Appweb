@@ -26,7 +26,7 @@
                     <tbody>
                         <?php foreach ($bitacoras as $biracora): ?>
                             <tr>
-                                <td><?= $biracora->usuario ? $biracora->usuario_correo : "USER_DELETED" ?></td>
+                                <td><?= ($biracora->getUsuario_correo()) ? $biracora->getUsuario_correo() : "USER_DELETED" ?></td>
                                 <td><?= $biracora->getRegistro() ?></td>
                                 <td><?= $biracora->getRuta() ?></td>
                                 <td><?= $biracora->getFecha() ?></td>

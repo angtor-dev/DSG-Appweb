@@ -3,7 +3,7 @@
 
 <div class="modal-dialog modal-lg">
 <div class="modal-content">
-        <div class="modal-header bg-white">
+        <div class="modal-header panel-header text-white">
             <h5 class="modal-title my-2">
                 Registrar nuevo usuario
             </h5>
@@ -19,10 +19,18 @@
                 </div>
                 <div class="row gy-3">
                     <div class="col-md-6 ">
-                        <div class="form-info-field" data-info="Nombre" id="nombre"></div>
+                        <!-- <div class="form-info-field" data-info="Nombre" id="nombre"></div> -->
+
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input required disabled maxlength="50" type="text" class="form-control" id="nombre" name="nombre" data-formText="form-text-nombre">
+                        <div id="form-text-nombre" class="form-text invalid-feedback"></div>
+                         
                     </div>
                     <div class="col-md-6">
-                        <div class="form-info-field" data-info="Cordinacion/Direccion" id="departamento"></div>
+                        <!-- <div class="form-info-field" data-info="Cordinacion/Direccion" id="departamento"></div> -->
+                        <label for="apellido" class="form-label">Apellido</label>
+                        <input required disabled type="text" class="form-control" id="apellido" name="apellido" data-formText="form-text-apellido">
+                        <div id="form-text-apellido" class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-12">
                         <label for="correo" class="form-label">Correo</label>

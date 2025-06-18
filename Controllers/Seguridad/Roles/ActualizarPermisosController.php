@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $idRol = intval($_POST['idRol']);
 /** @var Rol */
-$rol = Rol::cargar($idRol);
+$rol = Rol::cargar($idRol, true);
 unset($_POST['idRol']);
 
 try {

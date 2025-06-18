@@ -1,10 +1,13 @@
 <?php
+
+use PhpParser\Node\Expr\Isset_;
 class Bitacora extends Model
 {
     private ?int $idUsuario;
     private string $registro;
     private string $ruta;
     private string $fecha;
+    private string|null $usuario_correo;
 
     public ?Trabajador $usuario = null;
 
@@ -15,11 +18,10 @@ class Bitacora extends Model
 
     public function listar(int $estado = null) : Array
     {
-        $query = "SELECT b.*, t.cedula AS 'usuario_cedula', u.correo as 'usuario_correo'
+        $query = "SELECT b.*, u.cedula AS 'usuario_cedula', u.correo as 'usuario_correo'
             FROM bitacora as b
-            LEFT JOIN usuario as u ON b.idUsuario = u.id
-            LEFT JOIN Trabajador as t on t.id = u.idTrabajador";
-        $this->db->connect();
+            LEFT JOIN usuario as u ON b.idUsuario = u.id WHERE b.fecha >= DATE_SUB(NOW(), INTERVAL 6 MONTH) ";
+        $this->db->connectUser();
 
         $stmt = $this->db->pdo()->query($query);
         $stmt->setFetchMode(PDO::FETCH_CLASS, 'Bitacora');
@@ -32,14 +34,7 @@ class Bitacora extends Model
         $bitacoras = $stmt->fetchAll();
 
         foreach ($bitacoras as $bitacora) {
-            /*
-            $bitacora->usuario = new Usuario(
-                $bitacora->usuario_correo,
-                $bitacora->usuario_nombre,
-                $bitacora->usuario_apellido,
-                $bitacora->usuario_estado
-            );
-            */
+            
             $cedula = $bitacora->usuario_cedula;
             if(!empty($cedula)){
                 $bitacora->usuario = Trabajador::cargarPorCedula($cedula);
@@ -64,7 +59,7 @@ class Bitacora extends Model
         $query = "INSERT INTO bitacora(idUsuario, registro, ruta)
             VALUES($idUsuario, :registro, :ruta)";
 
-        $db->connect();
+        $db->connectUser();
 
         $stmt = $db->pdo()->prepare($query);
         $stmt->bindParam('registro', $registro);
@@ -77,18 +72,39 @@ class Bitacora extends Model
 
     public static function registrarTransaccion(string $registro,\PDO $pdo) 
     {
-        global $requestUri;
-        $idUsuario = !empty($_SESSION['usuario']->id) ? $_SESSION['usuario']->id : "NULL";
-        $ruta = $requestUri."/";
-        
-        $query = "INSERT INTO bitacora(idUsuario, registro, ruta)
-        VALUES($idUsuario, :registro, :ruta)";
+        try {
+            global $requestUri;
+    
+            $db = Database::getInstance();
+            $auxiliarPDO = $pdo;
+            $db->connectUser();
+            //$db->connectUser();
+            $pdo = $db->pdo();
+            $pdo->beginTransaction();
+            $idUsuario = !empty($_SESSION['usuario']->id) ? $_SESSION['usuario']->id : "NULL";
+            $ruta = $requestUri."/";
+            
+            $query = "INSERT INTO bitacora(idUsuario, registro, ruta)
+            VALUES($idUsuario, :registro, :ruta)";
+    
+            $stmt = $pdo->prepare($query);
+            $stmt->bindParam('registro', $registro);
+            $stmt->bindParam('ruta', $ruta);
+    
+            $stmt->execute();
+    
+            $pdo->commit();
+            $db->disconnect();
+            $db->set_pdo($auxiliarPDO);
+            
+        } catch (\Throwable $th) {
 
-        $stmt = $pdo->prepare($query);
-        $stmt->bindParam('registro', $registro);
-        $stmt->bindParam('ruta', $ruta);
-
-        $stmt->execute();
+            if(isset($db) and $db->connected() and $db->pdo()->inTransaction()){
+                $db->pdo()->rollBack();
+                $db->disconnect();
+            }
+            throw $th;
+        }
         
     }
 
@@ -133,5 +149,8 @@ class Bitacora extends Model
     }
     public function getFecha() : string {
         return $this->fecha;
+    }
+    public function getUsuario_correo() : string|null {
+        return $this->usuario_correo;
     }
 }

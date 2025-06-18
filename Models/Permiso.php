@@ -27,7 +27,7 @@ class Permiso extends Model
             $this->eliminar = $eliminar;
         }
         if (!empty($this->idModulo)) {
-            $this->modulo = Modulo::cargar($this->idModulo);
+            $this->modulo = Modulo::cargar($this->idModulo, true);
         }
     }
 
@@ -37,7 +37,7 @@ class Permiso extends Model
             VALUES(:idRol, :idModulo, :consultar, :registrar, :actualizar, :eliminar)";
         
         try {
-            $this->db->connect();
+            $this->db->connectUser();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue("idRol", $this->idRol);
@@ -65,7 +65,7 @@ class Permiso extends Model
             WHERE id = $this->id";
 
         try {
-            $this->db->connect();
+            $this->db->connectUser();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue('consultar', $this->consultar);

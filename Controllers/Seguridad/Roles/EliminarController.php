@@ -2,7 +2,7 @@
 requiereAutenticacion();
 requierePermiso("roles", "eliminar");
 
-$rol = Rol::cargar($_GET['id']);
+$rol = Rol::cargar($_GET['id'], true);
 
 if (empty($rol)) {
     $_SESSION['errores'][] = "El rol que intenta eliminar no existe";
@@ -17,7 +17,7 @@ if (count($usuarios) > 0) {
     redirigir(LOCAL_DIR."/Seguridad/Roles");
 }
 
-if ($rol->eliminar()) {
+if ($rol->eliminarDBUser()) {
     $_SESSION['exitos'][] = "Rol eliminado con exito";
     Bitacora::registrar("Rol '".$rol->getNombre()."' eliminado");
 }
