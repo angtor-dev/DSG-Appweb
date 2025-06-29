@@ -7,7 +7,6 @@ const regTelefono = /^[0-9]{11}$/
 
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll(".accion-eliminar").forEach(el => {
-        console.log("hola");
         el.addEventListener("click", async () => {
             abrirModalEliminar(`Eliminar al trabajador ${el.dataset.trabajador} ${el.dataset.nombre}`).then(async () => {
                 let response = await peticion("/Trabajadores/Eliminar", {

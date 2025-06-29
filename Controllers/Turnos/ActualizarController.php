@@ -1,7 +1,7 @@
 <?php
 cargarPost();
 requiereAutenticacion();
-requierePermiso(Modulo::CARGOS, Permiso::ACTUALIZAR);
+requierePermiso(Modulo::TURNOS, Permiso::ACTUALIZAR);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {

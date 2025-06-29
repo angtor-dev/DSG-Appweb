@@ -323,7 +323,7 @@ HTMLFormElement.prototype.saveForm = function () {
 }
 // loadForm
 
-HTMLFormElement.prototype.loadForm = function () {
+HTMLFormElement.prototype.loadForm = function (...exceptions) {
     let savedForms = localStorage.getItem("savedForms") || "{}";
     savedForms = JSON.parse(savedForms);
     // se carga sin el form data 
@@ -331,6 +331,7 @@ HTMLFormElement.prototype.loadForm = function () {
     elementos = this.querySelectorAll('input[name], select[name]');
     for (const item of elementos) {
         if(!savedForms[this.action] || !savedForms[this.action][item.name]) continue;
+        if(exceptions.includes(item.name)) continue;
         if(item.tagName == "INPUT" && item.type == "checkbox") item.checked = (savedForms[this.action][item.name]) ? true : false;
         else item.value = savedForms[this.action][item.name];
     }
@@ -384,7 +385,7 @@ HTMLSelectElement.prototype.setValidStatus = HTMLInputElement.prototype.setValid
         this.classList.remove('is-invalid')
         this.setCustomValidity("");
         smsContainer ? smsContainer.textContent = "":null;
-        this.isValid = ()=>{ return false }
+        this.isValid = ()=>{ return true }
     }
 }
 

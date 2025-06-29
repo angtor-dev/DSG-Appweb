@@ -6,9 +6,9 @@ class Usuario extends Model
     private int|string|null $estado = null;
     private string|null $clave = null;
     public Rol|int|null  $rol = null;
-    public Trabajador|null $trabajador = null;
     private string|null $cedula = null;
-    private string|null $idTrabajador = null;
+    private string $nombre;
+    private string $apellido;
 
     const REGISTRAR_USUARIO = 1;
     const ACTUALIZAR_USUARIO = 2;
@@ -23,7 +23,7 @@ class Usuario extends Model
     public function __construct(
         string $correo = null,
         string $estado = null,
-        Rol|int $rol = null,
+        Rol $rol = null,
         string $idTrabajador = null
     )
     {
@@ -32,10 +32,7 @@ class Usuario extends Model
         $this->estado = $estado ?? $this->estado;
         $this->rol =  $rol ?? $this->rol;
         if (!empty($this->idRol)) {
-            $this->rol = Rol::cargar($this->idRol);
-        }
-        if(!empty($this->idTrabajador)) {
-            $this->trabajador = Trabajador::cargar($this->idTrabajador);
+            $this->rol = Rol::cargar($this->idRol,true);
         }
 
         $this->defaultMessages = (object) [
@@ -82,7 +79,7 @@ class Usuario extends Model
         $bd = Database::getInstance();
         $query = "SELECT * FROM usuario WHERE correo = :correo AND estado = :estado";
 
-        $bd->connect();
+        $bd->connectUser();
         
         $stmt = $bd->pdo()->prepare($query);
         $stmt->bindValue("correo", $correo);
@@ -102,9 +99,9 @@ class Usuario extends Model
     public static function cargarPorCedula(string $cedula, int $estado = 1) : Usuario | null
     {
         $bd = Database::getInstance();
-        $query = "SELECT u.*, t.id as idTrabajador FROM Trabajador as t left join usuario as u on t.id = u.idTrabajador WHERE t.cedula = :cedula AND u.estado = :estado";
+        $query = "SELECT * FROM  usuario as u  WHERE u.cedula = :cedula AND u.estado = :estado";
 
-        $bd->connect();
+        $bd->connectUser();
         
         $stmt = $bd->pdo()->prepare($query);
         $stmt->bindValue("cedula", $cedula);
@@ -128,11 +125,18 @@ class Usuario extends Model
     public static function listarPorRol(int $idRol, int $estado = null) : array
     {
         $bd = Database::getInstance();
-        $query = "SELECT * FROM usuario WHERE idRol = $idRol" . (isset($estado) ? " AND estado = $estado" : "");
+        $query = "SELECT * FROM usuario WHERE idRol = :idRol" . (isset($estado) ? " AND estado = :estado" : "");
 
-        $bd->connect();
+        $bd->connectUser();
 
-        $stmt = $bd->pdo()->query($query);
+        
+        $stmt = $bd->pdo()->prepare($query);
+        $stmt->bindValue("idRol", $idRol);
+        if (isset($estado)) {
+            $stmt->bindValue("estado", $estado);
+        }
+
+        $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS, "Usuario");
 
         $bd->disconnect();
@@ -146,39 +150,57 @@ class Usuario extends Model
     public function registrar($print = true) : array
     {  
         
-        
-        
-        
-        
         try {
-            $this->db->connect();
-            $this->db->pdo()->beginTransaction();
+            $this->db->connectUser();
+            $this->beginTransaction();
 
             $validData = [];
 
             $this->esValido(self::REGISTRAR_USUARIO, $validData);
 
-            $idRegistro = $validData["trabajador"]["id"];
             $registrarUpdate = $validData["registrar_Update"] ?? false;
+
+            $parametros = [
+                "idRol" => $this->idRol,
+                "correo" => $this->correo,
+                "nombre" => $this->nombre,
+                "apellido" => $this->apellido,
+                "clave" => password_hash($this->clave, PASSWORD_DEFAULT),
+                "cedula" => $this->cedula
+            ];
 
 
             if($registrarUpdate){// cuando se intente registrar un usuario que este inactivo y se active
-                $query = "UPDATE usuario SET idRol = :idRol, correo = :correo, clave = :clave, estado = 1 WHERE idTrabajador = :idTrabajador";
+                $query = "UPDATE usuario SET 
+                cedula = :cedula,
+                idRol = :idRol,
+                correo = :correo,
+                clave = :clave,
+                nombre = :nombre,
+                apellido = :apellido,
+                estado = 1 
+                WHERE id = :id";
+                $parametros["id"] = $registrarUpdate;
             }
             else{
-                $query = "INSERT INTO usuario (idTrabajador, idRol, correo, clave)
-                    VALUES (:idTrabajador, :idRol, :correo, :clave)";
+                $query = "INSERT INTO usuario (cedula, idRol, correo, clave, nombre, apellido)
+                    VALUES (:cedula, :idRol, :correo, :clave, :nombre, :apellido)";
             }
 
             
+
+
+            $stmt = $this->ejecutarStatement($query, $parametros);
+
             
-            $stmt = $this->prepare($query);
-            $stmt->bindValue("idRol", $this->idRol);
-            $stmt->bindValue("correo", $this->correo);
-            $stmt->bindValue("clave", password_hash($this->clave, PASSWORD_DEFAULT));
-            $stmt->bindValue("idTrabajador", $idRegistro);
             
-            $stmt->execute();
+            // $stmt = $this->prepare($query);
+            // $stmt->bindValue("idRol", $this->idRol);
+            // $stmt->bindValue("correo", $this->correo);
+            // $stmt->bindValue("clave", password_hash($this->clave, PASSWORD_DEFAULT));
+            // $stmt->bindValue("idTrabajador", $idRegistro);
+            
+            // $stmt->execute();
             
             
             
@@ -206,14 +228,17 @@ class Usuario extends Model
 
 
             
-            Bitacora::registrarTransaccion($bitacoraSMS, $this->db->pdo());
+            
 
             if($this->getTestingMode()) {
                 $this->db->pdo()->rollBack();
                 $this->db->pdo()->beginTransaction();
             }
+            else{
+                Bitacora::registrarTransaccion($bitacoraSMS, $this->db->pdo());
+            }
 
-            $this->db->pdo()->commit();
+            $this->commit();
 
             $this->db->disconnect();
                 
@@ -238,7 +263,7 @@ class Usuario extends Model
             if($th instanceof Exception and $th->getCode() == self::SHOW_EXCEPTION) $respuesta['mensaje'] = $th->getMessage();
 
             if (DEVELOPER_MODE) $respuesta['consoleError'] = "`".addslashes($th->getMessage())." :: File:".addslashes($th->getFile())." :: Linea:".addslashes($th->getLine())."`";
-            //if (DEVELOPER_MODE) $respuesta['consoleError'] = $th->getTraceAsString();
+            if (DEVELOPER_MODE) $respuesta['trace'] = $th->getTraceAsString();
         }
 
         if($print) echo json_encode($respuesta);
@@ -249,28 +274,52 @@ class Usuario extends Model
     {
             
         try {
-            $this->db->connect();
+            $this->db->connectUser();
             $this->db->pdo()->beginTransaction();
 
             $this->esValido(self::ACTUALIZAR_USUARIO);
+            $pass = false;
+            if($this->clave != null) {
+                $this->clave = password_hash($this->clave, PASSWORD_DEFAULT);
+                $pass = true;
+            }
+
+
             
-            $query = "UPDATE usuario SET idRol = :idRol, 
-                correo = :correo WHERE id = :id";
+            $query = "UPDATE usuario SET 
+                cedula = :cedula,
+                idRol = :idRol,
+                correo = :correo,
+                nombre = :nombre,
+                apellido = :apellido";
+            
+            $parametros = [
+                "cedula" => $this->cedula,
+                "nombre" => $this->nombre,
+                "apellido" => $this->apellido,
+                "idRol" => $this->idRol,
+                "correo" => $this->correo,
+                "id" => $this->id
+            ];
 
-            $stmt = $this->prepare($query);
-            $stmt->bindValue("idRol", $this->idRol);
-            $stmt->bindValue("correo", $this->correo);
-            $stmt->bindValue("id", $this->id);
+            if($pass) {
+                $query .= ", clave = :clave";
+                $parametros["clave"] = $this->clave;
+            }
 
-            $stmt->execute();
+            $query .= " WHERE id = :id";
 
-            Bitacora::registrarTransaccion("Usuario '".$this->getCorreo()."' actualizado", $this->db->pdo());
+            $this->ejecutarStatement($query, $parametros);
 
+            
             if($this->getTestingMode()) {
                 $this->db->pdo()->rollBack();
                 $this->db->pdo()->beginTransaction();
             }
-
+            else{
+                Bitacora::registrarTransaccion("Usuario '".$this->getCorreo()."' actualizado", $this->db->pdo());
+            }
+            
             $this->db->pdo()->commit();
 
             $this->db->disconnect();
@@ -317,7 +366,7 @@ class Usuario extends Model
     public function eliminarUsuario($print = true, $logicDelete = false) : array
     {
         try {
-            $this->db->connect();
+            $this->db->connectUser();
             $this->db->pdo()->beginTransaction();
             $datosDevueltos = [];
             $this->esValido(self::ELIMINAR_USUARIO, $datosDevueltos);
@@ -404,10 +453,15 @@ class Usuario extends Model
             public $calveInvalida = "La clave debe tener al menos 6 caracteres, una letra mayúscula, una letra minúscula y un número";
             public $cedulaRequerida = "La cedula es requerida";
             public $cedulaInvalida = "La cedula es invalida debe contener entre 7 y 8 dígitos";
+            public $correoRegistrado = "El correo ya se encuentra registrado";
             public $correoRegistradoUserActive = "El correo ya se encuentra registrado con un usuario activo";
             public $correoRegistradoUserInactive = "El correo ya se encuentra registrado con un usuario inactivo";
-            public $cedulaNoTrabajador = "La cedula no pertenece a ningún trabajador";
             public $userNoExist = "El usuario no existe";
+            public $cedulaRegistrada = "La cedula ya se encuentra registrada";
+            public $nombreRequerido = "El nombre es requerido";
+            public $apellidoRequerido = "El apellido es requerido";
+            public $nombreInvalido = "El nombre es invalido debe contener solo letras y espacios";
+            public $apellidoInvalido = "El apellido es invalido debe contener solo letras y espacios";
         };
 
         
@@ -450,13 +504,23 @@ class Usuario extends Model
             if($controlAction == self::ACTUALIZAR_USUARIO and !preg_match("/^[0-9]+$/", $this->id)){
                 throw new \Exception($defaultValidationMessages->usuarioNoSelected,self::SHOW_EXCEPTION);
             }
-            if($controlAction == self::REGISTRAR_USUARIO){
-                if(empty(trim($this->cedula))){
-                    throw new \Exception($defaultValidationMessages->cedulaRequerida,self::SHOW_EXCEPTION);
-                }
-                else if(!preg_match(REG_CEDULA, $this->cedula)){
-                    throw new \Exception($defaultValidationMessages->cedulaInvalida,self::SHOW_EXCEPTION);
-                }
+            if(empty(trim($this->cedula))){
+                throw new \Exception($defaultValidationMessages->cedulaRequerida,self::SHOW_EXCEPTION);
+            }
+            if(!preg_match(REG_CEDULA, $this->cedula)){
+                throw new \Exception($defaultValidationMessages->cedulaInvalida,self::SHOW_EXCEPTION);
+            }
+            if(empty(trim($this->nombre))){
+                throw new \Exception($defaultValidationMessages->nombreRequerido,self::SHOW_EXCEPTION);
+            }
+            if(!preg_match(REG_ALFABETICO, $this->nombre)){
+                throw new \Exception($defaultValidationMessages->nombreInvalido,self::SHOW_EXCEPTION);
+            }
+            if(empty(trim($this->apellido))){
+                throw new \Exception($defaultValidationMessages->apellidoRequerido,self::SHOW_EXCEPTION);
+            }
+            if(!preg_match(REG_ALFABETICO, $this->apellido)){
+                throw new \Exception($defaultValidationMessages->apellidoInvalido,self::SHOW_EXCEPTION);
             }
         }
         else if($controlAction == self::ELIMINAR_USUARIO) {
@@ -470,60 +534,57 @@ class Usuario extends Model
         // valido en la base de datos
 
 
-
         if($controlAction == self::REGISTRAR_USUARIO || $controlAction == self::ACTUALIZAR_USUARIO) {
-            $query = "SELECT u.*, t.cedula, t.id as idTrabajador FROM usuario AS u left join trabajador as t on u.idTrabajador = t.id WHERE correo = :correo";
+
+            $query = "SELECT * FROM usuario WHERE cedula = :cedula";
+            $parametros = [":cedula"=>$this->cedula];
+
             if($controlAction == self::ACTUALIZAR_USUARIO) {
-                $query .= " AND u.id <> :id";
+                $query .= " AND id <> :id";
+                $parametros[":id"] = $this->id;
             }
 
-            $stmt = $this->prepare($query);
-            $stmt->bindValue("correo", $this->correo);
+            $stmt = $this->ejecutarStatement($query,$parametros);
+            if($stmt->rowCount() > 0) {
+                $usuario = $stmt->fetch(\PDO::FETCH_ASSOC);
+                if($controlAction == self::REGISTRAR_USUARIO and $usuario['estado'] == "0") {
+                    $datosDevueltos["registrar_Update"] = $usuario['id'];
+                }
+                else if($controlAction == self::ACTUALIZAR_USUARIO or ($controlAction == self::REGISTRAR_USUARIO and $usuario['estado'] == "1")) {
+                    throw new \Exception($defaultValidationMessages->cedulaRegistrada,self::SHOW_EXCEPTION);
+                }
+            }
+
+            $query = "SELECT * FROM usuario WHERE correo = :correo";
+            $parametros = [":correo"=>$this->correo];
+
             if($controlAction == self::ACTUALIZAR_USUARIO) {
-                $stmt->bindValue("id", $this->id);
+                $query .= " AND id <> :id";
+                $parametros[":id"] = $this->id;
+            }
+            else if($controlAction == self::REGISTRAR_USUARIO and isset($datosDevueltos["registrar_Update"])) {
+                $query .= " AND id <> :id";
+                $parametros[":id"] = $datosDevueltos["registrar_Update"];
             }
 
-            $stmt->execute();
-
-            if ($stmt->rowCount() > 0) {
-                $user = $stmt->fetch(\PDO::FETCH_ASSOC);
-                if($controlAction == self::REGISTRAR_USUARIO) {
-                    if($user['estado'] != "0") {
-                        throw new \Exception($defaultValidationMessages->correoRegistradoUserActive,self::SHOW_EXCEPTION);
-                    }
-                    else {
-                        if($user['cedula'] == $this->cedula) {
-                            $datosDevueltos["registrar_Update"] = $user['id'];
-                            
-                        }
-                        else {
-                            throw new \Exception($defaultValidationMessages->correoRegistradoUserInactive,self::SHOW_EXCEPTION);
-                        }
-                    }
-                    
-                }
-                else if($controlAction == self::ACTUALIZAR_USUARIO) {
-                    $sms = ($user['estado'] == "0") ? $defaultValidationMessages->correoRegistradoUserInactive : $defaultValidationMessages->correoRegistradoUserActive;
-                    throw new \Exception($sms,self::SHOW_EXCEPTION);
-                }
-                
+            $stmt = $this->ejecutarStatement($query,$parametros);
+            if($stmt->rowCount() > 0) {
+                throw new \Exception($defaultValidationMessages->correoRegistrado,self::SHOW_EXCEPTION);
             }
+
+
+
 
         }
-        if($controlAction == self::REGISTRAR_USUARIO) {
-
-            // valido la cedula del trabajador
-            ( $stmt =$this->prepare("SELECT * FROM trabajador as t WHERE cedula = :cedula") )->execute([':cedula'=>$this->cedula]);
-            if($stmt->rowCount() == 0) {
-                throw new \Exception($defaultValidationMessages->cedulaNoTrabajador,self::SHOW_EXCEPTION);
-            }
-            else {
-                $datosDevueltos["trabajador"] = $stmt->fetch(\PDO::FETCH_ASSOC);
-            }
-        }
+        
         if($controlAction == self::ACTUALIZAR_USUARIO || $controlAction == self::ELIMINAR_USUARIO) {
             // validar que el usuario existe
-            ( $stmt = $this->prepare("SELECT u.*,t.cedula FROM usuario as u left join trabajador as t on u.idTrabajador = t.id WHERE u.id = :id") )->execute([':id'=>$this->id]);
+
+            $query = "SELECT * FROM usuario WHERE id = :id";
+            $parametros = [":id"=>$this->id];
+
+            $stmt = $this->ejecutarStatement($query,$parametros);
+
             if($stmt->rowCount() == 0) {
                 throw new \Exception($defaultValidationMessages->userNoExist,self::SHOW_EXCEPTION);
             }
@@ -578,19 +639,28 @@ class Usuario extends Model
     public function getCorreo() : string {
         return $this->correo;
     }
+
+    public function getCedula() : string {
+        return $this->cedula;
+    }
     
     public function getEstado() : int {
         return $this->estado;
     }
     public function getNombre() : string {
-        if($this->trabajador instanceof Trabajador) return $this->trabajador->getNombre();
-        return "NO_NAME";
+        return $this->nombre ?? "N/A Nombre";
     }
     public function getNombreCompleto() : string {
-        if($this->trabajador instanceof Trabajador) return $this->trabajador->getNombreCompleto();
-        return null;
+        return ($this->nombre ?? "N/A Nombre") ." ".($this->apellido ?? "N/A Apellido");
     }
-    public function getTrabajador() : Trabajador {
-        return $this->trabajador;
+    public function getApellido() : string {
+        return $this->apellido ?? "N/A Apellido";
     }
+    public function set_nombre(string $nombre) : void {
+        $this->nombre = trim($nombre);
+    }
+    public function set_apellido(string $apellido) : void {
+        $this->apellido = trim($apellido);
+    }
+    
 }

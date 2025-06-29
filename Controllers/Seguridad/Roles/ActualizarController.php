@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         redirigir(LOCAL_DIR."/Seguridad/Roles");
     }
 
-    $rol = Rol::cargar($_GET['id']);
+    $rol = Rol::cargar($_GET['id'],true);
 
     if (is_null($rol)) {
         $_SESSION['errores'][] = "El rol que intenta actulizar no existe";

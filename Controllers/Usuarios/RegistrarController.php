@@ -4,20 +4,21 @@ requierePermiso("usuarios", "registrar");
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
-    $departamentoObj = new Departamento();
-    $departamentos = $departamentoObj->listar();
      if(!empty($_GET['cedula'])){
-        $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
+        $usuario = Usuario::cargarPorCedula($_GET['cedula']);
 
-        if($Trabajador instanceof Trabajador) {
+
+        if($usuario instanceof Usuario and (!isset($_GET['id']) or $_GET['id'] != $usuario->id) ) {
             echo json_encode([
-                "cedula" => $Trabajador->getCedula(),
-                "nombre" => $Trabajador->getNombreCompleto(),
-                "departamento" => $Trabajador->departamento->getNombre(),
-                "usuario" => ( Usuario::cargarPorCedula($_GET['cedula']) )?1:null
+                "userFound" => true,
+                "cedula" => $usuario->getCedula(),
+                "nombre" => $usuario->getNombreCompleto(),
+                "usuario" => ( $usuario )?1:null
             ]);
         } else {
-            echo "{}";
+            echo json_encode([
+                "userFound" => false
+            ]);
         }
     } else {
         $rolObj = new Rol();
@@ -29,7 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     $usuario = new Usuario();
-    $usuario->mapearFormulario();
+    //$usuario->setTestingMode(true);
+    
+    $usuario->setterArray([
+        "cedula" => $_POST['cedula'],
+        "nombre" => $_POST['nombre'],
+        "apellido" => $_POST['apellido'],
+        "correo" => $_POST['correo'],
+        "idRol" => $_POST['idRol'],
+        "clave" => $_POST['clave'],
+
+    ]);
+
 
     if(($resp = $usuario->registrar(false))['success']) {
         $_SESSION['exitos'][] = $resp['mensaje'];

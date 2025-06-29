@@ -3,3 +3,5 @@ user_config.php
 jsconfig.json
 vendor/*
 .phpunit.result.cache
+Controllers/pruebas/*
+Views/pruebas/*

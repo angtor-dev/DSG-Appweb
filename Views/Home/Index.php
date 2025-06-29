@@ -189,6 +189,10 @@
                                                 <i class="fa-solid fa-list-check"></i>
                                                 turnos temporal
                                             </a>
+                                            <a href="/DSG-Appweb/Perfil" class="mx-3 d-block">
+                                                <i class="fa-solid fa-list-check"></i>
+                                                Perfil
+                                            </a>
                                         </div>
 
                                     </td>

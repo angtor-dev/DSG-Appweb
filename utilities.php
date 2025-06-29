@@ -253,3 +253,15 @@ function sincronizarPermisosEnSesion() : void {
     $usuarioSesion = $_SESSION['usuario'];
     $usuarioSesion->rol->SincronizarPermisos();
 }
+
+/**
+ * Comprueba si el host actual de la conexión PDO es el especificado
+ *
+ * @param PDO $pdo La conexión PDO a comprobar
+ * @param string $hostToCheck El host que se va a buscar en la conexión
+ * @return bool True si el host coincide, false en caso contrario
+ */
+function checkHostBD(PDO $pdo, string $hostToCheck) : bool {
+    $host = $pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS);
+    return preg_match('/^'. $hostToCheck .'/', $host);
+}

@@ -529,7 +529,7 @@ class Tarea extends Model
 
 
     // Método compatible con Model::cargar()
-    public static function cargar(int $id): null|self
+    public static function cargar(int $id, bool $userBD = false): null|self
     {
         $bd = Database::getInstance();
         $bd->connect();

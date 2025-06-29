@@ -18,23 +18,37 @@ abstract class Model
      * @param int $id El id a buscar en la bd
      * @return null|self El modelo encontrado o null en caso de no haber coincidencias
      */
-    public static function cargar(int $id) : null|self
+    public static function cargar(int $id, bool $userBD = false) : null|self
     {
         $bd = Database::getInstance();
         $table = strtolower(static::class);
         $query = "SELECT * FROM $table WHERE id = $id";
+        $conexiones = [
+            "desconectar_despues" => true,
+            "auxiliar_pdo" => null
+        ];
 
-        $bd->connect();
-
+        $conexiones = $bd->conectarYmantener($userBD);
+        //  if($userBD) $bd->connectUser();
+        //  else $bd->connect();
+        
         $stmt = $bd->pdo()->query($query);
         $stmt->setFetchMode(PDO::FETCH_CLASS, $table);
 
-        $bd->disconnect();
+        if ($conexiones['desconectar_despues']) {
+            $bd->disconnect();
+        }
+
+        if(isset($conexiones['auxiliar_pdo']) and $conexiones['auxiliar_pdo'] instanceof PDO){
+            $bd->set_pdo($conexiones['auxiliar_pdo']);
+        }
 
         if ($stmt->rowCount() == 0) {
             return null;
         }
-        return $stmt->fetch();
+        $resp = $stmt->fetch();
+        $stmt = null;
+        return $resp;
     }
 
     /**
@@ -49,12 +63,34 @@ abstract class Model
         $table = strtolower(static::class);
         $query = "SELECT * FROM $table" . (isset($estado) ? " WHERE estado = :estado" : "");
 
-        $this->db->connect();
+            $this->db->connect();
 
         $stmt = $this->db->pdo()->prepare($query);
         if(Isset($estado)) $stmt->bindValue('estado', $estado);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS, $table);
+
+        $this->db->disconnect();
+
+        if ($stmt->rowCount() == 0) {
+            return array();
+        }
+        return $stmt->fetchAll();
+    }
+
+    public function listarDBUser(int $estado = null): array
+    {
+        $table = strtolower(static::class);
+        $query = "SELECT * FROM $table" . (isset($estado) ? " WHERE estado = :estado" : "");
+
+        $this->db->connectUser();
+
+        $stmt = $this->db->pdo()->prepare($query);
+        if (isset($estado))
+            $stmt->bindValue('estado', $estado);
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_CLASS, $table);
+
 
         $this->db->disconnect();
 
@@ -73,13 +109,18 @@ abstract class Model
      * @param int|null $estatus Si se especifica, retorna las filas donde el estatus sea igual al indicado.
      * @return array<self>
      */
-    public static function listarPorRelacion(int $id, string $tablaForanea, int $estado = null) : array
+    public static function listarPorRelacion(int $id, string $tablaForanea, int $estado = null, bool $userBD = false) : array
     {
         $bd = Database::getInstance();
         $table = strtolower(static::class);
         $query = "SELECT * FROM $table WHERE id$tablaForanea = $id" . (isset($estado) ? " AND estado = $estado" : "");
 
-        $bd->connect();
+        if($userBD){
+            $bd->connectUser();
+        }
+        else{
+            $bd->connect();
+        }
 
         $stmt = $bd->pdo()->query($query);
         $stmt->setFetchMode(PDO::FETCH_CLASS, $table);
@@ -89,7 +130,9 @@ abstract class Model
         if ($stmt->rowCount() == 0) {
             return array();
         }
-        return $stmt->fetchAll();
+        $resp = $stmt->fetchAll();
+        $stmt = null;
+        return $resp;
     }
 
     /**
@@ -111,7 +154,7 @@ abstract class Model
             INNER JOIN $tablaIntermediaria AS ti ON t.id = ti.id$table
             WHERE ti.id$tablaForanea = $id";
 
-        $bd->connect();
+            $bd->connect();
 
         $stmt = $bd->pdo()->query($query);
         $stmt->setFetchMode(PDO::FETCH_CLASS, $table);
@@ -156,6 +199,36 @@ abstract class Model
             return false;
         } catch (\Throwable $th) {
             if (DEVELOPER_MODE) debug($th); // Eliminar esto al crear vista para errores
+            $_SESSION['errores'][] = "Ha ocurrido un error al eliminar $tabla.";
+            return false;
+        }
+    }
+    public function eliminarDBUser(bool $eliminadoLogico = true) : bool
+    {
+        $tabla = strtolower(get_class($this));
+        $query = $eliminadoLogico
+            ? "UPDATE $tabla set estado = 0 WHERE id = :id"
+            : "DELETE FROM $tabla WHERE id = :id";
+
+        try {
+            $this->db->connectUser();
+
+            $stmt = $this->prepare($query);
+            $stmt->bindValue('id', $this->id);
+
+            $stmt->execute();
+
+            $this->db->disconnect();
+
+            return true;
+        } catch (\PDOException $th) {
+            $_SESSION['errores'][] = ($th->getCode() == '23000')
+                ? "Existen datos relacionados al item seleccionado."
+                : "Ha ocurrido un error al eliminar $tabla.";
+            return false;
+        } catch (\Throwable $th) {
+            if (DEVELOPER_MODE)
+                debug($th); // Eliminar esto al crear vista para errores
             $_SESSION['errores'][] = "Ha ocurrido un error al eliminar $tabla.";
             return false;
         }
@@ -246,7 +319,12 @@ abstract class Model
     /** shorthand para PDO::beginTransaction*/
     protected function beginTransaction() : void
     {
-        $this->db->pdo()->beginTransaction();
+        if(isset($this->db) and $this->db->connected()){
+            $this->db->pdo()->beginTransaction();
+        }
+        else {
+            throw new Exception("La base de datos no esta conectada");
+        }
     }
 
     /** shorthand para PDO::commit*/
@@ -283,7 +361,7 @@ abstract class Model
     {
         if( 
             isset($this->db) &&
-            $this->db->pdo() instanceof \PDO &&
+            $this->db->connected() &&
             $this->db->pdo()->inTransaction()
         ){
             $this->rollBack();
@@ -294,4 +372,5 @@ abstract class Model
     
 
     abstract public function setterArray(array $data):void;
+    // TODO agregar a los setter array para que cuando se les pase un valor string se sanitize de los caracteres "<" y ">"
 }

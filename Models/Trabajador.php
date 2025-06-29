@@ -602,12 +602,12 @@ class Trabajador extends Model
         }
     }
 
-    public function listar ($json = false):array {
+    public function listar ($estado = 1):array {
         
         try {
             $this->db->connect();
-            $fetchMode = $json ? PDO::FETCH_ASSOC : PDO::FETCH_CLASS;
-            $fetchArg = $json ? null : Trabajador::class;
+            $fetchMode = PDO::FETCH_CLASS;
+            $fetchArg = Trabajador::class;
             $query = "SELECT
                 t.*
                 ,al.idTurno
@@ -621,20 +621,19 @@ class Trabajador extends Model
             ON
                 al.idTrabajador = t.id AND al.esActual = 1
             JOIN turno as tu on al.idTurno = tu.id
-            JOIN cargo as c on c.id = al.idCargo
+            JOIN cargo as c on c.id = al.idCargo";
 
-            WHERE
-                estado = 1;";
+            $parametros = [];
 
-
-            $resp = $this->ejecutar($query, array(), $fetchMode, $fetchArg);
-            $this->db->disconnect();
-            if($json) {
-                $resp = json_encode([
-                    "success" => true,
-                    "data" => $resp                    
-                ]);
+            if($estado!= null){
+                $query .=" WHERE estado = :estado ";
+                $parametros["estado"] = $estado;
             }
+
+
+            $resp = $this->ejecutar($query, $parametros, $fetchMode, $fetchArg);
+            $this->db->disconnect();
+            
         } catch (\Throwable $th) {
 
             if(isset($this->db) && $this->db->connected()) {
@@ -642,13 +641,7 @@ class Trabajador extends Model
             }
             
             $resp = array();
-            if($json) {
-                $resp = json_encode([
-                    "success" => false,
-                    "message" => "Ocurrio un error al listar los trabajadores",
-                    "data" => array()
-                ]);
-            }
+            
             if(DEVELOPER_MODE) {
                 debug($th->getMessage().":: Linea: ".$th->getLine());
             }
@@ -693,5 +686,56 @@ class Trabajador extends Model
     }
     public function getEstado() : string {
         return $this->estado;
+    }
+    public function exporDataBase ():array{
+        $resp = array();
+
+        try {
+            $this->db->connect();// || $this->db->connectUser(); // para las distintas base de datos
+            $this->beginTransaction();
+
+            $resp = $this->db->exportDatabase();
+
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+
+            $this->commit();
+
+            $this->db->disconnect();
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+            $resp["success"] = false;
+            $resp["message"] = $th->getMessage();
+        }
+        return $resp;
+    }
+
+    public function importDatabase ($filePath) : array {
+        $resp = array();
+        $this->setTestingMode(true);
+        try {
+            $this->db->connect();// || $this->db->connectUser(); // para las distintas base de datos
+            $this->beginTransaction();
+            
+
+            $resp = $this->db->importDatabase($filePath);
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+            $this->commit();
+            $this->db->disconnect();
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+            $resp["success"] = false;
+            $resp["message"] = $th->getMessage();
+            if(DEVELOPER_MODE) {
+                $resp["trace"] = $th->getTraceAsString();
+                $resp["line"] = $th->getLine();
+            }
+        }
+        return $resp;
     }
 }

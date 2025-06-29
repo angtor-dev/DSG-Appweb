@@ -11,7 +11,7 @@ class Rol extends Model
     {
         parent::__construct();
         if (!empty($this->id)) {
-            $this->permisos = Permiso::listarPorRelacion($this->id, get_class());
+            $this->permisos = Permiso::listarPorRelacion($this->id, get_class(), null, true);
         }
     }
 
@@ -22,10 +22,10 @@ class Rol extends Model
             
         try {
             $moduloObj = new Modulo();
-            $modulos = $moduloObj->listar();
-            $this->db->connect();
+            $modulos = $moduloObj->listarDBUser();
+            $this->db->connectUser();
 
-            $this->db->pdo()->beginTransaction();
+            $this->beginTransaction();
 
             // Registra el rol
             $stmt = $this->prepare($query);
@@ -48,14 +48,25 @@ class Rol extends Model
                 $stmt->execute();
             }
 
+            if($this->getTestingMode()){
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+            else {
+                Bitacora::registrarTransaccion("Se ha creado el rol " . $this->nombre, $this->db->pdo());
+            }
+
             // Guarda los cambios
-            $this->db->pdo()->commit();
+            $this->commit();
 
             $this->db->disconnect();
 
             return true;
         } catch (\Throwable $th) {
-            debug($th);
+            $this->disconectHandlerExeption();
+            if(DEVELOPER_MODE){
+                debug($th);
+            }
             $_SESSION['errores'][] = "Ocurrio un error al registrar el rol";
             return false;
         }
@@ -66,7 +77,8 @@ class Rol extends Model
         $sql = "UPDATE rol SET nombre = :nombre, descripcion = :descripcion WHERE id = :id";
 
         try {
-            $this->db->connect();
+            $this->db->connectUser();
+            $this->beginTransaction();
 
             $stmt = $this->prepare($sql);
             $stmt->bindValue('nombre', $this->nombre);
@@ -74,6 +86,16 @@ class Rol extends Model
             $stmt->bindValue('id', $this->id);
 
             $stmt->execute();
+
+            if($this->getTestingMode()){
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+            else {
+                Bitacora::registrarTransaccion("Se ha actualizado el rol " . $this->nombre, $this->db->pdo());
+            }
+
+            $this->commit();
             
             $this->db->disconnect();
 
@@ -86,8 +108,41 @@ class Rol extends Model
 
     public function SincronizarPermisos() : void
     {
-        $this->permisos = (!empty($this->id)) ? Permiso::listarPorRelacion($this->id, get_class()) : [];
+        $this->permisos = (!empty($this->id)) ? Permiso::listarPorRelacion($this->id, get_class(), null, true) : [];
     }
+
+    public function listar(int $estado = null): array
+    {
+        $table = strtolower(static::class);
+        $query = "SELECT * FROM $table" . (isset($estado) ? " WHERE estado = :estado" : "");
+
+        $this->db->connectUser();
+
+        $stmt = $this->db->pdo()->prepare($query);
+        if (isset($estado))
+            $stmt->bindValue('estado', $estado);
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_CLASS, $table);
+
+        $this->db->disconnect();
+
+        if ($stmt->rowCount() == 0) {
+            return array();
+        }
+        return $stmt->fetchAll();
+    }
+
+    public static function getRolOptions($checkedId = null)
+    {
+        $rolObj = new Rol;
+        $lista =$rolObj->listar();
+        $options ="";
+        foreach ($lista as $rol) {
+            $options .= "<option ".($checkedId == $rol->id ? "selected" : "")." value='" . $rol->id . "'>" . $rol->getNombre() . "</option>";
+        }
+        return $options;
+    }
+
 
     public function esValido() : bool
     {

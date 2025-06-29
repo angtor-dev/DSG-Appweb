@@ -1,34 +1,40 @@
 
 <?php /** @var Usuario $usuario */ ?>
 <?php /** @var Rol[] $roles */ ?>
-<?php $Trabajador = $usuario->getTrabajador(); ?>
 
 <div class="modal-dialog modal-lg">
 <div class="modal-content">
-        <div class="modal-header bg-white">
+        <div class="modal-header bg-white panel-header text-white">
             <h5 class="modal-title my-2">
-                Registrar nuevo usuario
+                Modificar Usuario
             </h5>
         </div>
         <div class="modal-body">
             <form method="post" id="form-usuario">
+                <input type="hidden" id="id-user" name="id" value="<?= $usuario->id ?>">
                 <div class="row gy-3">
                     <div class="col-md-6">
-                        <div class="form-info-field" data-info="Cedula" id="cedula">
-                            <?= $Trabajador->getCedula() ?>
-                        </div>
+                    <div class="col-md-6">
+                        <label for="cedula" class="form-label">Cedula </label>
+                        <input value="<?= $usuario->getCedula() ?>" maxlength="8" required autocomplete="off" pattern="^[0-9]{7,8}$" value="" type="text" class="form-control" id="cedula" name="cedula" data-formText="invalid-span-cedula">
+                        <div id="invalid-span-cedula" class="form-text invalid-feedback"></div>
+                    </div>
                     </div>
                 </div>
                 <div class="row gy-3">
-                    <div class="col-md-6 ">
-                        <div class="form-info-field" data-info="Nombre" id="nombre">
-                            <?= $Trabajador->getNombreCompleto() ?>
-                        </div>
+                <div class="col-md-6 ">
+                        <!-- <div class="form-info-field" data-info="Nombre" id="nombre"></div> -->
+
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input value="<?= $usuario->getNombre() ?>" required maxlength="50" type="text" class="form-control" id="nombre" name="nombre" data-formText="form-text-nombre">
+                        <div id="form-text-nombre" class="form-text invalid-feedback"></div>
+                         
                     </div>
                     <div class="col-md-6">
-                        <div class="form-info-field" data-info="Departamento" id="departamento">
-                            <?= $Trabajador->departamento->getNombre() ?>
-                        </div>
+                        <!-- <div class="form-info-field" data-info="Cordinacion/Direccion" id="departamento"></div> -->
+                        <label for="apellido" class="form-label">Apellido</label>
+                        <input value="<?= $usuario->getApellido() ?>" required type="text" class="form-control" id="apellido" name="apellido" data-formText="form-text-apellido">
+                        <div id="form-text-apellido" class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-12">
                         <label for="correo" class="form-label">Correo</label>

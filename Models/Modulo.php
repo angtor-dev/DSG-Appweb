@@ -34,7 +34,7 @@ class Modulo extends Model
     {
         $db = Database::getInstance();
         
-        $db->connect();
+        $db->connectUser();
 
         $sql = "SELECT * FROM modulo WHERE nombre = :nombre LIMIT 1";
 
@@ -50,6 +50,11 @@ class Modulo extends Model
             return null;
         }
         return $stmt->fetch();
+    }
+
+    public function listar(int $estado = null): array
+    {
+        return $this->listarDBUser($estado);
     }
 
     /**
