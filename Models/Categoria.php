@@ -108,7 +108,7 @@ class Categoria extends Model
     }
 
     // Setters
-    public function setDatos(string $nombre, string $descripcion, string $color, int $id = null): void {
+    public function setDatos(int $id = null, string $nombre, string $descripcion, string $color): void {
         if (isset($id)) {
             $this->id = $id;
         }
