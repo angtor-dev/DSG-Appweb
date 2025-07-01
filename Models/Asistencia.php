@@ -336,6 +336,9 @@ class Asistencia extends Model
                 $this->rollBack();
                 $this->beginTransaction();
             }
+            else {
+                Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con exito", $this->db->pdo());
+            }
 
             $this->commit();
             $this->db->disconnect();
