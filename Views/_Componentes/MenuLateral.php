@@ -202,7 +202,7 @@
                     <!--  colocar permisos -->
                     <?php if (true/*tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)*/): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Respaldo"
-                            class="<?= strtolower($uriParts[1]) == "respaldo" ? "active" : "" ?>">
+                            class="<?= strtolower($uriParts[1]) == "bitacora" ? "active" : "" ?>">
                             Respaldo BD
                         </a>
                     <?php endif ?>

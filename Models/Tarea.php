@@ -565,6 +565,61 @@ class Tarea extends Model
         return $consulta->fetchAll();
     }
 
+    public function listarPorEstadoConPersonal($estado) {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    // Consulta para obtener tareas con información básica
+    $query = "SELECT t.*, 
+                     a.nombre AS area_nombre,
+                     d.nombre AS departamento_nombre
+              FROM `tarea` t
+              LEFT JOIN `area` a ON t.idArea = a.id
+              LEFT JOIN `departamento` d ON t.idDepartamento = d.id
+              WHERE t.estado_tarea = :estado 
+              ORDER BY t.fechaCreacion DESC";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute([':estado' => $estado]);
+    $tareas = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Para cada tarea, obtener el personal asignado
+    foreach ($tareas as &$tarea) {
+        $tarea['personal'] = $this->obtenerPersonalAsignado($tarea['id']);
+    }
+    
+    $bd->disconnect();
+    return $tareas;
+}
+
+private function obtenerPersonalAsignado($idTarea) {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $query = "SELECT t.id, t.nombre, t.apellido, al.idCargo, c.nombre AS cargo_nombre
+              FROM `tarea_personal` tp
+              JOIN `asignacion_laboral` al ON tp.idAsignacionLaboral = al.id
+              JOIN `trabajador` t ON al.idTrabajador = t.id
+              LEFT JOIN `cargo` c ON al.idCargo = c.id
+              WHERE tp.idTarea = :idTarea
+              AND al.esActual = 1";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute([':idTarea' => $idTarea]);
+    $personal = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $bd->disconnect();
+    
+    // Formatear los datos del personal
+    return array_map(function($p) {
+        return [
+            'id' => $p['id'],
+            'nombre_completo' => $p['nombre'] . ' ' . $p['apellido'],
+            'cargo' => $p['cargo_nombre'] ?? 'Sin cargo'
+        ];
+    }, $personal);
+}
+
     public static function obtenerPorId($id)
     {
         $bd = Database::getInstance();
@@ -662,6 +717,193 @@ class Tarea extends Model
             $bd->disconnect();
         }
     }
+
+    // ---------------------------PARA LLENAR ORNEDES DE TRABJAO-----------------------------------
+
+    public function obtenerTareasParaOrdenes(array $ids) {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    // Consulta principal para obtener tareas con información básica
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $query = "SELECT t.*, 
+                     a.nombre AS area_nombre,
+                     d.nombre AS departamento_nombre,
+                     DATE_FORMAT(t.fecha_inicio, '%d/%m/%Y %H:%i') AS fecha_inicio_formateada
+              FROM `tarea` t
+              LEFT JOIN `area` a ON t.idArea = a.id
+              LEFT JOIN `departamento` d ON t.idDepartamento = d.id
+              WHERE t.id IN ($placeholders)
+              ORDER BY t.fechaCreacion DESC";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute($ids);
+    $tareas = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Obtener información adicional en lotes para mejorar el rendimiento
+    $personalPorTarea = $this->obtenerPersonalParaTareas($ids);
+    $materialesPorTarea = $this->obtenerMaterialesParaTareas($ids);
+    $validacionesPorTarea = $this->obtenerValidacionesParaTareas($ids);
+    
+    // Combinar toda la información
+    foreach ($tareas as &$tarea) {
+        $tareaId = $tarea['id'];
+        $tarea['personal'] = $personalPorTarea[$tareaId] ?? [];
+        $tarea['materiales'] = $materialesPorTarea[$tareaId] ?? [];
+       $tarea['validaciones'] = $validacionesPorTarea[$tareaId] ?? [];
+    }
+    
+    $bd->disconnect();
+    return $tareas;
+}
+
+private function obtenerPersonalParaTareas(array $tareaIds) {
+    if (empty($tareaIds)) return [];
+    
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $placeholders = implode(',', array_fill(0, count($tareaIds), '?'));
+    $query = "SELECT 
+                tp.idTarea,
+                t.id AS idTrabajador, 
+                t.nombre, 
+                t.apellido, 
+                c.nombre AS cargo_nombre,
+                d.nombre AS departamento_nombre,
+                tu.nombre AS turno_nombre,
+                tu.horario_entrada,
+                tu.horario_salida
+              FROM `tarea_personal` tp
+              JOIN `asignacion_laboral` al ON tp.idAsignacionLaboral = al.id
+              JOIN `trabajador` t ON al.idTrabajador = t.id
+              LEFT JOIN `cargo` c ON al.idCargo = c.id
+              LEFT JOIN `departamento` d ON al.idDepartamento = d.id
+              LEFT JOIN `turno` tu ON al.idTurno = tu.id
+              WHERE tp.idTarea IN ($placeholders)
+              AND al.esActual = 1
+              ORDER BY tp.idTarea, t.apellido, t.nombre";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute($tareaIds);
+    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $personalPorTarea = [];
+    foreach ($resultados as $row) {
+        $tareaId = $row['idTarea'];
+        if (!isset($personalPorTarea[$tareaId])) {
+            $personalPorTarea[$tareaId] = [];
+        }
+        
+        $personalPorTarea[$tareaId][] = [
+            'id' => $row['idTrabajador'],
+            'nombre_completo' => $row['nombre'] . ' ' . $row['apellido'],
+            'cargo' => $row['cargo_nombre'] ?? 'Sin cargo',
+            'departamento' => $row['departamento_nombre'] ?? '',
+            'turno' => $row['turno_nombre'] ?? '',
+            'horario' => ($row['horario_entrada'] && $row['horario_salida']) 
+                ? date('H:i', strtotime($row['horario_entrada'])) . ' - ' . date('H:i', strtotime($row['horario_salida']))
+                : ''
+        ];
+    }
+    
+    $bd->disconnect();
+    return $personalPorTarea;
+}
+
+private function obtenerMaterialesParaTareas(array $tareaIds) {
+    if (empty($tareaIds)) return [];
+    
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $placeholders = implode(',', array_fill(0, count($tareaIds), '?'));
+    $query = "SELECT 
+                r.idTarea,
+                r.idArticulo AS id, 
+                a.nombre, 
+                r.cantidad, 
+                r.devolucion, 
+                r.cantidadDevolucion,
+                m.unidad AS medida
+              FROM `recurso` r
+              JOIN `articulo` a ON r.idArticulo = a.id
+              LEFT JOIN `medida` m ON a.idMedida = m.id
+              WHERE r.idTarea IN ($placeholders)
+              ORDER BY r.idTarea, a.nombre";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute($tareaIds);
+    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $materialesPorTarea = [];
+    foreach ($resultados as $row) {
+        $tareaId = $row['idTarea'];
+        if (!isset($materialesPorTarea[$tareaId])) {
+            $materialesPorTarea[$tareaId] = [];
+        }
+        
+        $materialesPorTarea[$tareaId][] = [
+            'id' => $row['id'],
+            'nombre' => $row['nombre'],
+            'cantidad' => $row['cantidad'],
+            'devolucion' => (bool)$row['devolucion'],
+            'cantidadDevolucion' => $row['cantidadDevolucion'],
+            'medida' => $row['medida'] ?? 'unid.'
+        ];
+    }
+    
+    $bd->disconnect();
+    return $materialesPorTarea;
+}
+
+private function obtenerValidacionesParaTareas(array $tareaIds) {
+    if (empty($tareaIds)) return [];
+    
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $placeholders = implode(',', array_fill(0, count($tareaIds), '?'));
+    $query = "SELECT 
+                tv.idTarea,
+                tv.evalSupervisor,
+                tv.evalSuperior,
+                tv.observacion,
+                tv.fechaEval,
+                t.nombre AS supervisor_nombre,
+                t.apellido AS supervisor_apellido,
+                c.nombre AS supervisor_cargo
+              FROM `tarea_validacion` tv
+              LEFT JOIN `trabajador` t ON tv.idSupervisor = t.id
+              LEFT JOIN `asignacion_laboral` al ON t.id = al.idTrabajador AND al.esActual = 1
+              LEFT JOIN `cargo` c ON al.idCargo = c.id
+              WHERE tv.idTarea IN ($placeholders)
+              ORDER BY tv.idTarea, tv.fechaEval DESC";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute($tareaIds);
+    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $validacionesPorTarea = [];
+    foreach ($resultados as $row) {
+        $tareaId = $row['idTarea'];
+        if (!isset($validacionesPorTarea[$tareaId])) {
+            $validacionesPorTarea[$tareaId] = [];
+        }
+        
+        $validacionesPorTarea[$tareaId][] = [
+            'supervisor' => $row['supervisor_nombre'] . ' ' . $row['supervisor_apellido'],
+            'cargo' => $row['supervisor_cargo'] ?? '',
+            'evaluacion' => $row['evalSupervisor'] ?? '',
+            'evaluacion_superior' => $row['evalSuperior'] ?? '',
+            'observacion' => $row['observacion'] ?? '',
+            'fecha' => $row['fechaEval'] ? date('d/m/Y H:i', strtotime($row['fechaEval'])) : ''
+        ];
+    }
+    
+    $bd->disconnect();
+    return $validacionesPorTarea;
+}
 
     //----------para llenar tabla de materiales
     public function listarConCategoriaYUnidad()
