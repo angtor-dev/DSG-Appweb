@@ -18,6 +18,6 @@ if(!empty($_POST)){
 }
 
 
-$departamentos = (new Departamento())->listar();
+$departamentos = (new Division())->listar();
 renderView();
 // debug($trabajadores);
