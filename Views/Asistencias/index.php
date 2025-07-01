@@ -1,4 +1,4 @@
-<?php /** @var Departamento[] $departamentos */ ?>
+<?php /** @var Division[] $departamentos */ ?>
 
 <style>
     .cell-justificacion,

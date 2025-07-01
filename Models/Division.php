@@ -5,7 +5,7 @@ class Division extends Model
 {
     public ?int $idDepartamento = null;
     private string $nombre;
-    public ?Division $departamentoPadre = null;
+    public ?Division $divisionPadre = null;
 
     public function esValido() : bool {
         if (empty(trim($this->nombre))) {
@@ -25,7 +25,7 @@ class Division extends Model
      */
     public function listarSubdepartamentos() : array
     {
-        $query = "SELECT * FROM division WHERE idDivision = :idDepartamento";
+        $query = "SELECT d.*, sub.idPadre as idDepartamento FROM division as d LEFT JOIN subdivisiones as sub on d.id = sub.idHijo WHERE sub.idPadre = :idDepartamento";
 
         try {
             $this->db->connect();
@@ -50,17 +50,27 @@ class Division extends Model
     }
 
     public function registrar() : bool {
-        $query = "INSERT INTO division (nombre, idDivision) VALUES (:nombre, :idDepartamento)";
-
+        
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
-            $stmt = $this->prepare($query);
-            $stmt->bindValue("nombre", $this->nombre);
-            $stmt->bindValue("idDepartamento", $this->idDepartamento);
+            $query = "INSERT INTO division (nombre) VALUES (:nombre)";
+            $this->ejecutarStatement($query, ["nombre" => $this->nombre]);
+            $id = $this->db->pdo()->lastInsertId();
 
-            $stmt->execute();
+            $query = "INSERT INTO subdivisiones (idPadre, idHijo) VALUES (:idDepartamento, :idDivision)";
+            $parametros = ["idDepartamento" => $this->idDepartamento, "idDivision" => $id];
+            $this->ejecutarStatement($query, $parametros);
 
+
+            if($this->getTestingMode()){
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+
+            $this->commit();
+            
             $this->db->disconnect();
 
             return true;
@@ -93,6 +103,27 @@ class Division extends Model
             $_SESSION['errores'][] = "Ha ocurrido un error al actualizar la División.";
             return false;
         }
+    }
+
+    public function listar(int $estado = null) : array
+    {
+
+        $query = "SELECT d.*, sub.idPadre as idDepartamento FROM division as d LEFT JOIN subdivisiones as sub on d.id = sub.idHijo ORDER BY d.id";
+
+        $this->db->connect();
+
+        $parametros = [];
+
+        if(isset($estado)) $parametros['estado'] = $estado;
+
+        $stmt = $this->ejecutarStatement($query, $parametros, PDO::FETCH_CLASS, $this::class);
+
+        $this->db->disconnect();
+
+        if ($stmt->rowCount() == 0) {
+            return array();
+        }
+        return $stmt->fetchAll();
     }
 
     public function mapearFormulario() : bool
