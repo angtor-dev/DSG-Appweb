@@ -34,7 +34,7 @@
                             <th>Teléfono</th>
                             <th>Turno</th>
                             <th>Cargo</th>
-                            <th>Departamento</th>
+                            <th>División</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>

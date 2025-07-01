@@ -62,7 +62,7 @@
                             <div id="invalid-span-turno" class="form-text invalid-feedback"></div>
                         </div>
                         <div class="col-md-4">
-                            <label for="departamento" class="form-label">Departamento</label>
+                            <label for="departamento" class="form-label">División</label>
                             <select required name="departamento" id="departamento" class="form-select">
                                 <option value=""></option>
                                 <?php foreach ($departamentos as $departamento): ?>

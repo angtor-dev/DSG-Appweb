@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             "cedulaSeleccion" => $_POST["cedulaSeleccion"]
         ]);
 
-        $Trabajador->setTestingMode(true);
         $Trabajador->eliminarTrabajador();
     }
 

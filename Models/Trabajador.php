@@ -24,6 +24,7 @@
 class Trabajador extends Model
 {
     public null|int|string $idDepartamento;
+    public null|int|string $idDivision;
     private string $cedula;
     private string $cedulaSeleccion;
     private string $nombre;
@@ -33,9 +34,10 @@ class Trabajador extends Model
     private Cargo|string $cargo;
     private Turno|string $turno;
     private string $cargoNivel;
-    public Departamento $departamento;
+    public Division $departamento;
     public null|string $idTurno;
     public null|string $idCargo;
+
 
     private string $estado;
 
@@ -48,8 +50,9 @@ class Trabajador extends Model
 
     public function __construct() {
         parent::__construct();
+        if(!empty($this->idDivision)) $this->idDepartamento = $this->idDivision;
         if (!empty($this->idDepartamento)) {
-            $this->departamento = Departamento::cargar($this->idDepartamento);
+            $this->departamento = Division::cargar($this->idDepartamento);
         }
     }
 
@@ -61,7 +64,7 @@ class Trabajador extends Model
                 t.*
                 ,al.idTurno
                 ,COALESCE(tu.nombre,'') as turno
-                ,al.idDepartamento
+                ,al.idDivision
                 ,COALESCE(c.nombre,'') as cargo
                 ,al.idCargo
                 ,al.id as idAsignacionLaboral
@@ -206,7 +209,7 @@ class Trabajador extends Model
 
             // valida la existencia del departamento
 
-            $departamento = Departamento::cargar($this->idDepartamento);
+            $departamento = Division::cargar($this->idDepartamento);
             if(empty($departamento)){
                 throw new Exception("El departamento seleccionado no existe en la base de datos", self::SHOW_EXCEPTION);
             }
@@ -501,7 +504,7 @@ class Trabajador extends Model
     public function listraFiltro($print = true):array{
         try {
             $this->db->connect();
-            $query = "SELECT t.*, c.id as idCargo, c.nombre as cargo, c.nivel as cargoNivel , tu.id as idTurno, tu.nombre as turno, d.id as idDepartamento, d.nombre as departamento FROM trabajador as t join asignacion_laboral al on al.idTrabajador = t.id and al.esActual = 1 join cargo c on c.id = al.idCargo join turno tu on tu.id = al.idTurno join departamento d on d.id = al.idDepartamento where ";
+            $query = "SELECT t.*, c.id as idCargo, c.nombre as cargo, c.nivel as cargoNivel , tu.id as idTurno, tu.nombre as turno, d.id as idDepartamento, d.nombre as departamento FROM trabajador as t join asignacion_laboral al on al.idTrabajador = t.id and al.esActual = 1 join cargo c on c.id = al.idCargo join turno tu on tu.id = al.idTurno join division d on d.id = al.idDivision where ";
             $where ="";
             $list = [];
             $parametros = [];
@@ -531,7 +534,7 @@ class Trabajador extends Model
                 $parametros["turno"] = $this->turno;
             }
             if(isset($this->idDepartamento)){
-                $list[] = "idDepartamento = :idDepartamento";
+                $list[] = "idDivision = :idDepartamento";
                 $parametros["idDepartamento"] = $this->idDepartamento;
             }
             if(isset($this->cargoNivel)){
@@ -557,7 +560,7 @@ class Trabajador extends Model
             if(isset($this->db)) $this->db->disconnect();
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al listar a los trabajadores"
+                "message" => "Ocurrió un error al listar a los trabajadores"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage().":: Linea: ".$th->getLine();
@@ -612,7 +615,7 @@ class Trabajador extends Model
                 t.*
                 ,al.idTurno
                 ,tu.nombre as turno
-                ,al.idDepartamento
+                ,al.idDivision
                 ,c.nombre as cargo
                 ,al.id as idAsignacionLaboral
             FROM
@@ -682,7 +685,7 @@ class Trabajador extends Model
         return $this->fechaIngreso; 
     }
     public function getIdDepartamento() : int {
-        return ($this->departamento instanceof Departamento) ? $this->departamento->id : $this->idDepartamento?? "";
+        return ($this->departamento instanceof Division) ? $this->departamento->id : $this->idDepartamento?? "";
     }
     public function getEstado() : string {
         return $this->estado;
