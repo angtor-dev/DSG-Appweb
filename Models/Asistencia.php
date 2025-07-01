@@ -22,7 +22,7 @@ class Asistencia extends Model
     public function __construct() {
         parent::__construct();
         if (!empty($this->idDepartamento)) {
-            $this->departamento = Departamento::cargar($this->idDepartamento);
+            $this->departamento = Division::cargar($this->idDepartamento);
         }
     }
     /**
@@ -579,7 +579,7 @@ class Asistencia extends Model
                  fecha,
                  if(esAsistencia,horaEntrada,tipo) as entrada,
                  if(esAsistencia,horaSalida,descripcion) as salida,
-                 departamento,
+                 division,
                  turno,
                  if(esAsistencia, 'Asistencia', 'Inasistencia') as status
                  from vista_asistencias";
@@ -590,7 +590,7 @@ class Asistencia extends Model
                     "Fecha",
                     "Entrada",
                     "Salida",
-                    "Departamento",
+                    "Division",
                     "Turno",
                     "Estado"
                 ];
@@ -618,15 +618,15 @@ class Asistencia extends Model
             }
             else if($grupo == "departamentos"){
                 $querySelect = "SELECT 
-                    idDepartamento,
-                    departamento,
+                    idDivision,
+                    division,
                     COUNT(if(esAsistencia=0,1,NULL)) as inasitencias,
                     COUNT(if(esAsistencia=1,1,NULL)) as asistencias
                     from vista_asistencias";
-                $groupBy = " group by idDepartamento";
+                $groupBy = " group by idDivision";
                 $headerTable = [
                     "Id",
-                    "Departamento",
+                    "División",
                     "Inasistencias",
                     "Asistencias"
                 ];
@@ -655,7 +655,7 @@ class Asistencia extends Model
             ];
 
             if($idDepartamento != null) {
-                $where .= " and idDepartamento = :idDepartamento";
+                $where .= " and idDivision = :idDepartamento";
                 $parametros["idDepartamento"] = $idDepartamento;
             }
             if($turno != null) {
@@ -684,8 +684,15 @@ class Asistencia extends Model
            $this->disconectHandlerExeption();
             $respuesta = [
                 "success" => false,
-                "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al reportar asistencias")
+                "message" => "Error al reportar asistencias"
             ];
+
+            if(DEVELOPER_MODE){
+                $respuesta["message"] = $th->getMessage();
+                $respuesta["trace"] = $th->getTraceAsString();
+                $respuesta["line"] = $th->getFile()."::".$th->getLine();
+            }
+            
         }
 
         if($print) {
@@ -727,8 +734,8 @@ class Asistencia extends Model
                 $where .= " AND cedula = :cedula";
             }
             else if(!empty($this->idDepartamento)){
-                $query .= " fa.idDepartamento = :idDepartamento AND";
-                $where .= " AND idDepartamento = :idDepartamento";
+                $query .= " fa.idDivision = :idDepartamento AND";
+                $where .= " AND idDivision = :idDepartamento";
             }
 
             $query .= " 1 AND fa.fecha BETWEEN :inicio AND :fin GROUP BY mes";
