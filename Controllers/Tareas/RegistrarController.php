@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Cargar datos necesarios para el formulario
 
     $trabajadorObj = new Trabajador(); // mi vista te sigue cuando cambias de archivo 
-    $trabajadores = $trabajadorObj->listar(1);
+    $trabajadores = $trabajadorObj->listar(0);
 
     $departamentoObj = new Departamento();
     $departamentos = $departamentoObj->listar();

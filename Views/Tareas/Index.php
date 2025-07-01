@@ -23,6 +23,16 @@
                 <div>
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"
+                        data-bs-toggle="modal" data-bs-target="#modal-ordenes" data-backdrop="static"
+                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/Ordenes?modal=1">
+                        <i class="fa-solid fa-plus me-2"></i>
+                        Ordenes de trabajo
+                    </button>
+                </div>
+
+                <div>
+                    <button style="padding: .65rem 1.4rem;"
+                        class="btn btn-outline-light rounded-pill"
                         data-bs-toggle="modal" data-bs-target="#modal-estadistica"
                         data-bs-url="<?= LOCAL_DIR ?>/Tareas/ReporteA">
                         <i class="fa-solid fa-file-alt me-2"></i>
@@ -223,6 +233,7 @@
 <?php renderComponent('ModalOrden') ?>
 <?php renderComponent('ModalEvaluar') ?>
 <?php renderComponent('ModalDetalles') ?>
+<?php renderComponent('ModalOrdenes') ?>
 <?php renderComponent('ModalReporteA') ?>
 
 

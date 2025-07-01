@@ -55,10 +55,10 @@
                 <table class="table table-bordered table-sm mb-0">
                     <thead>
                         <tr>
-                            <th width="5%">#</th>
-                            <th width="35%">Nombre</th>
-                            <th width="30%">Cargo</th>
-                            <th width="30%">Firma</th>
+                            <th width="10%">#</th>
+                            <th width="45%">Nombre</th>
+                            <th width="45%">Cargo</th>
+                        
                         </tr>
                     </thead>
                     <tbody id="personal-lista">
@@ -114,7 +114,6 @@
                 <div class="text-center border p-2 mt-4">
                     <div class="mb-3 border-bottom pb-4">
                         <p class="mb-1"><strong>Responsable de Asignación</strong></p>
-                        <div class="firma-placeholder" style="height: 50px;"></div>
                         <p class="mb-0">Ing. Roberto Martínez</p>
                     </div>
                 </div>

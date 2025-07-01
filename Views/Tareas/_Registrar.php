@@ -147,13 +147,14 @@
                                             <?php foreach ($trabajadores as $trabajador): ?>
                                                 <option value="<?= $trabajador->id ?>" data-departamento="<?= $trabajador->departamento->id ?>">
                                                     <?= $trabajador->getNombreCompleto() ?> - <?= $trabajador->getCedula() ?>
-                                                    (<?= $trabajador->departamento->getNombre() ?? 'Sin departamento' ?>)
+                                                    (<?= $trabajador->departamento->getNombre() ?? 'Sin departamento' ?>) - <?=$trabajador->getCargo() ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
                                         <div class="invalid-feedback">Seleccione un supervisor</div>
                                     </div>
                                 </div>
+
                             </div>
 
                             <!-- Botón de siguiente -->
