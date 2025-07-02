@@ -1,4 +1,10 @@
-<?php /** @var array $lista */ ?>
+<?php /** 
+ * @var array $lista 
+ * @var Division[] $departamentos
+ *
+ * 
+ */
+?>
 
 <div class="panel-header">
     <div class="page-inner">
@@ -32,7 +38,7 @@
         				<div id="form-text-hasta" class="form-text invalid-feedback"></div>
         			</div>
         			<div class="col px-1">
-        				<label for="departamento" class="form-label">Departamento</label>
+        				<label for="departamento" class="form-label">División</label>
         				<select name="departamento" id="departamento" class="form-select">
         						<option value="">Todos</option>
         					<?php foreach ($departamentos as $departamento): ?>
@@ -57,7 +63,7 @@
         				<select name="agrupar" id="agrupar" class="form-select">
         					<option value=""></option>
         					<option value="trabajadores">Trabajadores</option>
-        					<option value="departamentos">Departamentos</option>
+        					<option value="departamentos">Divisiones</option>
         					<option value="turnos">Turnos</option>
         				</select>
         				<div id="form-text-agrupar" class="form-text invalid-feedback"></div>

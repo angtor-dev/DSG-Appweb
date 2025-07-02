@@ -3,6 +3,7 @@
 class Asistencia extends Model
 {
     public int|string $idDepartamento;
+    public int|string $idDivision;
     private string $turno;
     private string $fecha;
     private string $fechaIn; // hora de ingreso
@@ -10,7 +11,7 @@ class Asistencia extends Model
     private string $status;
     private string $idTrabajador;
     private string $idAsistencia;
-    public Departamento|string $departamento;
+    public Division|string $departamento;
     private array $trabajadores;
     // lista de acciones para validar
     const LISTAR_TRABAJADORES = 1;
@@ -21,8 +22,9 @@ class Asistencia extends Model
 
     public function __construct() {
         parent::__construct();
+        if(!empty($this->idDivision)) $this->idDepartamento = $this->idDivision;
         if (!empty($this->idDepartamento)) {
-            $this->departamento = Departamento::cargar($this->idDepartamento);
+            $this->departamento = Division::cargar($this->idDepartamento);
         }
     }
     /**
@@ -105,7 +107,7 @@ class Asistencia extends Model
                 throw new Exception($messages->departamento_invalido, self::SHOW_EXCEPTIONS);
             }
 
-            $stmt = $this->ejecutarStatement("SELECT id FROM departamento WHERE id = :departamento", ["departamento" => $this->idDepartamento]);
+            $stmt = $this->ejecutarStatement("SELECT id FROM division WHERE id = :departamento", ["departamento" => $this->idDepartamento]);
             
             if($stmt->rowCount() == 0) {
                 throw new Exception($messages->departamento_no_existe, self::SHOW_EXCEPTIONS);
@@ -166,117 +168,7 @@ class Asistencia extends Model
     }
 
 
-        /**
-         * Registra la asistencia de los trabajadores en la tabla asistencia y fechaasistencia
-         * @param bool $print Si es true imprime los resultados y no retorna nada
-         * @return array Un array con el resultado de la operacion
-         * @throws Exception Si ocurre un error al registrar la asistencia
-         */
-    public function registrarOld($print) : array {
-        try {
-            // Primero registrar la fecha de asistencia en la tabla fechaasistencia si no existe
-            $this->db->connect();
-            $this->esValido(self::REGISTRAR_ASISTENCIA);
-            $this->db->pdo()->beginTransaction();
-            $stmt = $this->db->pdo()->prepare("SELECT id FROM fechaasistencia WHERE idDepartamento = :idDepartamento AND fecha = :fecha AND turno = :turno");
-            $stmt->bindValue("idDepartamento", $this->idDepartamento);
-            $stmt->bindValue("fecha", $this->fecha);
-            $stmt->bindValue("turno", $this->turno);
-            $stmt->execute();
-            // TODO validar fields
-            // si no existe lo registramos
-            if (!$stmt->rowCount() > 0) {
-                $stmt = $this->db->pdo()->prepare("INSERT INTO fechaasistencia (idDepartamento, fecha, turno) VALUES (:idDepartamento, :fecha, :turno)");
-                $stmt->bindValue("idDepartamento", $this->idDepartamento);
-                $stmt->bindValue("fecha", $this->fecha);
-                $stmt->bindValue("turno", $this->turno);
-                $stmt->execute();
-                $idFechaAsistencia = $this->db->pdo()->lastInsertId();
-            }
-            else {
-                $idFechaAsistencia = $stmt->fetchColumn();
-            }
-    
-            // Ahora registrar las asistencias de los trabajadores en la tabla asistencia
-            foreach ($this->trabajadores as $trabajador) {
 
-                if (isset($trabajador['idAsistencia'] )) {
-
-                    // Si el trabajador ya tiene un registro de asistencia actualizarlo
-
-                    $trabajador['idAsistencia'] = trim($trabajador['idAsistencia']);
-                    if(!preg_match("/^\d+$/", $trabajador['idAsistencia'])) {
-                        throw new Exception("El id de asistencia no es valido");
-                    }
-                    $stmt = $this->db->pdo()->prepare("UPDATE asistencia SET fechaIn = :fechaIn, fechaOut = :fechaOut, `status` = :status WHERE id = :idAsistencia");
-                    $stmt->bindValue("fechaIn", ($trabajador['fechaIn'] !="")?$trabajador['fechaIn']:NULL);
-                    $stmt->bindValue("fechaOut", ($trabajador['fechaOut'] != "")?$trabajador['fechaOut']:NULL);
-                    $stmt->bindValue("status", ($trabajador['inasistencia'] !="")?$trabajador['inasistencia']:0);
-                    $stmt->bindValue("idAsistencia", $trabajador['idAsistencia']);
-                    $stmt->execute();
-                    $this->idAsistencia = $idAsistencia = $trabajador['idAsistencia'];
-                } else {
-                    // Si el trabajador no tiene un registro de asistencia crear
-                    $stmt = $this->db->pdo()->prepare("INSERT INTO asistencia (idTrabajador, idFechaAsistencia, fechaIn, fechaOut, `status`) VALUES (:idTrabajador, :idFechaAsistencia, :fechaIn, :fechaOut, :status)");
-                    $stmt->bindValue("idTrabajador", $trabajador['idTrabajador']);
-                    $stmt->bindValue("idFechaAsistencia", $idFechaAsistencia);
-                    $stmt->bindValue("fechaIn", ($trabajador['fechaIn'] !="")?$trabajador['fechaIn']:NULL);
-                    $stmt->bindValue("fechaOut", ($trabajador['fechaOut'] != "")?$trabajador['fechaOut']:NULL);
-                    $stmt->bindValue("status", ($trabajador['inasistencia'] !="")?$trabajador['inasistencia']:0);
-                    $stmt->execute();
-                    $this->idAsistencia = $idAsistencia = $this->db->pdo()->lastInsertId();
-                }
-    
-                // Si el trabajador tiene una inasistencia y si tiene o no una justificacion la registramos
-                if (intval($trabajador['inasistencia']) == 1) {
-                    $stmt = $this->db->pdo()->prepare("INSERT INTO justificacion (idAsistencias, tipo, observacion) VALUES (:idAsistencias, :tipo, :observacion)
-                    ON DUPLICATE KEY UPDATE tipo = :tipoUpdate, observacion = :observacionUpdate");
-                    $stmt->bindValue(":idAsistencias", $idAsistencia);
-                    $stmt->bindValue(":tipo", ($trabajador['justificacion'] !="")? intval($trabajador['justificacion']):1);
-                    $stmt->bindValue(":observacion", $trabajador['justificacion_descripcion']);
-                    $stmt->bindValue(":tipoUpdate", ($trabajador['justificacion'] !="")? intval($trabajador['justificacion']):1);
-                    $stmt->bindValue(":observacionUpdate", $trabajador['justificacion_descripcion']);
-                    $stmt->execute();
-                }
-                // si no tiene en el arreglo pasamos un delete a la justificacion
-                else{
-                    $stmt = $this->db->pdo()->prepare("DELETE FROM justificacion WHERE idAsistencias = :idAsistencias");
-                    $stmt->bindValue("idAsistencias", $idAsistencia);
-                    $stmt->execute();
-                }
-                        
-            }
-
-
-
-            $this->db->pdo()->commit();
-            $this->db->disconnect();
-            $response = [
-                "success" => true,
-                "message" => "Asistencia registrada con éxito"
-            ];
-    
-        } catch (\Throwable $th) {
-            if( 
-                isset($this->db) &&
-                $this->db->pdo() instanceof \PDO &&
-                $this->db->pdo()->inTransaction()
-            ){
-                $this->db->pdo()->rollBack();
-                $this->db->disconnect();
-            }
-            $response = [
-                "success" => false,
-                "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al registrar la asistencia"),
-                "Error" => $th->getMessage()." : linea: ".$th->getLine(),
-            ];
-        }
-        if ($print) {
-            echo json_encode($response);
-        }
-
-        return $response;
-    }
 
 
     public function registrar($print = true):array {
@@ -336,6 +228,9 @@ class Asistencia extends Model
                 $this->rollBack();
                 $this->beginTransaction();
             }
+            else {
+                Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con exito", $this->db->pdo());
+            }
 
             $this->commit();
             $this->db->disconnect();
@@ -376,7 +271,7 @@ class Asistencia extends Model
             JOIN asignacion_laboral al 
                 ON al.id = ai.idAsignacionLaboral
             WHERE 
-            fa.fecha = :fecha AND al.idTurno = :turno AND al.idDepartamento =:idDepartamento;";
+            fa.fecha = :fecha AND al.idTurno = :turno AND al.idDivision =:idDepartamento;";
 
             $parametros = [
                 "fecha" => $this->fecha,
@@ -463,7 +358,7 @@ class Asistencia extends Model
                 LEFT JOIN inasistencia i on i.idAsistencia_inasistencia = ai.id
                 LEFT JOIN asistencia a on a.idAsistencia_inasistencia = ai.id
 
-                WHERE fa.fecha = :fecha AND al.idTurno = :turno and al.idDepartamento = :idDepartamento;";
+                WHERE fa.fecha = :fecha AND al.idTurno = :turno and al.idDivision = :idDepartamento;";
 
             $parametros = [
                 "idDepartamento" => $this->idDepartamento,
@@ -485,7 +380,7 @@ class Asistencia extends Model
                         trabajador AS t
                     JOIN asignacion_laboral al ON
                         al.idTrabajador = t.id AND al.esActual = 1
-                    WHERE al.idTurno = :turno AND al.idDepartamento = :idDepartamento AND :fecha > t.fechaIngreso";
+                    WHERE al.idTurno = :turno AND al.idDivision = :idDepartamento AND :fecha > t.fechaIngreso";
 
             $trabajadoresRegistros = $this->ejecutar($query, $parametros);
 
@@ -523,8 +418,11 @@ class Asistencia extends Model
             $resp = [
                 "success" => false, 
                 "message" => "Error al obtener la lista de asistencias",
-                "error" => $th->getMessage()
             ];
+            if(DEVELOPER_MODE) {
+                $resp["error"] = $th->getMessage();
+                $resp["trace"] = $th->getTraceAsString();
+            }
 
             if($th->getCode() == self::SHOW_EXCEPTIONS) {
                 $resp["message"] = $th->getMessage();
@@ -576,7 +474,7 @@ class Asistencia extends Model
                  fecha,
                  if(esAsistencia,horaEntrada,tipo) as entrada,
                  if(esAsistencia,horaSalida,descripcion) as salida,
-                 departamento,
+                 division,
                  turno,
                  if(esAsistencia, 'Asistencia', 'Inasistencia') as status
                  from vista_asistencias";
@@ -587,7 +485,7 @@ class Asistencia extends Model
                     "Fecha",
                     "Entrada",
                     "Salida",
-                    "Departamento",
+                    "Division",
                     "Turno",
                     "Estado"
                 ];
@@ -615,15 +513,15 @@ class Asistencia extends Model
             }
             else if($grupo == "departamentos"){
                 $querySelect = "SELECT 
-                    idDepartamento,
-                    departamento,
+                    idDivision,
+                    division,
                     COUNT(if(esAsistencia=0,1,NULL)) as inasitencias,
                     COUNT(if(esAsistencia=1,1,NULL)) as asistencias
                     from vista_asistencias";
-                $groupBy = " group by idDepartamento";
+                $groupBy = " group by idDivision";
                 $headerTable = [
                     "Id",
-                    "Departamento",
+                    "División",
                     "Inasistencias",
                     "Asistencias"
                 ];
@@ -652,7 +550,7 @@ class Asistencia extends Model
             ];
 
             if($idDepartamento != null) {
-                $where .= " and idDepartamento = :idDepartamento";
+                $where .= " and idDivision = :idDepartamento";
                 $parametros["idDepartamento"] = $idDepartamento;
             }
             if($turno != null) {
@@ -681,8 +579,15 @@ class Asistencia extends Model
            $this->disconectHandlerExeption();
             $respuesta = [
                 "success" => false,
-                "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al reportar asistencias")
+                "message" => "Error al reportar asistencias"
             ];
+
+            if(DEVELOPER_MODE){
+                $respuesta["message"] = $th->getMessage();
+                $respuesta["trace"] = $th->getTraceAsString();
+                $respuesta["line"] = $th->getFile()."::".$th->getLine();
+            }
+            
         }
 
         if($print) {
@@ -724,8 +629,8 @@ class Asistencia extends Model
                 $where .= " AND cedula = :cedula";
             }
             else if(!empty($this->idDepartamento)){
-                $query .= " fa.idDepartamento = :idDepartamento AND";
-                $where .= " AND idDepartamento = :idDepartamento";
+                $query .= " fa.idDivision = :idDepartamento AND";
+                $where .= " AND idDivision = :idDepartamento";
             }
 
             $query .= " 1 AND fa.fecha BETWEEN :inicio AND :fin GROUP BY mes";
@@ -958,7 +863,7 @@ class Asistencia extends Model
         on al.id = ai.idAsignacionLaboral
     JOIN trabajador as t on t.id = al.idTrabajador
     JOIN turno as tu on tu.id = al.idTurno
-    JOIN departamento as d on d.id = al.idDepartamento
+    JOIN departamento as d on d.id = al.idDivision
     LEFT JOIN asistencia as a on a.idAsistencia_inasistencia = ai.id
     LEFT JOIN inasistencia as i on i.idAsistencia_inasistencia = ai.id;
 

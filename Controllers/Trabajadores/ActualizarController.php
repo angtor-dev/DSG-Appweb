@@ -5,7 +5,7 @@ requierePermiso(Modulo::TRABAJADORES, Permiso::REGISTRAR);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
-    $departamentoObj = new Departamento();
+    $departamentoObj = new Division();
     $departamentos = $departamentoObj->listar();
      if(!empty($_GET['cedula'])){
 

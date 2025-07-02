@@ -41,9 +41,9 @@
 		const turno = document.getElementById("turno").value;
 		const agrupar = document.getElementById("agrupar").value;
 
-
 		resp = await peticion("/ReporteAsistencia",{
 			method: "POST",
+			useLoader: "body",
 			headers: {
 				"Content-Type": "application/json"
 			},
@@ -53,9 +53,9 @@
 				departamento: departamento,
 				turno: turno,
 				agrupar: agrupar,
-				action: "consultar"
+				action: "consultar",
+				
 			}),
-			useLoader: "body",
 			before:() => {
 				control_enviar = true;
 			},
@@ -65,8 +65,12 @@
 
 		});
 
+		
+		
+
 
 		if(resp = parsearJson(resp)){
+			mostrarLoader("body", true);
 			if(resp.success){
 				// mostrar el reporte
 
@@ -99,15 +103,16 @@
 				})
 				thead.appendChild(tr);
 
-				data.forEach(dato => {
-					let tr = document.createElement("tr");
-					dato.forEach(dato => {
-						let td = document.createElement("td");
-						td.innerText = dato;
-						tr.appendChild(td);
-					})
-					tbody.appendChild(tr);
-				})
+
+				// data.forEach(dato => {
+				// 	let tr = document.createElement("tr");
+				// 	dato.forEach(dato => {
+				// 		let td = document.createElement("td");
+				// 		td.innerText = dato;
+				// 		tr.appendChild(td);
+				// 	})
+				// 	tbody.appendChild(tr);
+				// });
 				
 				tabla.appendChild(thead);
 				tabla.appendChild(tbody);
@@ -126,15 +131,19 @@
 				                url: LOCAL_DIR+'/public/lib/DataTables/datatables-spanish.json'
 				            },
 				            layout: {
-				                topStart: {
-				                    buttons: ['excel', 'pdf', 'print']
-				                },
 				                bottom1Start: {
 				                    pageLength: true
-				                }
+				                },
+								bottom1End: {
+									buttons: ['excel', 'pdf', 'print']
+								}
 				            },
 				            ordering: true,
-							responsive: true
+							responsive: true,
+							data: data,
+							initComplete: function () {
+								mostrarLoader("body", false);
+							}
 				        });
 				}
 
@@ -150,6 +159,7 @@
 				
 				//console.log(resp);
 			}else{
+				mostrarLoader("body", false);
 				mostrarError(resp.message);
 			}
 		}

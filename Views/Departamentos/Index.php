@@ -4,8 +4,8 @@
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Departamentos</h3>
-                <span class="opacity-75 mb-2">Gestiona los departamentos de la Dirección de Servicios Generales</span>
+                <h3 class="pb-2">Divisiones</h3>
+                <span class="opacity-75 mb-2">Gestiona las divisiones de la Dirección de Servicios Generales</span>
             </div>
             <?php if (tienePermiso(modulo::DEPARTAMENTOS, Permiso::REGISTRAR)): ?>
                 <div>
@@ -14,7 +14,7 @@
                         data-bs-toggle="modal" data-bs-target="#modal-generico"
                         data-bs-url="<?= LOCAL_DIR ?>/Departamentos/Registrar">
                         <i class="fa-solid fa-plus me-2"></i>
-                        Nuevo Departamento
+                        Nueva División
                     </button>
                 </div>
             <?php endif ?>
