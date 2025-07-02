@@ -7,7 +7,7 @@ $_POST = json_decode(file_get_contents("php://input"), true);
 
 
 
-$departamentos = (new Departamento())->listar();
+$departamentos = (new Division())->listar();
 if(!empty($_POST)) {
     
     if(isset($_POST['action']) && $_POST['action'] == "consultar") {

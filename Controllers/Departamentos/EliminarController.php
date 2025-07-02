@@ -2,7 +2,7 @@
 requiereAutenticacion();
 requierePermiso(Modulo::DEPARTAMENTOS, Permiso::ELIMINAR);
 
-$departamento = Departamento::cargar($_GET['id']);
+$departamento = Division::cargar($_GET['id']);
 
 if (empty($departamento)) {
     $_SESSION['errores'][] = "El área que intenta eliminar no existe";

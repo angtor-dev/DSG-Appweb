@@ -5,7 +5,7 @@
 <div class="modal-content">
         <div class="modal-header bg-white">
             <h5 class="modal-title my-2">
-                Actualizar área
+                Actualizar Division
             </h5>
         </div>
         <div class="modal-body">

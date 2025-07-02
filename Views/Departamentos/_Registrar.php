@@ -1,10 +1,10 @@
-<?php /** @var Departamento[] $departamentos */ ?>
+<?php /** @var Division[] $departamentos */ ?>
 
 <div class="modal-dialog modal-lg">
 <div class="modal-content">
         <div class="modal-header bg-white">
             <h5 class="modal-title my-2">
-                Registrar nueva área
+                Registrar Nueva Division
             </h5>
         </div>
         <div class="modal-body">

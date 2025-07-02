@@ -264,16 +264,20 @@ function mostrarLoader(element, show = true) {
         return false;
     }
     let loaderCount = (element.loaderCount || 0);
+    let elementIsBody = (element.tagName == document.body.tagName);
     if (show) {
         
         loaderCount++;
         element.loaderCount = loaderCount;
         if(element.querySelector(".loader")) return false;
-        let loader = document.createElement("div");
-        loader.className = "loader";
-
-        loader.setAttribute("role", "status");
-        loader.setAttribute("aria-hidden", "true");
+        //let loader = document.createElement("div");
+        let loader = crearElemento("div",{
+            class: "loader",
+            role: "status",
+            "aria-label": "loading",
+            "tabindex": "-1",
+        })
+        
         if(element.tagName == document.body.tagName) loader.classList.add("loader-body");
         element.appendChild(loader);
         if(element.classList.contains("position-relative")){
@@ -282,6 +286,13 @@ function mostrarLoader(element, show = true) {
         else{
             element.classList.add("position-relative");
         }
+        if(elementIsBody){
+            document.body.querySelector("main").setAttribute("inert","");
+        }
+        else{
+            element.setAttribute("inert","");
+        }
+        loader.focus();
     } else {
         loaderCount--;
         if(loaderCount <= 0) loaderCount = 0;
@@ -292,11 +303,23 @@ function mostrarLoader(element, show = true) {
 
         if(!element.querySelector(".loader")) return false;
         element.querySelector(".loader").remove();
-        if(element.havedPosition){
+        if(!element.havedPosition){
             element.classList.remove("position-relative");
             delete element.havedPosition;
         }
         delete element.loaderCount;
+        if(elementIsBody){
+            document.body.querySelector("main").removeAttribute("inert");
+        }
+        else{
+            element.removeAttribute("inert");
+        }
+        const firstFocusable = element ? element.querySelector('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])') : null;
+        if (firstFocusable) {
+            firstFocusable.focus();
+        } else {
+            document.body.focus();
+        }
     }
 }
 
