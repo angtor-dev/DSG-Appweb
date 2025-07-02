@@ -641,7 +641,7 @@ class Usuario extends Model
     }
 
     public function getCedula() : string {
-        return $this->cedula;
+        return $this->cedula ?? '';
     }
     
     public function getEstado() : int {
