@@ -660,6 +660,653 @@ $(document).ready(function () {
             } */
   });
 
+  //----------------------------------------------------MODAL ORDENES ----------------------------
+
+   $(document).on("show.bs.modal", "#modal-ordenes", function (e) {
+    const modal = $(this); // <<<<<< IMPORTANTE
+    const button = $(e.relatedTarget);
+    url = button.data("bs-url");
+    const valorId = button.data("valor");
+
+    //datatable 
+    
+
+    if (typeof url === "undefined") {
+      // Cargar el contenido del modal
+    } else {
+      $.ajax({
+        url: url,
+        method: "GET",
+        success: function (data) {
+          console.log(valorId);
+          modal.find(".modal-content").html(data);
+
+          cargarDatosParaAgrupacion();
+          
+         // obtenerEvaluarPorId(valorId);
+         // CargaModalComponentsGenerico(valorId);
+        },
+        error: function () {},
+      });
+    }
+    /* if (!url || url.indexOf('/') === -1) {
+                url = '/DSG-Appweb/Tareas/Orden';
+                return;
+            } */
+  });
+
+  function obtenerDatosTareasSeleccionadas(ids) {
+    return new Promise((resolve, reject) => {
+      console.log("asdas");
+        $.ajax({
+            url: "Tareas/Ordenes", // Ajusta esta ruta según tu controlador
+            type: "POST",
+            data: {
+                ids: ids.join(',') // Enviamos los IDs como cadena separada por comas
+            },
+            success: function(response) {
+                if (response.success) {
+                    console.log("Datos de las tareas:", response.data);
+                    resolve(response.data);
+                } else {
+                    mostrarError(response.message || "Error al obtener los datos de las tareas");
+                    reject(response.message);
+                }
+            },
+            error: function(xhr) {
+                mostrarError("Error del servidor al obtener los datos");
+                console.error(xhr.responseText);
+                reject(xhr.responseText);
+            }
+        });
+    });
+}
+
+// Función para obtener IDs seleccionados (ejemplo)
+function obtenerIdsSeleccionados() {
+    const selectedIds = [];
+    $('.tarea-checkbox:checked').each(function() {
+        selectedIds.push($(this).val());
+    });
+    return selectedIds;
+}
+
+// Función para mostrar loading (debes implementarla según tu UI)
+function mostrarLoading(mensaje) {
+    console.log(mensaje);
+    // Ejemplo con SweetAlert:
+    // Swal.fire({
+    //     title: mensaje,
+    //     allowOutsideClick: false,
+    //     didOpen: () => {
+    //         Swal.showLoading();
+    //     }
+    // });
+}
+
+// Función para ocultar loading
+function ocultarLoading() {
+    // Ejemplo con SweetAlert:
+    // Swal.close();
+}
+
+  function cargarDatosParaAgrupacion() {
+    // Mostrar carga
+  
+    $('#tabla-tareas-agrupar tbody').html('<tr><td colspan="7" class="text-center">Cargando tareas...</td></tr>');    
+    
+    $(document).ready(function() {
+    // Función auxiliar para clases de badge según estado
+    function getEstadoBadgeClass(estado) {
+        switch (estado.toLowerCase()) {
+            case 'activo': 
+            case 'activa': return 'bg-success';
+            case 'vencida': return 'bg-danger';
+            case 'evaluada': return 'bg-info';
+            case 'cancelado': 
+            case 'cancelada': return 'bg-secondary';
+            default: return 'bg-warning';
+        }
+    }
+
+    // Inicializar DataTable
+    const table = $('#tabla-tareas-agrupar').DataTable({
+        serverSide: false,
+        searching: true,
+        ordering: true,
+        paging: true,
+        language: {
+            url: "public/lib/DataTables/datatables-spanish.json",
+        },
+        columns: [
+            {
+                data: null,
+                orderable: false,
+                className: 'select-checkbox',
+                render: function(data, type, row) {
+                    return '<input type="checkbox" class="form-check-input tarea-checkbox" value="' + row.id + '" style="transform: scale(1.5);">';
+                }
+            },
+            { data: "id" },
+            { 
+                data: "personal_nombre",
+                render: function(data, type, row) {
+                    if ((!data || data === '') && row.personal && row.personal.length > 0) {
+                        return row.personal.map(p => p.nombre_completo).join(', ');
+                    }
+                    return data || 'Sin asignar';
+                }
+            },
+            { 
+                data: null,
+                render: function(data, type, row) {
+                    return (row.departamento || 'N/A') + '/' + (row.area || 'N/A');
+                }
+            },
+            { data: "descripcion" },
+            { data: "fecha" },
+            { 
+                data: "estado",
+                render: function(data, type, row) {
+                    return '<span class="badge ' + getEstadoBadgeClass(data) + '">' + data + '</span>';
+                }
+            }
+        ],
+        ajax: {
+            url: "Tareas/Ordenes?ajax=1",
+            dataSrc: "activo"
+        },
+        initComplete: function() {
+            // Inicializar tooltips
+            $('[data-bs-toggle="tooltip"]').tooltip();
+            
+            // Inicializar eventos
+            inicializarEventos();
+        }
+    });
+
+    // Función para inicializar eventos
+    function inicializarEventos() {
+        // Seleccionar/deseleccionar todas las tareas
+        $('#seleccionar-todo').change(function() {
+            const isChecked = $(this).prop('checked');
+            $('.tarea-checkbox').prop('checked', isChecked);
+            actualizarBotones();
+        });
+
+        // Botón "Seleccionar todas"
+        $('#btn-seleccionar-todas').click(function() {
+            $('.tarea-checkbox, #seleccionar-todo').prop('checked', true);
+            actualizarBotones();
+        });
+
+        // Botón "Limpiar selección"
+        $('#btn-limpiar-seleccion').click(function() {
+            $('.tarea-checkbox, #seleccionar-todo').prop('checked', false);
+            actualizarBotones();
+        });
+
+        // Checkbox individuales
+        $('#tabla-tareas-agrupar').on('change', '.tarea-checkbox', function() {
+            // Actualizar el checkbox "Seleccionar todo"
+            const allChecked = $('.tarea-checkbox:checked').length === $('.tarea-checkbox').length;
+            $('#seleccionar-todo').prop('checked', allChecked);
+            
+            actualizarBotones();
+        });
+
+        // Botón "Generar vista previa"
+        $('#btn-generar-preview').click(function() {
+            const selectedIds = obtenerIdsSeleccionados();
+            console.log("IDs seleccionados para vista previa:", selectedIds);
+            
+            // Aquí iría la lógica para generar la vista previa
+            // Por ahora solo mostramos en consola
+        });
+
+        // Botón "Imprimir selección"
+        $('#btn-imprimir-agrupadas').click(function() {
+            const selectedIds = obtenerIdsSeleccionados();
+            console.log(obtenerDatosTareasSeleccionadas(selectedIds));
+            generarOrdenesDeTrabajo(selectedIds);
+           
+            console.log("IDs seleccionados para imprimir:", selectedIds);
+            
+            // Aquí iría la lógica para imprimir
+            // Por ahora solo mostramos en consola
+        });
+    }
+
+    // Función para obtener los IDs de las tareas seleccionadas
+    function obtenerIdsSeleccionados() {
+        const selectedIds = [];
+        $('.tarea-checkbox:checked').each(function() {
+            selectedIds.push($(this).val());
+        });
+        return selectedIds;
+    }
+
+    // Función para actualizar el estado de los botones
+    function actualizarBotones() {
+        const hasSelection = $('.tarea-checkbox:checked').length > 0;
+        $('#btn-generar-preview').prop('disabled', !hasSelection);
+        
+        // Mostrar/ocultar botón de imprimir según selección
+        if (hasSelection) {
+            $('#btn-imprimir-agrupadas').removeClass('d-none');
+        } else {
+            $('#btn-imprimir-agrupadas').addClass('d-none');
+        }
+    }
+});
+
+
+function generarOrdenesDeTrabajo(id_tarea) {
+    const selectedIds = id_tarea;
+    
+    if (selectedIds.length === 0) {
+        mostrarError("Por favor seleccione al menos una tarea");
+        return;
+    }
+    
+    // Mostrar indicador de carga
+    mostrarLoading("Generando órdenes de trabajo...");
+    
+    obtenerDatosTareasSeleccionadas(selectedIds)
+        .then(tareas => {
+            generarVistaPreviaImpresion(tareas);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            mostrarError("Ocurrió un error al generar las órdenes");
+        })
+        .finally(() => {
+            // Ocultar indicador de carga
+            ocultarLoading();
+        });
+}
+
+// Función para generar y mostrar la vista previa de impresión
+function generarVistaPreviaImpresion(tareasSeleccionadas) {
+  // 1. Primero, identificar todos los equipos únicos (combinaciones de personas)
+const equiposUnicos = {};
+
+tareasSeleccionadas.forEach(tarea => {
+    // Crear una clave única para el equipo (orden alfabético de IDs para evitar duplicados)
+    const equipoKey = tarea.personal
+        .map(p => p.id)
+        .sort((a, b) => a - b)
+        .join('-');
+    
+    if (!equiposUnicos[equipoKey]) {
+        equiposUnicos[equipoKey] = {
+            personal: tarea.personal,
+            tareas: []
+        };
+    }
+    equiposUnicos[equipoKey].tareas.push(tarea);
+});
+
+// 2. Crear el HTML optimizado para impresión
+let htmlCompleto = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Órdenes de Trabajo Agrupadas por Equipos</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                padding: 2mm 5mm; 
+                font-size: 10px !important;
+            }
+            @page { 
+                size: A4 landscape; 
+                margin: 5mm;
+            }
+            .orden-trabajo { 
+                margin-bottom: 5mm;
+                padding: 2mm;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+            .compact-table {
+                font-size: 9px !important;
+            }
+            .compact-table th, .compact-table td { 
+                padding: 2px !important; 
+                line-height: 1.1;
+                border: 1px solid #ddd !important;
+            }
+            .no-print { display: none !important; }
+            .no-print { 
+                display: block !important;
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                z-index: 1000;
+            }
+            .info-box {
+                border: 1px solid #ddd;
+                padding: 2px 5px;
+                margin-right: 5px;
+                display: inline-block;
+            }
+            @media print {
+                body { 
+                    padding: 0;
+                    font-size: 9px !important;
+                }
+                .orden-trabajo {
+                    border: none;
+                    border-bottom: 1px dashed #ccc;
+                    margin-bottom: 3mm;
+                    padding-bottom: 3mm;
+                }
+                .no-print { display: none !important; }
+            }
+            .codigo-tarea {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                font-size: 8px;
+                color: #666;
+                background-color:rgb(255, 255, 255);
+                padding: 2px 5px;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+            }
+            .equipo-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+                margin-bottom: 5px;
+            }
+            .miembro-equipo {
+                background-color: #f0f0f0;
+                padding: 2px 5px;
+                border-radius: 3px;
+                font-size: 8px;
+            }
+            .tipo-orden {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                font-size: 8px;
+                color: #fff;
+                background-color: #6c757d;
+                padding: 2px 5px;
+                border-radius: 3px;
+            }
+        </style>
+    </head>
+    <body>
+        <button class="btn btn-primary no-print" onclick="window.print()">
+            <i class="fas fa-print"></i> Imprimir
+        </button>
+`;
+
+// 3. Generar las órdenes por equipo
+Object.values(equiposUnicos).forEach((equipo, index) => {
+    // Generar ID único para la orden con formato: YYYYMMDD-IDTAREA
+    const primeraTarea = equipo.tareas[0];
+    const fechaFormateada = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const ordenId = `ORD-${fechaFormateada}-${primeraTarea.id}`;
+    
+    // Obtener supervisor de la primera validación si existe
+    const supervisor = primeraTarea.validaciones && primeraTarea.validaciones.length > 0 
+        ? primeraTarea.validaciones[0].supervisor 
+        : 'Sin supervisor asignado';
+    
+    htmlCompleto += ` 
+        <div class="orden-trabajo" style="position: relative;">
+            <div class="codigo-tarea">ID: ${ordenId}</div>
+            <div class="tipo-orden">${primeraTarea.area_nombre}</div>
+            
+            <!-- Encabezado compacto en una sola línea -->
+            <div class="text-center mb-1">
+                <h4 class="mb-0" style="font-size: 12px;">DIRECCIÓN DE SERVICIOS GENERALES - ORDEN DE TRABAJO</h4>
+                <div style="font-size: 9px;">
+                    <span>Fecha: ${new Date().toLocaleDateString()}</span>
+                    <span> | </span>
+                    <span>Hora: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                </div>
+            </div>
+
+            <!-- Datos en cajas separadas -->
+            <div class="d-flex flex-wrap mb-1" style="font-size: 9px;">
+                <div class="info-box">
+                    <strong>Equipo:</strong> 
+                    <div class="equipo-list">
+                        ${equipo.personal.map(p => 
+                            `<span class="miembro-equipo">${p.nombre_completo} (${p.cargo} - ${p.departamento})</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                <div class="info-box"><strong>Área:</strong> ${primeraTarea.area_nombre}</div>
+                <div class="info-box"><strong>Depto:</strong> ${primeraTarea.departamento_nombre}</div>
+                <div class="info-box"><strong>Tipo:</strong> ${primeraTarea.es_comun ? 'Común' : 'Específica'}</div>
+            </div>
+
+            <!-- Tabla de tareas con columna de materiales -->
+            <div class="mb-1">
+                <table class="table compact-table mb-0">
+                    <thead>
+                        <tr class="bg-light">
+                            <th width="5%">#</th>
+                            <th width="45%">Descripción</th>
+                            <th width="20%">Materiales</th>
+                            <th width="15%">Fecha/Hora</th>
+                            <th width="15%">Firma</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${equipo.tareas.map((tarea, i) => `
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${tarea.descripcion}</td>
+                                <td>
+                                    ${tarea.materiales ? tarea.materiales.map(m => 
+                                        `${m.nombre} (${m.cantidad} ${m.medida})`).join(', ') : 'N/A'}
+                                </td>
+                                <td>${tarea.fecha_inicio_formateada}</td>
+                                <td></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Responsable simplificado -->
+            <div class="d-flex justify-content-between border-top pt-1" style="font-size: 9px;">
+                <div style="width: 65%">
+                    <strong>Observaciones:</strong>
+                    <div style="border-bottom: 1px dashed #ccc; min-height: 20px;"></div>
+                </div>
+                <div style="width: 30%">
+                    <div>
+                        <strong>Supervisor:</strong>
+                        <div>${supervisor}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+});
+
+htmlCompleto += `
+    </body>
+    </html>
+`;
+  // 4. Abrir ventana de vista previa (sin imprimir automáticamente)
+    const ventanaImpresion = window.open('', '_blank');
+    ventanaImpresion.document.write(htmlCompleto);
+    
+    // Esperar a que el contenido se cargue antes de imprimir
+   // Añadir Font Awesome para el icono de impresión
+    ventanaImpresion.document.write(`
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    `);
+    
+    ventanaImpresion.document.close();
+}
+
+// Ejemplo de uso con dos órdenes de trabajo
+function mostrarEjemplo() {
+    const tareasEjemplo = [
+        // Orden 1: Un solo técnico con una sola tarea simple
+        {
+            id: 501,
+            descripcion: "Cambio de bombillo en pasillo principal",
+            departamento: "Electricidad",
+            area: "Pasillo Central",
+            personal: [
+                {
+                    id: 50,
+                    nombre_completo: "Mario Silva",
+                    cargo: "Electricista"
+                }
+            ]
+        },
+        
+        // Orden 2: Un técnico con múltiples tareas en diferentes áreas
+        {
+            id: 502,
+            descripcion: "Reparación de ventana en oficina de gerencia",
+            departamento: "Carpintería",
+            area: "Oficinas Gerenciales",
+            personal: [
+                {
+                    id: 51,
+                    nombre_completo: "Carlos Andrade",
+                    cargo: "Carpintero"
+                }
+            ]
+        },
+        {
+            id: 503,
+            descripcion: "Instalación de estante en almacén",
+            departamento: "Carpintería",
+            area: "Almacén 2",
+            personal: [
+                {
+                    id: 51,
+                    nombre_completo: "Carlos Andrade",
+                    cargo: "Carpintero"
+                }
+            ]
+        },
+        
+        // Orden 3: Equipo de trabajo (2 personas) en una tarea compleja
+        {
+            id: 504,
+            descripcion: "Mantenimiento mayor a compresor de aire",
+            departamento: "Mantenimiento",
+            area: "Sala de Máquinas",
+            personal: [
+                {
+                    id: 52,
+                    nombre_completo: "Luisa Fernández",
+                    cargo: "Técnico Mecánico"
+                },
+                {
+                    id: 53,
+                    nombre_completo: "Jorge Rojas",
+                    cargo: "Ayudante Especializado"
+                }
+            ]
+        },
+        
+        // Orden 4: Técnico con tarea que requiere materiales especiales
+        {
+            id: 505,
+            descripcion: "Aplicación de pintura anti-corrosiva en estructura",
+            departamento: "Pintura",
+            area: "Área de Producción",
+            materiales: "Pintura epóxica, brochas, thinner",
+            personal: [
+                {
+                    id: 54,
+                    nombre_completo: "Ana Martínez",
+                    cargo: "Pintor Industrial"
+                }
+            ]
+        },
+        
+        // Orden 5: Técnico compartido entre departamentos
+        {
+            id: 506,
+            descripcion: "Reparación de puerta eléctrica",
+            departamento: "Electricidad",
+            area: "Entrada Principal",
+            personal: [
+                {
+                    id: 55,
+                    nombre_completo: "Pedro Vásquez",
+                    cargo: "Técnico Multifuncional"
+                }
+            ]
+        },
+        {
+            id: 507,
+            descripcion: "Ajuste de cerradura mecánica",
+            departamento: "Herrería",
+            area: "Oficina de Recursos Humanos",
+            personal: [
+                {
+                    id: 55,
+                    nombre_completo: "Pedro Vásquez",
+                    cargo: "Técnico Multifuncional"
+                }
+            ]
+        },
+        
+        // Orden 6: Equipo completo para proyecto grande
+        {
+            id: 508,
+            descripcion: "Instalación de nuevo sistema de ventilación",
+            departamento: "Mantenimiento",
+            area: "Planta Completa",
+            personal: [
+                {
+                    id: 56,
+                    nombre_completo: "Ricardo Mora",
+                    cargo: "Supervisor de Mantenimiento"
+                },
+                {
+                    id: 57,
+                    nombre_completo: "Sofía Jiménez",
+                    cargo: "Técnico en HVAC"
+                },
+                {
+                    id: 58,
+                    nombre_completo: "Diego Cordero",
+                    cargo: "Ayudante"
+                }
+            ]
+        }
+    ];
+
+    generarVistaPreviaImpresion(tareasEjemplo);
+}
+
+// En tu modal, llamarías esto al hacer clic en "Vista Previa":
+$('#btn-generar-preview').click(function() {
+  alert("Generando vista previa...");
+   /*  const selectedIds = obtenerIdsSeleccionados(); // Tu función para obtener IDs
+    const tareasSeleccionadas = obtenerTareasPorIds(selectedIds); // Obtener objetos completos
+    
+    if (tareasSeleccionadas.length === 0) {
+        alert("Selecciona al menos una tarea");
+        return;
+    }
+    
+    generarVistaPreviaImpresion(tareasSeleccionadas); */
+    mostrarEjemplo();
+});
+    
+}
+
   //------------------------------- PERIODICIDAD ---------------------------------------
   /*    $('#periodicidad').change(function() {
                 const periodicidad = $(this).val();
@@ -710,144 +1357,144 @@ $(document).ready(function () {
 
     //--------------------------------------------- INICIO EVALUACIÓN --------------------------------------------//
 
-    // Habilitar/deshabilitar sección de director según aprobación del supervisor
-    $("#aprobacion-supervisor").change(function () {
-      if ($(this).is(":checked")) {
-        // Mostrar el formulario del director y ocultar el mensaje
-        $("#contenido-director").show();
-        $("#mensaje-director").hide();
+      // Habilitar/deshabilitar sección de director según aprobación del supervisor
+      $("#aprobacion-supervisor").change(function () {
+        if ($(this).is(":checked")) {
+          // Mostrar el formulario del director y ocultar el mensaje
+          $("#contenido-director").show();
+          $("#mensaje-director").hide();
 
-        // Actualizar el badge
-        $("#seccion-director .badge")
-          .removeClass("bg-secondary")
-          .addClass("bg-info")
-          .text("Pendiente");
-      } else {
-        // Ocultar el formulario del director y mostrar el mensaje
-        $("#contenido-director").hide();
-        $("#mensaje-director").show();
+          // Actualizar el badge
+          $("#seccion-director .badge")
+            .removeClass("bg-secondary")
+            .addClass("bg-info")
+            .text("Pendiente");
+        } else {
+          // Ocultar el formulario del director y mostrar el mensaje
+          $("#contenido-director").hide();
+          $("#mensaje-director").show();
 
-        // Resetear los valores del formulario del director
-        $("#ponderacion-director").val("");
-        $("#comentarios-director").val("");
-        $("#aprobacion-director").prop("checked", false);
+          // Resetear los valores del formulario del director
+          $("#ponderacion-director").val("");
+          $("#comentarios-director").val("");
+          $("#aprobacion-director").prop("checked", false);
 
-        // Actualizar el badge
-        $("#seccion-director .badge")
-          .removeClass("bg-info")
-          .addClass("bg-secondary")
-          .text("No disponible");
-      }
-      actualizarProgreso();
-    });
+          // Actualizar el badge
+          $("#seccion-director .badge")
+            .removeClass("bg-info")
+            .addClass("bg-secondary")
+            .text("No disponible");
+        }
+        actualizarProgreso();
+      });
 
-    // Guardar evaluación
-    $("#btn-guardar-evaluacion").click(function () {
-      console.log("Guardar evaluación");
+      // Guardar evaluación
+      $("#btn-guardar-evaluacion").click(function () {
+        console.log("Guardar evaluación");
 
-      // Validación de confirmación
-      if (!$("#confirmacion-evaluacion").is(":checked")) {
-        mostrarError("Debe confirmar que la información es correcta");
-        return;
-      }
-
-      // Validar evaluación del supervisor si está pendiente
-      if ($("#seccion-supervisor .badge").text() === "Pendiente") {
-        if (!$("#ponderacion-supervisor").val()) {
-          mostrarError("Seleccione una ponderación para la evaluación del supervisor");
+        // Validación de confirmación
+        if (!$("#confirmacion-evaluacion").is(":checked")) {
+          mostrarError("Debe confirmar que la información es correcta");
           return;
         }
 
-        if (!$("#aprobacion-supervisor").is(":checked")) {
-          if (!confirm("La tarea no será aprobada. ¿Desea continuar?")) {
+        // Validar evaluación del supervisor si está pendiente
+        if ($("#seccion-supervisor .badge").text() === "Pendiente") {
+          if (!$("#ponderacion-supervisor").val()) {
+            mostrarError("Seleccione una ponderación para la evaluación del supervisor");
             return;
           }
-        }
-      }
 
-      // Validar evaluación del director si está habilitada
-      if (
-        $("#seccion-director").length &&
-        $("#seccion-director .badge").text() === "Pendiente"
-      ) {
-        if (!$("#ponderacion-director").val()) {
-          
-          mostrarError("Seleccione una ponderación para la evaluación del director");
-          return;
-        }
-
-        if (!$("#aprobacion-director").is(":checked")) {
-          if (
-            !confirm(
-              "La tarea no será aprobada definitivamente. ¿Desea continuar?"
-            )
-          ) {
-            return;
+          if (!$("#aprobacion-supervisor").is(":checked")) {
+            if (!confirm("La tarea no será aprobada. ¿Desea continuar?")) {
+              return;
+            }
           }
         }
-      }
 
-      // Si llegamos aquí, todas las validaciones pasaron
-      enviarEvaluacion();
-    });
+        // Validar evaluación del director si está habilitada
+        if (
+          $("#seccion-director").length &&
+          $("#seccion-director .badge").text() === "Pendiente"
+        ) {
+          if (!$("#ponderacion-director").val()) {
+            
+            mostrarError("Seleccione una ponderación para la evaluación del director");
+            return;
+          }
 
-    // Función para enviar la evaluación
-    function enviarEvaluacion() {
-      const formData = new FormData($("#form-evaluacion")[0]);
+          if (!$("#aprobacion-director").is(":checked")) {
+            if (
+              !confirm(
+                "La tarea no será aprobada definitivamente. ¿Desea continuar?"
+              )
+            ) {
+              return;
+            }
+          }
+        }
 
-      // Recolectar materiales dinámicamente (si existen)
-      const materiales = [];
-      if ($("#tabla-materialesDevueltos").length) {
-        $("#tabla-materialesDevueltos tbody tr").each(function () {
-          const row = $(this);
-          materiales.push({
-            id: row.data("id"),
-            utilizado: row.find("input").eq(1).val(),
-            devuelto: row.find("input").eq(2).val(),
+        // Si llegamos aquí, todas las validaciones pasaron
+        enviarEvaluacion();
+      });
+
+      // Función para enviar la evaluación
+      function enviarEvaluacion() {
+        const formData = new FormData($("#form-evaluacion")[0]);
+
+        // Recolectar materiales dinámicamente (si existen)
+        const materiales = [];
+        if ($("#tabla-materialesDevueltos").length) {
+          $("#tabla-materialesDevueltos tbody tr").each(function () {
+            const row = $(this);
+            materiales.push({
+              id: row.data("id"),
+              utilizado: row.find("input").eq(1).val(),
+              devuelto: row.find("input").eq(2).val(),
+            });
           });
+        }
+
+        console.log("Materiales a enviar:", materiales);
+
+        // Agregar datos adicionales al FormData
+        formData.append("materiales", JSON.stringify(materiales));
+        formData.append("idTarea", modalId);
+        console.log("ID de tarea:", modalId);
+
+        // Enviar la evaluación
+        $.ajax({
+          url: "Tareas/Evaluar",
+          type: "POST",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            if (response.success) {
+              mostrarExito(response.message);
+              $("#modal-evaluar-tarea").modal("hide");
+              if (typeof tablaActivas !== "undefined") {
+                tablaActivas.ajax.reload();
+              }
+            } else {
+              if (response.errors) {
+                response.errors.forEach(mostrarError);
+              } else {
+                mostrarError("Ocurrió un error al procesar la evaluación");
+              }
+            }
+          },
+          error: function (xhr, status, error) {
+            mostrarError("Error al enviar la evaluación");
+            console.error("Error en AJAX:", error);
+            console.log("Respuesta del servidor:", xhr.responseText);
+          },
         });
       }
 
-      console.log("Materiales a enviar:", materiales);
-
-      // Agregar datos adicionales al FormData
-      formData.append("materiales", JSON.stringify(materiales));
-      formData.append("idTarea", modalId);
-      console.log("ID de tarea:", modalId);
-
-      // Enviar la evaluación
-      $.ajax({
-        url: "Tareas/Evaluar",
-        type: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-          if (response.success) {
-            mostrarExito(response.message);
-            $("#modal-evaluar-tarea").modal("hide");
-            if (typeof tablaActivas !== "undefined") {
-              tablaActivas.ajax.reload();
-            }
-          } else {
-            if (response.errors) {
-              response.errors.forEach(mostrarError);
-            } else {
-              mostrarError("Ocurrió un error al procesar la evaluación");
-            }
-          }
-        },
-        error: function (xhr, status, error) {
-          mostrarError("Error al enviar la evaluación");
-          console.error("Error en AJAX:", error);
-          console.log("Respuesta del servidor:", xhr.responseText);
-        },
-      });
-    }
-
-    // Cargar datos al abrir el modal
-    //----------------------------------Revisar por si esto esta dando un problema
-    //cargarDatosTarea();
+      // Cargar datos al abrir el modal
+      //----------------------------------Revisar por si esto esta dando un problema
+      //cargarDatosTarea();
 
     //--------------------------------------------------------- FIN EVALUACIÓN --------------------------------------------//
   }
