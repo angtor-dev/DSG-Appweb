@@ -19,7 +19,8 @@
                         Nueva tarea
                     </button>
                 </div>
-
+            <?php endif ?>
+             <?php if (tienePermiso(Modulo::TAREAS, Permiso::CONSULTAR)): ?>    
                 <div>
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"
@@ -39,7 +40,6 @@
                         Reporte de estadistica
                     </button>
                 </div>
-
             <?php endif ?>
         </div>
     </div>

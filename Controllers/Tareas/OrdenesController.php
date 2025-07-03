@@ -1,6 +1,6 @@
 <?php
 requiereAutenticacion();
-requierePermiso(Modulo::TAREAS, Permiso::REGISTRAR);
+requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
 
 
 if (isset($_GET['ajax'])) {
