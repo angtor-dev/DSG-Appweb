@@ -194,7 +194,7 @@ function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null, string 
                 $html .= '
                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
                     <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                        data-bs-url="'.LOCAL_DIR.'/Areas/Actualizar?id='.$area->id.'">
+                        data-bs-url="'.LOCAL_DIR.'/'.$modulo.'/Actualizar?id='.$area->id.'">
                         <i class="fa-solid fa-fw fa-pen"></i>
                     </div>
                 </div>';
@@ -205,13 +205,12 @@ function ImprimirAcordeonesAnidados(array $models, ?int $padreId = null, string 
                     <div data-bs-toggle="modal" data-bs-target="#modal-eliminar"
                         data-bs-modelo="el área" 
                         data-bs-nombre="'.$area->getNombre().'"
-                        data-bs-url="'.LOCAL_DIR.'/Areas/Eliminar?id='.$area->id.'">
+                        data-bs-url="'.LOCAL_DIR.'/'.$modulo.'/Eliminar?id='.$area->id.'">
                         <i class="fa-solid fa-fw fa-trash"></i>
                     </div>
                 </div>';
             }
             $html .= '
-                    <i class="fa-solid fa-plus" style="color: var(--gris)"></i>
                 </div>
             </div>';
             if ($tieneSubAreas) {
