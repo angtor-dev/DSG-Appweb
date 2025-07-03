@@ -43,7 +43,9 @@
                 }
                 const selects2 = modal.querySelectorAll('.select2')
                 selects2.forEach(s => $(s).select2({
-                    dropdownParent: $('#modal-generico')
+                    dropdownParent: $('#modal-generico'),
+                    minimumResultsForSearch: 5,
+                    theme: 'bootstrap-5'
                 }))
 
                 if (typeof agregarValidaciones === 'function') {
