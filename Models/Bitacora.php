@@ -9,7 +9,7 @@ class Bitacora extends Model
     private string $fecha;
     private string|null $usuario_correo;
 
-    public ?Trabajador $usuario = null;
+    public ?Usuario $usuario = null;
 
     function __construct()
     {
@@ -18,9 +18,11 @@ class Bitacora extends Model
 
     public function listar(int $estado = null) : Array
     {
-        $query = "SELECT b.*, u.cedula AS 'usuario_cedula', u.correo as 'usuario_correo'
-            FROM bitacora as b
-            LEFT JOIN usuario as u ON b.idUsuario = u.id WHERE b.fecha >= DATE_SUB(NOW(), INTERVAL 6 MONTH) ";
+        $query = "SELECT b.*, u.correo AS 'usuario_correo'
+            FROM bitacora AS b
+            LEFT JOIN usuario AS u ON b.idUsuario = u.id
+            WHERE b.fecha >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+        ";
         $this->db->connectUser();
 
         $stmt = $this->db->pdo()->query($query);
@@ -34,10 +36,13 @@ class Bitacora extends Model
         $bitacoras = $stmt->fetchAll();
 
         foreach ($bitacoras as $bitacora) {
-            
-            $cedula = $bitacora->usuario_cedula;
-            if(!empty($cedula)){
-                $bitacora->usuario = Trabajador::cargarPorCedula($cedula);
+            if(!empty($bitacora->idUsuario)) {
+                $usuario = new Usuario();
+                $usuario->setterArray([
+                    'id' => $bitacora->idUsuario,
+                    'correo' => $bitacora->usuario_correo
+                ]);
+                $bitacora->usuario = $usuario;
             }
         }
         return $bitacoras;
