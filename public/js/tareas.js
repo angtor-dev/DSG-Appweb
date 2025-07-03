@@ -1,29 +1,147 @@
-function cancelarTarea(id, element) {
-  if (!confirm("¿Estás seguro de cancelar esta tarea?")) return;
+// Función para mostrar el modal de confirmación
+function mostrarModalCancelar(id, element) {
+    const modal = $('#modal-cancelar');
+    
+    // Configurar el modal
+    modal.find('.modelo').text('la tarea');
+    modal.find('.nombre').text(`ID: ${id}`);
+    
+    // Configurar el botón de aceptar
+    modal.find('.eliminar').off('click').on('click', function(e) {
+        e.preventDefault();
+        modal.modal('hide');
+        cancelarTarea(id, element);
+    });
+    
+    // Mostrar el modal
+    modal.modal('show');
+}
 
-  const icon = $(element).find("i");
-  icon.removeClass("fa-ban").addClass("fa-spinner fa-spin");
-  //----------------------------------- Cancelar tarea -----------------------
-  $.ajax({
-    url: "Tareas/Cancelar", // Asegúrate que esta ruta coincida con tu enrutamiento
-    type: "POST",
-    data: { id: id },
-    dataType: "json",
-    success: function (response) {
-      if (response.success) {
-        $(".datatable").DataTable().ajax.reload();
-        toastr.success(response.message);
-      } else {
-        toastr.error(response.message);
-      }
-    },
-    error: function (xhr) {
-      toastr.error("Error al contactar el servidor");
-    },
-    complete: function () {
-      icon.removeClass("fa-spinner fa-spin").addClass("fa-ban");
-    },
-  });
+function mostrarModalTerminar(id, element) {
+    const modal = $('#modal-terminar');
+    
+    // Configurar el modal
+    modal.find('.nombre').text(`ID: ${id}`);
+    
+    // Configurar el botón de confirmación
+    modal.find('.confirmar').off('click').on('click', function(e) {
+        e.preventDefault();
+        modal.modal('hide');
+        terminarTarea(id, element);
+    });
+    
+    // Mostrar el modal
+    modal.modal('show');
+}
+
+
+function terminarTarea(id, element) {
+    const icon = $(element).find("i");
+    icon.removeClass("fa-check-circle").addClass("fa-spinner fa-spin");
+    
+    $.ajax({
+        url: "Tareas",
+        type: "POST",
+        data: { 
+            id: id,
+            action: 'terminar' 
+        },
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    backgroundColor: "#28a745",
+                    stopOnFocus: true,
+                    className: "toastify-success"
+                }).showToast();
+            } else {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    backgroundColor: "#dc3545",
+                    stopOnFocus: true,
+                    className: "toastify-error"
+                }).showToast();
+            }
+        },
+        error: function (xhr) {
+            Toastify({
+                text: "Error al contactar el servidor",
+                duration: 3000,
+                close: true,
+                 gravity: "bottom",
+                position: "center",
+                backgroundColor: "#dc3545",
+                stopOnFocus: true,
+                className: "toastify-error"
+            }).showToast();
+        },
+        complete: function () {
+            icon.removeClass("fa-spinner fa-spin").addClass("fa-check-circle");
+            $(".datatable").DataTable().ajax.reload();
+        }
+    });
+}
+
+function cancelarTarea(id, element) {
+    const icon = $(element).find("i");
+    icon.removeClass("fa-ban").addClass("fa-spinner fa-spin");
+    
+    $.ajax({
+        url: "Tareas",
+        type: "POST",
+        data: { 
+            id: id,
+            action: 'cancelar' 
+        },
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    backgroundColor: "#28a745",
+                    stopOnFocus: true
+                }).showToast();
+            } else {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    backgroundColor: "#dc3545",
+                    stopOnFocus: true
+                }).showToast();
+            }
+        },
+        error: function (xhr) {
+            Toastify({
+                text: "Error al contactar el servidor",
+                duration: 3000,
+                close: true,
+                gravity: "bottom",
+                position: "right",
+                backgroundColor: "#dc3545",
+                stopOnFocus: true
+            }).showToast();
+        },
+        complete: function () {
+            icon.removeClass("fa-spinner fa-spin").addClass("fa-ban");
+            $(".datatable").DataTable().ajax.reload();
+        }
+    });
 }
 function renderButtons(row) {
   let buttons = '<div class="d-flex gap-2">';
@@ -40,10 +158,16 @@ function renderButtons(row) {
                         <i class="fa-solid fa-fw fa-eye"></i>
                     </div>
                 </div>
+
+              <!-- Terminar -->
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Terminar Tarea" 
+                    onclick="mostrarModalTerminar(${row.id}, this)">
+                    <i class="fa-solid fa-check-circle"></i>
+                </div>
                 
-                <!-- Cancelar -->
+             <!-- Cancelar -->
                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar Tarea" 
-                    onclick="cancelarTarea(${row.id}, this)">
+                    onclick="mostrarModalCancelar(${row.id}, this)">
                     <i class="fa-solid fa-ban"></i>
                 </div>
             </div>
@@ -72,9 +196,9 @@ function renderButtons(row) {
         buttons += `
             <div class="d-flex gap-2">
                 <!-- Ver Detalles -->
-                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalles">
-                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                        data-bs-url="Tareas/Detalle?id=${row.id}">
+                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalles">
+                    <div data-bs-toggle="modal" data-bs-target="#modal-orden"
+                        data-bs-url="Tareas/Orden?id=${row.id}" data-valor="${row.id}">
                         <i class="fa-solid fa-fw fa-eye"></i>
                     </div>
                 </div>
@@ -489,7 +613,7 @@ function mostrarModalOrden(tareaData) {
 }
 
 //-------------------------------------- Barra de progreso -----------------------
-// Función para actualizar la barra de progreso
+/* // Función para actualizar la barra de progreso
 function actualizarProgreso() {
   let progreso = 0;
   let mensaje = "";
@@ -526,7 +650,7 @@ function actualizarProgreso() {
       .removeClass("bg-warning bg-danger")
       .addClass("bg-success");
   }
-}
+} */
 
 //--------------------------------Comienza docuemtno -----------------
 
@@ -658,6 +782,12 @@ $(document).ready(function () {
                 url = '/DSG-Appweb/Tareas/Orden';
                 return;
             } */
+  });
+
+
+  // --------------------------------------------------MODAL CANCELAR------------------------------------
+  $(document).on("show.bs.modal", "#modal-cancelar", function (e) {
+   
   });
 
   //----------------------------------------------------MODAL ORDENES ----------------------------
@@ -1389,54 +1519,50 @@ $('#btn-generar-preview').click(function() {
       });
 
       // Guardar evaluación
-      $("#btn-guardar-evaluacion").click(function () {
-        console.log("Guardar evaluación");
+// Guardar evaluación
+$("#btn-guardar-evaluacion").click(function () {
+  console.log("Guardar evaluación");
 
-        // Validación de confirmación
-        if (!$("#confirmacion-evaluacion").is(":checked")) {
-          mostrarError("Debe confirmar que la información es correcta");
-          return;
-        }
+  // Validación de confirmación
+  if (!$("#confirmacion-evaluacion").is(":checked")) {
+    mostrarError("Debe confirmar que la información es correcta");
+    return;
+  }
 
-        // Validar evaluación del supervisor si está pendiente
-        if ($("#seccion-supervisor .badge").text() === "Pendiente") {
-          if (!$("#ponderacion-supervisor").val()) {
-            mostrarError("Seleccione una ponderación para la evaluación del supervisor");
-            return;
-          }
+  // Validar evaluación del supervisor si está pendiente
+  if ($("#seccion-supervisor .badge").text() === "Pendiente") {
+    if (!$("#ponderacion-supervisor").val()) {
+      mostrarError("Seleccione una ponderación para la evaluación del supervisor");
+      return;
+    }
 
-          if (!$("#aprobacion-supervisor").is(":checked")) {
-            if (!confirm("La tarea no será aprobada. ¿Desea continuar?")) {
-              return;
-            }
-          }
-        }
+    if (!$("#aprobacion-supervisor").is(":checked")) {
+      if (!confirm("La tarea no será aprobada. ¿Desea continuar?")) {
+        return;
+      }
+    }
+  }
 
-        // Validar evaluación del director si está habilitada
-        if (
-          $("#seccion-director").length &&
-          $("#seccion-director .badge").text() === "Pendiente"
-        ) {
-          if (!$("#ponderacion-director").val()) {
-            
-            mostrarError("Seleccione una ponderación para la evaluación del director");
-            return;
-          }
+  // Eliminamos la validación obligatoria para el director
+  // Solo validamos si la sección existe y está pendiente, pero no es obligatorio
+  if (
+    $("#seccion-director").length &&
+    $("#seccion-director .badge").text() === "Pendiente"
+  ) {
+    if (!$("#ponderacion-director").val()) {
+      if (!confirm("No ha seleccionado ponderación para el director. ¿Desea continuar sin esta evaluación?")) {
+        return;
+      }
+    } else if (!$("#aprobacion-director").is(":checked")) {
+      if (!confirm("La tarea no será aprobada definitivamente. ¿Desea continuar?")) {
+        return;
+      }
+    }
+  }
 
-          if (!$("#aprobacion-director").is(":checked")) {
-            if (
-              !confirm(
-                "La tarea no será aprobada definitivamente. ¿Desea continuar?"
-              )
-            ) {
-              return;
-            }
-          }
-        }
-
-        // Si llegamos aquí, todas las validaciones pasaron
-        enviarEvaluacion();
-      });
+  // Si llegamos aquí, todas las validaciones pasaron
+  enviarEvaluacion();
+});
 
       // Función para enviar la evaluación
       function enviarEvaluacion() {
@@ -1736,13 +1862,31 @@ $('#btn-generar-preview').click(function() {
       $("#personal").html(originalPersonalOptions);
       $("#supervisor").html(originalSupervisorOptions);
 
-      // Filtrar eliminando
-      $("#personal option")
-        .not('[data-departamento="' + idDepartamento + '"]')
-        .remove();
-      $("#supervisor option")
-        .not('[data-departamento="' + idDepartamento + '"]')
-        .remove();
+      // Filtrar PERSONAL (NO SUPERVISORES) por departamento
+      $("#personal option").each(function() {
+        const $option = $(this);
+        const deptMatch = $option.data('departamento') == idDepartamento;
+        const cargo = ($option.data('cargo') || '').toLowerCase();
+        const esSupervisor = cargo.includes('supervisor');
+        
+        // Eliminar si: no coincide con departamento O es supervisor
+        if (!deptMatch || esSupervisor) {
+          $option.remove();
+        }
+      });
+
+      // Filtrar SUPERVISORES por departamento
+      $("#supervisor option").each(function() {
+        const $option = $(this);
+        const deptMatch = $option.data('departamento') == idDepartamento;
+        const cargo = ($option.data('cargo') || '').toLowerCase();
+        const esSupervisor = cargo.includes('supervisor');
+        
+        // Eliminar si: no coincide con departamento O NO es supervisor
+        if (!deptMatch || !esSupervisor) {
+          $option.remove();
+        }
+      });
 
       // Actualizar Select2
       $("#personal, #supervisor").trigger("change.select2");

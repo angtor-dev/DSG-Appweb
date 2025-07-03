@@ -10,8 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $trabajadorObj = new Trabajador(); // mi vista te sigue cuando cambias de archivo 
     $trabajadores = $trabajadorObj->listar(0);
 
-    $departamentoObj = new Departamento();
+    $departamentoObj = new Division();
     $departamentos = $departamentoObj->listar();
+
+   $turnosOptions = Turno::getTurnosOptions();
     
     $areaObj = new Area();
     $areas = $areaObj->listar();

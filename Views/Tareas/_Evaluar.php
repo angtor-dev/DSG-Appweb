@@ -27,20 +27,7 @@
     <div class="modal-body">
         <!-- Progreso de Evaluación -->
         <form id="form-evaluacion">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h6 class="mb-3">Progreso de Evaluación</h6>
-                    <div class="progress" style="height: 30px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated"
-                            id="progreso-evaluacion" role="progressbar" style="width: 0%">
-                            0% completado
-                        </div>
-                    </div>
-                    <div class="mt-2" id="estado-evaluacion">
-                        <small class="text-muted">Falta evaluar por supervisor y director</small>
-                    </div>
-                </div>
-            </div>
+            
 
             <!-- Materiales utilizados -->
             <div class="card mb-4">
