@@ -18,7 +18,7 @@
                     <!--                     
                     <a href="#" class="link">Ajustes</a>
                     -->
-                    <a href="<?= LOCAL_DIR ?>/Perfil" class="link">Mi perfil</a>
+                    <a href="<?= LOCAL_DIR ?>/Perfil" class="link d-none">Mi perfil</a>
                     <a href="<?= LOCAL_DIR ?>/Login/Logout" class="link d-flex justify-content-between">
                         Cerrar sesión
                         <i class="fa-solid fa-power-off"></i>
