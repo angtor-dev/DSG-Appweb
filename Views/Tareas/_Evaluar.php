@@ -101,7 +101,7 @@
                     </div>
                 </div>
             </div>
-
+<?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?> 
             <div class="card mb-4" id="seccion-director">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">Evaluación del Director</h6>
@@ -140,6 +140,8 @@
                     </div>
                 </div>
             </div>
+
+             <?php endif ?>
             <!-- Confirmación -->
             <div class="card">
                 <div class="card-header bg-light">

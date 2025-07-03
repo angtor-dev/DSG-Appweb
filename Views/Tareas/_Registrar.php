@@ -113,7 +113,7 @@
                                         <label for="tipo-tarea" class="form-label fw-semibold">Tipo de Tarea</label>
                                         <select class="form-select" id="tipo-tarea" name="tipoTarea" required>
                                             <option value="normal">Normal</option>
-                                            <option value="comun">Común (Plantilla)</option>
+                                            <option value="diferida">Diferida</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
