@@ -26,7 +26,6 @@
         <div class="card-body p-4">
             <div class="table-responsive table-dsg">
                 <table class="datatable table table-striped table-hover" id="tabla-usuarios">
-                    <?= debug($usuarios,false) ?>
                     <thead>
                         <tr>
                             <th>Id</th>
