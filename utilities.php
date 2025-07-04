@@ -271,3 +271,18 @@ function checkHostBD(PDO $pdo, string $hostToCheck) : bool {
     $host = $pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS);
     return preg_match('/^'. $hostToCheck .'/', $host);
 }
+
+/**
+ * Carga las notificaciones del usuario en la sesión
+ **/
+function cargarNotificacionesEnSesion() : void {
+    if (!isset($_SESSION['usuario']) || !$_SESSION['usuario'] instanceof Usuario) {
+        $_SESSION['notificaciones'] = [];
+        return;
+    }
+    
+    /** @var Usuario */
+    $usuarioSesion = $_SESSION['usuario'];
+    $objNotificacion = new Notificacion();
+    $_SESSION['notificaciones'] = $objNotificacion->cargarNotificaciones($usuarioSesion->id);
+}

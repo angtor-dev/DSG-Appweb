@@ -12,7 +12,7 @@ class Notificacion extends Model
         $query = "INSERT INTO notificacion (idUsuario, titulo, descripcion) 
                   VALUES (:idUsuario, :titulo, :descripcion)";
         try {
-            $this->db->connect();
+            $this->db->connectUser();
             $stmt = $this->db->pdo()->prepare($query);
             $stmt->bindValue(':idUsuario', $idUsuario, \PDO::PARAM_INT);
             $stmt->bindValue(':titulo', 'Notificación', \PDO::PARAM_STR);
@@ -53,7 +53,7 @@ class Notificacion extends Model
     {
         $query = "SELECT * FROM notificacion WHERE idUsuario = :idUsuario ORDER BY fechaCreacion DESC";
         try {
-            $this->db->connect();
+            $this->db->connectUser();
             $stmt = $this->db->pdo()->prepare($query);
             $stmt->bindValue(':idUsuario', $idUsuario, \PDO::PARAM_INT);
             $stmt->execute();

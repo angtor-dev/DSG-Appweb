@@ -185,6 +185,21 @@ class Entrada extends Model
                 $stmtDetalle->bindValue("idArticulo", $detalle->idArticulo);
                 $stmtDetalle->bindValue("cantidad", $detalle->getCantidad());
                 $stmtDetalle->execute();
+
+                // Notificar cuando se agota un artículo
+                $articuloQuery = "SELECT cantidad, nombre FROM articulo WHERE id = :idArticulo";
+                $articuloStmt = $this->db->pdo()->prepare($articuloQuery);
+                $articuloStmt->bindValue("idArticulo", $detalle->idArticulo, PDO::PARAM_INT);
+                $articuloStmt->execute();
+                $articulo = $articuloStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($articulo && isset($articulo['cantidad']) && (int)$articulo['cantidad'] === 0) {
+                    $notificacion = new Notificacion();
+                    $usuarios = (new Usuario())->listarDBUser();
+                    foreach ($usuarios as $usuario) {
+                        $notificacion->notificarUsuario($usuario->id, "El artículo ".$articulo['nombre']." se ha agotado");
+                    }
+                }
             }
 
             $this->commit();
