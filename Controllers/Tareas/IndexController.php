@@ -2,7 +2,6 @@
 requiereAutenticacion();
 requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
 
-// Endpoint para AJAX
 if (isset($_GET['ajax'])) {
     header('Content-Type: application/json');
     
@@ -11,16 +10,16 @@ if (isset($_GET['ajax'])) {
     
     foreach ($estados as $estado) {
         $tareas = (new Tarea())->listarPorEstado($estado);
-        $datos[$estado] = array_map(function($tarea) {
-            return [
-                'id' => $tarea->id,
-                'area' => $tarea->area ? $tarea->area->getNombre() : '',
-                'departamento' => $tarea->departamento ? $tarea->departamento->getNombre() : '',
-                'descripcion' => htmlspecialchars($tarea->descripcion),
-                'fecha' => date('d/m/Y H:i', strtotime($tarea->fechaCreacion)),
-                'estado' => $tarea->getEstado()
-            ];
-        }, $tareas);
+       $datos[$estado] = array_map(function($tarea) {
+    return [
+        'id' => $tarea['id'],
+        'area' => $tarea['area_nombre'] ?? '',
+        'departamento' => $tarea['departamento_nombre'] ?? '',
+        'descripcion' => htmlspecialchars($tarea['descripcion']),
+        'fecha' => date('d/m/Y H:i', strtotime($tarea['fechaCreacion'])),
+        'estado' => $tarea['estado_tarea']
+    ];
+}, $tareas);
     }
     
     echo json_encode($datos);

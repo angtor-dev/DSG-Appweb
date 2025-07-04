@@ -269,8 +269,8 @@ function mostrarModalEvaluacion(tareaData) {
   const tbody = $("#tabla-materialesDevueltos tbody");
   tbody.empty(); // Limpiar tabla antes de llenar
 
-  if (tareaData.tarea.materiales && tareaData.tarea.materiales.length > 0) {
-    tareaData.tarea.materiales.forEach((material, index) => {
+  if (tareaData.tarea.materialestarea && tareaData.tarea.materialestarea.length > 0) {
+    tareaData.tarea.materialestarea.forEach((material, index) => {
       const unidad = material.medida_nombre || "";
       const esDecimal = [
         "m",
@@ -347,9 +347,9 @@ function mostrarModalDetalle(tareaData) {
     $("#detalle-id").text(tarea.id);
     $("#detalle-area").text(tarea.area_nombre);
     $("#detalle-departamento").text(tarea.departamento_nombre);
-    $("#detalle-descripcion").text(tarea.descripcion);
-    $("#detalle-fecha").text(new Date(tarea.fechaCreacion).toLocaleString());
-    $("#detalle-estado").text(tarea.estado_tarea.charAt(0).toUpperCase() + tarea.estado_tarea.slice(1));
+    $("#detalle-descripcion").text(tarea.descripcion_tarea);
+    $("#detalle-fecha").text(tarea.fecha_inicio_tarea);
+   
 
     // 2. Mostrar personal asignado y supervisor
     const $personalList = $("#detalle-personal");
@@ -383,8 +383,8 @@ function mostrarModalDetalle(tareaData) {
     const $materialesList = $("#detalle-materiales");
     $materialesList.empty();
     
-    if (tarea.materiales && tarea.materiales.length > 0) {
-        tarea.materiales.forEach(material => {
+    if (tarea.materialestarea && tarea.materialestarea.length > 0) {
+        tarea.materialestarea.forEach(material => {
             const devolucionInfo = material.devolucion === 1 ? 
                 `<span class="text-success">Devolución: ${material.cantidadDevolucion}</span>` : 
                 '<span class="text-danger">Sin devolución</span>';
@@ -410,34 +410,47 @@ function mostrarModalDetalle(tareaData) {
     const $evaluacionSection = $("#detalle-comentarios");
     $evaluacionSection.empty();
     
-    if (tarea.evaluacion) {
+    if (tarea.evaluacion_tarea) {
+        const evaluacionSupervisor = tarea.evaluacion_tarea.evaluacion_supervisor;
+        const evaluacionDirector = tarea.evaluacion_tarea.evaluacion_director;
+        const fecha = new Date(tarea.evaluacion_tarea.fecha_evaluacion_supervisor).toLocaleString();
+        const observaciones = tarea.evaluacion_tarea.comentario_supervisor || 'Ninguno';
+        
         let evaluacionHTML = `
-            <div class="card mb-3">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">Evaluación del Supervisor</h6>
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">Evaluación del Supervisor</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>${formatPonderacion(evaluacionSupervisor)}</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p><strong>Ponderación:</strong> ${formatPonderacion(tarea.evaluacion.evaluacion_supervisor)}</p>
-                    <p><strong>Comentarios:</strong> ${tarea.evaluacion.comentario_supervisor || 'Ninguno'}</p>
-                    <p><strong>Fecha:</strong> ${new Date(tarea.evaluacion.fecha_evaluacion_supervisor).toLocaleString()}</p>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Evaluación del Director</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>${evaluacionDirector ? formatPonderacion(evaluacionDirector) : 'Ninguna'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Información adicional</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Fecha:</strong> ${fecha}</p>
+                            <p><strong>Observaciones:</strong> ${observaciones}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
-        
-        if (tarea.evaluacion.evaluacion_director) {
-            evaluacionHTML += `
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h6 class="mb-0">Evaluación del Director</h6>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Ponderación:</strong> ${formatPonderacion(tarea.evaluacion.evaluacion_director)}</p>
-                        <p><strong>Comentarios:</strong> ${tarea.evaluacion.comentario_director || 'Ninguno'}</p>
-                        <p><strong>Fecha:</strong> ${new Date(tarea.evaluacion.fecha_evaluacion_director).toLocaleString()}</p>
-                    </div>
-                </div>
-            `;
-        }
         
         $evaluacionSection.html(evaluacionHTML);
     } else {
@@ -529,85 +542,79 @@ function obtenerDetallePorId(idTarea) {
 
 function mostrarModalOrden(tareaData) {
   const modal = $("#modal-orden");
-
-  // Cargar plantilla base primero
+  
   modal.find(".modal-content").load("Tareas/Orden", function () {
-    // Fecha y hora
-    const fechaHora = tareaData.data.tarea.fechaCreacion; // "2025-05-28 18:35:40"
+    // Verificar si los datos necesarios existen
+    if (!tareaData.data || !tareaData.data.tarea) {
+      console.error("Datos de tarea no encontrados");
+      return;
+    }
+
+    const tarea = tareaData.data.tarea;
+
+    // Fecha y hora - usar fecha actual si no viene en los datos
+    const fechaHora = tarea.fechaCreacion || new Date().toISOString().replace('T', ' ').substring(0, 19);
     const [fecha, hora] = fechaHora.split(" ");
 
     // Insertar datos básicos
     $("#orden-fecha").text(fecha);
     $("#orden-hora").text(hora);
-    $("#orden-departamento").text(tareaData.data.tarea.departamento_nombre);
-    $("#orden-area").text(tareaData.data.tarea.area_nombre);
-    $("#orden-descripcion").text(tareaData.data.tarea.descripcion);
-    $("#orden-observaciones").val(tareaData.data.tarea.observaciones || "");
+    $("#orden-inicio").text(tarea.fecha_inicio_tarea || "No especificado");
+    $("#orden-departamento").text(tarea.departamento_nombre || "No especificado");
+    $("#orden-area").text(tarea.area_nombre || "No especificado");
+    $("#orden-descripcion").text(tarea.descripcion_tarea || "No hay descripción");
+    $("#orden-observaciones").val(tarea.observaciones || "");
 
     // Personal asignado
     let personalHtml = "";
-    if (
-      tareaData.data.tarea.personal &&
-      tareaData.data.tarea.personal.length > 0
-    ) {
-      tareaData.data.tarea.personal.forEach((persona, index) => {
+    if (tarea.personal && tarea.personal.length > 0) {
+      tarea.personal.forEach((persona, index) => {
         personalHtml += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${persona.nombre} ${persona.apellido}</td>
-                                <td>${persona.departamento}</td>
-                                <td class="firma-placeholder" style="height: 30px;"></td>
-                            </tr>
-                        `;
+          <tr>
+            <td>${index + 1}</td>
+            <td>${persona.nombre || ''} ${persona.apellido || ''}</td>
+            <td>${persona.cargo || persona.departamento || ''}</td>
+          </tr>
+        `;
       });
+    } else {
+      personalHtml = `<tr><td colspan="3">No hay personal asignado</td></tr>`;
     }
     $("#personal-lista").html(personalHtml);
 
-    // Materiales y descripción - llenar tabla tareas-lista
+    // Tareas y materiales
     let tareasHtml = "";
-    // Como la descripción es única, la colocamos primero con índice 1
     tareasHtml += `
-                    <tr>
-                        <td>1</td>
-                        <td>${tareaData.data.tarea.descripcion}</td>
-                        <td>
-                            <ul class="list-unstyled mb-0">
-                `;
+      <tr>
+        <td>1</td>
+        <td>${tarea.descripcion_tarea || "No hay descripción de tarea"}</td>
+        <td>
+          <ul class="list-unstyled mb-0">
+    `;
 
-    if (
-      tareaData.data.tarea.materiales &&
-      tareaData.data.tarea.materiales.length > 0
-    ) {
-      tareaData.data.tarea.materiales.forEach((material) => {
-        tareasHtml += `<li>${material.cantidad} x ${material.nombre}</li>`;
+    if (tarea.materialestarea && tarea.materialestarea.length > 0) {
+      tarea.materialestarea.forEach((material) => {
+        tareasHtml += `<li>${material.cantidad || 0} x ${material.nombre || 'Material'}</li>`;
       });
     } else {
       tareasHtml += `<li>No hay materiales asignados.</li>`;
     }
 
     tareasHtml += `
-                            </ul>
-                        </td>
-                    </tr>
-                `;
-
+          </ul>
+        </td>
+      </tr>
+    `;
     $("#tareas-lista").html(tareasHtml);
 
-    // Supervisor (puede ser array con 1 elemento)
-    if (
-      tareaData.data.tarea.supervisor &&
-      tareaData.data.tarea.supervisor.length > 0
-    ) {
-      const sup = tareaData.data.tarea.supervisor[0];
-      // Actualiza el texto en el área de supervisor (por ejemplo, con id supervisor-nombre)
-      $(".firma-placeholder")
-        .next("p.mb-0")
-        .text(` ${sup.nombre} ${sup.apellido}`);
+    // Supervisor
+    if (tarea.supervisor && tarea.supervisor.length > 0) {
+      const sup = tarea.supervisor[0];
+      $("#orden-responsable").text(`${sup.nombre || ''} ${sup.apellido || ''}`);
     } else {
-      $(".firma-placeholder").next("p.mb-0").text("Supervisor no asignado");
+      $("#orden-responsable").text("Supervisor no asignado");
     }
 
-    // Mostrar el modal
     modal.modal("show");
   });
 }
@@ -1601,6 +1608,7 @@ $("#btn-guardar-evaluacion").click(function () {
               $("#modal-evaluar-tarea").modal("hide");
               if (typeof tablaActivas !== "undefined") {
                 tablaActivas.ajax.reload();
+              $("#modal-evaluar").modal("hide");
               }
             } else {
               if (response.errors) {

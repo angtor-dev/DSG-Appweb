@@ -14,35 +14,23 @@
         </div>
 
         <!-- Datos generales compactos -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="mb-3">
+        <div class="d-flex justify-content-center mb-4">
+            <div class="col-md-3 mx-2">
+                <div class="mb-3 text-center">
                     <label class="form-label"><strong>Departamento:</strong></label>
                     <div class="border-bottom pb-1" id="orden-departamento"></div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="mb-3">
+            <div class="col-md-3 mx-2">
+                <div class="mb-3 text-center">
                     <label class="form-label"><strong>Área:</strong></label>
                     <div class="border-bottom pb-1" id="orden-area"></div>
                 </div>
             </div>
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label"><strong>Turno:</strong></label>
-                    <div class="border-bottom pb-1" id="orden-turno"></div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="mb-3">
+            <div class="col-md-2 mx-2">
+                <div class="mb-3 text-center">
                     <label class="form-label"><strong>Fecha Inicio:</strong></label>
                     <div class="border-bottom pb-1" id="orden-inicio"></div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label"><strong>Ubicación:</strong></label>
-                    <div class="border-bottom pb-1" id="orden-ubicacion"></div>
                 </div>
             </div>
         </div>

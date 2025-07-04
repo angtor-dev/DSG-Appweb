@@ -27,8 +27,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'success' => true,
             'data' => [
                 'id' => $idTarea,
-                'tarea' => $tareaCompleta,
-                'redirect' => 'Tareas/Orden/' . $idTarea
+                'tarea' => $tareaCompleta
             ]
         ]);
     } else {
