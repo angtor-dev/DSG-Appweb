@@ -122,6 +122,12 @@
                             Ajustes
                         </a>
                     <?php endif ?>
+                    <?php if (tienePermiso(Modulo::NOTASENTREGA, Permiso::CONSULTAR)): ?>
+                        <a href="<?= LOCAL_DIR ?>/Inventario/NotasEntrega"
+                            class="<?= strtolower($uriParts[1]) == "notasentrega" ? "active" : "" ?>">
+                            Notas de Entrega
+                        </a>
+                    <?php endif ?>
                     <?php if (tienePermiso(Modulo::MOVIMIENTOS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Movimientos"
                             class="<?= strtolower($uriParts[1]) == "movimientos" ? "active" : "" ?>">
