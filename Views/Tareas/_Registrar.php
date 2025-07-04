@@ -109,7 +109,7 @@
                             <div class="mb-4">
                                 <h5 class="text-primary mb-3"><i class="fa-solid fa-users me-2"></i>Asignación</h5>
                                 <div class="row g-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-6" style="display: none;">
                                         <label for="tipo-tarea" class="form-label fw-semibold">Tipo de Tarea</label>
                                         <select class="form-select" id="tipo-tarea" name="tipoTarea" required>
                                             <option value="normal">Normal</option>

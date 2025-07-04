@@ -26,7 +26,7 @@
                         class="btn btn-outline-light rounded-pill"
                         data-bs-toggle="modal" data-bs-target="#modal-ordenes" data-backdrop="static"
                         data-bs-url="<?= LOCAL_DIR ?>/Tareas/Ordenes?modal=1">
-                        <i class="fa-solid fa-plus me-2"></i>
+                        <i class="fa-solid fa-print me-2"></i>
                         Ordenes de trabajo
                     </button>
                 </div>
@@ -46,33 +46,33 @@
 </div>
 <div class="page-inner mt--5">
     <div class="card border-0 box-shadow-alt">
-        <div class=" row card-body p-4">
-            <div class="col">
-                <div class="card border">
-                    <div class="card-body justify-content-center align-items-center d-flex flex-column">
-                        <h4 class="card-title">2</h4>
-                        <p class="card-text">Tareas activas</p>
-                    </div>
+            <div class="row card-body p-4">
+        <div class="col">
+            <div class="card border">
+                <div class="card-body justify-content-center align-items-center d-flex flex-column">
+                    <h4 class="card-title"><?= $conteoTareas['activo'] ?></h4>
+                    <p class="card-text">Tareas activas</p>
                 </div>
             </div>
-            <div class="col">
-                <div class="card border">
-                    <div class="card-body justify-content-center align-items-center d-flex flex-column">
-                        <h4 class="card-title">7</h4>
-                        <p class="card-text">Tareas Vencidas</p>
-                    </div>
+        </div>
+        <div class="col">
+            <div class="card border">
+                <div class="card-body justify-content-center align-items-center d-flex flex-column">
+                    <h4 class="card-title"><?= $conteoTareas['vencida'] ?></h4>
+                    <p class="card-text">Tareas Vencidas</p>
                 </div>
             </div>
-            <div class="col">
-                <div class="card border">
-                    <div class="card-body justify-content-center align-items-center d-flex flex-column">
-                        <h4 class="card-title">2</h4>
-                        <p class="card-text">Tareas Canceladas</p>
-                    </div>
+        </div>
+        <div class="col">
+            <div class="card border">
+                <div class="card-body justify-content-center align-items-center d-flex flex-column">
+                    <h4 class="card-title"><?= $conteoTareas['cancelado'] ?></h4>
+                    <p class="card-text">Tareas Canceladas</p>
                 </div>
             </div>
         </div>
     </div>
+ </div>
     <div class="card border-0 box-shadow-alt">
         <div class="card-body p-4">
             <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
@@ -89,10 +89,6 @@
                     <button class="nav-link" id="evaluada-tab" data-bs-toggle="tab" data-bs-target="#evaluada-tab-pane" type="button" role="tab" aria-controls="evaluada-tab-pane" aria-selected="false">Evaluadas</button>
                 </li>
                
-                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="diferida-tab" data-bs-toggle="tab" data-bs-target="#diferida-tab-pane" type="button" role="tab" aria-controls="diferida-tab-pane" aria-selected="false">DIferidas</button>
-                </li>
-
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
@@ -178,26 +174,7 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="comun-tab-pane" role="tabpanel" aria-labelledby="comun-tab" tabindex="0">
-                <div class="tab-pane fade" id="diferida-tab-pane" role="tabpanel" aria-labelledby="diferida-tab" tabindex="0">
-                    <div class="table-responsive table-dsg">
-                        <table class="datatable table table-striped table-hover" id="tabla-diferida">
-                            <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Area</th>
-                                    <th>Departamento</th>
-                                    <th>Descripcion</th>
-                                    <th>Fecha</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+               
 
             </div>
 

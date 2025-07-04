@@ -1530,7 +1530,7 @@ $('#btn-generar-preview').click(function() {
 $("#btn-guardar-evaluacion").click(function () {
   console.log("Guardar evaluación");
 
-  // Validación de confirmación
+ /*  // Validación de confirmación
   if (!$("#confirmacion-evaluacion").is(":checked")) {
     mostrarError("Debe confirmar que la información es correcta");
     return;
@@ -1565,7 +1565,7 @@ $("#btn-guardar-evaluacion").click(function () {
         return;
       }
     }
-  }
+  } */
 
   // Si llegamos aquí, todas las validaciones pasaron
   enviarEvaluacion();

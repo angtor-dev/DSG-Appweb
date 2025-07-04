@@ -5,28 +5,7 @@
 
 <div class="modal-body">
     <!-- Filtros de búsqueda -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Departamento</label>
-                    <select class="form-select" id="filtro-departamento">
-                        <option value="">Todos</option>
-                        <!-- Opciones se llenarán dinámicamente -->
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select" id="filtro-estado">
-                        <option value="">Todos</option>
-                        <option value="activa">Activa</option>
-                        <option value="vencida">Vencida</option>
-                        <option value="evaluada">Evaluada</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
+   
 
     <!-- Listado de tareas -->
     <div class="card">
