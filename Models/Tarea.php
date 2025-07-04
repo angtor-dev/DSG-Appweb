@@ -1,47 +1,47 @@
 <?php
-require_once "Models/Area.php";
-require_once "Models/Departamento.php";
-
 class Tarea extends Model
 {
     // Propiedades públicas
-    public int $id;
-    public int $idArea;
-    public int $idDepartamento;
-    public string $descripcion;
-    public string $fechaCreacion;
-    public string $estado_tarea = 'activo';
-    public int $idSupervisor;
-    public bool $es_comun = false;
-    public string $turno;
-    public ?string $fecha_inicio = null;
-    //-------Evaluar
-    public $idAsignacion;
-    public $tipo;
-    public $evaluacion;
 
-    public $evaluacionDirector;
+    public int $id;
+    private ?int $idArea = null;
+    private ?int $idDepartamento = null;
+    private ?string $descripcion = null;
+    private string $fechaCreacion;
+    private string $estado_tarea = 'activo';
+    private ?int $idSupervisor = null;
+    private bool $es_comun = false;
+    private ?string $turno = null;
+    private ?string $fecha_inicio = null;
+    private ?array $personalAsignado = null;
+    private ?array $materiales = null;
+   
+ 
+    //-------Evaluar
+
+     private ?array $evaluacion = null;
+    private ?array $evaluacionDirector = null;
+ 
+    public $idAsignacion;
     public $observaciones;
     public $aprobado;
 
     public ?Area $area = null;
-    public ?Departamento $departamento = null;
+    public ?Division $departamento = null;
 
     public function __construct()
     {
         parent::__construct();
-        // Inicialización condicional
+       
         if (!empty($this->idArea)) {
             $this->area = Area::cargar($this->idArea);
         }
+         $this->fechaCreacion = date('Y-m-d H:i:s');
         if (!empty($this->idDepartamento)) {
-            $this->departamento = Departamento::cargar($this->idDepartamento);
+            $this->departamento = Division::cargar($this->idDepartamento);
         }
     }
 
-    private array $personalAsignado = [];
-    /** @var array $materiales */
-    public array $materiales = [];
 
     // Métodos públicos
 
@@ -50,49 +50,52 @@ class Tarea extends Model
      * @param array $datos Datos del formulario
      * @return bool True si se registró correctamente
      */
-    public function registrar(array $datos): bool
-    {
-        $this->db->connect();
-        $this->db->pdo()->beginTransaction();
+public function registrar(): bool {
+    $this->db->connect();
+    $this->db->pdo()->beginTransaction();
 
-        try {
-            // Validación y mapeo de datos
-            $this->mapearDatos($datos);
-
-            if (!$this->esValido()) {
-                throw new Exception("Datos de tarea inválidos");
-            }
-
-            // Guardar la tarea principal
-            $this->id = $this->guardarTarea();
-
-            // Asignar personal si no es tarea común
-            if (!$this->es_comun && !empty($this->personalAsignado)) {
-                $this->asignarPersonal($this->personalAsignado);
-            }
-
-            // Asignar materiales si existen
-            if (!empty($this->materiales)) {
-                $this->asignarMateriales($this->materiales);
-            }
-
-            $this->db->pdo()->commit();
-            return true;
-        } catch (\Throwable $th) {
-            $this->db->pdo()->rollBack();
-            $_SESSION['errores'][] = $th->getMessage();
-            error_log("Error al registrar tarea: " . $th->getMessage());
-            return false;
-        } finally {
-            $this->db->disconnect();
+    try {
+        if (!$this->esValido()) {
+            throw new Exception("Datos de tarea inválidos");
         }
-    }
 
+        // Guardar la tarea principal
+        $this->id = $this->guardarTarea(
+            $this->idArea,
+            $this->idDepartamento,
+            $this->descripcion,
+            $this->fecha_inicio,
+            $this->estado_tarea,
+            $this->es_comun,
+            $this->idSupervisor
+        );
+
+        // Asignar personal si no es tarea común
+        if (!$this->es_comun && !empty($this->personalAsignado)) {
+            $this->asignarPersonal($this->id, $this->personalAsignado);
+        }
+
+        // Asignar materiales si existen
+        if (!empty($this->materiales)) {
+            $this->asignarMateriales($this->id, $this->materiales);
+        }
+
+        $this->db->pdo()->commit();
+        return true;
+    } catch (\Throwable $th) {
+        $this->db->pdo()->rollBack();
+        $_SESSION['errores'][] = $th->getMessage();
+        error_log("Error al registrar tarea: " . $th->getMessage());
+        return false;
+    } finally {
+        $this->db->disconnect();
+    }
+}
     /**
      * Mapea los datos del formulario a las propiedades del modelo
      * @param array $datos Datos del formulario
      */
-    public function mapearDatos(array $datos): void
+  /*   public function mapearDatos(array $datos): void
     {
         $this->idArea = (int)$datos['idArea'];
         $this->idDepartamento = (int)$datos['idDepartamento'];
@@ -115,6 +118,8 @@ class Tarea extends Model
             }
         }
     }
+ */
+    
 
     /**
      * Valida los datos de la tarea
@@ -164,20 +169,26 @@ class Tarea extends Model
      * @return int ID de la tarea recién creada
      * @throws Exception Si no se puede guardar la tarea
      */
-    private function guardarTarea(): int
-    {
-       
+     private function guardarTarea(
+        int $idArea,
+        int $idDepartamento,
+        string $descripcion,
+        string $fecha_inicio,
+        string $estado_tarea,
+        bool $es_comun,
+        int $idSupervisor
+    ): int {
         $queryTarea = "INSERT INTO tarea 
                       (idArea, idDepartamento, descripcion, fecha_inicio, estado_tarea, es_comun) 
                       VALUES (:idArea, :idDepartamento, :descripcion, :fecha_inicio, :estado, :es_comun)";
 
         $stmtTarea = $this->db->pdo()->prepare($queryTarea);
-        $stmtTarea->bindValue(":idArea", $this->idArea, PDO::PARAM_INT);
-        $stmtTarea->bindValue(":idDepartamento", $this->idDepartamento, PDO::PARAM_INT);
-        $stmtTarea->bindValue(":descripcion", $this->descripcion, PDO::PARAM_STR);
-        $stmtTarea->bindValue(":estado", $this->estado_tarea, PDO::PARAM_INT);
-        $stmtTarea->bindValue(":es_comun", $this->es_comun, PDO::PARAM_BOOL);
-        $stmtTarea->bindValue(":fecha_inicio", $this->fecha_inicio, PDO::PARAM_STR);
+        $stmtTarea->bindValue(":idArea", $idArea, PDO::PARAM_INT);
+        $stmtTarea->bindValue(":idDepartamento", $idDepartamento, PDO::PARAM_INT);
+        $stmtTarea->bindValue(":descripcion", $descripcion, PDO::PARAM_STR);
+        $stmtTarea->bindValue(":estado", $estado_tarea, PDO::PARAM_INT);
+        $stmtTarea->bindValue(":es_comun", $es_comun, PDO::PARAM_BOOL);
+        $stmtTarea->bindValue(":fecha_inicio", $fecha_inicio, PDO::PARAM_STR);
 
         if (!$stmtTarea->execute()) {
             throw new Exception("Error al guardar la tarea principal");
@@ -185,21 +196,19 @@ class Tarea extends Model
 
         $idTarea = $this->db->pdo()->lastInsertId();
 
-        // 2. Registrar la asignación para validación
         $queryValidacion = "INSERT INTO tarea_validacion 
                           (idTarea, idSupervisor) 
                           VALUES (:idTarea, :idSupervisor)";
 
         $stmtValidacion = $this->db->pdo()->prepare($queryValidacion);
         $stmtValidacion->bindValue(":idTarea", $idTarea, PDO::PARAM_INT);
-        $stmtValidacion->bindValue(":idSupervisor", $this->idSupervisor, PDO::PARAM_INT);
+        $stmtValidacion->bindValue(":idSupervisor", $idSupervisor, PDO::PARAM_INT);
 
         if (!$stmtValidacion->execute()) {
             throw new Exception("Error al registrar la validación");
         }
 
         return $idTarea;
-    
     }
 
 
@@ -209,16 +218,16 @@ class Tarea extends Model
      * @param array $idsTrabajadores IDs de los trabajadores a asignar
      * @throws Exception Si no se puede asignar el personal
      */
-      private function asignarPersonal(array $idsTrabajadores): void
+private function asignarPersonal(int $idTarea, array $idsTrabajadores): void
 {
-    if (empty($idsTrabajadores) || $this->id <= 0) {
+    if (empty($idsTrabajadores) || $idTarea <= 0) {
         return;
     }
 
-    // Crear array de parámetros
-    $params = [':idTarea' => $this->id];
+  
+    $params = [':idTarea' => $idTarea];
     
-    // Crear placeholders para los IDs de trabajadores
+   
     $placeholders = [];
     foreach ($idsTrabajadores as $i => $id) {
         $paramName = ":trabajador_" . $i;
@@ -226,7 +235,6 @@ class Tarea extends Model
         $params[$paramName] = $id;
     }
 
-    // Consulta SQL con parámetros nombrados
     $query = "INSERT INTO tarea_personal (idTarea, idAsignacionLaboral)
              SELECT :idTarea, a.id
              FROM asignacion_laboral a
@@ -250,109 +258,110 @@ class Tarea extends Model
     }
 }
 
+private function asignarMateriales(int $idTarea, array $materiales): void
+{
+    if (empty($materiales)) {
+        return;
+    }
 
+    $query = "INSERT INTO recurso (idTarea, idArticulo, cantidad, devolucion, cantidadDevolucion) VALUES ";
+    $placeholders = [];
+    $values = [];
 
-    /**
-     * Asigna materiales a la tarea
-     * @param array $materiales Array de materiales con sus cantidades
-     * @throws Exception Si no se pueden asignar los materiales
-     */
+    foreach ($materiales as $i => $material) {
+        $idTareaParam = ":idTarea_$i";
+        $idArticuloParam = ":idInventario_$i";
+        $cantidadParam = ":cantidad_$i";
+        $devolucionParam = ":devolucion_$i";
+        $cantidadDevolucionParam = ":cantidadDev_$i";
 
-    private function asignarMateriales(array $materiales): void
-    {
-        if (empty($materiales)) {
-            return;
-        }
+        $placeholders[] = "($idTareaParam, $idArticuloParam, $cantidadParam, $devolucionParam, $cantidadDevolucionParam)";
 
-        $query = "INSERT INTO recurso (idTarea, idArticulo, cantidad, devolucion, cantidadDevolucion) VALUES ";
-        $placeholders = [];
-        $values = [];
+        $values[$idTareaParam] = $idTarea;
+        $values[$idArticuloParam] = (int)$material['id'];
+        $values[$cantidadParam] = (int)$material['cantidad'];
+        $values[$devolucionParam] = 0;
+        $values[$cantidadDevolucionParam] = 0;
+    }
 
-        foreach ($materiales as $i => $material) {
-            $idTareaParam = ":idTarea_$i";
-            $idArticuloParam = ":idInventario_$i";
-            $cantidadParam = ":cantidad_$i";
-            $devolucionParam = ":devolucion_$i";
-            $cantidadDevolucionParam = ":cantidadDev_$i";
+    $sql = $query . implode(", ", $placeholders);
+    $stmt = $this->db->pdo()->prepare($sql);
 
-            $placeholders[] = "($idTareaParam, $idArticuloParam, $cantidadParam, $devolucionParam, $cantidadDevolucionParam)";
+    if (!$stmt->execute($values)) {
+        $error = $stmt->errorInfo();
+        throw new Exception("Error al registrar materiales: " . $error[2]);
+    }
 
-            $values[$idTareaParam] = (int)$this->id;
-            $values[$idArticuloParam] = (int)$material['id'];
-            $values[$cantidadParam] = (int)$material['cantidad'];
-            $values[$devolucionParam] = 0; // 0 = no hay devolución aún
-            $values[$cantidadDevolucionParam] = 0;
-        }
+    // -----------------_--_--___---_- Actualizar el stock
+    foreach ($materiales as $material) {
+        $stmt = $this->db->pdo()->prepare("
+            UPDATE articulo 
+            SET cantidad = cantidad - :cantidad 
+            WHERE id = :id AND cantidad >= :cantidad_check
+        ");
 
-        $sql = $query . implode(", ", $placeholders);
-        $stmt = $this->db->pdo()->prepare($sql);
+        $params = [
+            ':cantidad' => (int)$material['cantidad'],
+            ':cantidad_check' => (int)$material['cantidad'],
+            ':id' => (int)$material['id'],
+        ];
 
-        if (!$stmt->execute($values)) {
+        if (!$stmt->execute($params)) {
             $error = $stmt->errorInfo();
-            throw new Exception("Error al registrar materiales: " . $error[2]);
-        }
-
-        // Restar stock de artículo
-
-
-        foreach ($materiales as $material) {
-            $stmt = $this->db->pdo()->prepare("
-                UPDATE articulo 
-                SET cantidad = cantidad - :cantidad 
-                WHERE id = :id AND cantidad >= :cantidad_check
-            ");
-
-            $params = [
-                ':cantidad' => (int)$material['cantidad'],
-                ':cantidad_check' => (int)$material['cantidad'],
-                ':id' => (int)$material['id'],
-            ];
-
-            if (!$stmt->execute($params)) {
-                $error = $stmt->errorInfo();
-                throw new Exception("Error SQL: " . $error[2]);
-            }
+            throw new Exception("Error SQL: " . $error[2]);
         }
     }
+}
 
 
 
     //----------------------Evaluar metodos--------------------------------------------
 
-    public function evaluar(array $datos): bool
-    {
-        $this->db->connect();
-        $this->db->pdo()->beginTransaction();
+public function evaluar(): bool {
+    $this->db->connect();
+    $this->db->pdo()->beginTransaction();
 
-        try {
-            $this->mapearEvaluacion($datos);
-            
-           $this->guardarEvaluacionSupervisor();
-         
-        // Solo si el supervisor aprobó
-             if ($this->evaluacion['aprobacion'] == 1) {
-                $this->guardarEvaluacionDirector();
-            } 
-            // Verificar si hay materiales y si hay alguno con devolución
-            if (!empty($this->materiales) && $this->hayMaterialesDevueltos()) {
-                $this->actualizarRecursos();
-            }
-
-            $this->db->pdo()->commit();
-            return true;
-        } catch (\Throwable $e) {
-            $this->db->pdo()->rollBack();
-            $_SESSION['errores'][] = $e->getMessage();
-            error_log("Error al evaluar tarea: " . $e->getMessage());
-            return false;
-        } finally {
-            $this->db->disconnect();
+    try {
+        if (!$this->esValidoEval()) {
+            throw new Exception("Datos de evaluación inválidos");
         }
-    }
+        
+        $this->guardarEvaluacionSupervisor(
+            $this->id,
+            $this->evaluacion['ponderacion'],
+            $this->evaluacion['comentarios'],
+            $this->evaluacion['aprobacion']
+        );
+     
+        if ($this->evaluacion['aprobacion'] == 1) {
+            $this->guardarEvaluacionDirector(
+                $this->id,
+                $this->evaluacionDirector['ponderacion'],
+                $this->evaluacionDirector['comentarios'],
+                $this->evaluacionDirector['aprobacion']
+            );
+        }
 
-    private function hayMaterialesDevueltos(): bool
-    {
-        foreach ($this->materiales as $m) {
+        $this->actualizarEstadoTarea($this->id, 'evaluada');
+        
+        if (!empty($this->materiales) && $this->hayMaterialesDevueltos($this->materiales)) {
+            $this->actualizarRecursos($this->id, $this->materiales);
+        }
+
+        $this->db->pdo()->commit();
+        return true;
+    } catch (\Throwable $e) {
+        $this->db->pdo()->rollBack();
+        $_SESSION['errores'][] = $e->getMessage();
+        error_log("Error al evaluar tarea: " . $e->getMessage());
+        return false;
+    } finally {
+        $this->db->disconnect();
+    }
+}
+
+    private function hayMaterialesDevueltos(array $materiales): bool {
+        foreach ($materiales as $m) {
             if ((float)($m['devuelto'] ?? 0) > 0) {
                 return true;
             }
@@ -360,66 +369,45 @@ class Tarea extends Model
         return false;
     }
 
-
-    private function esValidoEval(): bool
-    {
-        return $this->idAsignacion > 0 && in_array($this->evaluacion, ['excelente', 'bueno', 'regular', 'deficiente']);
+    private function esValidoEval(): bool {
+        return $this->id > 0 && isset($this->evaluacion['ponderacion']);
     }
 
-    private function mapearEvaluacion(array $datos): void
-    {
-        $this->id = (int)($datos['idTarea'] ?? 0);
-        $this->evaluacion = [
-            'ponderacion' => $datos['ponderacion'] ?? '',
-            'comentarios' => $datos['comentarios'] ?? '',
-            'aprobacion' => isset($datos['aprobacion']) ? 1 : 0
+    private function guardarEvaluacionSupervisor(
+        int $idTarea,
+        string $ponderacion,
+        string $comentarios,
+        int $aprobacion
+    ): void {
+        $observacion = $comentarios ? "[Observación supervisor]: " . $comentarios : '';
+        
+        $params = [
+            ':idTarea' => $idTarea,
+            ':evaluacion' => $ponderacion,
+            ':observacion' => $observacion
         ];
 
-         // Nueva: Evaluación del director
-        $this->evaluacionDirector = [
-            'ponderacion' => $datos['ponderacion_director'] ?? '',
-            'comentarios' => $datos['comentarios_director'] ?? '',
-            'aprobacion' => isset($datos['aprobacion_director']) ? 1 : 0
-        ];
-
-        if (isset($datos['materiales']) && is_string($datos['materiales'])) {
-            $this->materiales = json_decode($datos['materiales'], true);
-        }
-    }
-        private function guardarEvaluacionSupervisor(): void
-    {
-        // Verificar si ya existe una evaluación para esta tarea
-        $checkQuery = "SELECT id FROM evaluacion WHERE idTarea = :idTarea";
+        $checkQuery = "SELECT id FROM tarea_validacion WHERE idTarea = :idTarea";
         $checkStmt = $this->db->pdo()->prepare($checkQuery);
-        $checkStmt->execute([':idTarea' => $this->id]);
+        $checkStmt->execute([':idTarea' => $idTarea]);
         $exists = $checkStmt->fetch();
 
-        // Datos base para ambos casos
-        $params = [
-            ':idTarea' => $this->id,
-            ':evaluacion' => $this->evaluacion['ponderacion'],
-            ':comentario' => $this->evaluacion['comentarios']
-           
-        ];
-
         if ($exists) {
-            // Actualizar evaluación existente (solo campos del supervisor)
-            $query = "UPDATE evaluacion SET 
-                        evaluacion_supervisor = :evaluacion, 
-                        comentario_supervisor = :comentario,
-                        fecha_evaluacion_supervisor = NOW()
+            $query = "UPDATE tarea_validacion SET 
+                        evalSupervisor = :evaluacion, 
+                        observacion = :observacion,
+                        fechaEval = NOW()
                     WHERE idTarea = :idTarea";
         } else {
-            // Insertar nueva evaluación (solo campos del supervisor)
-            $query = "INSERT INTO evaluacion (
+            $query = "INSERT INTO tarea_validacion (
                         idTarea, 
-                        evaluacion_supervisor, 
-                        comentario_supervisor,
-                        fecha_evaluacion_supervisor
+                        evalSupervisor, 
+                        observacion,
+                        fechaEval
                     ) VALUES (
                         :idTarea, 
                         :evaluacion, 
-                        :comentario, 
+                        :observacion, 
                         NOW()
                     )";
         }
@@ -428,83 +416,112 @@ class Tarea extends Model
         $stmt->execute($params);
     }
 
-    private function guardarEvaluacionDirector(): void
-    {
-        // Solo ejecutar si hay aprobación del supervisor
-        if ($this->evaluacion['aprobacion'] != 1) {
-            return;
+private function guardarEvaluacionDirector(
+    int $idTarea,
+    string $ponderacion,
+    string $comentarios,
+    int $aprobacion
+): void {
+    // Solo ejecutar si hay aprobación del supervisor
+    if ($aprobacion != 1) {
+        return;
+    }
+
+    // Obtener la observación actual
+    $currentObsQuery = "SELECT observacion FROM tarea_validacion WHERE idTarea = :idTarea";
+    $currentObsStmt = $this->db->pdo()->prepare($currentObsQuery);
+    $currentObsStmt->execute([':idTarea' => $idTarea]);
+    $currentObs = $currentObsStmt->fetchColumn();
+
+    // Construir la nueva observación
+    $observacion = $currentObs ?: '';
+    
+    if (!empty($comentarios)) {
+        if (!empty($observacion)) {
+            $observacion .= "\n";
         }
+        $observacion .= "[Observación director]: " . $comentarios;
+    }
 
-        $params = [
-            ':idTarea' => $this->id,
-            ':evaluacion' => $this->evaluacionDirector['ponderacion'],
-            ':comentario' => $this->evaluacionDirector['comentarios']
-        ];
+    $params = [
+        ':idTarea' => $idTarea,
+        ':evaluacion' => $ponderacion,
+        ':observacion' => $observacion
+    ];
 
-        // Actualizar siempre (asumiendo que ya existe registro por el supervisor)
-        $query = "UPDATE evaluacion SET 
-                    evaluacion_director = :evaluacion, 
-                    comentario_director = :comentario,
-                    fecha_evaluacion_director = NOW()
-                WHERE idTarea = :idTarea";
+    $query = "UPDATE tarea_validacion SET 
+                evalSuperior = :evaluacion, 
+                observacion = :observacion
+            WHERE idTarea = :idTarea";
+
+    $stmt = $this->db->pdo()->prepare($query);
+    $stmt->execute($params);
+}
+
+
+
+    private function actualizarEstadoTarea(int $idTarea, string $estado): void
+{
+    $query = "UPDATE tarea SET estado_tarea = :estado WHERE id = :id";
+    $stmt = $this->db->pdo()->prepare($query);
+    $stmt->execute([
+        ':estado' => $estado,
+        ':id' => $idTarea
+    ]);
+}
+
+   private function actualizarRecursos(int $idTarea, array $materiales): void
+{
+    foreach ($materiales as $m) {
+        $idInventario = (int)$m['id'];
+        $utilizado = (float)$m['utilizado'];
+        $devuelto = (float)$m['devuelto'];
+
+        // 1. Obtener cantidad previa de devolución
+        $stmt = $this->db->pdo()->prepare("
+            SELECT cantidadDevolucion 
+            FROM recurso 
+            WHERE idTarea = :idTarea AND idArticulo = :idInventario
+        ");
+        $stmt->execute([
+            ':idTarea' => $idTarea,
+            ':idInventario' => $idInventario,
+        ]);
+        $prev = $stmt->fetch(PDO::FETCH_ASSOC);
+        $devueltoAnterior = $prev ? (float)$prev['cantidadDevolucion'] : 0;
+
+        // 2. Calcular devolución neta
+        $devolucionNeta = $devuelto - $devueltoAnterior;
+
+        // 3. Actualizar recurso
+        $query = "UPDATE recurso SET 
+                    cantidad = :usada,
+                    cantidadDevolucion = :devuelto,
+                    devolucion = 1
+                WHERE idTarea = :idTarea AND idArticulo = :idInventario";
 
         $stmt = $this->db->pdo()->prepare($query);
-        $stmt->execute($params);
-    }
+        $stmt->execute([
+            ':usada' => $utilizado,
+            ':devuelto' => $devuelto,
+            ':idTarea' => $idTarea,
+            ':idInventario' => $idInventario
+        ]);
 
-    private function actualizarRecursos(): void
-    {
-        foreach ($this->materiales as $m) {
-            $idTarea = $this->id;
-            $idInventario = (int)$m['id'];
-            $utilizado = (float)$m['utilizado'];
-            $devuelto = (float)$m['devuelto'];
+        // 4. Actualizar stock si hay devolución neta
+        if ($devolucionNeta > 0) {
+            $queryStock = "UPDATE articulo 
+                        SET cantidad = cantidad + :devuelto 
+                        WHERE id = :id";
 
-            // 1. Obtener cantidad previa de devolución (por si ya se devolvió antes)
-            $stmt = $this->db->pdo()->prepare("
-                SELECT cantidadDevolucion 
-                FROM recurso 
-                WHERE idTarea = :idTarea AND idInventario = :idInventario
-            ");
+            $stmt = $this->db->pdo()->prepare($queryStock);
             $stmt->execute([
-                ':idTarea' => $idTarea,
-                ':idInventario' => $idInventario,
+                ':devuelto' => $devolucionNeta,
+                ':id' => $idInventario
             ]);
-            $prev = $stmt->fetch(PDO::FETCH_ASSOC);
-            $devueltoAnterior = $prev ? (float)$prev['cantidadDevolucion'] : 0;
-
-            // 2. Calcular devolución neta
-            $devolucionNeta = $devuelto - $devueltoAnterior;
-
-            // 3. Actualizar recurso con nueva info
-            $query = "UPDATE recurso SET 
-                        cantidad = :usada,
-                        cantidadDevolucion = :devuelto,
-                        devolucion = 1
-                    WHERE idTarea = :idTarea AND idInventario = :idInventario";
-
-            $stmt = $this->db->pdo()->prepare($query);
-            $stmt->execute([
-                ':usada' => $utilizado,
-                ':devuelto' => $devuelto,
-                ':idTarea' => $idTarea,
-                ':idInventario' => $idInventario
-            ]);
-
-            // 4. Si hay devolución neta positiva, actualizar el stock
-            if ($devolucionNeta > 0) {
-                $queryStock = "UPDATE articulo 
-                            SET cantidad = cantidad + :devuelto 
-                            WHERE id = :id";
-
-                $stmt = $this->db->pdo()->prepare($queryStock);
-                $stmt->execute([
-                    ':devuelto' => $devolucionNeta,
-                    ':id' => $idInventario
-                ]);
-            }
         }
     }
+}
 
 
 
@@ -521,6 +538,23 @@ class Tarea extends Model
 
             if (!$stmt->execute()) {
                 throw new Exception("No se pudo cancelar la tarea");
+            }
+        } finally {
+            $this->db->disconnect();
+        }
+    }
+
+        public function terminar()
+    {
+        $this->db->connect();
+
+        try {
+            $query = "UPDATE tarea SET estado_tarea = 'vencida' WHERE id = :id";
+            $stmt = $this->db->pdo()->prepare($query);
+            $stmt->bindValue(":id", $this->id, PDO::PARAM_INT);
+
+            if (!$stmt->execute()) {
+                throw new Exception("No se pudo terminar la tarea");
             }
         } finally {
             $this->db->disconnect();
@@ -549,21 +583,28 @@ class Tarea extends Model
     }
 
 
-    public function listarPorEstado($estado)
-    {
+public function listarPorEstado($estado): array
+{
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $query = "SELECT t.*, 
+              a.nombre as area_nombre,
+              d.nombre as departamento_nombre
+              FROM tarea t
+              LEFT JOIN area a ON t.idArea = a.id
+              LEFT JOIN division d ON t.idDepartamento = d.id
+              WHERE t.estado_tarea = :estado 
+              ORDER BY t.fechaCreacion DESC";
 
-        $bd = Database::getInstance();
-        $bd->connect();
-        $query = "SELECT * FROM `tarea` WHERE estado_tarea = :estado ORDER BY fechaCreacion DESC;";
-
-        $consulta = $bd->pdo()->prepare($query);
-        $consulta->execute([':estado' => $estado]);
-        $consulta->setFetchMode(PDO::FETCH_CLASS, "Tarea");
-
-        $bd->disconnect();
-
-        return $consulta->fetchAll();
-    }
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute([':estado' => $estado]);
+    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $bd->disconnect();
+    
+    return $resultados;
+}
 
     public function listarPorEstadoConPersonal($estado) {
     $bd = Database::getInstance();
@@ -575,7 +616,7 @@ class Tarea extends Model
                      d.nombre AS departamento_nombre
               FROM `tarea` t
               LEFT JOIN `area` a ON t.idArea = a.id
-              LEFT JOIN `departamento` d ON t.idDepartamento = d.id
+              LEFT JOIN `division` d ON t.idDepartamento = d.id
               WHERE t.estado_tarea = :estado 
               ORDER BY t.fechaCreacion DESC";
     
@@ -627,11 +668,14 @@ private function obtenerPersonalAsignado($idTarea) {
 
         try {
             $pdo = $bd->pdo();
-            // Obtener datos básicos de la tarea
-            $query = "SELECT t.*, a.nombre as area_nombre, d.nombre as departamento_nombre 
+
+           
+            $pdo->beginTransaction();
+
+            $query = "SELECT t.*, a.nombre as area_nombre, d.nombre as departamento_nombre, t.descripcion  as descripcion_tarea, t.fecha_inicio as fecha_inicio_tarea
                       FROM tarea t
                       LEFT JOIN area a ON t.idArea = a.id
-                      LEFT JOIN departamento d ON t.idDepartamento = d.id
+                      LEFT JOIN division d ON t.idDepartamento = d.id
                       WHERE t.id = :id";
 
             $stmt = $pdo->prepare($query);
@@ -640,10 +684,10 @@ private function obtenerPersonalAsignado($idTarea) {
             $tarea = $stmt->fetch();
 
             if (!$tarea) {
+                $pdo->rollBack();
                 return null;
             }
 
-            // Obtener personal asignado
            $queryPersonal = "SELECT 
                     t.id AS idTrabajador, 
                     t.nombre, 
@@ -654,7 +698,7 @@ private function obtenerPersonalAsignado($idTarea) {
                  FROM tarea_personal tp
                  JOIN asignacion_laboral al ON tp.idAsignacionLaboral = al.id
                  JOIN trabajador t ON al.idTrabajador = t.id
-                 JOIN departamento d ON al.idDepartamento = d.id
+                 JOIN division d ON al.idDivision = d.id
                  JOIN cargo c ON al.idCargo = c.id
                  JOIN turno tu ON al.idTurno = tu.id
                  WHERE tp.idTarea = :idTarea
@@ -664,25 +708,7 @@ private function obtenerPersonalAsignado($idTarea) {
             $stmt->execute([':idTarea' => $id]);
             $tarea->personal = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-            $querySupervisor = "SELECT 
-                      t.id AS idSupervisor, 
-                      t.nombre, 
-                      t.apellido, 
-                      d.nombre AS departamento,
-                      c.nombre AS cargo,
-                      tv.fechaAsignado AS fechaAsignacion
-                   FROM tarea_validacion tv
-                   JOIN trabajador t ON tv.idSupervisor = t.id
-                   JOIN asignacion_laboral al ON t.id = al.idTrabajador AND al.esActual = 1
-                   JOIN departamento d ON al.idDepartamento = d.id
-                   JOIN cargo c ON al.idCargo = c.id
-                   WHERE tv.idTarea = :idTarea";
 
-            $stmt = $pdo->prepare($querySupervisor);
-            $stmt->execute([':idTarea' => $id]);
-            $tarea->supervisor = $stmt->fetchAll(PDO::FETCH_OBJ);
-
-            // Obtener materiales asignados (recursos)
             $queryMateriales = "SELECT 
                         r.idArticulo AS id, 
                         a.nombre, 
@@ -695,24 +721,55 @@ private function obtenerPersonalAsignado($idTarea) {
                     JOIN articulo a ON r.idArticulo = a.id
                     WHERE r.idTarea = :idTarea";
 
+            
             $stmt = $pdo->prepare($queryMateriales);
             $stmt->execute([':idTarea' => $id]);
-            $tarea->materiales = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $tarea->materialestarea = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            $querySupervisor = "SELECT 
+                      t.id AS idSupervisor, 
+                      t.nombre, 
+                      t.apellido, 
+                      d.nombre AS departamento,
+                      c.nombre AS cargo,
+                      tv.fechaAsignado AS fechaAsignacion
+                   FROM tarea_validacion tv
+                   JOIN trabajador t ON tv.idSupervisor = t.id
+                   JOIN asignacion_laboral al ON t.id = al.idTrabajador AND al.esActual = 1
+                   JOIN division d ON al.idDivision  = d.id
+                   JOIN cargo c ON al.idCargo = c.id
+                   WHERE tv.idTarea = :idTarea";
+
+            $stmt = $pdo->prepare($querySupervisor);
+            $stmt->execute([':idTarea' => $id]);
+            $tarea->supervisor = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            
+          
 
            $queryEvaluacion = "SELECT 
-                    tv.evalSupervisor AS evaluacion_supervisor,
-                    tv.observacion AS comentario_supervisor,
-                    tv.fechaEval AS fecha_evaluacion_supervisor,
-                    tv.evalSuperior AS evaluacion_director,
-                    t.nombre AS nombre_supervisor,
-                    t.apellido AS apellido_supervisor
+                tv.evalSupervisor AS evaluacion_supervisor,
+                tv.observacion AS comentario_supervisor,
+                tv.fechaEval AS fecha_evaluacion_supervisor,
+                tv.evalSuperior AS evaluacion_director,
+                t.nombre AS nombre_supervisor,
+                t.apellido AS apellido_supervisor
                 FROM tarea_validacion tv
                 LEFT JOIN trabajador t ON tv.idSupervisor = t.id
                 WHERE tv.idTarea = :idTarea";
-          
 
+            $stmt = $pdo->prepare($queryEvaluacion);
+            $stmt->execute([':idTarea' => $id]);
+            $tarea->evaluacion_tarea = $stmt->fetch(PDO::FETCH_ASSOC); // Cambiado a FETCH_ASSOC
+
+          
+            $pdo->commit();
 
             return $tarea;
+        } catch (Exception $e) {
+          
+            $pdo->rollBack();
+            throw $e;
         } finally {
             $bd->disconnect();
         }
@@ -732,7 +789,7 @@ private function obtenerPersonalAsignado($idTarea) {
                      DATE_FORMAT(t.fecha_inicio, '%d/%m/%Y %H:%i') AS fecha_inicio_formateada
               FROM `tarea` t
               LEFT JOIN `area` a ON t.idArea = a.id
-              LEFT JOIN `departamento` d ON t.idDepartamento = d.id
+              LEFT JOIN `division` d ON t.idDepartamento = d.id
               WHERE t.id IN ($placeholders)
               ORDER BY t.fechaCreacion DESC";
     
@@ -778,7 +835,7 @@ private function obtenerPersonalParaTareas(array $tareaIds) {
               JOIN `asignacion_laboral` al ON tp.idAsignacionLaboral = al.id
               JOIN `trabajador` t ON al.idTrabajador = t.id
               LEFT JOIN `cargo` c ON al.idCargo = c.id
-              LEFT JOIN `departamento` d ON al.idDepartamento = d.id
+              LEFT JOIN `division` d ON al.idDivision  = d.id
               LEFT JOIN `turno` tu ON al.idTurno = tu.id
               WHERE tp.idTarea IN ($placeholders)
               AND al.esActual = 1
@@ -958,28 +1015,28 @@ private function obtenerValidacionesParaTareas(array $tareaIds) {
 
 
 
-    public function getId(): int
-    {
+     public function getId(): ?int {
         return $this->id;
     }
 
-    public function getDescripcion(): string
-    {
+    public function getDescripcion(): ?string {
         return $this->descripcion;
     }
 
-    public function getFechaCreacion(): string
-    {
+    public function getFechaCreacion(): string {
         return $this->fechaCreacion;
     }
 
-    public function esAutomatica(): bool
-    {
-        return isset($this->tareaAutomatica);
+    public function getEstado(): string {
+        return $this->estado_tarea;
     }
 
-    public function getEstado(): string
-    {
-        return $this->estado_tarea ?? 'Desconocido';
+    // Métodos para relaciones (asumiendo que existen)
+    public function getArea(): ?Area {
+        return $this->area;
+    }
+
+    public function getDepartamento(): ?Departamento {
+        return $this->departamento;
     }
 }

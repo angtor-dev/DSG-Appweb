@@ -10,8 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $trabajadorObj = new Trabajador(); // mi vista te sigue cuando cambias de archivo 
     $trabajadores = $trabajadorObj->listar(0);
 
-    $departamentoObj = new Departamento();
+    $departamentoObj = new Division();
     $departamentos = $departamentoObj->listar();
+
+   $turnosOptions = Turno::getTurnosOptions();
     
     $areaObj = new Area();
     $areas = $areaObj->listar();
@@ -19,29 +21,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     require_once "Views/Tareas/_Registrar.php";
 }
 
-
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Limpiar errores previos de sesión si existen
     unset($_SESSION['errores']);
     
     $tarea = new Tarea();
     $response = ['success' => false];
 
-    
-    if ($tarea->registrar($_POST)) {
-        $tareaCompleta = Tarea::obtenerPorId($tarea->id);
+    // Mapeo de datos en el controlador
+  $datos = [
+    'idArea' => (int)$_POST['idArea'],
+    'idDepartamento' => (int)$_POST['idDepartamento'],
+    'descripcion' => trim($_POST['descripcion']),
+    'turno' => $_POST['turno'],
+    'fecha_inicio' => $_POST['fecha_inicio'],
+    'idSupervisor' => (int)($_POST['supervisor'] ?? 0),
+    'personalAsignado' => isset($_POST['personal']) ? (array)$_POST['personal'] : null,
+    'materiales' => isset($_POST['materiales']) ? 
+        (is_string($_POST['materiales'])) ? json_decode($_POST['materiales'], true) : (array)$_POST['materiales'] 
+        : null
+];
+
+    $tarea->setterArray($datos);
+
+    if ($tarea->registrar()) {
+        $tareaCompleta = Tarea::obtenerPorId($tarea->getId());
         $response = [
             'success' => true,
             'message' => "Tarea registrada con éxito",
             'data' => [
-                'id' => $tarea->id,
-                'tarea' => $tareaCompleta, // Incluir todos los datos de la tarea
-                'redirect' => 'Tareas/Orden/' . $tarea->id // Opcional: ruta para obtener la orden
+                'id' => $tarea->getId(),
+                'tarea' => $tareaCompleta,
+                'redirect' => 'Tareas/Orden/' . $tarea->getId()
             ]
         ];
-        Bitacora::registrar("Tarea registrada: " . $tarea->descripcion);
+        Bitacora::registrar("Tarea registrada: " . $tarea->getDescripcion());
     } else {
-        // Si hay errores en la sesión, los pasamos a la respuesta
         $response = [
             'success' => false,
             'errors' => $_SESSION['errores'] ?? ['Error desconocido al registrar la tarea'],
@@ -49,7 +63,6 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
     }
 
-    // Devolver respuesta JSON
     header('Content-Type: application/json');
     echo json_encode($response);
     exit;

@@ -27,20 +27,7 @@
     <div class="modal-body">
         <!-- Progreso de Evaluación -->
         <form id="form-evaluacion">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h6 class="mb-3">Progreso de Evaluación</h6>
-                    <div class="progress" style="height: 30px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated"
-                            id="progreso-evaluacion" role="progressbar" style="width: 0%">
-                            0% completado
-                        </div>
-                    </div>
-                    <div class="mt-2" id="estado-evaluacion">
-                        <small class="text-muted">Falta evaluar por supervisor y director</small>
-                    </div>
-                </div>
-            </div>
+            
 
             <!-- Materiales utilizados -->
             <div class="card mb-4">
@@ -114,7 +101,7 @@
                     </div>
                 </div>
             </div>
-
+<?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?> 
             <div class="card mb-4" id="seccion-director">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">Evaluación del Director</h6>
@@ -153,6 +140,8 @@
                     </div>
                 </div>
             </div>
+
+             <?php endif ?>
             <!-- Confirmación -->
             <div class="card">
                 <div class="card-header bg-light">
