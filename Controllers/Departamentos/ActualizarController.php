@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         redirigir(LOCAL_DIR."/Departamentos");
     }
 
-    $departamento = Departamento::cargar($_GET['id']);
+    $departamento = Division::cargar($_GET['id']);
 
     if (is_null($departamento)) {
         $_SESSION['errores'][] = "El departamento que intenta actulizar no existe";
@@ -22,8 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 }
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-    $departamento = new Departamento();
-    $departamento->mapearFormulario();
+    $departamento = new Division();
+    $departamento->setterArray([
+        'idDepartamento' => $_POST['idDepartamento'],
+        'nombre' => $_POST['nombre'],
+        'id' => $_POST['id']
+    ]);
 
     if ($departamento->esValido() && $departamento->actualizar()) {
         $_SESSION['exitos'][] = "Departamento actualizada con exito";

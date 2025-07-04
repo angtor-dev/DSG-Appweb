@@ -1,26 +1,4 @@
 <?php
-// TODO agregar indice unico a la cedula del trabajador
-// TODO agregar Alias a los trabajadores
-// (para que Sir Reginald Pomposo siga siendo Chui )
-
-/*
-
-    trabajador	CREATE TABLE `trabajador` (
-     `id` int(11) NOT NULL AUTO_INCREMENT,
-     `cedula` varchar(10) NOT NULL,
-     `nombre` varchar(50) NOT NULL,
-     `apellido` varchar(50) NOT NULL,
-     `telefono` varchar(11) NOT NULL,
-     `fechaIngreso` date NOT NULL,
-     `estado` tinyint(4) NOT NULL DEFAULT 1,
-     PRIMARY KEY (`id`),
-     UNIQUE KEY `cedula` (`cedula`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci	
-
-    */
-
-
-
 class Trabajador extends Model
 {
     public null|int|string $idDepartamento;
@@ -95,24 +73,7 @@ class Trabajador extends Model
         return $consulta->fetch();
     }
 
-    public function mapearFormulario() : bool
-    {
-        try {
-            $this->cedula = $_POST['cedula'] ?? "";
-            $this->nombre = $_POST['nombre']  ?? "";
-            $this->apellido = $_POST['apellido']  ?? "";
-            $this->telefono = $_POST['telefono']  ?? "";
-            $this->cargo = $_POST['cargo']  ?? "";
-            $this->turno = $_POST['turno']  ?? "";
-            $this->idDepartamento = $_POST['departamento']  ?? "";
-            $this->fechaIngreso = $_POST['fecha_ingreso']  ?? "";
-            $this->cedulaSeleccion = $_POST['cedulaSeleccion'] ?? "";
-            
-            return true;
-        } catch (\Throwable $th) {
-            return false;
-        }
-    }
+    
 
     public function esValido($control) : void
     {
@@ -654,6 +615,33 @@ class Trabajador extends Model
         return $resp;
     }
 
+    public function getTrayectoria() : array {
+        $resp=array();
+        if(!empty($this->id)) {
+            $this->db->connect();
+            $query = "SELECT
+   	t.nombre as turno,
+    c.nombre as cargo,
+    d.nombre as division,
+    DATE_FORMAT(al.fechaAsignacion, '%d/%m/%Y') as desde,
+    if(al.esActual=1, 'Actual', DATE_FORMAT(al.fechaFin, '%d/%m/%Y')) as hasta
+FROM
+    asignacion_laboral AS al
+JOIN division as d on d.id = al.idDivision
+JOIN cargo as c on c.id = al.idCargo
+JOIN turno as t on t.id = al.idTurno
+WHERE
+    al.idTrabajador = :id
+ORDER BY
+    al.esActual
+DESC";
+            $parametros = ["id" => $this->id];
+            $resp = $this->ejecutar($query, $parametros);
+
+        }   
+        return $resp;
+    }
+
 
 
 
@@ -689,6 +677,31 @@ class Trabajador extends Model
     }
     public function getEstado() : string {
         return $this->estado;
+    }
+    /**
+     * Retorna la antiguedad del trabajador en años
+     * si es menos de 1 año retorna "menor a 1 año"
+     * calculado desde la propiedad fechaIngreso
+     * @return void
+     */
+    public function getAntiguedad() : string {
+        $fechaIngreso = new DateTime($this->fechaIngreso);
+        $hoy = new DateTime();
+        $interval = $hoy->diff($fechaIngreso, true);
+        $anios = $interval->y;
+        $meses = $interval->m;
+        $dias = $interval->d;
+        $texto = "";
+        if($anios > 0) {
+            $texto .= $anios . (($anios > 1) ? " años " : " año ");
+        }
+        if($meses > 0) {
+            $texto .= $meses . (($meses > 1) ? " meses " : " mes ");
+        }
+        if($dias > 0) {
+            $texto .= $dias . (($dias > 1) ? " dias " : " dia ");
+        }
+        return $texto;
     }
     public function exporDataBase ():array{
         $resp = array();
@@ -742,3 +755,66 @@ class Trabajador extends Model
         return $resp;
     }
 }
+
+/*
+procedure sp_gestionar_asignacion_laboral:
+BEGIN
+    -- variables
+    DECLARE v_current_id INT;
+    DECLARE v_current_idDepartamento INT;
+    DECLARE v_current_idTurno INT;
+    DECLARE v_current_idCargo INT;
+
+    -- Variables para capturar el SQLSTATE y el mensaje de error en el manejador de excepciones
+    DECLARE v_sqlstate CHAR(5);
+    DECLARE v_message_text VARCHAR(255);
+    
+    -- Intentar obtener la asignación laboral actual (donde esActual = 1) para el trabajador
+    -- El bloqueo FOR UPDATE ayuda a prevenir condiciones de carrera si múltiples procesos
+    -- intentan modificar la misma asignación simultáneamente.
+    SELECT
+        id,
+        idDivision,
+        idTurno,
+        idCargo
+    INTO
+        v_current_id,
+        v_current_idDepartamento,
+        v_current_idTurno,
+        v_current_idCargo
+    FROM
+        asignacion_laboral
+    WHERE
+        idTrabajador = p_idTrabajador AND esActual = 1;
+    -- FOR UPDATE; -- Bloquea la fila seleccionada para evitar que otras transacciones la modifiquen.
+
+    -- Verificar si se encontró una asignación laboral actual para el trabajador
+    IF v_current_id IS NOT NULL THEN
+        -- Si existe una asignación actual, verificar si los nuevos datos son diferentes
+        IF (v_current_idDepartamento != p_idDepartamento OR
+            v_current_idTurno != p_idTurno OR
+            v_current_idCargo != p_idCargo) THEN
+
+            -- Si los datos son diferentes, finalizar la asignación actual
+            UPDATE asignacion_laboral
+            SET fechaFin = CURRENT_TIMESTAMP()
+            WHERE id = v_current_id;
+
+            -- Insertar la nueva asignación laboral
+            
+            
+            
+            INSERT INTO asignacion_laboral (idTrabajador, idDivision, idTurno, idCargo, fechaAsignacion)
+            VALUES (p_idTrabajador, p_idDepartamento, p_idTurno, p_idCargo, COALESCE(p_fechaAsignacion, CURRENT_TIMESTAMP() ) );
+
+            -- Si los datos son los mismos, no hacer nada
+        END IF;
+    ELSE
+        -- Si no hay una asignación actual para el trabajador, insertar la nueva asignación
+        INSERT INTO asignacion_laboral (idTrabajador, idDivision, idTurno, idCargo, fechaAsignacion)
+        VALUES (p_idTrabajador, p_idDepartamento, p_idTurno, p_idCargo, COALESCE(p_fechaAsignacion, CURRENT_TIMESTAMP() ));
+
+    END IF;
+
+END
+ */

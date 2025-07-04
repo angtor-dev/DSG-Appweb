@@ -147,7 +147,7 @@
     <?php endif ?>
 
     <h4>Datos</h4>
-    <?php if (true/* Validar permiso o algo */): ?>
+    <?php if (tienePermiso("reporteasistencias", "consultar")): ?>
         <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "reportes" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
                 <?= strtolower($uriParts[0]) == "reportes" ? "active" : "" ?>">
@@ -156,7 +156,7 @@
             </button>
             <div class="acordeon-body">
                 <div class="acordeon-items">
-                    <?php if (true/* Validar permiso o algo */): ?>
+                    <?php if (tienePermiso("reporteasistencias", "consultar")): ?>
                         <a href="<?= LOCAL_DIR ?>/ReporteAsistencia"
                             class="<?= strtolower($uriParts[1]) == "reporteasistencia" ? "active" : "" ?>">
                             de Asistencias
@@ -167,7 +167,7 @@
         </div>
     <?php endif ?>
 
-    <?php if (true/* Validar permiso o algo */): ?>
+    <?php if (tienePermiso("estadisticasasistencias", "consultar")): ?>
         <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "estadisticas" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
                 <?= strtolower($uriParts[0]) == "estadisticas" ? "active" : "" ?>">
@@ -176,7 +176,7 @@
             </button>
             <div class="acordeon-body">
                 <div class="acordeon-items">
-                    <?php if (true/* Validar permiso o algo */): ?>
+                    <?php if (tienePermiso("estadisticasasistencias", "consultar")): ?>
                         <a href="<?= LOCAL_DIR ?>/EstadisticasAsistencias"
                             class="<?= strtolower($uriParts[1]) == "estadisticaasistencia" ? "active" : "" ?>">
                             de Asistencias

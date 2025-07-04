@@ -173,12 +173,20 @@ function agregarValidaciones() {
                 iCedula.setValidStatus(false,"La cedula debe ser de 7 u 8 digitos")
             }
             iCedula.abortController = null;
-        }
+        };
+
+
+        [iCorreo, iIdRol, iClave, iNombre, iApellido].forEach(element => {
+            element.addEventListener("input", () => {
+                element.setValidStatus();
+            });
+        });
 
    
 
     
     formulario.addEventListener('submit', event => {
+        
         if (
             !validarClave( boolActualizando ) ||
             !validarCedula( boolActualizando ) ||

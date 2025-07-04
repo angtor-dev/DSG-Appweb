@@ -1,7 +1,8 @@
 <?php
 $_POST = json_decode(file_get_contents("php://input"), true);
 
-//requiereAutenticacion();
+requiereAutenticacion();
+requierePermiso("reporteasistencias", "consultar");
 //requierePermiso("reporteAsistencias", "consultar");
 // TODO validar permisos
 

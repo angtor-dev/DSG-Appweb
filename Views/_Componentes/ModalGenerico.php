@@ -70,8 +70,13 @@
                         mostrarError(truncateString(error.message,150));
                     }
                     else{
-                        mostrarError("Ha ocurrido un error en la solicitud")
-                        console.error("modal-generico", error)
+                        if(error.message && error.message == "Forbidden"){
+                            mostrarError("No tienes permiso para realizar esta acción");
+                        }
+                        else{
+                            mostrarError("Ha ocurrido un error en la solicitud")
+                            console.error("modal-generico", error)
+                        }
                     }
                 }, 600)
             })

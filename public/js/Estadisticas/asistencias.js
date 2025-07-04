@@ -116,8 +116,10 @@ function changeChart(type = 'line'){
     else if(type == 'line'){
         asistenciasChart.data.datasets[0].borderColor = 'rgb(75, 192, 192)';
         asistenciasChart.data.datasets[0].backgroundColor = '';
+        delete asistenciasChart.data.datasets[0].backgroundColor;
         asistenciasChart.data.datasets[1].borderColor = 'rgb(255, 99, 132)';
         asistenciasChart.data.datasets[1].backgroundColor = '';
+        delete asistenciasChart.data.datasets[1].backgroundColor;
 
         asistenciasChart.data.datasets[1].data = asistenciasChart.data.datasets[1].data.map(x => {
             if(x < 0) return -x;
@@ -135,6 +137,7 @@ function changeChart(type = 'line'){
     createChart(type);
 
     asistenciasChart.data = data;
+    console.log("data", data);
     asistenciasChart.update();
 
 }
@@ -248,9 +251,6 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
                 let mesPicoAsistencias = labels[labelPicoAsistencias];
                 let mesPicoInasistencias = labels[labelPicoInasistencias];
                 
-                console.log(mesPicoAsistencias);
-                console.log(mesPicoInasistencias);
-                
                 
                 document.getElementById("picoAsistencias").innerHTML = picoAsistencias;
                 document.getElementById("picoInasistencias").innerHTML = picoInasistencias;
@@ -262,6 +262,28 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
                 
                 document.getElementById("picoInasistencias").parentNode.parentNode.style.backgroundColor = 'rgb(255, 99, 132)';
                 document.getElementById("picoInasistencias").parentNode.parentNode.style.color = '#950020';
+                let tbody = document.getElementById("promedioDivision");
+
+                tbody.closest("div.row").classList.add("d-none");
+                
+                if(data.promedio.length>0){
+                    // promedio es un arreglo con el promedio de asistencias y inasistencias por division de departamento
+
+                    tbody.innerHTML = "";
+                    console.log(data.promedio);
+                    data.promedio.forEach(element => {
+                        tbody.innerHTML += `<tr>
+                        <td>${element.division}</td>
+                        <td>${element.asistencias}</td>
+                        <td>${element.porcentajeAsistencias}%</td>
+                        <td>${element.inasistencias}</td>
+                        <td>${element.porcentajeInasistencias}%</td>
+                        </tr>`;
+                    });
+                    tbody.closest("div.row").classList.remove("d-none");
+
+                }
+
             }
 
 
