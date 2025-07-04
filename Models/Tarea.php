@@ -413,7 +413,7 @@ public function evaluar(): bool {
         $valido = false;
     }
 
-    // Validación de la evaluación del supervisor
+   
     if (!isset($this->evaluacion['ponderacion'])) {
         $_SESSION['errores'][] = "La ponderación del supervisor es obligatoria";
         $valido = false;
@@ -432,7 +432,6 @@ public function evaluar(): bool {
         $valido = false;
     }
 
-    // Validación de la evaluación del director (solo si fue aprobado por supervisor)
     if ($this->evaluacion['aprobacion'] == 1) {
         if (!isset($this->evaluacionDirector['ponderacion'])) {
           
@@ -451,7 +450,7 @@ public function evaluar(): bool {
         }
     }
 
-    // Validación de materiales
+    
     if (!empty($this->materiales)) {
         foreach ($this->materiales as $material) {
             if (!isset($material['id']) || !preg_match(REG_NUMERICO, $material['id'])) {
@@ -522,18 +521,18 @@ private function guardarEvaluacionDirector(
     string $comentarios,
     int $aprobacion
 ): void {
-    // Solo ejecutar si hay aprobación del supervisor
+   
     if ($aprobacion != 1) {
         return;
     }
 
-    // Obtener la observación actual
+  
     $currentObsQuery = "SELECT observacion FROM tarea_validacion WHERE idTarea = :idTarea";
     $currentObsStmt = $this->db->pdo()->prepare($currentObsQuery);
     $currentObsStmt->execute([':idTarea' => $idTarea]);
     $currentObs = $currentObsStmt->fetchColumn();
 
-    // Construir la nueva observación
+ 
     $observacion = $currentObs ?: '';
     
     if (!empty($comentarios)) {
