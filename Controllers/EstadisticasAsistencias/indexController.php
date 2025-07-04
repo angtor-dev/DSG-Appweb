@@ -1,8 +1,8 @@
 <?php
 cargarPost();
 
-//requiereAutenticacion();
-//requierePermiso("estadisticasasistencias", "consultar");
+requiereAutenticacion();
+requierePermiso("estadisticasasistencias", "consultar");
 // TODO validar permisos modificar bd
 
 if(!empty($_POST['fechaIn']) && !empty($_POST['fechaOut'])) {

@@ -43,7 +43,10 @@
                             <tr>
                                 <td><?= $trabajador->id ?></td>
                                 <td><?= $trabajador->getNombreCompleto() ?></td>
-                                <td><?= $trabajador->getCedula() ?></td>
+                                <!-- <td><?= $trabajador->getCedula() ?></td> -->
+                                <td><a data-bs-toggle="modal" data-bs-target="#modal-generico" data-bs-url="<?= LOCAL_DIR ?>/Trabajadores/Reporte?cedula=<?= $trabajador->getCedula() ?>"
+                                        href="#"><?= $trabajador->getCedula() ?></a></td>
+
                                 <td><?= $trabajador->getTelefono() ?></td>
                                 <td><?= ucfirst($trabajador->getTurno()) ?></td>
                                 <td><?= ucfirst($trabajador->getCargo()) ?></td>

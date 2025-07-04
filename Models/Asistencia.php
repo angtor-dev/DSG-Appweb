@@ -599,8 +599,6 @@ class Asistencia extends Model
     public function reporteEstadistica($print = false) {
         try {
             $this->db->connect();
-            $pdo = $this->db->pdo();
-            $pdo->beginTransaction();
 
             $queryN = "SELECT
                         DATE_FORMAT(fecha, '%Y-%m') as mes,
@@ -610,55 +608,66 @@ class Asistencia extends Model
             ";
             $where = " WHERE fecha Between :inicio AND :fin";
 
-
-            $query ="SELECT
-                        DATE_FORMAT(fa.fecha, '%Y-%m') as mes,
-                        COUNT(if(a.status=1,1,NULL)) as inasitencias,
-                        COUNT(if(a.status=1,NULL,1)) as asitencias
-                        
-                    FROM
-                        asistencia AS a
-                    JOIN fechaasistencia AS fa
-                    ON
-                        fa.id = a.idFechaAsistencia
-                    left join Trabajador as t on t.id = a.idTrabajador
-                    WHERE";
-
             if(!empty($this->idTrabajador)){
-                $query .= " t.cedula = :cedula AND";
                 $where .= " AND cedula = :cedula";
             }
             else if(!empty($this->idDepartamento)){
-                $query .= " fa.idDivision = :idDepartamento AND";
                 $where .= " AND idDivision = :idDepartamento";
             }
 
-            $query .= " 1 AND fa.fecha BETWEEN :inicio AND :fin GROUP BY mes";
-
             $where .= " GROUP BY mes";
+            
 
 
+            $query = $queryN . $where;
 
-            $stmt = $pdo->prepare($queryN . $where);
+            $parametros = [
+                "inicio" => $this->fechaIn,
+                "fin" => $this->fechaOut
+            ];
 
-            $stmt->bindValue("inicio", $this->fechaIn);
-            $stmt->bindValue("fin", $this->fechaOut);
 
             if(!empty($this->idTrabajador)){
-                $stmt->bindValue("cedula", $this->idTrabajador);
+                $parametros["cedula"] = $this->idTrabajador;
             }
             else if(!empty($this->idDepartamento)){
-                $stmt->bindValue("idDepartamento", $this->idDepartamento);
+                $parametros["idDepartamento"] = $this->idDepartamento;
             }
 
-            $stmt->execute();
-            $listaFinal = $stmt->fetchAll(PDO::FETCH_NUM);
-            $pdo->commit();
-            $pdo = null;
+            $listaFinal = $this->ejecutar($query, $parametros, PDO::FETCH_NUM);
+
+            
+
+            // obtener promedio de asistencias y inasistencias
+
+            $query = "SELECT
+                        v.division as division,
+                        ROUND((SUM(CASE WHEN v.esAsistencia = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(v.idDivision),0) ),2) as porcentajeAsistencias,
+                        ROUND((SUM(CASE WHEN v.esAsistencia = 0 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(v.idDivision),0) ),2) as porcentajeInasistencias,
+                        count(if(v.esAsistencia=1,1,NULL)) as asistencias,
+                        count(if(v.esAsistencia=0,1,NULL)) as inasistencias
+
+                    FROM
+                        vista_asistencias as v
+                    WHERE
+                        v.fecha BETWEEN :inicio AND :fin
+                    GROUP BY v.idDivision order by porcentajeAsistencias DESC";
+
+            $parametros = [
+                "inicio" => $this->fechaIn,
+                "fin" => $this->fechaOut
+            ];
+
+            $promedio = $this->ejecutar($query, $parametros, PDO::FETCH_ASSOC);
+            if(empty($promedio)){
+                $promedio = [];
+            }
+            
             $this->db->disconnect();
             $respuesta = [
                 "success" => true,
                 "lista" => $listaFinal
+                ,"promedio" => $promedio
             ];
             
         } catch (\Throwable $th) {

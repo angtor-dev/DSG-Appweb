@@ -5,12 +5,13 @@ requierePermiso(Modulo::TRABAJADORES, Permiso::REGISTRAR);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
+    postTienePermiso(Modulo::TRABAJADORES, Permiso::REGISTRAR);
     $departamentoObj = new Division();
     $departamentos = $departamentoObj->listar();
     $cargosOptions = Cargo::getCargosOptions();
     $turnosOptions = Turno::getTurnosOptions();
      if(!empty($_GET['cedula'])){
-        require_once "Models/Trabajador.php";
+        postTienePermiso("falla", Permiso::REGISTRAR);
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
 
         if($Trabajador instanceof Trabajador and $Trabajador->getEstado() == $Trabajador::TRABAJADOR_ACTIVO){
