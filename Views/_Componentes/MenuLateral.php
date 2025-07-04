@@ -66,7 +66,7 @@
         <a href="<?= LOCAL_DIR ?>/Departamentos" class="sidebar-button mx-3
             <?= strtolower($uriParts[0]) == "departamentos" ? "active" : "" ?>">
             <i class="fa-solid fa-building"></i>
-            Departamentos
+            Divisiones
         </a>
     <?php endif ?>
     <?php if (tienePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR)): ?>
@@ -119,7 +119,7 @@
                     <?php if (tienePermiso(Modulo::AJUSTES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Ajustes"
                             class="<?= strtolower($uriParts[1]) == "ajustes" ? "active" : "" ?>">
-                            Ajustes
+                            Correcciones de Inventario
                         </a>
                     <?php endif ?>
                     <?php if (tienePermiso(Modulo::NOTASENTREGA, Permiso::CONSULTAR)): ?>

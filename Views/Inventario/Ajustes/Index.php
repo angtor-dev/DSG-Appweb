@@ -4,8 +4,8 @@
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Ajustes</h3>
-                <span class="opacity-75 mb-2">Consulta y realiza ajustes de inventario</span>
+                <h3 class="pb-2">Correcciones</h3>
+                <span class="opacity-75 mb-2">Consulta y realiza correcciones de inventario</span>
             </div>
             <?php if (tienePermiso(modulo::AJUSTES, Permiso::REGISTRAR)): ?>
                 <div>
@@ -14,7 +14,7 @@
                         data-bs-toggle="modal" data-bs-target="#modal-generico"
                         data-bs-url="<?= LOCAL_DIR ?>/Inventario/Ajustes/Registrar">
                         <i class="fa-solid fa-plus me-2"></i>
-                        Nuevo Ajuste
+                        Nueva Corrección
                     </button>
                 </div>
             <?php endif ?>

@@ -176,6 +176,6 @@ class Ajuste extends Model
 
     public function getFechaCreacionLegible(): string
     {
-        return (new DateTime($this->fechaCreacion))->format('d/m/Y');
+        return (new DateTime($this->fechaCreacion))->format('d/m/Y h:ia');
     }
 }
