@@ -1,23 +1,23 @@
-<div class="modal fade" id="modal-cancelar">
+<div class="modal fade" id="modal-terminar">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-top: 4px solid var(--bs-danger);">
+        <div class="modal-content" style="border-top: 4px solid var(--bs-success);">
             <div class="modal-body d-flex flex-column align-items-center gap-2">
-                <span style="font-size: 48px; color: var(--bs-danger);">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                <span style="font-size: 48px; color: var(--bs-success);">
+                    <i class="fa-solid fa-circle-check"></i>
                 </span>
-                <b>¿Estas seguro?</b>
+                <b>¿Confirmar finalización?</b>
                 <span class="text-secondary text-center">
-                    ¿Quieres Cancelar <span class="modelo"></span> <b class="nombre"></b>?
+                    ¿Deseas marcar como terminada la tarea <b class="nombre"></b>?
                     <br>
-                    Esta acción no puede revertirse
+                    Esta acción registrará la fecha de finalización
                 </span>
                 <div class="d-flex gap-3 w-100 mt-3">
                     <button type="button" class="btn btn-outline-secondary flex-grow-1"
                         data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <a href="#" class="btn btn-danger flex-grow-1 eliminar">
-                        Aceptar
+                    <a href="#" class="btn btn-success flex-grow-1 confirmar">
+                        Sí, Terminar
                     </a>
                 </div>
             </div>

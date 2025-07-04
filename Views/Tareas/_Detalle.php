@@ -24,7 +24,7 @@
                         </div>
                         <div class="col-md-6">
                             <p><strong>Fecha de Creación:</strong> <span id="detalle-fecha"></span></p>
-                            <p><strong>Estado:</strong> <span id="detalle-estado" class="badge"></span></p>
+                            <p><strong>Estado:</strong> <span id="detalle-estado" class="badge"></span>Evaluada</p>
                         </div>
                         <div class="col-12">
                             <p><strong>Descripción:</strong> <span id="detalle-descripcion"></span></p>

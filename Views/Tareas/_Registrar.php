@@ -49,8 +49,8 @@
                                             <?php foreach ($departamentos as $departamento): ?>
                                                 <option value="<?= $departamento->id ?>">
                                                     <?= $departamento->getNombre() ?>
-                                                    <?php if ($departamento->departamentoPadre !== null): ?>
-                                                        (<?= $departamento->departamentoPadre->getNombre() ?? '' ?>)
+                                                    <?php if ($departamento !== null): ?>
+                                                      
                                                     <?php endif; ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -94,19 +94,14 @@
                                         <label for="turno" class="form-label fw-semibold">Turno</label>
                                         <select class="form-select" id="turno" name="turno" required>
                                             <option value="" selected disabled>Seleccione un turno</option>
-                                            <option value="matutino">Mañana</option>
-                                            <option value="vespertino">Tarde</option>
-                                            <option value="nocturno">Noche</option>
-                                            <option value="nocturno">Fin de semana</option>
-                                            <option value="nocturno">Especial</option>
+                                                 <?= $turnosOptions ?>                                          
                                         </select>
                                         <div class="invalid-feedback">Seleccione un turno</div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Script para inicializar select2 -->
-
+                
 
                             <hr class="my-4">
 
@@ -118,7 +113,7 @@
                                         <label for="tipo-tarea" class="form-label fw-semibold">Tipo de Tarea</label>
                                         <select class="form-select" id="tipo-tarea" name="tipoTarea" required>
                                             <option value="normal">Normal</option>
-                                            <option value="comun">Común (Plantilla)</option>
+                                            <option value="diferida">Diferida</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
@@ -131,8 +126,8 @@
                                         <select class="form-select select2-multiple" id="personal" name="personal[]" multiple="multiple"
                                             data-placeholder="Busque y seleccione personal">
                                             <?php foreach ($trabajadores as $trabajador): ?>
-                                                <option value="<?= $trabajador->id ?>" data-departamento="<?= $trabajador->departamento->id ?>">
-                                                    <?= $trabajador->getNombreCompleto() ?> - <?= $trabajador->getCedula() ?>
+                                                <option value="<?= $trabajador->id ?>" data-departamento="<?= $trabajador->departamento->id ?>" data-cargo="<?= $trabajador->getCargo() ?>">
+                                                    <?= $trabajador->getNombreCompleto() ?> - <?= $trabajador->getCedula() ?> - <?= $trabajador->getCargo() ?>
                                                     (<?= $trabajador->departamento->getNombre() ?? 'Sin departamento' ?>)
                                                 </option>
                                             <?php endforeach; ?>
@@ -145,7 +140,7 @@
                                         <select class="form-select select2" id="supervisor" name="supervisor"
                                             data-placeholder="Busque y seleccione supervisor">
                                             <?php foreach ($trabajadores as $trabajador): ?>
-                                                <option value="<?= $trabajador->id ?>" data-departamento="<?= $trabajador->departamento->id ?>">
+                                                <option value="<?= $trabajador->id ?>" data-departamento="<?= $trabajador->departamento->id ?>" data-cargo="<?= $trabajador->getCargo() ?>">
                                                     <?= $trabajador->getNombreCompleto() ?> - <?= $trabajador->getCedula() ?>
                                                     (<?= $trabajador->departamento->getNombre() ?? 'Sin departamento' ?>) - <?=$trabajador->getCargo() ?>
                                                 </option>

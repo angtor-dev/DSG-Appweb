@@ -1,29 +1,147 @@
-function cancelarTarea(id, element) {
-  if (!confirm("¿Estás seguro de cancelar esta tarea?")) return;
+// Función para mostrar el modal de confirmación
+function mostrarModalCancelar(id, element) {
+    const modal = $('#modal-cancelar');
+    
+    // Configurar el modal
+    modal.find('.modelo').text('la tarea');
+    modal.find('.nombre').text(`ID: ${id}`);
+    
+    // Configurar el botón de aceptar
+    modal.find('.eliminar').off('click').on('click', function(e) {
+        e.preventDefault();
+        modal.modal('hide');
+        cancelarTarea(id, element);
+    });
+    
+    // Mostrar el modal
+    modal.modal('show');
+}
 
-  const icon = $(element).find("i");
-  icon.removeClass("fa-ban").addClass("fa-spinner fa-spin");
-  //----------------------------------- Cancelar tarea -----------------------
-  $.ajax({
-    url: "Tareas/Cancelar", // Asegúrate que esta ruta coincida con tu enrutamiento
-    type: "POST",
-    data: { id: id },
-    dataType: "json",
-    success: function (response) {
-      if (response.success) {
-        $(".datatable").DataTable().ajax.reload();
-        toastr.success(response.message);
-      } else {
-        toastr.error(response.message);
-      }
-    },
-    error: function (xhr) {
-      toastr.error("Error al contactar el servidor");
-    },
-    complete: function () {
-      icon.removeClass("fa-spinner fa-spin").addClass("fa-ban");
-    },
-  });
+function mostrarModalTerminar(id, element) {
+    const modal = $('#modal-terminar');
+    
+    // Configurar el modal
+    modal.find('.nombre').text(`ID: ${id}`);
+    
+    // Configurar el botón de confirmación
+    modal.find('.confirmar').off('click').on('click', function(e) {
+        e.preventDefault();
+        modal.modal('hide');
+        terminarTarea(id, element);
+    });
+    
+    // Mostrar el modal
+    modal.modal('show');
+}
+
+
+function terminarTarea(id, element) {
+    const icon = $(element).find("i");
+    icon.removeClass("fa-check-circle").addClass("fa-spinner fa-spin");
+    
+    $.ajax({
+        url: "Tareas",
+        type: "POST",
+        data: { 
+            id: id,
+            action: 'terminar' 
+        },
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    backgroundColor: "#28a745",
+                    stopOnFocus: true,
+                    className: "toastify-success"
+                }).showToast();
+            } else {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    backgroundColor: "#dc3545",
+                    stopOnFocus: true,
+                    className: "toastify-error"
+                }).showToast();
+            }
+        },
+        error: function (xhr) {
+            Toastify({
+                text: "Error al contactar el servidor",
+                duration: 3000,
+                close: true,
+                 gravity: "bottom",
+                position: "center",
+                backgroundColor: "#dc3545",
+                stopOnFocus: true,
+                className: "toastify-error"
+            }).showToast();
+        },
+        complete: function () {
+            icon.removeClass("fa-spinner fa-spin").addClass("fa-check-circle");
+            $(".datatable").DataTable().ajax.reload();
+        }
+    });
+}
+
+function cancelarTarea(id, element) {
+    const icon = $(element).find("i");
+    icon.removeClass("fa-ban").addClass("fa-spinner fa-spin");
+    
+    $.ajax({
+        url: "Tareas",
+        type: "POST",
+        data: { 
+            id: id,
+            action: 'cancelar' 
+        },
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    backgroundColor: "#28a745",
+                    stopOnFocus: true
+                }).showToast();
+            } else {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    backgroundColor: "#dc3545",
+                    stopOnFocus: true
+                }).showToast();
+            }
+        },
+        error: function (xhr) {
+            Toastify({
+                text: "Error al contactar el servidor",
+                duration: 3000,
+                close: true,
+                gravity: "bottom",
+                position: "right",
+                backgroundColor: "#dc3545",
+                stopOnFocus: true
+            }).showToast();
+        },
+        complete: function () {
+            icon.removeClass("fa-spinner fa-spin").addClass("fa-ban");
+            $(".datatable").DataTable().ajax.reload();
+        }
+    });
 }
 function renderButtons(row) {
   let buttons = '<div class="d-flex gap-2">';
@@ -40,10 +158,16 @@ function renderButtons(row) {
                         <i class="fa-solid fa-fw fa-eye"></i>
                     </div>
                 </div>
+
+              <!-- Terminar -->
+                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Terminar Tarea" 
+                    onclick="mostrarModalTerminar(${row.id}, this)">
+                    <i class="fa-solid fa-check-circle"></i>
+                </div>
                 
-                <!-- Cancelar -->
+             <!-- Cancelar -->
                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar Tarea" 
-                    onclick="cancelarTarea(${row.id}, this)">
+                    onclick="mostrarModalCancelar(${row.id}, this)">
                     <i class="fa-solid fa-ban"></i>
                 </div>
             </div>
@@ -72,9 +196,9 @@ function renderButtons(row) {
         buttons += `
             <div class="d-flex gap-2">
                 <!-- Ver Detalles -->
-                <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalles">
-                    <div data-bs-toggle="modal" data-bs-target="#modal-generico"
-                        data-bs-url="Tareas/Detalle?id=${row.id}">
+                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalles">
+                    <div data-bs-toggle="modal" data-bs-target="#modal-orden"
+                        data-bs-url="Tareas/Orden?id=${row.id}" data-valor="${row.id}">
                         <i class="fa-solid fa-fw fa-eye"></i>
                     </div>
                 </div>
@@ -145,8 +269,8 @@ function mostrarModalEvaluacion(tareaData) {
   const tbody = $("#tabla-materialesDevueltos tbody");
   tbody.empty(); // Limpiar tabla antes de llenar
 
-  if (tareaData.tarea.materiales && tareaData.tarea.materiales.length > 0) {
-    tareaData.tarea.materiales.forEach((material, index) => {
+  if (tareaData.tarea.materialestarea && tareaData.tarea.materialestarea.length > 0) {
+    tareaData.tarea.materialestarea.forEach((material, index) => {
       const unidad = material.medida_nombre || "";
       const esDecimal = [
         "m",
@@ -223,9 +347,9 @@ function mostrarModalDetalle(tareaData) {
     $("#detalle-id").text(tarea.id);
     $("#detalle-area").text(tarea.area_nombre);
     $("#detalle-departamento").text(tarea.departamento_nombre);
-    $("#detalle-descripcion").text(tarea.descripcion);
-    $("#detalle-fecha").text(new Date(tarea.fechaCreacion).toLocaleString());
-    $("#detalle-estado").text(tarea.estado_tarea.charAt(0).toUpperCase() + tarea.estado_tarea.slice(1));
+    $("#detalle-descripcion").text(tarea.descripcion_tarea);
+    $("#detalle-fecha").text(tarea.fecha_inicio_tarea);
+   
 
     // 2. Mostrar personal asignado y supervisor
     const $personalList = $("#detalle-personal");
@@ -259,8 +383,8 @@ function mostrarModalDetalle(tareaData) {
     const $materialesList = $("#detalle-materiales");
     $materialesList.empty();
     
-    if (tarea.materiales && tarea.materiales.length > 0) {
-        tarea.materiales.forEach(material => {
+    if (tarea.materialestarea && tarea.materialestarea.length > 0) {
+        tarea.materialestarea.forEach(material => {
             const devolucionInfo = material.devolucion === 1 ? 
                 `<span class="text-success">Devolución: ${material.cantidadDevolucion}</span>` : 
                 '<span class="text-danger">Sin devolución</span>';
@@ -286,34 +410,47 @@ function mostrarModalDetalle(tareaData) {
     const $evaluacionSection = $("#detalle-comentarios");
     $evaluacionSection.empty();
     
-    if (tarea.evaluacion) {
+    if (tarea.evaluacion_tarea) {
+        const evaluacionSupervisor = tarea.evaluacion_tarea.evaluacion_supervisor;
+        const evaluacionDirector = tarea.evaluacion_tarea.evaluacion_director;
+        const fecha = new Date(tarea.evaluacion_tarea.fecha_evaluacion_supervisor).toLocaleString();
+        const observaciones = tarea.evaluacion_tarea.comentario_supervisor || 'Ninguno';
+        
         let evaluacionHTML = `
-            <div class="card mb-3">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">Evaluación del Supervisor</h6>
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">Evaluación del Supervisor</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>${formatPonderacion(evaluacionSupervisor)}</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p><strong>Ponderación:</strong> ${formatPonderacion(tarea.evaluacion.evaluacion_supervisor)}</p>
-                    <p><strong>Comentarios:</strong> ${tarea.evaluacion.comentario_supervisor || 'Ninguno'}</p>
-                    <p><strong>Fecha:</strong> ${new Date(tarea.evaluacion.fecha_evaluacion_supervisor).toLocaleString()}</p>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Evaluación del Director</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>${evaluacionDirector ? formatPonderacion(evaluacionDirector) : 'Ninguna'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Información adicional</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Fecha:</strong> ${fecha}</p>
+                            <p><strong>Observaciones:</strong> ${observaciones}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
-        
-        if (tarea.evaluacion.evaluacion_director) {
-            evaluacionHTML += `
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h6 class="mb-0">Evaluación del Director</h6>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Ponderación:</strong> ${formatPonderacion(tarea.evaluacion.evaluacion_director)}</p>
-                        <p><strong>Comentarios:</strong> ${tarea.evaluacion.comentario_director || 'Ninguno'}</p>
-                        <p><strong>Fecha:</strong> ${new Date(tarea.evaluacion.fecha_evaluacion_director).toLocaleString()}</p>
-                    </div>
-                </div>
-            `;
-        }
         
         $evaluacionSection.html(evaluacionHTML);
     } else {
@@ -405,91 +542,85 @@ function obtenerDetallePorId(idTarea) {
 
 function mostrarModalOrden(tareaData) {
   const modal = $("#modal-orden");
-
-  // Cargar plantilla base primero
+  
   modal.find(".modal-content").load("Tareas/Orden", function () {
-    // Fecha y hora
-    const fechaHora = tareaData.data.tarea.fechaCreacion; // "2025-05-28 18:35:40"
+    // Verificar si los datos necesarios existen
+    if (!tareaData.data || !tareaData.data.tarea) {
+      console.error("Datos de tarea no encontrados");
+      return;
+    }
+
+    const tarea = tareaData.data.tarea;
+
+    // Fecha y hora - usar fecha actual si no viene en los datos
+    const fechaHora = tarea.fechaCreacion || new Date().toISOString().replace('T', ' ').substring(0, 19);
     const [fecha, hora] = fechaHora.split(" ");
 
     // Insertar datos básicos
     $("#orden-fecha").text(fecha);
     $("#orden-hora").text(hora);
-    $("#orden-departamento").text(tareaData.data.tarea.departamento_nombre);
-    $("#orden-area").text(tareaData.data.tarea.area_nombre);
-    $("#orden-descripcion").text(tareaData.data.tarea.descripcion);
-    $("#orden-observaciones").val(tareaData.data.tarea.observaciones || "");
+    $("#orden-inicio").text(tarea.fecha_inicio_tarea || "No especificado");
+    $("#orden-departamento").text(tarea.departamento_nombre || "No especificado");
+    $("#orden-area").text(tarea.area_nombre || "No especificado");
+    $("#orden-descripcion").text(tarea.descripcion_tarea || "No hay descripción");
+    $("#orden-observaciones").val(tarea.observaciones || "");
 
     // Personal asignado
     let personalHtml = "";
-    if (
-      tareaData.data.tarea.personal &&
-      tareaData.data.tarea.personal.length > 0
-    ) {
-      tareaData.data.tarea.personal.forEach((persona, index) => {
+    if (tarea.personal && tarea.personal.length > 0) {
+      tarea.personal.forEach((persona, index) => {
         personalHtml += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${persona.nombre} ${persona.apellido}</td>
-                                <td>${persona.departamento}</td>
-                                <td class="firma-placeholder" style="height: 30px;"></td>
-                            </tr>
-                        `;
+          <tr>
+            <td>${index + 1}</td>
+            <td>${persona.nombre || ''} ${persona.apellido || ''}</td>
+            <td>${persona.cargo || persona.departamento || ''}</td>
+          </tr>
+        `;
       });
+    } else {
+      personalHtml = `<tr><td colspan="3">No hay personal asignado</td></tr>`;
     }
     $("#personal-lista").html(personalHtml);
 
-    // Materiales y descripción - llenar tabla tareas-lista
+    // Tareas y materiales
     let tareasHtml = "";
-    // Como la descripción es única, la colocamos primero con índice 1
     tareasHtml += `
-                    <tr>
-                        <td>1</td>
-                        <td>${tareaData.data.tarea.descripcion}</td>
-                        <td>
-                            <ul class="list-unstyled mb-0">
-                `;
+      <tr>
+        <td>1</td>
+        <td>${tarea.descripcion_tarea || "No hay descripción de tarea"}</td>
+        <td>
+          <ul class="list-unstyled mb-0">
+    `;
 
-    if (
-      tareaData.data.tarea.materiales &&
-      tareaData.data.tarea.materiales.length > 0
-    ) {
-      tareaData.data.tarea.materiales.forEach((material) => {
-        tareasHtml += `<li>${material.cantidad} x ${material.nombre}</li>`;
+    if (tarea.materialestarea && tarea.materialestarea.length > 0) {
+      tarea.materialestarea.forEach((material) => {
+        tareasHtml += `<li>${material.cantidad || 0} x ${material.nombre || 'Material'}</li>`;
       });
     } else {
       tareasHtml += `<li>No hay materiales asignados.</li>`;
     }
 
     tareasHtml += `
-                            </ul>
-                        </td>
-                    </tr>
-                `;
-
+          </ul>
+        </td>
+      </tr>
+    `;
     $("#tareas-lista").html(tareasHtml);
 
-    // Supervisor (puede ser array con 1 elemento)
-    if (
-      tareaData.data.tarea.supervisor &&
-      tareaData.data.tarea.supervisor.length > 0
-    ) {
-      const sup = tareaData.data.tarea.supervisor[0];
-      // Actualiza el texto en el área de supervisor (por ejemplo, con id supervisor-nombre)
-      $(".firma-placeholder")
-        .next("p.mb-0")
-        .text(` ${sup.nombre} ${sup.apellido}`);
+    // Supervisor
+    if (tarea.supervisor && tarea.supervisor.length > 0) {
+      const sup = tarea.supervisor[0];
+      $("#orden-responsable").text(`${sup.nombre || ''} ${sup.apellido || ''}`);
     } else {
-      $(".firma-placeholder").next("p.mb-0").text("Supervisor no asignado");
+      $("#orden-responsable").text("Supervisor no asignado");
     }
 
-    // Mostrar el modal
     modal.modal("show");
   });
 }
 
 //-------------------------------------- Barra de progreso -----------------------
-// Función para actualizar la barra de progreso
+/* // Función para actualizar la barra de progreso
 function actualizarProgreso() {
   let progreso = 0;
   let mensaje = "";
@@ -526,7 +657,7 @@ function actualizarProgreso() {
       .removeClass("bg-warning bg-danger")
       .addClass("bg-success");
   }
-}
+} */
 
 //--------------------------------Comienza docuemtno -----------------
 
@@ -658,6 +789,12 @@ $(document).ready(function () {
                 url = '/DSG-Appweb/Tareas/Orden';
                 return;
             } */
+  });
+
+
+  // --------------------------------------------------MODAL CANCELAR------------------------------------
+  $(document).on("show.bs.modal", "#modal-cancelar", function (e) {
+   
   });
 
   //----------------------------------------------------MODAL ORDENES ----------------------------
@@ -1389,54 +1526,50 @@ $('#btn-generar-preview').click(function() {
       });
 
       // Guardar evaluación
-      $("#btn-guardar-evaluacion").click(function () {
-        console.log("Guardar evaluación");
+// Guardar evaluación
+$("#btn-guardar-evaluacion").click(function () {
+  console.log("Guardar evaluación");
 
-        // Validación de confirmación
-        if (!$("#confirmacion-evaluacion").is(":checked")) {
-          mostrarError("Debe confirmar que la información es correcta");
-          return;
-        }
+  // Validación de confirmación
+  if (!$("#confirmacion-evaluacion").is(":checked")) {
+    mostrarError("Debe confirmar que la información es correcta");
+    return;
+  }
 
-        // Validar evaluación del supervisor si está pendiente
-        if ($("#seccion-supervisor .badge").text() === "Pendiente") {
-          if (!$("#ponderacion-supervisor").val()) {
-            mostrarError("Seleccione una ponderación para la evaluación del supervisor");
-            return;
-          }
+  // Validar evaluación del supervisor si está pendiente
+  if ($("#seccion-supervisor .badge").text() === "Pendiente") {
+    if (!$("#ponderacion-supervisor").val()) {
+      mostrarError("Seleccione una ponderación para la evaluación del supervisor");
+      return;
+    }
 
-          if (!$("#aprobacion-supervisor").is(":checked")) {
-            if (!confirm("La tarea no será aprobada. ¿Desea continuar?")) {
-              return;
-            }
-          }
-        }
+    if (!$("#aprobacion-supervisor").is(":checked")) {
+      if (!confirm("La tarea no será aprobada. ¿Desea continuar?")) {
+        return;
+      }
+    }
+  }
 
-        // Validar evaluación del director si está habilitada
-        if (
-          $("#seccion-director").length &&
-          $("#seccion-director .badge").text() === "Pendiente"
-        ) {
-          if (!$("#ponderacion-director").val()) {
-            
-            mostrarError("Seleccione una ponderación para la evaluación del director");
-            return;
-          }
+  // Eliminamos la validación obligatoria para el director
+  // Solo validamos si la sección existe y está pendiente, pero no es obligatorio
+  if (
+    $("#seccion-director").length &&
+    $("#seccion-director .badge").text() === "Pendiente"
+  ) {
+    if (!$("#ponderacion-director").val()) {
+      if (!confirm("No ha seleccionado ponderación para el director. ¿Desea continuar sin esta evaluación?")) {
+        return;
+      }
+    } else if (!$("#aprobacion-director").is(":checked")) {
+      if (!confirm("La tarea no será aprobada definitivamente. ¿Desea continuar?")) {
+        return;
+      }
+    }
+  }
 
-          if (!$("#aprobacion-director").is(":checked")) {
-            if (
-              !confirm(
-                "La tarea no será aprobada definitivamente. ¿Desea continuar?"
-              )
-            ) {
-              return;
-            }
-          }
-        }
-
-        // Si llegamos aquí, todas las validaciones pasaron
-        enviarEvaluacion();
-      });
+  // Si llegamos aquí, todas las validaciones pasaron
+  enviarEvaluacion();
+});
 
       // Función para enviar la evaluación
       function enviarEvaluacion() {
@@ -1475,6 +1608,7 @@ $('#btn-generar-preview').click(function() {
               $("#modal-evaluar-tarea").modal("hide");
               if (typeof tablaActivas !== "undefined") {
                 tablaActivas.ajax.reload();
+              $("#modal-evaluar").modal("hide");
               }
             } else {
               if (response.errors) {
@@ -1736,13 +1870,31 @@ $('#btn-generar-preview').click(function() {
       $("#personal").html(originalPersonalOptions);
       $("#supervisor").html(originalSupervisorOptions);
 
-      // Filtrar eliminando
-      $("#personal option")
-        .not('[data-departamento="' + idDepartamento + '"]')
-        .remove();
-      $("#supervisor option")
-        .not('[data-departamento="' + idDepartamento + '"]')
-        .remove();
+      // Filtrar PERSONAL (NO SUPERVISORES) por departamento
+      $("#personal option").each(function() {
+        const $option = $(this);
+        const deptMatch = $option.data('departamento') == idDepartamento;
+        const cargo = ($option.data('cargo') || '').toLowerCase();
+        const esSupervisor = cargo.includes('supervisor');
+        
+        // Eliminar si: no coincide con departamento O es supervisor
+        if (!deptMatch || esSupervisor) {
+          $option.remove();
+        }
+      });
+
+      // Filtrar SUPERVISORES por departamento
+      $("#supervisor option").each(function() {
+        const $option = $(this);
+        const deptMatch = $option.data('departamento') == idDepartamento;
+        const cargo = ($option.data('cargo') || '').toLowerCase();
+        const esSupervisor = cargo.includes('supervisor');
+        
+        // Eliminar si: no coincide con departamento O NO es supervisor
+        if (!deptMatch || !esSupervisor) {
+          $option.remove();
+        }
+      });
 
       // Actualizar Select2
       $("#personal, #supervisor").trigger("change.select2");

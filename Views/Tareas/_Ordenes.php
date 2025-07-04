@@ -79,17 +79,9 @@
 <!-- Pie del Modal -->
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-    <button type="button" class="btn btn-primary" id="btn-generar-preview"  disabled onclick="mostrarEjemplo()">
-        <i class="fas fa-eye me-2"></i>Generar Vista Previa
-    </button>
+ 
     <button type="button" class="btn btn-success d-none" id="btn-imprimir-agrupadas">
-        <i class="fas fa-print me-2"></i>Imprimir Selección
+        <i class="fas fa-print me-2"></i>Vista previa e imprimir
     </button>
-    <button class="btn btn-outline-light rounded-pill" 
-        data-bs-toggle="modal" 
-        data-bs-target="#modal-ordenes" 
-        data-backdrop="static"
-        id="btn-generar-ordenes">
-    <i class="fas fa-object-group me-2"></i> Generar Órdenes
-</button>
+   
 </div>

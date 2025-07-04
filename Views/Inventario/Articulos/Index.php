@@ -7,7 +7,7 @@
                 <h3 class="pb-2">Artículos</h3>
                 <span class="opacity-75 mb-2">Gestiona los articulos registrados en el sistema</span>
             </div>
-            <?php if (tienePermiso(modulo::MEDIDAS, Permiso::REGISTRAR)): ?>
+            <?php if (tienePermiso(modulo::ARTICULOS, Permiso::REGISTRAR)): ?>
                 <div>
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"

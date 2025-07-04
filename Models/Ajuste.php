@@ -64,6 +64,58 @@ class Ajuste extends Model
         return $ajustes;
     }
 
+    public function registrar(): bool
+    {
+        $query = "INSERT INTO ajuste (idInventario, cantidad, descripcion, fechaIncidente)
+                  VALUES (:idInventario, :cantidad, :descripcion, :fechaIncidente)";
+        try {
+            $this->db->connect();
+
+            $stmt = $this->prepare($query);
+            $stmt->bindValue("idInventario", $this->idInventario);
+            $stmt->bindValue("cantidad", $this->cantidad);
+            $stmt->bindValue("descripcion", $this->descripcion);
+            $stmt->bindValue("fechaIncidente", $this->fechaIncidente);
+
+            $stmt->execute();
+
+            $this->db->disconnect();
+
+            return true;
+        } catch (\Throwable $th) {
+            if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
+            $_SESSION['errores'][] = "Ocurrió un error al registrar el ajuste";
+            return false;
+        }
+    }
+
+    public function esValido(): bool
+    {
+        if (!is_numeric($this->cantidad)) {
+            $_SESSION['errores'][] = "La cantidad debe ser un número.";
+            return false;
+        }
+        if ($this->cantidad == 0) {
+            $_SESSION['errores'][] = "La cantidad no puede ser cero.";
+            return false;
+        }
+        if (empty(trim($this->descripcion))) {
+            $_SESSION['errores'][] = "La descripción es obligatoria.";
+            return false;
+        }
+        if (empty($this->fechaIncidente)) {
+            $_SESSION['errores'][] = "Debe ingresar la fecha del incidente.";
+            return false;
+        }
+        // Validar formato de fecha (opcional)
+        $fecha = date_create_from_format('Y-m-d', $this->fechaIncidente);
+        if (!$fecha) {
+            $_SESSION['errores'][] = "La fecha del incidente no es válida.";
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Establece valores en propiedades de la clase.
      *
@@ -89,9 +141,16 @@ class Ajuste extends Model
         }
     }
 
-
-
-
+    public function setDatos(int $idInventario, int $cantidad, string $descripcion, string $fechaIncidente, ?int $id = null): void
+    {
+        if ($id !== null) {
+            $this->id = $id;
+        }
+        $this->idInventario = $idInventario;
+        $this->cantidad = $cantidad;
+        $this->descripcion = $descripcion;
+        $this->fechaIncidente = $fechaIncidente;
+    }
 
     public function getCantidad(): int
     {
@@ -117,6 +176,6 @@ class Ajuste extends Model
 
     public function getFechaCreacionLegible(): string
     {
-        return (new DateTime($this->fechaCreacion))->format('d/m/Y');
+        return (new DateTime($this->fechaCreacion))->format('d/m/Y h:ia');
     }
 }

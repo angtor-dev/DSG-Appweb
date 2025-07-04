@@ -118,6 +118,27 @@ class Usuario extends Model
         return $stmt->fetch();
     }
 
+    public static function cargarSoloNombres(int $id): Usuario | null
+    {
+        $bd = Database::getInstance();
+        $query = "SELECT id, nombre, apellido, estado FROM usuario WHERE id = :id";
+
+        $bd->connectUser();
+
+        $stmt = $bd->pdo()->prepare($query);
+        $stmt->bindValue("id", $id);
+
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_CLASS, "Usuario");
+
+        $bd->disconnect();
+
+        if ($stmt->rowCount() == 0) {
+            return null;
+        }
+        return $stmt->fetch();
+    }
+
 
     
 

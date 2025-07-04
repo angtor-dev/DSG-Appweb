@@ -1,6 +1,6 @@
 <?php
 requiereAutenticacion();
-requierePermiso(Modulo::TAREAS, Permiso::REGISTRAR);
+requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     require_once "Views/Tareas/_Orden.php";
@@ -27,8 +27,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'success' => true,
             'data' => [
                 'id' => $idTarea,
-                'tarea' => $tareaCompleta,
-                'redirect' => 'Tareas/Orden/' . $idTarea
+                'tarea' => $tareaCompleta
             ]
         ]);
     } else {

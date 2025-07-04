@@ -119,7 +119,13 @@
                     <?php if (tienePermiso(Modulo::AJUSTES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Ajustes"
                             class="<?= strtolower($uriParts[1]) == "ajustes" ? "active" : "" ?>">
-                            Ajustes
+                            Correcciones de Inventario
+                        </a>
+                    <?php endif ?>
+                    <?php if (tienePermiso(Modulo::NOTASENTREGA, Permiso::CONSULTAR)): ?>
+                        <a href="<?= LOCAL_DIR ?>/Inventario/NotasEntrega"
+                            class="<?= strtolower($uriParts[1]) == "notasentrega" ? "active" : "" ?>">
+                            Notas de Entrega
                         </a>
                     <?php endif ?>
                     <?php if (tienePermiso(Modulo::MOVIMIENTOS, Permiso::CONSULTAR)): ?>
@@ -218,7 +224,7 @@
                     <!--  colocar permisos -->
                     <?php if (true/*tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)*/): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Respaldo"
-                            class="<?= strtolower($uriParts[1]) == "bitacora" ? "active" : "" ?>">
+                            class="<?= strtolower($uriParts[1]) == "respaldo" ? "active" : "" ?>">
                             Respaldo BD
                         </a>
                     <?php endif ?>

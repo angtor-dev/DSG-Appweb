@@ -4,17 +4,17 @@
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Ajustes</h3>
-                <span class="opacity-75 mb-2">Consulta y realiza ajustes de inventario</span>
+                <h3 class="pb-2">Correcciones</h3>
+                <span class="opacity-75 mb-2">Consulta y realiza correcciones de inventario</span>
             </div>
             <?php if (tienePermiso(modulo::AJUSTES, Permiso::REGISTRAR)): ?>
                 <div>
                     <button style="padding: .65rem 1.4rem;"
                         class="btn btn-outline-light rounded-pill"
                         data-bs-toggle="modal" data-bs-target="#modal-generico"
-                        data-bs-url="<?= LOCAL_DIR ?>/Ajustes/Registrar">
+                        data-bs-url="<?= LOCAL_DIR ?>/Inventario/Ajustes/Registrar">
                         <i class="fa-solid fa-plus me-2"></i>
-                        Nuevo Ajuste
+                        Nueva Corrección
                     </button>
                 </div>
             <?php endif ?>
@@ -63,11 +63,25 @@
                 url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
             },
             layout: {
-                topStart: {
-                    buttons: ['excel', 'pdf', 'print']
-                },
+                topStart: {},
                 bottom1Start: {
                     pageLength: true
+                },
+                bottom1End: {
+                    buttons: [
+                        {
+                            // Elemento de texto personalizado
+                            text: 'Exportar: ',
+                            // Puedes añadir una clase para estilizarlo si es necesario
+                            className: 'dt-export-button',
+                            // Esto evita que se comporte como un botón real
+                            action: function ( e, dt, node, config ) {
+                                // No hacer nada al hacer clic
+                                e.preventDefault();
+                            }
+                        },
+                        'excel', 'pdf', 'print'
+                    ]
                 }
             }
         })
@@ -76,4 +90,4 @@
 
 
 <?php // agregarScript("ajuste.js") ?>
-<?php // agregarScript("validaciones/ajuste.js") ?>
+<?php agregarScript("validaciones/ajuste.js") ?>
