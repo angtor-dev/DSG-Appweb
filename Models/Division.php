@@ -135,8 +135,8 @@ class Division extends Model
                 $param=[
                     'id' => $this->id
                 ];
+                $this->ejecutarStatement($sql, $param);
             }
-            $this->ejecutarStatement($sql, $param);
 
             if($this->getTestingMode()){
                 $this->rollBack();

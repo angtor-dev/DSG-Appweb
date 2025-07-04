@@ -1,8 +1,8 @@
 <div class="p-3">
     <!-- Titulo -->
-     <h3>Dashboard</h3>
+     <!-- <h3>Dashboard</h3> -->
     <!-- Cartas superiores -->
-    <div class="row justify-content-center g-3">
+    <div class="row justify-content-center g-3 d-none">
         <div class="col">
             <div class="card border">
                 <div class="card-body justify-content-center align-items-center d-flex flex-column">
@@ -37,7 +37,7 @@
         </div>
     </div>
     <!-- Tablas inferiores -->
-     <div class="row justify-content-center g-3 mt-0">
+     <div class="row justify-content-center g-3 mt-0 d-none">
         <div class="col">
             <div class="card border">
                 <div class="card-header border-primary" style="border-width: 2px;">
@@ -173,9 +173,14 @@
                             </tbody>
                         </table>
                     </div>
+                    
                 </div>
             </div>
         </div>
      </div>
+
+     <div class="container d-flex justify-content-center align-items-center" style="height: calc(90vh - 62px);">
+        <h1>Bienvenido al sistema DISEGIS</h1>
+    </div>
      
 </div>
