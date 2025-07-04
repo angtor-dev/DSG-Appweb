@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $departamentoObj = new Division();
     $departamentos = $departamentoObj->listar();
 
-   $turnosOptions = Turno::getTurnosOptions();
+    $turnosOptions = Turno::getTurnosOptions();
     
     $areaObj = new Area();
     $areas = $areaObj->listar();
@@ -44,14 +44,13 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tarea->setterArray($datos);
 
     if ($tarea->registrar()) {
-        $tareaCompleta = Tarea::obtenerPorId($tarea->getId());
+        $tareaCompleta = $tarea->obtenerPorId($tarea->getId());
         $response = [
             'success' => true,
             'message' => "Tarea registrada con éxito",
             'data' => [
                 'id' => $tarea->getId(),
-                'tarea' => $tareaCompleta,
-                'redirect' => 'Tareas/Orden/' . $tarea->getId()
+                'tarea' => $tareaCompleta
             ]
         ];
         Bitacora::registrar("Tarea registrada: " . $tarea->getDescripcion());

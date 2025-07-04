@@ -2,6 +2,12 @@
 requiereAutenticacion();
 requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
 
+$conteoTareas = [
+    'activo' => (new Tarea())->contarPorEstado('activo'),
+    'vencida' => (new Tarea())->contarPorEstado('vencida'),
+    'cancelado' => (new Tarea())->contarPorEstado('cancelado')
+];
+
 if (isset($_GET['ajax'])) {
     header('Content-Type: application/json');
     
@@ -25,6 +31,7 @@ if (isset($_GET['ajax'])) {
     echo json_encode($datos);
     exit;
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     
