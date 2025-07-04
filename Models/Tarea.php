@@ -91,76 +91,111 @@ public function registrar(): bool {
         $this->db->disconnect();
     }
 }
-    /**
-     * Mapea los datos del formulario a las propiedades del modelo
-     * @param array $datos Datos del formulario
-     */
-  /*   public function mapearDatos(array $datos): void
-    {
-        $this->idArea = (int)$datos['idArea'];
-        $this->idDepartamento = (int)$datos['idDepartamento'];
-        $this->descripcion = trim($datos['descripcion']);
-        $this->es_comun = ($datos['tipoTarea'] ?? 'normal') === 'comun';
-        $this->turno = $datos['turno'];
-        $this->fecha_inicio = $datos['fecha_inicio'];
-        $this->idSupervisor = (int)$datos['supervisor'] ?? 0;
-
-
-        if (!$this->es_comun && isset($datos['personal'])) {
-            $this->personalAsignado = (array)$datos['personal'];
-        }
-
-        if (isset($datos['materiales'])) {
-            if (is_string($datos['materiales'])) {
-                $this->materiales = json_decode($datos['materiales'], true);
-            } else {
-                $this->materiales = (array)$datos['materiales'];
-            }
-        }
-    }
- */
-    
+  
 
     /**
      * Valida los datos de la tarea
      * @return bool True si los datos son válidos
      */
-    public function esValido(): bool
-    {
-        $valido = true;
+ public function esValido(): bool
+{
+    $valido = true;
 
-        if (empty($this->idArea)) {
-            $_SESSION['errores'][] = "El campo 'Área' es obligatorio";
-            $valido = false;
-        }
+    // Validación de idArea (numérico)
+    if (empty($this->idArea)) {
+        $_SESSION['errores'][] = "El campo 'Área' es obligatorio";
+        $valido = false;
+    } elseif (!preg_match(REG_NUMERICO, $this->idArea)) {
+        $_SESSION['errores'][] = "El campo 'Área' debe ser un valor numérico";
+        $valido = false;
+    }
 
-        if (empty($this->idDepartamento)) {
-            $_SESSION['errores'][] = "El campo 'Departamento' es obligatorio";
-            $valido = false;
-        }
+    // Validación de idDepartamento (numérico)
+    if (empty($this->idDepartamento)) {
+        $_SESSION['errores'][] = "El campo 'Departamento' es obligatorio";
+        $valido = false;
+    } elseif (!preg_match(REG_NUMERICO, $this->idDepartamento)) {
+        $_SESSION['errores'][] = "El campo 'Departamento' debe ser un valor numérico";
+        $valido = false;
+    }
 
-        if (empty($this->descripcion)) {
-            $_SESSION['errores'][] = "El campo 'Descripción' es obligatorio";
-            $valido = false;
-        }
+    // Validación de descripción (alfanumérico)
+    if (empty($this->descripcion)) {
+        $_SESSION['errores'][] = "El campo 'Descripción' es obligatorio";
+        $valido = false;
+    } elseif (!preg_match(REG_ALFANUMERICO, $this->descripcion)) {
+        $_SESSION['errores'][] = "El campo 'Descripción' contiene caracteres no válidos";
+        $valido = false;
+    }
 
-        if (empty($this->turno)) {
-            $_SESSION['errores'][] = "El campo 'Turno' es obligatorio";
-            $valido = false;
-        }
+    // Validación de turno (numérico)
+    if (empty($this->turno)) {
+        $_SESSION['errores'][] = "El campo 'Turno' es obligatorio";
+        $valido = false;
+    } elseif (!preg_match(REG_NUMERICO, $this->turno)) {
+        $_SESSION['errores'][] = "El campo 'Turno' debe ser un valor numérico";
+        $valido = false;
+    }
 
-        if (empty($this->fecha_inicio)) {
-            $_SESSION['errores'][] = "El campo 'Fecha de inicio' es obligatorio";
-            $valido = false;
-        }
+    // Validación de fecha_inicio (formato fecha)
+    if (empty($this->fecha_inicio)) {
+        $_SESSION['errores'][] = "El campo 'Fecha de inicio' es obligatorio";
+        $valido = false;
+    } elseif (!preg_match(REG_FECHA, $this->fecha_inicio)) {
+        $_SESSION['errores'][] = "El campo 'Fecha de inicio' tiene un formato inválido (YYYY-MM-DD)";
+        $valido = false;
+    }
 
-        if (!$this->es_comun && empty($this->personalAsignado)) {
+    // Validación de supervisor (numérico)
+    if (empty($this->idSupervisor)) {
+        $_SESSION['errores'][] = "El campo 'Supervisor' es obligatorio";
+        $valido = false;
+    } elseif (!preg_match(REG_NUMERICO, $this->idSupervisor)) {
+        $_SESSION['errores'][] = "El campo 'Supervisor' debe ser un valor numérico";
+        $valido = false;
+    }
+
+    // Validación de tipoTarea (alfabético)
+    if (!empty($this->tipoTarea) && !preg_match(REG_ALFABETICO, $this->tipoTarea)) {
+        $_SESSION['errores'][] = "El campo 'Tipo de Tarea' contiene caracteres no válidos";
+        $valido = false;
+    }
+
+    // Validación de personal asignado (array numérico)
+    if (!$this->es_comun) {
+        if (empty($this->personalAsignado)) {
             $_SESSION['errores'][] = "Debe seleccionar al menos un trabajador";
             $valido = false;
+        } else {
+            foreach ($this->personalAsignado as $personalId) {
+                if (!preg_match(REG_NUMERICO, $personalId)) {
+                    $_SESSION['errores'][] = "El ID de personal contiene valores no numéricos";
+                    $valido = false;
+                    break;
+                }
+            }
         }
-
-        return $valido;
     }
+
+    // Validación de materiales (si existen)
+    if (!empty($this->materiales)) {
+        foreach ($this->materiales as $material) {
+            if (!isset($material['id']) || !preg_match(REG_NUMERICO, $material['id'])) {
+                $_SESSION['errores'][] = "El ID de material es inválido";
+                $valido = false;
+            }
+            
+            if (!isset($material['cantidad']) || !preg_match(REG_NUMERICO, $material['cantidad'])) {
+                $_SESSION['errores'][] = "La cantidad de material debe ser numérica";
+                $valido = false;
+            }
+            
+            
+        }
+    }
+
+    return $valido;
+}
 
     // Métodos privados
 
@@ -370,8 +405,73 @@ public function evaluar(): bool {
     }
 
     private function esValidoEval(): bool {
-        return $this->id > 0 && isset($this->evaluacion['ponderacion']);
+    $valido = true;
+
+    // Validación del ID de tarea
+    if ($this->id <= 0 || !preg_match(REG_NUMERICO, $this->id)) {
+        $_SESSION['errores'][] = "ID de tarea inválido";
+        $valido = false;
     }
+
+    // Validación de la evaluación del supervisor
+    if (!isset($this->evaluacion['ponderacion'])) {
+        $_SESSION['errores'][] = "La ponderación del supervisor es obligatoria";
+        $valido = false;
+    } elseif (!preg_match(REG_ALFANUMERICO, $this->evaluacion['ponderacion'])) {
+        $_SESSION['errores'][] = "La ponderación del supervisor contiene caracteres inválidos";
+        $valido = false;
+    }
+
+    if (isset($this->evaluacion['comentarios']) && !preg_match(REG_ALFANUMERICO, $this->evaluacion['comentarios'])) {
+        $_SESSION['errores'][] = "Los comentarios del supervisor contienen caracteres inválidos";
+        $valido = false;
+    }
+
+    if (!isset($this->evaluacion['aprobacion'])) {
+        $_SESSION['errores'][] = "La aprobación del supervisor es obligatoria";
+        $valido = false;
+    }
+
+    // Validación de la evaluación del director (solo si fue aprobado por supervisor)
+    if ($this->evaluacion['aprobacion'] == 1) {
+        if (!isset($this->evaluacionDirector['ponderacion'])) {
+          
+        } elseif (!preg_match(REG_ALFANUMERICO, $this->evaluacionDirector['ponderacion'])) {
+            $_SESSION['errores'][] = "La ponderación del director contiene caracteres inválidos";
+            $valido = false;
+        }
+
+        if (isset($this->evaluacionDirector['comentarios']) && !preg_match(REG_ALFANUMERICO, $this->evaluacionDirector['comentarios'])) {
+            $_SESSION['errores'][] = "Los comentarios del director contienen caracteres inválidos";
+            $valido = false;
+        }
+
+        if (!isset($this->evaluacionDirector['aprobacion'])) {
+            
+        }
+    }
+
+    // Validación de materiales
+    if (!empty($this->materiales)) {
+        foreach ($this->materiales as $material) {
+            if (!isset($material['id']) || !preg_match(REG_NUMERICO, $material['id'])) {
+              
+            }
+
+            if (isset($material['utilizado']) && !preg_match(REG_NUMERICO, $material['utilizado'])) {
+                $_SESSION['errores'][] = "Cantidad utilizada debe ser numérica";
+                $valido = false;
+            }
+
+            if (isset($material['devuelto']) && !preg_match(REG_NUMERICO, $material['devuelto'])) {
+                $_SESSION['errores'][] = "Cantidad devuelta debe ser numérica";
+                $valido = false;
+            }
+        }
+    }
+
+    return $valido;
+}
 
     private function guardarEvaluacionSupervisor(
         int $idTarea,
@@ -987,6 +1087,239 @@ private function obtenerValidacionesParaTareas(array $tareaIds) {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function obtenerEstadisticas(string $tipo, string $fechaInicio, string $fechaFin, ?int $departamento = null): array {
+        $this->db->connect();
+        
+        try {
+            switch ($tipo) {
+                case 'recurso_consumible':
+                    return $this->estadisticaRecursoConsumible($fechaInicio, $fechaFin);
+                case 'mes_mas_tareas':
+                    return $this->estadisticaMesMasTareas($fechaInicio, $fechaFin);
+                case 'departamento_mas_tareas':
+                    return $this->estadisticaDepartamentoMasTareas($fechaInicio, $fechaFin);
+                case 'trabajador_mas_tareas':
+                    if (!$departamento) {
+                        throw new Exception('Se requiere un departamento para esta estadística');
+                    }
+                    return $this->estadisticaTrabajadorMasTareas($fechaInicio, $fechaFin, $departamento);
+                default:
+                    throw new Exception('Tipo de estadística no válido');
+            }
+        } finally {
+            $this->db->disconnect();
+        }
+    }
+
+    private function estadisticaRecursoConsumible(string $fechaInicio, string $fechaFin): array {
+        $query = "SELECT 
+                    a.id, 
+                    a.nombre as recurso, 
+                    SUM(r.cantidad) as cantidad,
+                    m.nombre as unidades
+                FROM recurso r
+                JOIN articulo a ON r.idArticulo = a.id
+                JOIN medida m ON a.idMedida = m.id
+                JOIN tarea t ON r.idTarea = t.id
+                WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+                AND a.esConsumible = 1
+                GROUP BY a.id, a.nombre, m.nombre
+                ORDER BY cantidad DESC
+                LIMIT 1";
+                
+        $stmt = $this->db->pdo()->prepare($query);
+        $stmt->execute([
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin' => $fechaFin
+        ]);
+        $principal = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$principal) {
+            throw new Exception('No hay datos de recursos consumibles en el período seleccionado');
+        }
+        
+        // Detalle por tarea
+        $queryDetalle = "SELECT 
+                            t.id as idTarea,
+                            t.descripcion as tarea,
+                            r.cantidad,
+                            DATE_FORMAT(t.fechaCreacion, '%Y-%m-%d') as fecha
+                        FROM recurso r
+                        JOIN tarea t ON r.idTarea = t.id
+                        WHERE r.idArticulo = :idArticulo
+                        AND t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+                        ORDER BY r.cantidad DESC";
+        
+        $stmtDetalle = $this->db->pdo()->prepare($queryDetalle);
+        $stmtDetalle->execute([
+            ':idArticulo' => $principal['id'],
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin' => $fechaFin
+        ]);
+        
+        return [
+            'recurso' => $principal['recurso'],
+            'cantidad' => (float)$principal['cantidad'],
+            'unidades' => $principal['unidades'],
+            'detalle' => $stmtDetalle->fetchAll(PDO::FETCH_ASSOC)
+        ];
+    }
+
+    private function estadisticaMesMasTareas(string $fechaInicio, string $fechaFin): array {
+        $query = "SELECT 
+                    DATE_FORMAT(t.fechaCreacion, '%M %Y') as mes,
+                    COUNT(*) as cantidad
+                FROM tarea t
+                WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+                GROUP BY mes
+                ORDER BY cantidad DESC
+                LIMIT 1";
+                
+        $stmt = $this->db->pdo()->prepare($query);
+        $stmt->execute([
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin' => $fechaFin
+        ]);
+        $principal = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$principal) {
+            throw new Exception('No hay tareas en el período seleccionado');
+        }
+        
+        // Detalle por departamento
+        $queryDetalle = "SELECT 
+                            d.nombre as departamento,
+                            COUNT(*) as cantidad
+                        FROM tarea t
+                        JOIN division d ON t.idDepartamento = d.id
+                        WHERE DATE_FORMAT(t.fechaCreacion, '%M %Y') = :mes
+                        GROUP BY d.nombre
+                        ORDER BY cantidad DESC";
+        
+        $stmtDetalle = $this->db->pdo()->prepare($queryDetalle);
+        $stmtDetalle->execute([':mes' => $principal['mes']]);
+        
+        return [
+            'mes' => $principal['mes'],
+            'cantidad' => (int)$principal['cantidad'],
+            'detalle' => $stmtDetalle->fetchAll(PDO::FETCH_ASSOC)
+        ];
+    }
+
+    private function estadisticaDepartamentoMasTareas(string $fechaInicio, string $fechaFin): array {
+        $query = "SELECT 
+                    d.id,
+                    d.nombre as departamento,
+                    COUNT(*) as cantidad
+                FROM tarea t
+                JOIN division d ON t.idDepartamento = d.id
+                WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+                GROUP BY d.id, d.nombre
+                ORDER BY cantidad DESC
+                LIMIT 1";
+                
+        $stmt = $this->db->pdo()->prepare($query);
+        $stmt->execute([
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin' => $fechaFin
+        ]);
+        $principal = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$principal) {
+            throw new Exception('No hay tareas en el período seleccionado');
+        }
+        
+        // Detalle por mes
+        $queryDetalle = "SELECT 
+                            DATE_FORMAT(t.fechaCreacion, '%M') as mes,
+                            COUNT(*) as cantidad
+                        FROM tarea t
+                        WHERE t.idDepartamento = :idDepartamento
+                        AND t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+                        GROUP BY mes
+                        ORDER BY MONTH(t.fechaCreacion)";
+        
+        $stmtDetalle = $this->db->pdo()->prepare($queryDetalle);
+        $stmtDetalle->execute([
+            ':idDepartamento' => $principal['id'],
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin' => $fechaFin
+        ]);
+        
+        return [
+            'departamento' => $principal['departamento'],
+            'cantidad' => (int)$principal['cantidad'],
+            'detalle' => $stmtDetalle->fetchAll(PDO::FETCH_ASSOC)
+        ];
+    }
+
+    private function estadisticaTrabajadorMasTareas(string $fechaInicio, string $fechaFin, int $departamento): array {
+        $query = "SELECT 
+                    tr.id,
+                    tr.nombre,
+                    tr.apellido,
+                    COUNT(*) as cantidad
+                FROM tarea_personal tp
+                JOIN asignacion_laboral al ON tp.idAsignacionLaboral = al.id
+                JOIN trabajador tr ON al.idTrabajador = tr.id
+                JOIN tarea ta ON tp.idTarea = ta.id
+                WHERE ta.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+                AND ta.idDepartamento = :departamento
+                GROUP BY tr.id, tr.nombre, tr.apellido
+                ORDER BY cantidad DESC
+                LIMIT 1";
+                
+        $stmt = $this->db->pdo()->prepare($query);
+        $stmt->execute([
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin' => $fechaFin,
+            ':departamento' => $departamento
+        ]);
+        $principal = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$principal) {
+            throw new Exception('No hay tareas asignadas en el departamento seleccionado');
+        }
+        
+        // Detalle de tareas
+        $queryDetalle = "SELECT 
+                            ta.id as idTarea,
+                            ta.descripcion as tarea,
+                            DATE_FORMAT(ta.fechaCreacion, '%Y-%m-%d') as fecha,
+                            tv.evalSupervisor as evaluacion
+                        FROM tarea_personal tp
+                        JOIN tarea ta ON tp.idTarea = ta.id
+                        LEFT JOIN tarea_validacion tv ON ta.id = tv.idTarea
+                        WHERE ta.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+                        AND tp.idAsignacionLaboral IN (
+                            SELECT id FROM asignacion_laboral 
+                            WHERE idTrabajador = :idTrabajador AND esActual = 1
+                        )
+                        ORDER BY ta.fechaCreacion DESC";
+        
+        $stmtDetalle = $this->db->pdo()->prepare($queryDetalle);
+        $stmtDetalle->execute([
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin' => $fechaFin,
+            ':idTrabajador' => $principal['id']
+        ]);
+        
+        return [
+            'trabajador' => $principal['nombre'] . ' ' . $principal['apellido'],
+            'departamento' => $this->obtenerNombreDepartamento($departamento),
+            'cantidad' => (int)$principal['cantidad'],
+            'detalle' => $stmtDetalle->fetchAll(PDO::FETCH_ASSOC)
+        ];
+    }
+
+    private function obtenerNombreDepartamento(int $id): string {
+        $query = "SELECT nombre FROM division WHERE id = :id";
+        $stmt = $this->db->pdo()->prepare($query);
+        $stmt->execute([':id' => $id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['nombre'] : 'Desconocido';
+    }
+
     /**
      * Establece valores en propiedades de la clase.
      *
@@ -1011,6 +1344,20 @@ private function obtenerValidacionesParaTareas(array $tareaIds) {
             }
         }
     }
+
+    public function contarPorEstado(string $estado): int
+{
+    $this->db->connect();
+    
+    $query = "SELECT COUNT(*) as total FROM tarea WHERE estado_tarea = :estado";
+    $stmt = $this->db->pdo()->prepare($query);
+    $stmt->execute([':estado' => $estado]);
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $this->db->disconnect();
+    
+    return (int)$result['total'];
+}
 
 
 

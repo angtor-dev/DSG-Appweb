@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $departamentoObj = new Division();
     $departamentos = $departamentoObj->listar();
 
-   $turnosOptions = Turno::getTurnosOptions();
+    $turnosOptions = Turno::getTurnosOptions();
     
     $areaObj = new Area();
     $areas = $areaObj->listar();

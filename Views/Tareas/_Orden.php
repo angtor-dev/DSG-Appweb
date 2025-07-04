@@ -1,6 +1,6 @@
 <!-- Modal para el orden de trabajo -->
 <div class="modal-header bg-primary text-white">
-    <h5 class="modal-title">Orden de Trabajo</h5>
+    <h5 class="modal-title">Resumen de la Orden de Trabajo</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body">
@@ -9,7 +9,7 @@
         <!-- Encabezado institucional -->
         <div class="text-center mb-4">
             <h3 class="mb-1">DIRECCIÓN DE SERVICIOS GENERALES</h3>
-            <h4 class="mb-1">ASIGNACIÓN DE ORDEN DE TRABAJO</h4>
+            <h4 class="mb-1">RESUMEN DE ASIGNACIÓN DE ORDEN DE TRABAJO</h4>
             <p class="mb-0">Fecha: <span id="orden-fecha"></span> | Hora: <span id="orden-hora"></span></p>
         </div>
 
