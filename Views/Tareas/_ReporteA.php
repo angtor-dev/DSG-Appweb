@@ -23,9 +23,8 @@
                                                     <option value="">Seleccione una opción</option>
                                                     <option value="recurso_consumible">Recurso consumible más utilizado</option>
                                                     <option value="mes_mas_tareas">Mes con más tareas realizadas</option>
-                                                    <option value="departamento_mas_tareas">Departamento con más tareas</option>
-                                                    <option value="trabajador_mas_tareas">Persona con más tareas por departamento</option>
-                                                </select>
+                                                  
+                                                       </select>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -41,18 +40,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Filtro adicional para trabajador por departamento -->
-                                    <div class="row" id="filtroDepartamento" style="display: none;">
-                                        <div class="col-md-12">
-                                            <div class="mb-3">
-                                                <label for="departamentoSeleccionado" class="form-label">Departamento</label>
-                                                <select class="form-select" id="departamentoSeleccionado">
-                                                    <option value="">Todos los departamentos</option>
-                                                    <!-- Se llenará dinámicamente con JavaScript -->
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                  
                                     <div class="text-center">
                                         <button type="button" class="btn btn-primary" onclick="generarEstadistica()">
                                             <i class="fas fa-chart-bar me-2"></i>Generar Estadística

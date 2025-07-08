@@ -50,7 +50,7 @@
         <div class="col">
             <div class="card border">
                 <div class="card-body justify-content-center align-items-center d-flex flex-column">
-                    <h4 class="card-title"><?= $conteoTareas['activo'] ?></h4>
+                    <h4 class="card-title" id="tareas-activas"><?= $conteoTareas['activo'] ?></h4>
                     <p class="card-text">Tareas activas</p>
                 </div>
             </div>
@@ -58,15 +58,15 @@
         <div class="col">
             <div class="card border">
                 <div class="card-body justify-content-center align-items-center d-flex flex-column">
-                    <h4 class="card-title"><?= $conteoTareas['vencida'] ?></h4>
-                    <p class="card-text">Tareas Vencidas</p>
+                    <h4 class="card-title" id="tareas-vencidas"><?= $conteoTareas['vencida'] ?></h4>
+                    <p class="card-text">Tareas Terminadas</p>
                 </div>
             </div>
         </div>
         <div class="col">
             <div class="card border">
                 <div class="card-body justify-content-center align-items-center d-flex flex-column">
-                    <h4 class="card-title"><?= $conteoTareas['cancelado'] ?></h4>
+                    <h4 class="card-title" id="tareas-canceladas"><?= $conteoTareas['cancelado'] ?></h4>
                     <p class="card-text">Tareas Canceladas</p>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                     <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Activas</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Vencidas</button>
+                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Terminadas</button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Cancelado</button>
@@ -268,7 +268,7 @@
         const tipoEstadistica = document.getElementById('tipoEstadistica').value;
         const fechaInicio = document.getElementById('fechaInicio').value;
         const fechaFin = document.getElementById('fechaFin').value;
-        const departamento = document.getElementById('departamentoSeleccionado').value;
+        const departamento = "1";
 
         if (!tipoEstadistica || !fechaInicio || !fechaFin) {
             alert('Por favor complete todos los campos obligatorios');
@@ -292,123 +292,60 @@
         }
     }
 
-    async function obtenerDatosEstadisticos(tipo, fechaInicio, fechaFin, departamento = null) {
-        // Simulamos una demora de red
-        await new Promise(resolve => setTimeout(resolve, 500));
+async function obtenerDatosEstadisticos(tipo, fechaInicio, fechaFin, departamento = null) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'Tareas/ReporteA', // 🔁 Cambiar esta URL a la ruta real de tu backend
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                tipo: tipo,
+                fecha_inicio: fechaInicio,
+                fecha_fin: fechaFin,
+                departamento: departamento
+            },
+            success: function (response) {
+                if (response && response.success) {
+                    resolve(response.data);
+                } else {
+                    reject(new Error(response.message || 'Datos inválidos desde el servidor'));
+                }
+            },
+            error: function (xhr, status, error) {
+                reject(new Error('Error de conexión: ' + error));
+            }
+        });
+    });
+}
 
-        // Datos de ejemplo basados en el tipo de estadística
-        switch (tipo) {
-            case 'recurso_consumible':
-                return {
-                    recurso: 'Detergente líquido',
-                        cantidad: 125,
-                        unidades: 'litros',
-                        detalle: [{
-                                tarea: 'Limpieza de oficinas',
-                                cantidad: 45,
-                                fecha: '2023-06-15'
-                            },
-                            {
-                                tarea: 'Limpieza de baños',
-                                cantidad: 80,
-                                fecha: '2023-06-18'
-                            }
-                        ]
-                };
-            case 'mes_mas_tareas':
-                return {
-                    mes: 'Mayo 2023',
-                        cantidad: 42,
-                        detalle: [{
-                                departamento: 'Limpieza',
-                                cantidad: 15
-                            },
-                            {
-                                departamento: 'Mantenimiento',
-                                cantidad: 12
-                            },
-                            {
-                                departamento: 'Jardinería',
-                                cantidad: 10
-                            },
-                            {
-                                departamento: 'Logística',
-                                cantidad: 5
-                            }
-                        ]
-                };
-            case 'departamento_mas_tareas':
-                return {
-                    departamento: 'Limpieza',
-                        cantidad: 156,
-                        detalle: [{
-                                mes: 'Enero',
-                                cantidad: 25
-                            },
-                            {
-                                mes: 'Febrero',
-                                cantidad: 30
-                            },
-                            {
-                                mes: 'Marzo',
-                                cantidad: 28
-                            },
-                            {
-                                mes: 'Abril',
-                                cantidad: 35
-                            },
-                            {
-                                mes: 'Mayo',
-                                cantidad: 38
-                            }
-                        ]
-                };
-            case 'trabajador_mas_tareas':
-                return {
-                    trabajador: 'Juan Pérez',
-                        departamento: departamento || 'Limpieza',
-                        cantidad: 28,
-                        detalle: [{
-                                tarea: 'Limpieza oficina 101',
-                                fecha: '2023-06-01',
-                                evaluacion: 'Bueno'
-                            },
-                            {
-                                tarea: 'Limpieza pasillo principal',
-                                fecha: '2023-06-05',
-                                evaluacion: 'Muy Bueno'
-                            },
-                            {
-                                tarea: 'Limpieza comedor',
-                                fecha: '2023-06-10',
-                                evaluacion: 'Bueno'
-                            }
-                        ]
-                };
-            default:
-                throw new Error('Tipo de estadística no válido');
-        }
-    }
 
 
     async function cargarDepartamentos() {
-        // En una implementación real, harías una llamada AJAX para obtener los departamentos
         const select = document.getElementById('departamentoSeleccionado');
 
-        // Limpiar opciones excepto la primera
-        while (select.options.length > 1) {
-            select.remove(1);
+        try {
+            const response = await $.ajax({
+                url: 'Tareas/ReporteA?ajax=1',
+                method: 'GET',
+                dataType: 'json'
+            });
+
+            if (response.success) {
+                const $select = $(select);
+                $select.empty().append('<option value="">Todos los departamentos</option>');
+                response.data.forEach(function (depto) {
+                    const $option = $('<option>', {
+                        value: depto.id,
+                        text: depto.nombre
+                    });
+                    $select.append($option);
+                });
+            } else {
+                console.error('Error al cargar los departamentos:', response.message);
+            }
+        } catch (error) {
+            console.error('Error al cargar los departamentos:', error);
         }
-
-        // Simulamos datos de departamentos
-        const departamentos = ['Limpieza', 'Mantenimiento', 'Jardinería', 'Logística'];
-
-        departamentos.forEach(depto => {
-            const option = document.createElement('option');
-            option.value = depto;
-            option.textContent = depto;
-            select.appendChild(option);
-        });
     }
 
 function obtenerTituloEstadistica(tipo) {
@@ -445,6 +382,7 @@ function obtenerTituloEstadistica(tipo) {
         }
 
         function generarGrafico(tipo, datos) {
+            
             const ctx = document.getElementById('graficoEstadistica').getContext('2d');
 
             // Destruir el gráfico anterior si existe
@@ -609,35 +547,38 @@ function obtenerTituloEstadistica(tipo) {
 
 
 
+$(document).on("show.bs.modal", "#modal-estadistica", function (e) {
+    const modal = $(this);
+    const button = $(e.relatedTarget);
+    url = button.data("bs-url");
+    const valorId = button.data("valor");
 
-        $(document).on("show.bs.modal", "#modal-estadistica", function(e) {
-            const modal = $(this); // <<<<<< IMPORTANTE
-            const button = $(e.relatedTarget);
-            url = button.data("bs-url");
-            const valorId = button.data("valor");
-            console.log(valorId);
-            console.log(url);
+    console.log(valorId);
+    console.log(url);
 
-            if (typeof url === "undefined") {
-                // Cargar el contenido del modal
-            } else {
-                $.ajax({
-                    url: url,
-                    method: "GET",
-                    success: function(data) {
-                        console.log(valorId);
-                        modal.find(".modal-content").html(data);
-                        cargarDatosEjemplo();
+    if (typeof url === "undefined") {
+        // Cargar el contenido del modal
+    } else {
+        $.ajax({
+            url: url,
+            method: "GET",
+            success: function (data) {
+                modal.find(".modal-content").html(data);
+                cargarDatosEjemplo();
 
+              
+               
 
-
-
-                    },
-                    error: function() {},
-                });
+            },
+            error: function () {
+                console.error('Error al cargar contenido del modal.');
             }
-
         });
+    }
+});
+
+
+
     });
 
     function cargarDatosEjemplo() {

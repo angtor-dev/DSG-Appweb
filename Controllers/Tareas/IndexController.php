@@ -7,6 +7,18 @@ $conteoTareas = [
     'vencida' => (new Tarea())->contarPorEstado('vencida'),
     'cancelado' => (new Tarea())->contarPorEstado('cancelado')
 ];
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'contadores') {
+    header('Content-Type: application/json');
+    
+    $conteos = [
+        'activo' => (new Tarea())->contarPorEstado('activo'),
+        'vencida' => (new Tarea())->contarPorEstado('vencida'),
+        'cancelado' => (new Tarea())->contarPorEstado('cancelado')
+    ];
+    
+    echo json_encode($conteos);
+    exit;
+}
 
 if (isset($_GET['ajax'])) {
     header('Content-Type: application/json');

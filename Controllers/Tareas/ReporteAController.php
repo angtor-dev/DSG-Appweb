@@ -2,50 +2,56 @@
 requiereAutenticacion();
 requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
 
-if (isset($_GET['ajax']) && $_GET['ajax'] === 'estadisticas') {
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
-    
     try {
-        if (!isset($_GET['tipo'], $_GET['fechaInicio'], $_GET['fechaFin'])) {
-            throw new Exception('Parámetros incompletos');
+        $tipo = $_POST['tipo'] ?? null;
+        $fechaInicio = $_POST['fecha_inicio'] ?? null;
+        $fechaFin = $_POST['fecha_fin'] ?? null;
+        $departamento = $_POST['departamento'] ?? null;
+
+        if (!$tipo || !$fechaInicio || !$fechaFin) {
+            throw new Exception('Faltan parámetros obligatorios');
         }
-        
-        $tipo = $_GET['tipo'];
-        $fechaInicio = $_GET['fechaInicio'];
-        $fechaFin = $_GET['fechaFin'];
-        $departamento = $_GET['departamento'] ?? null;
-        
-        $tarea = new Tarea();
-        $datos = $tarea->obtenerEstadisticas($tipo, $fechaInicio, $fechaFin, $departamento);
-        
-        echo json_encode([
-            'success' => true,
-            'data' => $datos
-        ]);
-    } catch (Exception $e) {
+
+        switch ($tipo) {
+            case 'recurso_consumible':
+                $result = Tarea::recursoConsumibleMasUtilizado($fechaInicio, $fechaFin);
+                break;
+            case 'mes_mas_tareas':
+                $result = Tarea::mesConMasTareas($fechaInicio, $fechaFin);
+                break;
+            case 'departamento_mas_tareas':
+                $result = Tarea::departamentoConMasTareas($fechaInicio, $fechaFin);
+                break;
+            case 'trabajador_mas_tareas':
+                $result = Tarea::trabajadorConMasTareas($fechaInicio, $fechaFin, $departamento);
+                break;
+            default:
+                throw new Exception('Tipo de estadística no soportado');
+        }
+
+        echo json_encode(['success' => true, 'data' => $result]);
+    } catch (Exception $ex) {
         http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => $e->getMessage()
-        ]);
+        echo json_encode(['success' => false, 'message' => $ex->getMessage()]);
     }
     exit;
 }
 
-else if (isset($_GET['ajax']) && $_GET['ajax'] === 'departamentos') {
+
+
+else if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
     header('Content-Type: application/json');
-    
+
     try {
-        $db = Database::getInstance();
-        $db->connect();
-        
-        $query = "SELECT id, nombre FROM division ORDER BY nombre";
-        $stmt = $db->pdo()->prepare($query);
-        $stmt->execute();
-        
+        // Asumiendo que tu modelo está bien incluido
+        $departamentos = Tarea::departamentosConTrabajadores(); // Usa el nombre correcto del modelo
+
         echo json_encode([
             'success' => true,
-            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)
+            'data' => $departamentos
         ]);
     } catch (Exception $e) {
         http_response_code(500);

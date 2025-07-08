@@ -662,6 +662,29 @@ function actualizarProgreso() {
 //--------------------------------Comienza docuemtno -----------------
 
 $(document).ready(function () {
+
+  actualizarContadoresTareas();
+    
+  
+    setInterval(actualizarContadoresTareas, 2000);
+
+  function actualizarContadoresTareas() {
+    $.ajax({
+        url: '?ajax=contadores',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            // Actualizar los elementos del DOM con los nuevos valores
+            $('#tareas-activas').text(data.activo);
+            $('#tareas-vencidas').text(data.vencida);
+            $('#tareas-canceladas').text(data.cancelado);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al actualizar contadores:', error);
+        }
+    });
+}
+
   // Configuración base común
   const commonConfig = {
     serverSide: false,

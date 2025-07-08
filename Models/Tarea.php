@@ -1129,230 +1129,249 @@ private function obtenerValidacionesParaTareas(array $tareaIds) {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function obtenerEstadisticas(string $tipo, string $fechaInicio, string $fechaFin, ?int $departamento = null): array {
-        $this->db->connect();
-        
-        try {
-            switch ($tipo) {
-                case 'recurso_consumible':
-                    return $this->estadisticaRecursoConsumible($fechaInicio, $fechaFin);
-                case 'mes_mas_tareas':
-                    return $this->estadisticaMesMasTareas($fechaInicio, $fechaFin);
-                case 'departamento_mas_tareas':
-                    return $this->estadisticaDepartamentoMasTareas($fechaInicio, $fechaFin);
-                case 'trabajador_mas_tareas':
-                    if (!$departamento) {
-                        throw new Exception('Se requiere un departamento para esta estadística');
-                    }
-                    return $this->estadisticaTrabajadorMasTareas($fechaInicio, $fechaFin, $departamento);
-                default:
-                    throw new Exception('Tipo de estadística no válido');
-            }
-        } finally {
-            $this->db->disconnect();
-        }
-    }
+public static function recursoConsumibleMasUtilizado($inicio, $fin)
+{
+    $bd = Database::getInstance();
+    $bd->connect();
 
-    private function estadisticaRecursoConsumible(string $fechaInicio, string $fechaFin): array {
-        $query = "SELECT 
-                    a.id, 
-                    a.nombre as recurso, 
-                    SUM(r.cantidad) as cantidad,
-                    m.nombre as unidades
-                FROM recurso r
-                JOIN articulo a ON r.idArticulo = a.id
-                JOIN medida m ON a.idMedida = m.id
-                JOIN tarea t ON r.idTarea = t.id
-                WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
-                AND a.esConsumible = 1
-                GROUP BY a.id, a.nombre, m.nombre
-                ORDER BY cantidad DESC
-                LIMIT 1";
-                
-        $stmt = $this->db->pdo()->prepare($query);
-        $stmt->execute([
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin' => $fechaFin
-        ]);
-        $principal = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$principal) {
-            throw new Exception('No hay datos de recursos consumibles en el período seleccionado');
-        }
-        
-        // Detalle por tarea
-        $queryDetalle = "SELECT 
-                            t.id as idTarea,
-                            t.descripcion as tarea,
-                            r.cantidad,
-                            DATE_FORMAT(t.fechaCreacion, '%Y-%m-%d') as fecha
-                        FROM recurso r
-                        JOIN tarea t ON r.idTarea = t.id
-                        WHERE r.idArticulo = :idArticulo
-                        AND t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
-                        ORDER BY r.cantidad DESC";
-        
-        $stmtDetalle = $this->db->pdo()->prepare($queryDetalle);
-        $stmtDetalle->execute([
-            ':idArticulo' => $principal['id'],
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin' => $fechaFin
-        ]);
-        
+    // Recurso más usado
+    $query = "
+        SELECT a.id AS idArticulo, a.nombre AS recurso, SUM(r.cantidad) AS cantidad, a.descripcion AS unidades
+        FROM recurso r
+        JOIN articulo a ON r.idArticulo = a.id
+        JOIN tarea t ON r.idTarea = t.id
+        WHERE a.esConsumible = 1 AND t.fechaCreacion BETWEEN :inicio AND :fin
+        GROUP BY a.id
+        ORDER BY cantidad DESC
+        LIMIT 1
+    ";
+
+    $stmt = $bd->pdo()->prepare($query);
+    $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
+    $recurso = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$recurso) {
+        $bd->disconnect();
         return [
-            'recurso' => $principal['recurso'],
-            'cantidad' => (float)$principal['cantidad'],
-            'unidades' => $principal['unidades'],
-            'detalle' => $stmtDetalle->fetchAll(PDO::FETCH_ASSOC)
+            'recurso' => '',
+            'cantidad' => 0,
+            'unidades' => '',
+            'detalle' => []
         ];
     }
 
-    private function estadisticaMesMasTareas(string $fechaInicio, string $fechaFin): array {
-        $query = "SELECT 
-                    DATE_FORMAT(t.fechaCreacion, '%M %Y') as mes,
-                    COUNT(*) as cantidad
-                FROM tarea t
-                WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
-                GROUP BY mes
-                ORDER BY cantidad DESC
-                LIMIT 1";
-                
-        $stmt = $this->db->pdo()->prepare($query);
-        $stmt->execute([
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin' => $fechaFin
-        ]);
-        $principal = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$principal) {
-            throw new Exception('No hay tareas en el período seleccionado');
-        }
-        
-        // Detalle por departamento
-        $queryDetalle = "SELECT 
-                            d.nombre as departamento,
-                            COUNT(*) as cantidad
-                        FROM tarea t
-                        JOIN division d ON t.idDepartamento = d.id
-                        WHERE DATE_FORMAT(t.fechaCreacion, '%M %Y') = :mes
-                        GROUP BY d.nombre
-                        ORDER BY cantidad DESC";
-        
-        $stmtDetalle = $this->db->pdo()->prepare($queryDetalle);
-        $stmtDetalle->execute([':mes' => $principal['mes']]);
-        
+    // Detalle: tareas que usaron ese recurso
+    $detalleQuery = "
+        SELECT t.descripcion AS tarea, r.cantidad, t.fechaCreacion AS fecha
+        FROM recurso r
+        JOIN tarea t ON r.idTarea = t.id
+        WHERE r.idArticulo = :idArticulo
+        AND t.fechaCreacion BETWEEN :inicio AND :fin
+    ";
+
+    $stmtDetalle = $bd->pdo()->prepare($detalleQuery);
+    $stmtDetalle->execute([
+        ':idArticulo' => $recurso['idArticulo'],
+        ':inicio' => $inicio,
+        ':fin' => $fin
+    ]);
+    $detalle = $stmtDetalle->fetchAll(PDO::FETCH_ASSOC);
+
+    $bd->disconnect();
+
+    return [
+        'recurso' => $recurso['recurso'],
+        'cantidad' => (int)$recurso['cantidad'],
+        'unidades' => $recurso['unidades'],
+        'detalle' => $detalle
+    ];
+}
+
+public static function mesConMasTareas($inicio, $fin)
+{
+    $bd = Database::getInstance();
+    $bd->connect();
+
+    $query = "
+        SELECT DATE_FORMAT(fechaCreacion, '%Y-%m') AS mes, COUNT(*) AS cantidad
+        FROM tarea
+        WHERE fechaCreacion BETWEEN :inicio AND :fin
+        GROUP BY mes
+        ORDER BY cantidad DESC
+        LIMIT 1
+    ";
+
+    $stmt = $bd->pdo()->prepare($query);
+    $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$result) {
+        $bd->disconnect();
+        return ['mes' => '', 'cantidad' => 0, 'detalle' => []];
+    }
+
+    // Detalle por departamento
+    $detalleQuery = "
+        SELECT d.nombre AS departamento, COUNT(*) AS cantidad
+        FROM tarea t
+        LEFT JOIN division d ON t.idDepartamento = d.id
+        WHERE DATE_FORMAT(t.fechaCreacion, '%Y-%m') = :mes
+        GROUP BY d.nombre
+    ";
+
+    $stmtDetalle = $bd->pdo()->prepare($detalleQuery);
+    $stmtDetalle->execute([':mes' => $result['mes']]);
+    $detalle = $stmtDetalle->fetchAll(PDO::FETCH_ASSOC);
+
+    $bd->disconnect();
+
+    return [
+        'mes' => date('F Y', strtotime($result['mes'] . '-01')),
+        'cantidad' => (int)$result['cantidad'],
+        'detalle' => $detalle
+    ];
+}
+
+public static function departamentoConMasTareas($inicio, $fin)
+{
+    $bd = Database::getInstance();
+    $bd->connect();
+
+    $query = "
+        SELECT d.id AS idDepartamento, d.nombre AS departamento, COUNT(*) AS cantidad
+        FROM tarea t
+        JOIN division d ON t.idDepartamento = d.id
+        WHERE t.fechaCreacion BETWEEN :inicio AND :fin
+        GROUP BY d.id
+        ORDER BY cantidad DESC
+        LIMIT 1
+    ";
+
+    $stmt = $bd->pdo()->prepare($query);
+    $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$result) {
+        $bd->disconnect();
+        return ['departamento' => '', 'cantidad' => 0, 'detalle' => []];
+    }
+
+    // Detalle por mes
+    $detalleQuery = "
+        SELECT DATE_FORMAT(fechaCreacion, '%M') AS mes, COUNT(*) AS cantidad
+        FROM tarea
+        WHERE idDepartamento = :idDepartamento AND fechaCreacion BETWEEN :inicio AND :fin
+        GROUP BY mes
+    ";
+
+    $stmtDetalle = $bd->pdo()->prepare($detalleQuery);
+    $stmtDetalle->execute([
+        ':idDepartamento' => $result['idDepartamento'],
+        ':inicio' => $inicio,
+        ':fin' => $fin
+    ]);
+    $detalle = $stmtDetalle->fetchAll(PDO::FETCH_ASSOC);
+
+    $bd->disconnect();
+
+    return [
+        'departamento' => $result['departamento'],
+        'cantidad' => (int)$result['cantidad'],
+        'detalle' => $detalle
+    ];
+}
+
+public static function trabajadorConMasTareas($inicio, $fin, $departamento = null)
+{
+    $bd = Database::getInstance();
+    $bd->connect();
+
+    $filtro = "";
+    $params = [':inicio' => $inicio, ':fin' => $fin];
+
+    if (!empty($departamento)) {
+        $filtro = "AND d.nombre = :departamento";
+        $params[':departamento'] = $departamento;
+    }
+
+    $query = "
+        SELECT tr.id AS idTrabajador, CONCAT(tr.nombre, ' ', tr.apellido) AS trabajador,
+               d.nombre AS departamento, COUNT(*) AS cantidad
+        FROM tarea t
+        JOIN tarea_personal tp ON tp.idTarea = t.id
+        JOIN asignacion_laboral al ON tp.idAsignacionLaboral = al.id
+        JOIN trabajador tr ON al.idTrabajador = tr.id
+        JOIN division d ON al.idDivision = d.id
+        WHERE t.fechaCreacion BETWEEN :inicio AND :fin
+        $filtro
+        GROUP BY tr.id
+        ORDER BY cantidad DESC
+        LIMIT 1
+    ";
+
+    $stmt = $bd->pdo()->prepare($query);
+    $stmt->execute($params);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$result) {
+        $bd->disconnect();
         return [
-            'mes' => $principal['mes'],
-            'cantidad' => (int)$principal['cantidad'],
-            'detalle' => $stmtDetalle->fetchAll(PDO::FETCH_ASSOC)
+            'trabajador' => '',
+            'departamento' => $departamento ?? '',
+            'cantidad' => 0,
+            'detalle' => []
         ];
     }
 
-    private function estadisticaDepartamentoMasTareas(string $fechaInicio, string $fechaFin): array {
-        $query = "SELECT 
-                    d.id,
-                    d.nombre as departamento,
-                    COUNT(*) as cantidad
-                FROM tarea t
-                JOIN division d ON t.idDepartamento = d.id
-                WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
-                GROUP BY d.id, d.nombre
-                ORDER BY cantidad DESC
-                LIMIT 1";
-                
-        $stmt = $this->db->pdo()->prepare($query);
-        $stmt->execute([
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin' => $fechaFin
-        ]);
-        $principal = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$principal) {
-            throw new Exception('No hay tareas en el período seleccionado');
-        }
-        
-        // Detalle por mes
-        $queryDetalle = "SELECT 
-                            DATE_FORMAT(t.fechaCreacion, '%M') as mes,
-                            COUNT(*) as cantidad
-                        FROM tarea t
-                        WHERE t.idDepartamento = :idDepartamento
-                        AND t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
-                        GROUP BY mes
-                        ORDER BY MONTH(t.fechaCreacion)";
-        
-        $stmtDetalle = $this->db->pdo()->prepare($queryDetalle);
-        $stmtDetalle->execute([
-            ':idDepartamento' => $principal['id'],
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin' => $fechaFin
-        ]);
-        
-        return [
-            'departamento' => $principal['departamento'],
-            'cantidad' => (int)$principal['cantidad'],
-            'detalle' => $stmtDetalle->fetchAll(PDO::FETCH_ASSOC)
-        ];
-    }
+    // Detalle de tareas asignadas a ese trabajador
+    $detalleQuery = "
+        SELECT t.nombre AS tarea, t.fechaCreacion AS fecha, tv.evalSupervisor AS evaluacion
+        FROM tarea_personal tp
+        JOIN asignacion_laboral al ON tp.idAsignacionLaboral = al.id
+        JOIN tarea t ON tp.idTarea = t.id
+        LEFT JOIN tarea_validacion tv ON tv.idTarea = t.id
+        WHERE al.idTrabajador = :idTrabajador
+        AND t.fechaCreacion BETWEEN :inicio AND :fin
+    ";
 
-    private function estadisticaTrabajadorMasTareas(string $fechaInicio, string $fechaFin, int $departamento): array {
-        $query = "SELECT 
-                    tr.id,
-                    tr.nombre,
-                    tr.apellido,
-                    COUNT(*) as cantidad
-                FROM tarea_personal tp
-                JOIN asignacion_laboral al ON tp.idAsignacionLaboral = al.id
-                JOIN trabajador tr ON al.idTrabajador = tr.id
-                JOIN tarea ta ON tp.idTarea = ta.id
-                WHERE ta.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
-                AND ta.idDepartamento = :departamento
-                GROUP BY tr.id, tr.nombre, tr.apellido
-                ORDER BY cantidad DESC
-                LIMIT 1";
-                
-        $stmt = $this->db->pdo()->prepare($query);
-        $stmt->execute([
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin' => $fechaFin,
-            ':departamento' => $departamento
-        ]);
-        $principal = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$principal) {
-            throw new Exception('No hay tareas asignadas en el departamento seleccionado');
-        }
-        
-        // Detalle de tareas
-        $queryDetalle = "SELECT 
-                            ta.id as idTarea,
-                            ta.descripcion as tarea,
-                            DATE_FORMAT(ta.fechaCreacion, '%Y-%m-%d') as fecha,
-                            tv.evalSupervisor as evaluacion
-                        FROM tarea_personal tp
-                        JOIN tarea ta ON tp.idTarea = ta.id
-                        LEFT JOIN tarea_validacion tv ON ta.id = tv.idTarea
-                        WHERE ta.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
-                        AND tp.idAsignacionLaboral IN (
-                            SELECT id FROM asignacion_laboral 
-                            WHERE idTrabajador = :idTrabajador AND esActual = 1
-                        )
-                        ORDER BY ta.fechaCreacion DESC";
-        
-        $stmtDetalle = $this->db->pdo()->prepare($queryDetalle);
-        $stmtDetalle->execute([
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin' => $fechaFin,
-            ':idTrabajador' => $principal['id']
-        ]);
-        
-        return [
-            'trabajador' => $principal['nombre'] . ' ' . $principal['apellido'],
-            'departamento' => $this->obtenerNombreDepartamento($departamento),
-            'cantidad' => (int)$principal['cantidad'],
-            'detalle' => $stmtDetalle->fetchAll(PDO::FETCH_ASSOC)
-        ];
-    }
+    $stmtDetalle = $bd->pdo()->prepare($detalleQuery);
+    $stmtDetalle->execute([
+        ':idTrabajador' => $result['idTrabajador'],
+        ':inicio' => $inicio,
+        ':fin' => $fin
+    ]);
+    $detalle = $stmtDetalle->fetchAll(PDO::FETCH_ASSOC);
+
+    $bd->disconnect();
+
+    return [
+        'trabajador' => $result['trabajador'],
+        'departamento' => $result['departamento'],
+        'cantidad' => (int)$result['cantidad'],
+        'detalle' => $detalle
+    ];
+}
+
+public static function departamentosConTrabajadores()
+{
+    $bd = Database::getInstance();
+    $bd->connect();
+
+    $query = "
+        SELECT DISTINCT d.id, d.nombre
+        FROM asignacion_laboral al
+        JOIN division d ON al.idDivision = d.id
+        JOIN trabajador t ON al.idTrabajador = t.id
+        WHERE t.estado = 1  -- Opcional: solo trabajadores activos
+        ORDER BY d.nombre
+    ";
+
+    $stmt = $bd->pdo()->query($query);
+    $departamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $bd->disconnect();
+    return $departamentos;
+}
 
     private function obtenerNombreDepartamento(int $id): string {
         $query = "SELECT nombre FROM division WHERE id = :id";
