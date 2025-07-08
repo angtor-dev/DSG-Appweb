@@ -299,6 +299,10 @@ private function asignarMateriales(int $idTarea, array $materiales): void
         return;
     }
 
+    // 1. Primero validar que todos los materiales tengan suficiente stock
+    $this->validarDisponibilidadMateriales($materiales);
+
+    // 2. Preparar la inserción de recursos
     $query = "INSERT INTO recurso (idTarea, idArticulo, cantidad, devolucion, cantidadDevolucion) VALUES ";
     $placeholders = [];
     $values = [];
@@ -315,7 +319,7 @@ private function asignarMateriales(int $idTarea, array $materiales): void
         $values[$idTareaParam] = $idTarea;
         $values[$idArticuloParam] = (int)$material['id'];
         $values[$cantidadParam] = (int)$material['cantidad'];
-        $values[$devolucionParam] = 0;
+        $values[$devolucionParam] = 0; // 0 = no hay devolución aún
         $values[$cantidadDevolucionParam] = 0;
     }
 
@@ -327,27 +331,66 @@ private function asignarMateriales(int $idTarea, array $materiales): void
         throw new Exception("Error al registrar materiales: " . $error[2]);
     }
 
-    // -----------------_--_--___---_- Actualizar el stock
+    // 3. Actualizar el stock de artículos
     foreach ($materiales as $material) {
         $stmt = $this->db->pdo()->prepare("
             UPDATE articulo 
             SET cantidad = cantidad - :cantidad 
-            WHERE id = :id AND cantidad >= :cantidad_check
+            WHERE id = :id
         ");
 
         $params = [
             ':cantidad' => (int)$material['cantidad'],
-            ':cantidad_check' => (int)$material['cantidad'],
             ':id' => (int)$material['id'],
         ];
 
         if (!$stmt->execute($params)) {
             $error = $stmt->errorInfo();
-            throw new Exception("Error SQL: " . $error[2]);
+            throw new Exception("Error al actualizar stock: " . $error[2]);
         }
     }
 }
 
+private function validarDisponibilidadMateriales(array $materiales): void
+{
+    // Obtener IDs de materiales para la consulta
+    $idsMateriales = array_map(function($m) { return (int)$m['id']; }, $materiales);
+    $placeholders = implode(',', array_fill(0, count($idsMateriales), '?'));
+
+    // Consultar stock actual
+    $query = "SELECT id, nombre, cantidad FROM articulo WHERE id IN ($placeholders)";
+    $stmt = $this->db->pdo()->prepare($query);
+    $stmt->execute($idsMateriales);
+    $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Crear un array asociativo [id => cantidad_disponible]
+    $stockDisponible = [];
+    foreach ($stocks as $stock) {
+        $stockDisponible[(int)$stock['id']] = (float)$stock['cantidad'];
+    }
+
+    // Validar cada material
+    $errores = [];
+    foreach ($materiales as $material) {
+        $id = (int)$material['id'];
+        $cantidadRequerida = (float)$material['cantidad'];
+
+        if (!isset($stockDisponible[$id])) {
+            $errores[] = "El material con ID $id no existe";
+            continue;
+        }
+
+        if ($stockDisponible[$id] < $cantidadRequerida) {
+            $nombre = $stockDisponible[$id]['nombre'] ?? 'desconocido';
+            $disponible = $stockDisponible[$id];
+            $errores[] = "No hay suficiente stock Requerido: $cantidadRequerida, Disponible: $disponible";
+        }
+    }
+
+    if (!empty($errores)) {
+        throw new Exception("Error de stock: " . implode("\n", $errores));
+    }
+}
 
 
     //----------------------Evaluar metodos--------------------------------------------
@@ -576,7 +619,7 @@ private function guardarEvaluacionDirector(
         $utilizado = (float)$m['utilizado'];
         $devuelto = (float)$m['devuelto'];
 
-        // 1. Obtener cantidad previa de devolución
+       
         $stmt = $this->db->pdo()->prepare("
             SELECT cantidadDevolucion 
             FROM recurso 
@@ -589,10 +632,10 @@ private function guardarEvaluacionDirector(
         $prev = $stmt->fetch(PDO::FETCH_ASSOC);
         $devueltoAnterior = $prev ? (float)$prev['cantidadDevolucion'] : 0;
 
-        // 2. Calcular devolución neta
+        
         $devolucionNeta = $devuelto - $devueltoAnterior;
 
-        // 3. Actualizar recurso
+      
         $query = "UPDATE recurso SET 
                     cantidad = :usada,
                     cantidadDevolucion = :devuelto,
@@ -607,7 +650,7 @@ private function guardarEvaluacionDirector(
             ':idInventario' => $idInventario
         ]);
 
-        // 4. Actualizar stock si hay devolución neta
+      
         if ($devolucionNeta > 0) {
             $queryStock = "UPDATE articulo 
                         SET cantidad = cantidad + :devuelto 

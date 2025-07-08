@@ -1925,9 +1925,8 @@ $("#btn-guardar-evaluacion").click(function () {
           data: null,
           render: function (data, type, row) {
             return `<input type="number" class="form-control form-control-sm cantidad-material" 
-                                    max="${row.disponible}" step="${
-              row.unidad === "Pieza" ? "1" : "0.1"
-            }" value="0">`;
+                                    max="${row.disponible}" step="1" value="0"
+                                    onfocus="this.value = this.value.replace(/^0+/, '')">`;
           },
         },
         {
@@ -1943,7 +1942,7 @@ $("#btn-guardar-evaluacion").click(function () {
                         title="Agregar material">
                     <i class="fa-solid fa-plus"></i>
                 </button>`;
-        },
+          },
         },
       ],
       language: {
@@ -1999,15 +1998,8 @@ $("#btn-guardar-evaluacion").click(function () {
         $(this).closest("tr").find(".cantidad-material").val()
       );
 
-      if (isNaN(cantidad) || cantidad <= 0) {("Ingrese una cantidad válida");
+      if (isNaN(cantidad) || cantidad <= 0) {
         mostrarError("Ingrese una cantidad válida");
-        return;
-      }
-
-      if (cantidad > rowData.disponible) {
-         mostrarError(
-          `No hay suficiente stock. Disponible: ${rowData.disponible} ${rowData.unidad}`
-        );
         return;
       }
 
@@ -2015,8 +2007,19 @@ $("#btn-guardar-evaluacion").click(function () {
         (m) => m.id == rowData.id
       );
 
+      const totalCantidad = materialExistente
+        ? materialExistente.cantidad + cantidad
+        : cantidad;
+
+      if (totalCantidad > rowData.disponible) {
+        mostrarError(
+          `No hay suficiente stock. Disponible: ${rowData.disponible} ${rowData.unidad}`
+        );
+        return;
+      }
+
       if (materialExistente) {
-        materialExistente.cantidad += cantidad;
+        materialExistente.cantidad = totalCantidad;
       } else {
         materialesSeleccionados.push({
           id: rowData.id,
