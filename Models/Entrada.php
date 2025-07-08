@@ -71,9 +71,7 @@ class Entrada extends Model
      */
     public function listar(int $estado = null): array
     {
-        $query = "SELECT e.*, u.correo AS usuario_correo
-                  FROM entrada e
-                  LEFT JOIN usuario u ON e.idUsuario = u.id
+        $query = "SELECT * FROM entrada e
                   ORDER BY e.fechaEntrada DESC";
 
         $this->db->connect();
