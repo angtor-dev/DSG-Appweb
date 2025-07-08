@@ -286,3 +286,23 @@ function cargarNotificacionesEnSesion() : void {
     $objNotificacion = new Notificacion();
     $_SESSION['notificaciones'] = $objNotificacion->cargarNotificaciones($usuarioSesion->id);
 }
+
+/**
+ * la funcion recibe una fecha en formato 2025-07-08 11:00:53
+ * y retorna la fecha en formato 08/07/2025
+ * @param {string} fecha 
+ * @param {string} separador 
+ */
+function getFecha(string $fecha) : string {
+    return date("d/m/Y", strtotime($fecha));
+}
+
+/**
+ * la funcion recibe una fecha en formato "2025-07-08 17:00:53" o "17:00:53"
+ * y retorna la hora en formato 5:00 PM
+ * @param {string} fecha 
+ * @return
+ */
+function getHora(string $fecha) : string {
+    return date("h:i A", strtotime($fecha));
+}
