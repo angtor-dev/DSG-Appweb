@@ -555,3 +555,39 @@ function crearElemento(elemento, atributos) {
     }
     return el;
 }
+/**
+ * la funcion recibe una fecha en formato 2025-07-08 11:00:53
+ * y retorna la fecha en formato 08/07/2025
+ * @param {string} fecha 
+ * @param {string} separador 
+ */
+function getFecha(fecha){
+    return fecha.split(" ")[0].split("-").reverse().join("/");
+}
+/**
+ * la funcion recibe una fecha en formato "2025-07-08 17:00:53" o "17:00:53"
+ * y retorna la hora en formato 5:00 PM
+ * @param {string} fecha 
+ * @returns 
+ */
+function getHora(fecha){
+    let fechaFormat = "";
+    if(fecha.includes("-")){
+        fechaFormat = fecha.split(" ")[1];
+    }else if(fecha.includes(":")){
+        fechaFormat = fecha;
+    }
+    else{
+        return "00:00";
+    }
+
+    let hora = new Date("2000-01-01 "+fechaFormat);
+    let horas = hora.getHours();
+    let minutos = hora.getMinutes();
+    let ampm = horas >= 12 ? 'PM' : 'AM';
+    horas = horas % 12;
+    horas = horas ? horas : 12; // the hour '0' should be '12'
+    minutos = minutos < 10 ? '0'+minutos : minutos;
+    let strTime = horas + ':' + minutos + ' ' + ampm;
+    return strTime;
+}
