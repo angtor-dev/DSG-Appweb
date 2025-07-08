@@ -10,7 +10,7 @@
             </h5>
         </div>
         <div class="modal-body">
-            <form method="post" id="form-area">
+            <form method="post" id="form-articulo">
                 <input type="hidden" name="id" value="<?= $articulo->id ?>">
                 <div class="row gy-3">
                     <div class="col-md-12">
@@ -27,26 +27,26 @@
                         <label for="idCategoria" class="form-label">Categoría</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-fw fa-layer-group"></i></span>
-                            <select class="form-select" name="idCategoria" id="idCategoria">
+                            <select class="form-select rounded-end" name="idCategoria" id="idCategoria">
                                 <?php foreach ($categorias as $categoria): ?>
                                     <option value="<?= $categoria->id ?>" <?= $articulo->idCategoria == $categoria->id ? "selected" : "" ?>><?= $categoria->getNombre() ?></option>
                                 <?php endforeach ?>
                             </select>
+                            <div class="form-text invalid-feedback"></div>
                         </div>
-                        <div class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label for="idMedida" class="form-label">Medida</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-fw fa-ruler"></i></span>
-                            <select class="form-select" name="idMedida" id="idMedida">
+                            <select class="form-select rounded-end" name="idMedida" id="idMedida">
                                 <option value="0"><i>Seleccionar</i></option>
                                 <?php foreach ($medidas as $medida): ?>
                                     <option value="<?= $medida->id ?>" <?= $articulo->idMedida == $medida->id ? "selected" : "" ?>><?= $medida->getUnidad() ?> (<?= $medida->getSubUnidad() ?>)</option>
                                 <?php endforeach ?>
                             </select>
+                            <div class="form-text invalid-feedback"></div>
                         </div>
-                        <div class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-12">
                         <div class="form-label">Propiedades</div>
@@ -66,7 +66,7 @@
         <div class="modal-footer">
             <div class="d-flex justify-content-between gap-3">
                 <button data-bs-dismiss="modal" class="btn btn-outline-secondary">Cancelar</button>
-                <button type="submit" form="form-area" class="btn btn-primary">Guardar</button>
+                <button type="submit" form="form-articulo" class="btn btn-primary">Guardar</button>
             </div>
         </div>
     </div>
