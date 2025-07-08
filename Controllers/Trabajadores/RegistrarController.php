@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
     $cargosOptions = Cargo::getCargosOptions();
     $turnosOptions = Turno::getTurnosOptions();
      if(!empty($_GET['cedula'])){
-        postTienePermiso("falla", Permiso::REGISTRAR);
+        postTienePermiso(Modulo::TRABAJADORES, Permiso::REGISTRAR);
         $Trabajador = Trabajador::cargarPorCedula($_GET["cedula"]);
 
         if($Trabajador instanceof Trabajador and $Trabajador->getEstado() == $Trabajador::TRABAJADOR_ACTIVO){

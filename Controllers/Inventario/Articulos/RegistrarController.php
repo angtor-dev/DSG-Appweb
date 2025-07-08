@@ -5,6 +5,9 @@ requierePermiso(Modulo::ARTICULOS, Permiso::REGISTRAR);
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
     $categorias = (new Categoria())->listar();
+    usort($categorias, function($a, $b) {
+        return strcmp($a->getNombre(), $b->getNombre());
+    });
     $medidas = (new Medida())->listar();
     
     require_once "Views/Inventario/Articulos/_Registrar.php";
