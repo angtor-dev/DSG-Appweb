@@ -23,7 +23,10 @@ class Area extends Model
      */
     public function listarSubareas() : array
     {
-        $query = "SELECT * FROM area WHERE idArea = :idArea";
+        $query = "SELECT d.*, sub.idPadre as idDepartamento FROM division as d LEFT JOIN subdivisiones as sub on d.id = sub.idHijo WHERE sub.idPadre = :idDepartamento";
+
+        $query = "SELECT * FROM area as a LEFT JOIN subarea as sub on a.id = sub.idAreaHijo WHERE sub.idAreaPadre = :idArea";
+
 
         try {
             $this->db->connect();
@@ -47,17 +50,69 @@ class Area extends Model
         }
     }
 
+    public function listar($var = null) : array{
+
+        /*
+                $query = "SELECT d.*, sub.idPadre as idDepartamento FROM division as d LEFT JOIN subdivisiones as sub on d.id = sub.idHijo ORDER BY d.id";
+
+        $this->db->connect();
+
+        $parametros = [];
+
+        if(isset($estado)) $parametros['estado'] = $estado;
+
+        $stmt = $this->ejecutarStatement($query, $parametros, PDO::FETCH_CLASS, $this::class);
+
+        $this->db->disconnect();
+
+        if ($stmt->rowCount() == 0) {
+            return array();
+        }
+        return $stmt->fetchAll();
+    }
+         */
+        
+         $query = "SELECT a.*, s.idAreaPadre as idArea FROM area as a LEFT JOIN subarea as s on a.id = s.idAreaHijo";
+
+        $this->db->connect();
+
+        $parametros = [];
+
+        $stmt = $this->ejecutarStatement($query, $parametros, PDO::FETCH_CLASS, $this::class);
+
+        $this->db->disconnect();
+
+        if ($stmt->rowCount() == 0) {
+            return array();
+        }
+        return $stmt->fetchAll();
+
+        
+    }
+
     public function registrar() : bool {
-        $query = "INSERT INTO area (nombre, idArea) VALUES (:nombre, :idArea)";
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
+            $query = "INSERT INTO area (nombre) VALUES (:nombre)";
+            $param = [
+                'nombre' => $this->nombre
+            ];
+            $this->ejecutarStatement($query, $param);
+            $id = $this->db->pdo()->lastInsertId();
+            if($this->idArea != null){
+                $query = "INSERT INTO subarea (idAreaPadre, idAreaHijo) VALUES (:idPadre, :idHijo)";
+                $param = [
+                    'idPadre' => $this->idArea,
+                    'idHijo' => $id
+                ];
+                $this->ejecutarStatement($query, $param);
+            }
 
-            $stmt = $this->prepare($query);
-            $stmt->bindValue("nombre", $this->nombre);
-            $stmt->bindValue("idArea", $this->idArea);
+            $this->commit();
 
-            $stmt->execute();
+            
 
             $this->db->disconnect();
 

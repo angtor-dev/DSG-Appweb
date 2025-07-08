@@ -136,7 +136,7 @@ async function peticion (url,obj = {}) {
         let response = await fetch(url, obj);
 
         if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
+            throw new Error(response.status);
         }
         
         data = await response.text()
@@ -148,7 +148,15 @@ async function peticion (url,obj = {}) {
             return false;
         } 
         afterHandler({},error);
-        mostrarError("Error de solicitud");
+        if(error.message == 403){
+            mostrarError("No tienes permiso para realizar esta accion");
+        }
+        else if(error.message == 404){
+            mostrarError("Recurso no encontrado");
+        }
+        else{
+            mostrarError("Error de solicitud");
+        }
         console.error(error)
         return false;
     }
@@ -214,7 +222,7 @@ function peticionPromisse (url,obj = {}) {
             fetch(url, obj)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`Response status: ${response.status}`);
+                        throw new Error(response.status);
                     }
                     return response.text().then(data => ({ response, data }));
                 })
@@ -228,8 +236,11 @@ function peticionPromisse (url,obj = {}) {
                         reject(false);
                     } else {
                         afterHandler({},error);
-                        if(error.message === "Response status: 403"){
+                        if(error.message === "403"){
                             mostrarError("No tienes permiso para realizar esta acción");
+                        }
+                        else if(error.message === "404"){
+                            mostrarError("Recurso no encontrado");
                         }
                         else{
                             mostrarError("Error de solicitud");

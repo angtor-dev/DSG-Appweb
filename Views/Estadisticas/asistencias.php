@@ -36,7 +36,7 @@
 									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1">
-									<label for="departamento" class="form-label">Departamento</label>
+									<label for="departamento" class="form-label">Division</label>
 									<select name="departamento" id="departamento" class="form-select">
 											<option value="">Todos</option>
 										<?php foreach ($departamentos as $departamento): ?>
@@ -68,7 +68,7 @@
 								</div>
 								<div class="col-auto px-1">
 									<label class="fade no-select form-label d-block">l</label>
-									<button id="filtrar-btn" class="btn btn-primary">Filtrar</button>
+									<button id="filtrar-btn" class="btn btn-primary">Cargar</button>
 								</div>
 								<div class="col px-1">
 									<label class="fade no-select form-label d-block">l</label>
@@ -119,12 +119,30 @@
 									<div class="d-flex flex-column">
 										<div class="text-center fw-bold" id="picoInasistencias"></div>
 										<div class="text-center" id="mesPicoInasistencias"></div>
-										<!-- <div>
-											<hr>
-										</div>
-										<span style="font-size: .8rem;">Promedio de Inasistencias</span>
-										<div class="text-center fw-bold" id="promedioInasistencias"></div> -->
 									</div>
+								</div>
+							</div>
+							
+							<div class="row d-none">
+								<div class="col">
+									<div class="text-center">
+										<hr>
+										<span class="h3">Propedio de las Divisiones del Departamento</span>
+									</div>
+									<table class="table table-bordered w-auto mx-auto">
+										<thead>
+											<tr>
+												<th>División</th>
+												<th>Asistencias</th>
+												<th>%</th>
+												<th>Inasistencias</th>
+												<th>%</th>
+											</tr>
+										</thead>
+										<tbody id="promedioDivision">
+											
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>

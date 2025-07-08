@@ -66,7 +66,7 @@
         <a href="<?= LOCAL_DIR ?>/Departamentos" class="sidebar-button mx-3
             <?= strtolower($uriParts[0]) == "departamentos" ? "active" : "" ?>">
             <i class="fa-solid fa-building"></i>
-            Departamentos
+            Divisiones
         </a>
     <?php endif ?>
     <?php if (tienePermiso(Modulo::MEDIDAS, Permiso::CONSULTAR)): ?>
@@ -119,7 +119,13 @@
                     <?php if (tienePermiso(Modulo::AJUSTES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Ajustes"
                             class="<?= strtolower($uriParts[1]) == "ajustes" ? "active" : "" ?>">
-                            Ajustes
+                            Correcciones de Inventario
+                        </a>
+                    <?php endif ?>
+                    <?php if (tienePermiso(Modulo::NOTASENTREGA, Permiso::CONSULTAR)): ?>
+                        <a href="<?= LOCAL_DIR ?>/Inventario/NotasEntrega"
+                            class="<?= strtolower($uriParts[1]) == "notasentrega" ? "active" : "" ?>">
+                            Notas de Entrega
                         </a>
                     <?php endif ?>
                     <?php if (tienePermiso(Modulo::MOVIMIENTOS, Permiso::CONSULTAR)): ?>
@@ -141,7 +147,7 @@
     <?php endif ?>
 
     <h4>Datos</h4>
-    <?php if (true/* Validar permiso o algo */): ?>
+    <?php if (tienePermiso("reporteasistencias", "consultar")): ?>
         <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "reportes" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
                 <?= strtolower($uriParts[0]) == "reportes" ? "active" : "" ?>">
@@ -150,7 +156,7 @@
             </button>
             <div class="acordeon-body">
                 <div class="acordeon-items">
-                    <?php if (true/* Validar permiso o algo */): ?>
+                    <?php if (tienePermiso("reporteasistencias", "consultar")): ?>
                         <a href="<?= LOCAL_DIR ?>/ReporteAsistencia"
                             class="<?= strtolower($uriParts[1]) == "reporteasistencia" ? "active" : "" ?>">
                             de Asistencias
@@ -161,7 +167,7 @@
         </div>
     <?php endif ?>
 
-    <?php if (true/* Validar permiso o algo */): ?>
+    <?php if (tienePermiso("estadisticasasistencias", "consultar")): ?>
         <div class="mx-3 acordeon <?= strtolower($uriParts[0]) == "estadisticas" ? "show" : "" ?>">
             <button class="acordeon-toggle sidebar-button
                 <?= strtolower($uriParts[0]) == "estadisticas" ? "active" : "" ?>">
@@ -170,7 +176,7 @@
             </button>
             <div class="acordeon-body">
                 <div class="acordeon-items">
-                    <?php if (true/* Validar permiso o algo */): ?>
+                    <?php if (tienePermiso("estadisticasasistencias", "consultar")): ?>
                         <a href="<?= LOCAL_DIR ?>/EstadisticasAsistencias"
                             class="<?= strtolower($uriParts[1]) == "estadisticaasistencia" ? "active" : "" ?>">
                             de Asistencias
@@ -218,7 +224,7 @@
                     <!--  colocar permisos -->
                     <?php if (true/*tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)*/): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Respaldo"
-                            class="<?= strtolower($uriParts[1]) == "respaldo" ? "active" : "" ?>">
+                            class="d-none <?= strtolower($uriParts[1]) == "respaldo" ? "active" : "" ?>">
                             Respaldo BD
                         </a>
                     <?php endif ?>

@@ -99,6 +99,13 @@ function tienePermiso(string $modulo, string $permiso) : bool {
     return $usuarioSesion->rol->tienePermiso($modulo, $permiso);
 }
 
+function postTienePermiso(string $modulo, string $permiso) : void {
+    if(!tienePermiso($modulo, $permiso)) {
+        http_response_code(403);
+        exit();
+    }
+}
+
 /**
  * Redirecciona de forma segura a una url
  * @param string $url Url a donde se redireccionará

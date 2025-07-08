@@ -59,9 +59,12 @@ class Division extends Model
             $this->ejecutarStatement($query, ["nombre" => $this->nombre]);
             $id = $this->db->pdo()->lastInsertId();
 
-            $query = "INSERT INTO subdivisiones (idPadre, idHijo) VALUES (:idDepartamento, :idDivision)";
-            $parametros = ["idDepartamento" => $this->idDepartamento, "idDivision" => $id];
-            $this->ejecutarStatement($query, $parametros);
+            if($this->idDepartamento != null){
+                $query = "INSERT INTO subdivisiones (idPadre, idHijo) VALUES (:idDepartamento, :idDivision)";
+                $parametros = ["idDepartamento" => $this->idDepartamento, "idDivision" => $id];
+                $this->ejecutarStatement($query, $parametros);
+            }
+
 
 
             if($this->getTestingMode()){
@@ -83,18 +86,65 @@ class Division extends Model
 
     public function actualizar() : bool
     {
-        $sql = "UPDATE division SET nombre = :nombre, idDivision = :idDepartamento WHERE id = :id";
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
-            $stmt = $this->prepare($sql);
-            $stmt->bindValue('nombre', $this->nombre);
-            $stmt->bindValue('idDepartamento', $this->idDepartamento);
-            $stmt->bindValue('id', $this->id);
+            $sql = "UPDATE division SET nombre = :nombre WHERE id = :id";
+            $param=[
+                'id' => $this->id,
+                'nombre' => $this->nombre
+            ];
 
-            $stmt->execute();
-            
+            $this->ejecutarStatement($sql, $param);
+
+            if($this->idDepartamento != null){
+
+                //valida existencia en subdivisiones si existe lo actualiza si no lo inserta
+
+                $sql = "SELECT * FROM subdivisiones WHERE idHijo = :id AND idPadre = :idDepartamento";
+                $param=[
+                    'id' => $this->id,
+                    'idDepartamento' => $this->idDepartamento
+                ];
+                $resp =$this->ejecutarStatement($sql, $param);
+                if($resp->rowCount() == 0){
+                    $sql = "INSERT INTO subdivisiones (idPadre, idHijo) VALUES (:idDepartamento, :id)";
+                    $param=[
+                        'id' => $this->id,
+                        'idDepartamento' => $this->idDepartamento
+                    ];
+                }
+                else{
+                    $sql = "UPDATE subdivisiones SET idPadre = :idDepartamento WHERE idHijo = :id";
+                    $param=[
+                        'id' => $this->id,
+                        'idDepartamento' => $this->idDepartamento
+                    ];
+                }
+                // TODO esta verga no sirve XDDDDDD
+
+                $this->ejecutarStatement($sql, $param);
+
+
+                
+            }
+            else{
+                $sql = "DELETE FROM subdivisiones WHERE idHijo = :id";
+                $param=[
+                    'id' => $this->id
+                ];
+                $this->ejecutarStatement($sql, $param);
+            }
+
+            if($this->getTestingMode()){
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+
+            $this->commit();
+      
             $this->db->disconnect();
 
             return true;
@@ -170,6 +220,11 @@ class Division extends Model
     // Getters
     public function getNombre() : string {
         return $this->nombre;
+    }
+    public function set_idDepartamento($value):void{
+        if($value != ''){
+          $this->idDepartamento = intval($value);
+        }
     }
 }
 ?>

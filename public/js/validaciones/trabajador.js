@@ -137,6 +137,9 @@ function actualizarTrabajador (){
 function agregarValidaciones() {
     // formulario
     const formulario = document.getElementById('form-trabajador')
+    if(!formulario) {
+        return;
+    }
     // campos
     const iNombre = document.getElementById('nombre')
     const iApellido = document.getElementById('apellido')
@@ -174,6 +177,7 @@ function agregarValidaciones() {
 
             if(regCedula.test(this.value)){
                 let data = await peticion(`/Trabajadores/Registrar?cedula=${this.value}`)
+                if(data === false) return;
                 data = JSON.parse(data)
                 console.log(data)
                 if(data.cedula){
@@ -181,6 +185,9 @@ function agregarValidaciones() {
                     iCedula.classList.remove('is-valid')
                     iCedula.parentElement.querySelector('.form-text').textContent = "La cedula ya se encuentra registrada"
                     
+                }
+                else if(data.success == false){
+                    mostrarError(data.message);
                 }
                 else{
                     iCedula.classList.remove('is-invalid')

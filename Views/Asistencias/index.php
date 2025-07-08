@@ -100,7 +100,7 @@
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
                 <h3 class="pb-2">Asistencias</h3>
-                <span class="opacity-75 mb-2">Gestiona a las asistencias de los trabajadores de los diferentes departamentos de la Dirección de Servicios Generales</span>
+                <span class="opacity-75 mb-2">Gestiona a las asistencias e inasistencias de los trabajadores de las diferentes divisiones del departamento de Servicios Generales</span>
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@
                             <div class="d-table-cell">
                                 <div class="row flex-nowrap w-100">
                                     <div class="col flex-fill">
-                                        <label for="departamento">Departamento </label>
+                                        <label for="departamento">Division </label>
                                         <select required name="departamento" class="form-select" id="departamento">
                                             <option value=""></option>
                                             <?php foreach ($departamentos as $departamento): ?>
