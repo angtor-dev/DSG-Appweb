@@ -200,7 +200,7 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
         // Ejemplo con fetch:
     if(cedulaTrabajador !='') departamento = "";
 
-        const respuesta = await peticion("/EstadisticasAsistencias", { 
+        const respuesta = await peticion("/Estadisticas/Asistencias", { 
             method: "POST",
             body: JSON.stringify({ 
                 fechaIn: fechaInicio,
