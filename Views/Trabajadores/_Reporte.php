@@ -1,9 +1,16 @@
 <?php /** @var $trabajador Trabajador */ ?>
+<style>
+    .siglas{
+        text-transform: uppercase;
+        font-weight: bold;
+        font-family: "Lucida Console", Monaco, monospace;
+    }
+</style>
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
         <div class="modal-header panel-header text-white">
             <h5 class="modal-title my-2">
-                Registrar nuevo Trabajador
+                Datos del Trabajador (<span class="siglas" >C.I:</span> <?= $trabajador->getCedula(); ?>)
             </h5>
         </div>
         <div class="modal-body">
@@ -25,7 +32,7 @@
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="form-info-field" data-info="Fecha de Ingreso" >
-                        <?= $trabajador->getFechaIngreso(); ?>
+                        <?= getFecha($trabajador->getFechaIngreso()); ?>
                     </div>
                 </div>
                 <div class="col-12 col-md">
