@@ -96,7 +96,7 @@
                         <table class="datatable table table-striped table-hover" id="tabla-activas">
                             <thead>
                                 <tr>
-                                    <th>Id</th>
+                                    <th style="display: none;">Id</th>
                                     <th>Area</th>
                                     <th>Departamento</th>
                                     <th>Descripcion</th>
@@ -117,7 +117,7 @@
                         <table class="datatable table table-striped table-hover" id="tabla-vencidas">
                             <thead>
                                 <tr>
-                                    <th>Id</th>
+                                    <th style="display: none;">Id</th>
                                     <th>Area</th>
                                     <th>Departamento</th>
                                     <th>Descripcion</th>
@@ -138,7 +138,7 @@
                         <table class="datatable table table-striped table-hover" id="tabla-cancelada">
                             <thead>
                                 <tr>
-                                    <th>Id</th>
+                                    <th style="display: none;">Id</th>
                                     <th>Area</th>
                                     <th>Departamento</th>
                                     <th>Descripcion</th>
@@ -158,7 +158,7 @@
                         <table class="datatable table table-striped table-hover" id="tabla-evaluada">
                             <thead>
                                 <tr>
-                                    <th>Id</th>
+                                     <th style="display: none;">Id</th>
                                     <th>Area</th>
                                     <th>Departamento</th>
                                     <th>Descripcion</th>

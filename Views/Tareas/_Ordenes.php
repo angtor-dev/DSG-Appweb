@@ -28,7 +28,7 @@
                             <th >
                                 <input type="checkbox" class="form-check-input" id="seleccionar-todo">
                             </th>
-                            <th >ID</th>
+                            <th style="display: none;">ID</th>
                             <th >Personal</th>
                             <th >Departamento/Área</th>
                             <th >Descripción</th>
