@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <link rel="stylesheet" href="<?= LOCAL_DIR ?>/public/css/utilities.css">
     <link rel="stylesheet" href="<?= LOCAL_DIR ?>/public/css/main.css">
+    <?php imprimirEstilos(); ?>
     <script>
         <?php require_once 'public/js/constantes.php'; ?>
     </script>

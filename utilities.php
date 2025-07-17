@@ -165,6 +165,20 @@ function agregarCss($styleName) : void {
 }
 
 /**
+ * Imprime en el html los enlaces a los archivos css que se han agregado
+ * con la funcion agregarCss()
+ */
+function imprimirEstilos() : void {
+    global $viewStyles;
+    
+    if (!empty($viewStyles)) {
+        foreach ($viewStyles as $style) {
+            echo '<link rel="stylesheet" href="'.LOCAL_DIR.'/public/css/'.$style.'.css">';
+        }
+    }
+}
+
+/**
  * Imprime el contenido de una variable en un formato legible y finaliza el programa
  * @param mixed $var variable a imprimir
  */

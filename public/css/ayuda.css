@@ -1,0 +1,37 @@
+.ayuda-seccion{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+.ayuda-header,.ayuda-sub-header{
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+.ayuda-header{
+    font-size: 1.75rem;
+}
+.ayuda-sub-header{
+    font-size: 1.25rem;
+}
+.ayuda-title{
+    display: none;
+}
+
+@media print{
+    header,
+    .sidebar,
+    .panel-header
+    {
+        display: none !important;
+    }
+    .main-content{
+        --sidebar-width: 0px !important;
+    }
+    .ayuda-title{
+        display: block;
+    }
+    a{
+        text-decoration: none;
+        color: inherit;
+    }
+}
