@@ -20,6 +20,12 @@
                 <h3 class="pb-2">Ayuda</h3>
                 <span class="opacity-75 mb-2">Modulo de ayuda para el manejo del sistema</span>
             </div>
+            <div>
+                <button style="padding: .65rem 1.4rem;" class="btn btn-outline-light rounded-pill">
+                        <i class="fa-solid fa-print me-2"></i>
+                        Imprimir
+                    </button>
+            </div>
         </div>
     </div>
 </div>
