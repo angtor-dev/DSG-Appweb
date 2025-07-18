@@ -1,4 +1,9 @@
-.ayuda-seccion {
+.list-no-decor img {
+    max-width: 100% !important;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+.ayuda-seccion{
     margin-top: 2rem;
     margin-bottom: 2rem;
 }
@@ -39,6 +44,12 @@ ol li {
     font-size: .9rem;
     margin-bottom: .5rem;
 }
+
+.list-no-decor {
+    list-style-type: none;
+}
+
+
 
 @media print{
     header,
