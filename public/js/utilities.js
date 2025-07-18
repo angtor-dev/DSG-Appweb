@@ -479,11 +479,25 @@ function renderDataTable(selector, options = {}) {
             url: LOCAL_DIR+'/public/lib/DataTables/datatables-spanish.json'
         },
         layout: {
-            topStart: {
-                buttons: ['excel', 'pdf', 'print']
-            },
+            
             bottom1Start: {
                 pageLength: true
+            },
+            bottom1End: {
+                buttons: [
+                    {
+                        // Elemento de texto personalizado
+                        text: 'Exportar: ',
+                        // Puedes añadir una clase para estilizarlo si es necesario
+                        className: 'dt-export-button',
+                        // Esto evita que se comporte como un botón real
+                        action: function (e, dt, node, config) {
+                            // No hacer nada al hacer clic
+                            e.preventDefault();
+                        }
+                    },
+                    'excel', 'pdf', 'print'
+                ]
             }
         },
         columns: [],
