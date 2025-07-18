@@ -2,10 +2,15 @@
     agregarCss("ayuda");
 
     // cargara en un array las secciones con el require a las secciones de ayuda
-    $arreglo_de_secciones = array(
+    $arreglo_de_secciones = [
+        "indice",
+        "introduccion",
+        "login",
+        "interfaz",
+        "areas",
         "turnos",
         "trabajador",
-    );
+    ];
 
 
     
@@ -22,9 +27,9 @@
             </div>
             <div>
                 <button style="padding: .65rem 1.4rem;" class="btn btn-outline-light rounded-pill" id="imprimir">
-                        <i class="fa-solid fa-print me-2"></i>
-                        Imprimir
-                    </button>
+                    <i class="fa-solid fa-print me-2"></i>
+                    Imprimir
+                </button>
             </div>
         </div>
     </div>

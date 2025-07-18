@@ -232,4 +232,9 @@
             </div>
         </div>
     <?php endif ?>
+    <a href="<?= LOCAL_DIR ?>/Ayuda" class="sidebar-button mx-3
+        <?= strtolower($uriParts[0]) == "ayuda" ? "active" : "" ?>">
+        <i class="fa-solid fa-book"></i>
+        Manual
+    </a>
 </div>
