@@ -10,6 +10,8 @@
         "areas",
         "turnos",
         "trabajador",
+        "medidas",
+        "cargos",
     ];
 
 
