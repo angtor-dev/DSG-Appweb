@@ -520,13 +520,11 @@ class Turno extends Model implements JsonSerializable
             $query = "SELECT
                     CASE
                         WHEN EXISTS (SELECT 1 FROM asignacion_laboral as al WHERE al.idTurno = :idAl ) THEN 1
-                        WHEN EXISTS (SELECT 1 FROM tarea as ta WHERE ta.idTurno = :id_tarea) THEN 1
                         ELSE 0
                     END AS tiene_relaciones;";
 
             $parametros = [
                 "idAl" => $this->id,
-                "id_tarea" => $this->id
             ];
 
             $stmt = $this->ejecutarStatement($query, $parametros);

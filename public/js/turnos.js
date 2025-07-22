@@ -129,7 +129,7 @@ function renderTurnos(turnos,permisos = null){
 
     optionObj = {
         columns: [
-            {data: "id"},
+            //{data: "id"},
             {data: "nombre"},
             {data: "horario_entrada"},
             {data: "horario_salida"},
@@ -169,10 +169,12 @@ function agregarValidaciones(){
         let domingo = form.querySelector("#form-domingo");
         let hora_entrada = form.querySelector("#form-horaIn");
         let hora_salida = form.querySelector("#form-horaOut");
-        nombre.setValidStatus();
-        hora_entrada.setValidStatus();
-        hora_salida.setValidStatus();
-
+        [nombre,hora_entrada,hora_salida].forEach(input => {
+            input.setValidStatus();
+            input.addEventListener("change", function(){
+                this.setValidStatus();
+            })
+        });
 
         const auxiliarValidarDias = function(){
             let ok = false;
@@ -189,10 +191,12 @@ function agregarValidaciones(){
         
         const auxiliarValidarnombre = function(){
             nombre.value = nombre.value.trim();
+            nombre.setValidStatus();
             if(!turnoRegex.test(nombre.value) || nombre.value.length == 0){
                 nombre.setValidStatus(false,"El nombre es invalido debe tener solo letras y espacios");
                 return false;
             }
+            nombre.setValidStatus(true);
             return true;
         }
 

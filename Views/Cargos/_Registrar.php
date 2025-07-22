@@ -26,7 +26,7 @@
                         - <b>nivel 1</b> para <b>Director</b><br>
                         - <b>nivel 2</b> para <b>Coordinador</b><br>
                         - <b>nivel 3</b> para <b>Supervisor</b><br>
-                        A partir del <b>nivel 4</b> se puede utilizar para la jerarquia de los cargos de los trabajadores
+                        A partir del <b>nivel 4</b> se puede utilizar para la jerarquía de los cargos de los trabajadores
                     </div>
                 </div>
             </form>

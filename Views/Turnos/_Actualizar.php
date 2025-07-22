@@ -5,7 +5,7 @@
 <div class="modal-content">
         <div class="modal-header panel-header text-white">
             <h5 class="modal-title my-2">
-                Registrar Nuevo Cargo
+                Modificar Turno
             </h5>
         </div>
         <div class="modal-body">

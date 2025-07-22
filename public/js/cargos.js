@@ -87,7 +87,7 @@ function renderCargos(cargos,permisos = null){
 
     optionObj = {
         columns: [
-            {data: "id"},
+            //{data: "id"},
             {data: "nombre"},
             {data: "nivel"},
         ],
