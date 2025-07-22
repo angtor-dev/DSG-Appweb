@@ -13,7 +13,7 @@ if (empty($_GET['id'])) {
 }
 
 /** @var Notificacion */
-$notificacion = Notificacion::cargar($_GET['id']);
+$notificacion = Notificacion::cargar($_GET['id'], true);
 if ($notificacion === null) {
     echo new NotificacionDTO(false, 'No se encontró la notificación especificada');
     exit;

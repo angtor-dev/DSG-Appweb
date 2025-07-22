@@ -41,7 +41,7 @@
 		const turno = document.getElementById("turno").value;
 		const agrupar = document.getElementById("agrupar").value;
 
-		resp = await peticion("/ReporteAsistencia",{
+		resp = await peticion("/Reportes/Asistencia",{
 			method: "POST",
 			useLoader: "body",
 			headers: {

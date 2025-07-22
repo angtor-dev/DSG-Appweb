@@ -16,9 +16,7 @@
 
 // Funcionalidad de las notificaciones
 async function marcarNotificacionLeida(id) {
-    console.log(window.location.host);
-    
-    const res = await fetch('Notificaciones/MarcarLeida/?id=' + id)
+    const res = await fetch(LOCAL_DIR+'/Notificaciones/MarcarLeida/?id=' + id)
     if (res.ok) {
         const data = (GenericResponse.fromJson(await res.json()))
         if (!data.success) {

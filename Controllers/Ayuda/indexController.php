@@ -1,0 +1,4 @@
+<?php
+requiereAutenticacion();
+
+renderView();

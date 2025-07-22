@@ -165,6 +165,20 @@ function agregarCss($styleName) : void {
 }
 
 /**
+ * Imprime en el html los enlaces a los archivos css que se han agregado
+ * con la funcion agregarCss()
+ */
+function imprimirEstilos() : void {
+    global $viewStyles;
+    
+    if (!empty($viewStyles)) {
+        foreach ($viewStyles as $style) {
+            echo '<link rel="stylesheet" href="'.LOCAL_DIR.'/public/css/'.$style.'.css">';
+        }
+    }
+}
+
+/**
  * Imprime el contenido de una variable en un formato legible y finaliza el programa
  * @param mixed $var variable a imprimir
  */
@@ -270,4 +284,39 @@ function sincronizarPermisosEnSesion() : void {
 function checkHostBD(PDO $pdo, string $hostToCheck) : bool {
     $host = $pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS);
     return preg_match('/^'. $hostToCheck .'/', $host);
+}
+
+/**
+ * Carga las notificaciones del usuario en la sesión
+ **/
+function cargarNotificacionesEnSesion() : void {
+    if (!isset($_SESSION['usuario']) || !$_SESSION['usuario'] instanceof Usuario) {
+        $_SESSION['notificaciones'] = [];
+        return;
+    }
+    
+    /** @var Usuario */
+    $usuarioSesion = $_SESSION['usuario'];
+    $objNotificacion = new Notificacion();
+    $_SESSION['notificaciones'] = $objNotificacion->cargarNotificaciones($usuarioSesion->id);
+}
+
+/**
+ * la funcion recibe una fecha en formato 2025-07-08 11:00:53
+ * y retorna la fecha en formato 08/07/2025
+ * @param {string} fecha 
+ * @param {string} separador 
+ */
+function getFecha(string $fecha) : string {
+    return date("d/m/Y", strtotime($fecha));
+}
+
+/**
+ * la funcion recibe una fecha en formato "2025-07-08 17:00:53" o "17:00:53"
+ * y retorna la hora en formato 5:00 PM
+ * @param {string} fecha 
+ * @return
+ */
+function getHora(string $fecha) : string {
+    return date("h:i A", strtotime($fecha));
 }
