@@ -10,7 +10,7 @@
         </div>
         <div class="modal-body">
             <form action="<?= LOCAL_DIR ?>/Turnos/registrar" method="post" id="form-turno" onsubmit="return false">
-                <input type="hidden" id="form-id" name="id" value="<?= $turnoObj->id ?>">
+                <input type="hidden" id="form-id" name="id" value="<?= $turnoObj->get_codigo() ?>">
                 <div class="row">
                     <div class="col-12">
                         <label for="form-nombre" class="form-label">Nombre del Turno</label>

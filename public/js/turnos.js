@@ -84,7 +84,7 @@ function renderTurnos(turnos,permisos = null){
                         let div = button.getElementsByTagName("div")[0];
                         div.setAttribute("data-bs-toggle","modal");
                         div.setAttribute("data-bs-target","#modal-generico");
-                        div.setAttribute("data-bs-url",`${LOCAL_DIR}/Turnos/Actualizar?id=${data.id}`);
+                        div.setAttribute("data-bs-url",`${LOCAL_DIR}/Turnos/Actualizar?id=${encodeURIComponent(data.id)}`);
                     }
                 }
             )
@@ -231,7 +231,7 @@ function agregarValidaciones(){
         //let url = /Actualizar\?id=[0-9]+$/.test(form.action) ? `/Turnos/Actualizar` : `/Turnos/Registrar`;
         let url = form.action.match(/(\/Turnos\/.*)$/)[1];
         let datos = new FormData(form);
-        let accion = /Actualizar\?id=[0-9]+$/.test(form.action) ? "Actualizar" : "Registrar";
+        let accion = /Actualizar\?id=.+$/.test(form.action) ? "Actualizar" : "Registrar";
         datos.append("accion",accion);
         if(!confirm(`Estas seguro de ${accion} este turno?`)){
             return false;
