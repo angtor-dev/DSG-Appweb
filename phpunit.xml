@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit bootstrap="vendor/autoload.php" stopOnFailure="true"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
+<phpunit bootstrap="phpunitBootstrap.php" stopOnFailure="true"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
 	<testsuites>
 		<testsuite name="Asistencias">
 			<directory suffix=".php">
@@ -11,7 +11,7 @@
 				test/Usuarios
 			</directory>
 		</testsuite>
-		<testsuite name="turno">
+		<testsuite name="Turnos">
 			<directory suffix=".php">
 				test/Turnos
 			</directory>
@@ -39,5 +39,12 @@
 		-->
 
 	</testsuites>
+	<logging>
+        <junit outputFile="test/reports/junit.xml"/>
+        <text outputFile="test/reports/test_results.log"/>
+        <teamcity outputFile="test/reports/teamcity.txt"/>
+	    <testdoxHtml outputFile="test/reports/testdox.html"/>
+	    <testdoxText outputFile="test/reports/testdox.txt"/>
+    </logging>
 	
 </phpunit>

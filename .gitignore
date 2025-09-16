@@ -5,3 +5,5 @@ vendor/*
 .phpunit.result.cache
 Controllers/pruebas/*
 Views/pruebas/*
+test/reports/*
+.vscode/launch.json
