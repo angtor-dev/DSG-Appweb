@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const fechaInicio = fechaInicioInput.value;
         const fechaFin = fechaFinInput.value;
 
-        [fechaFinInput, fechaInicioInput].forEach(input => {
+        [fechaFinInput, fechaInicioInput, cedulaTrabajador].forEach(input => {
             input.setValidStatus();
         });
         
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if(cedulaTrabajador.value != ""){
             if(!/^[0-9]{7,8}$/.test(cedulaTrabajador.value)){
-                mostrarError("La cedula no es valida");
+                cedulaTrabajador.setValidStatus(false, "La cedula no es valida");
                 return;
             }
             else departamento.value = "";
@@ -265,10 +265,10 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
                 document.getElementById("mesPicoInasistencias").innerHTML = getMeses(mesPicoInasistencias);
                 
                 document.getElementById("picoAsistencias").parentNode.parentNode.style.backgroundColor = 'rgb(75, 192, 192)';
-                document.getElementById("picoAsistencias").parentNode.parentNode.style.color = '#006363';
+                document.getElementById("picoAsistencias").parentNode.parentNode.style.color = '#002424';
                 
                 document.getElementById("picoInasistencias").parentNode.parentNode.style.backgroundColor = 'rgb(255, 99, 132)';
-                document.getElementById("picoInasistencias").parentNode.parentNode.style.color = '#950020';
+                document.getElementById("picoInasistencias").parentNode.parentNode.style.color = '#4c0010';
                 let tbody = document.getElementById("promedioDivision");
 
                 tbody.closest("div.row").classList.add("d-none");
