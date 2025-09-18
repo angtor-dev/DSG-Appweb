@@ -137,6 +137,9 @@ class Rol extends Model
         $rolObj = new Rol;
         $lista =$rolObj->listar();
         $options ="";
+        /**
+         * @var Rol $rol
+         */
         foreach ($lista as $rol) {
             $options .= "<option ".($checkedId == $rol->id ? "selected" : "")." value='" . $rol->id . "'>" . $rol->getNombre() . "</option>";
         }
