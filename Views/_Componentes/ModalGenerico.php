@@ -32,6 +32,10 @@
                             throw new Error(response.statusText)
                         }
                     }
+                    if(/Login$/.test(response.url)){
+                        window.location.reload()
+                        throw new Error("La sesión ha terminado");
+                    }
                     return data
                 })
             })

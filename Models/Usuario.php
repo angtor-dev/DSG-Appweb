@@ -23,8 +23,7 @@ class Usuario extends Model
     public function __construct(
         string $correo = null,
         string $estado = null,
-        Rol $rol = null,
-        string $idTrabajador = null
+        Rol $rol = null
     )
     {
         if(isset($this->clave)) $this->clave = NULL; // para que no se muestre la clave con el fetch_Class
