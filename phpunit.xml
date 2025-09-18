@@ -22,7 +22,7 @@
 			</directory>
 		</testsuite>
 
-		<!-- 
+	
 		otro se agrega aqui 
 		<testsuite name="Trabajadores (EL nombre aqui no importa solo no se debe repetir)">
 			<directory suffix=".php">
