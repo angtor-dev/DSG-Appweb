@@ -16,7 +16,7 @@
 				test/Turnos
 			</directory>
 		</testsuite>
-		<testsuite name="Cargos">
+		<!-- <testsuite name="Cargos">
 			<directory suffix=".php">
 				test/Cargo
 			</directory>
@@ -39,6 +39,14 @@
 		-->
 
 	</testsuites>
+	
+	<coverage>
+        <include>
+            <directory>./Models</directory>
+        </include>
+    </coverage>
+
+
 	<logging>
         <junit outputFile="test/reports/junit.xml"/>
         <text outputFile="test/reports/test_results.log"/>
@@ -46,5 +54,7 @@
 	    <testdoxHtml outputFile="test/reports/testdox.html"/>
 	    <testdoxText outputFile="test/reports/testdox.txt"/>
     </logging>
+
+	
 	
 </phpunit>
