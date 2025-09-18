@@ -27,6 +27,7 @@ class Usuario extends Model
         string $idTrabajador = null
     )
     {
+        if(isset($this->clave)) $this->clave = NULL; // para que no se muestre la clave con el fetch_Class
         parent::__construct();
         $this->correo = $correo ?? $this->correo;
         $this->estado = $estado ?? $this->estado;
@@ -71,7 +72,10 @@ class Usuario extends Model
 
     private function validarClave(string $clave) : bool
     {
-        return password_verify($clave, $this->clave);
+        $query = "SELECT clave FROM usuario WHERE id = :id";
+        $this->db->connectUser();
+        $resp = $this->ejecutar($query, ["id"=> $this->id])[0]["clave"];
+        return password_verify($clave, $resp);
     }
 
     public static function cargarPorCorreo(string $correo, int $estado = 1) : Usuario | null
