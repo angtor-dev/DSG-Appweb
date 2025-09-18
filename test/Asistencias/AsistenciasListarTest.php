@@ -1,14 +1,16 @@
 <?php 
 use PHPUnit\Framework\TestCase;
-$test_suite = "Asistencias";
 // la clase debe llamarse igual que el archivo
 class AsistenciasListarTest extends TestCase
 {
     private $asistenciaObj;
+    public $testSuiteControl;
 
     protected function setUp(): void
     {
         $this->asistenciaObj = new Asistencia;
+        $this->testSuiteControl = "Asistencias";
+
     }
 
     /**
@@ -45,8 +47,7 @@ class AsistenciasListarTest extends TestCase
             $this->assertArrayNotHasKey('listaTrabajadores',$respuesta, $mensaje.="el arreglo tiene la llave listaTrabajadores pero no deberia");
         }
 
-        global $test_suite;
-        (new LoggerPhpUnit($this, $test_suite))->log();
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
         
 
         
@@ -57,22 +58,22 @@ class AsistenciasListarTest extends TestCase
     
         return [
             "caso 1" => [
-                "Division" => "3",
+                "División" => "3",
                 "Turno" => "2",
                 "fecha" => "2025-01-30",
-                "respuesta esperada"=>true
+                "resultado esperado"=>true
             ],
             "caso 2" => [
-                "Division" => "3",
+                "División" => "3",
                 "Turno" => "2",
                 "fecha" => "2025-01-29",
-                "respuesta esperada"=>true
+                "resultado esperado"=>true
             ],
             "caso 3" => [
-                "Division" => "3",
+                "División" => "3",
                 "Turno" => "2",
                 "fecha" => "2025-01-28",
-                "respuesta esperada"=>true
+                "resultado esperado"=>true
             ],
         ];
     }

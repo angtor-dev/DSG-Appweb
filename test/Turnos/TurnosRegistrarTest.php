@@ -1,18 +1,90 @@
 <?php
 use PHPUnit\Framework\TestCase;
-$test_suite = "Turnos";
 
 class TurnosRegistrarTest extends TestCase
 {
     private $turnoObj;
+    public $testSuiteControl;
     
 
     protected function setUp(): void
     {
         $this->turnoObj = new Turno;
         $this->turnoObj->setTestingMode(true);
+        $this->testSuiteControl = "Turnos";
         
     }
+
+    /**
+     * @dataProvider ListarTurnosProvider
+     */
+
+    public function testTurnosListar($foo, $respuesta_esperada): void
+    {
+        switch ($this->dataName()) {
+            case 'Listar con todos los permisos':
+                    getUserFalseInsesion(1); // usuario con el rol de super admin
+                    $eliminar = true;
+                    $actualizar = true;
+                break;
+                case 'Listar sin el permiso de eliminar':
+                    getUserFalseInsesion(2); // usuario con rol sin permiso de eliminar
+                    $eliminar = false;
+                    $actualizar = true;
+                break;
+                case 'Listar sin el permiso de actualizar':
+                    getUserFalseInsesion(3); // usuario con rol sin permiso de actualizar
+                    $eliminar = true;
+                    $actualizar = false;
+                break;
+                case 'Listar sin el permiso de actualizar-eliminar':
+                    getUserFalseInsesion(4); // usuario con rol sin permiso de actualizar-eliminar
+                    $eliminar = false;
+                    $actualizar = false;
+                break;
+            
+            default:
+                    getUserFalseInsesion(1); // usuario con el rol de super admin
+                    $eliminar = true;
+                    $actualizar = true;
+                break;
+        }
+
+        $resp = $this->turnoObj->listar();
+
+        if($respuesta_esperada === true){
+            $this->assertEquals($respuesta_esperada, $resp['success']);
+            $this->assertEquals($eliminar, $resp['eliminar']);
+            $this->assertEquals($actualizar, $resp['actualizar']);
+            $this->assertIsArray($resp['data']);
+        }
+        else{
+            $this->assertEquals($respuesta_esperada, $resp['success']);
+            $this->assertIsString($resp['message']);
+        }
+        
+        
+
+        global $test_suite;
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+
+        
+    }
+
+    public function ListarTurnosProvider(): array
+    {
+        return [
+            "Listar con todos los permisos" => ["NA"=>"No hay entradas","resultado esperado"=>true],
+            "Listar sin el permiso de eliminar" => ["NA"=>"No hay entradas","resultado esperado"=>true],
+            "Listar sin el permiso de actualizar"=> ["NA"=>"No hay entradas","resultado esperado"=>true],
+            "Listar sin el permiso de actualizar-eliminar"=> ["NA"=>"No hay entradas","resultado esperado"=>true],
+            //"Error de conexion" => ["NA"=>"No hay entradas","respuesta esperada"=>false],
+        ];
+    }
+
+
+
+
 
     /**
      * @dataProvider RegistrosProvider
@@ -68,7 +140,7 @@ class TurnosRegistrarTest extends TestCase
 
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
         global $test_suite;
-        (new LoggerPhpUnit($this, $test_suite))->log();
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
     }
 
     public function RegistrosProvider()
@@ -224,7 +296,7 @@ class TurnosRegistrarTest extends TestCase
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
         $this->assertEquals($mensajeEsperado, $respuesta['message'], $mensaje);
         global $test_suite;
-        (new LoggerPhpUnit($this, $test_suite))->log();
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
 
     }
 
@@ -352,7 +424,7 @@ class TurnosRegistrarTest extends TestCase
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
 
         global $test_suite;
-        (new LoggerPhpUnit($this, $test_suite))->log();
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
     }
     
     public function ActualizarTurnoProvider()
