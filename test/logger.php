@@ -65,6 +65,7 @@ class LoggerPhpUnit
              * @var logJsonTest $objJson
              */
             $objJson->setTestSuite($this->testSuite);
+            $objJson->setTestSuiteClass(get_class($this->test));
 
             
 
@@ -123,6 +124,7 @@ class LoggerPhpUnit
  */
 class logJsonTest {
     public $testSuite;
+    public $testSuiteClass;
     public $testMethods;
 
     public function __construct() {
@@ -141,6 +143,7 @@ class logJsonTest {
     public function serialize ($json) {
         $obj = new logJsonTest();
         $obj->setTestSuite($json->testSuite);
+        $obj->setTestSuiteClass($json->testSuiteClass);
         if(is_object($json->testMethods)) {
             foreach ($json->testMethods as $method) {
                 $methodControl = new logJsonTestMethod();
@@ -157,6 +160,11 @@ class logJsonTest {
         }
         $tempClass = new stdClass();
         return $tempClass->{$obj->getTestSuite()} = $obj;
+    }
+
+    public function setTestSuiteClass(string $testSuiteClass) {
+        $this->testSuiteClass = $testSuiteClass;
+        return $this;
     }
 
 
