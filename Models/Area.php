@@ -126,17 +126,36 @@ class Area extends Model
 
     public function actualizar() : bool
     {
-        $sql = "UPDATE area SET nombre = :nombre, idArea = :idArea WHERE id = :id";
+        $sql = "UPDATE area SET nombre = :nombre WHERE id = :id";
 
         try {
             $this->db->connect();
 
             $stmt = $this->prepare($sql);
             $stmt->bindValue('nombre', $this->nombre);
-            $stmt->bindValue('idArea', $this->idArea);
             $stmt->bindValue('id', $this->id);
 
             $stmt->execute();
+
+             $query = 'DELETE FROM subarea WHERE idAreaHijo = :idHijo';
+                $param = [
+                    'idHijo' => $this->id
+                    ];
+                $this->ejecutarStatement($query, $param);
+
+            if($this->idArea != null){
+
+               
+
+                $query = "INSERT INTO subarea (idAreaPadre, idAreaHijo) VALUES (:idPadre, :idHijo)";
+                $param = [
+                    'idPadre' => $this->idArea,
+                    'idHijo' => $this->id
+                ];
+                $this->ejecutarStatement($query, $param);
+            }
+            
+
             
             $this->db->disconnect();
 
