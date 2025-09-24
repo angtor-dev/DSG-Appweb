@@ -369,6 +369,18 @@ abstract class Model
         }
     }
 
+
+    public function testHandler() : bool
+    {
+        $testing = false;
+        if($this->getTestingMode()) {
+            $this->rollBack();
+            $this->beginTransaction();
+            $testing = true;
+        }
+        return $testing;
+    }
+
     
 
     abstract public function setterArray(array $data):void;
