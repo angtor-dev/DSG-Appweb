@@ -13,7 +13,7 @@ if(!empty($_POST)){
         "fecha" => $_POST['fecha'],
         "turno" => $_POST['turno']
     ]);
-    $asistenciaObj->verAsistencias(true);
+    $asistenciaObj->verAsistenciasSemanal(true);
     die;
 }
 
