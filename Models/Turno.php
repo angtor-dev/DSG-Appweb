@@ -51,15 +51,30 @@ class Turno extends Model implements JsonSerializable
     }
 
 
-    public static function getTurnosOptions($checkedId = null) : string
+    public static function getTurnosOptions(string|int $checkedId = null, bool $code = false, bool $chekFirst = false) : string
     {
 
         $turno = new Turno();
 
         $turnos = $turno->listarPadre();
         $options = "";
+
+        $first = ($checkedId == null && $chekFirst) ? true : false;
+
+
+        /**
+         * @var Turno $turno
+         */
+        
         foreach ($turnos as $turno) {
-            $options .= "<option ".($checkedId == $turno->id ? "selected" : "")." value='" . $turno->id . "'>" . $turno->get_nombre() . "</option>";
+            if($code){
+                $options .= "<option ".($checkedId == $turno->codigo|| $first  ? "selected" : "")." value='" . $turno->codigo . "'>" . $turno->get_nombre() . "</option>";
+            }
+            else{
+                $options .= "<option ".($checkedId == $turno->id || $first ? "selected" : "")." value='" . $turno->id . "'>" . $turno->get_nombre() . "</option>";
+            }
+            $first = false;
+            
         }
         return $options;
         
@@ -107,11 +122,26 @@ class Turno extends Model implements JsonSerializable
     {
         try {
             $this->db->connect();
-            $query = "SELECT * FROM turno WHERE codigo = :id";
-            $parametros = array(
-                "id" => $this->codigo
-            );
-            $resp = $this->ejecutarStatement($query, $parametros, PDO::FETCH_CLASS, get_class($this));
+            // primero buscamos el turno por su codigo
+            if(isset($this->codigo) and !empty($this->codigo)){
+                
+                $query = "SELECT * FROM turno WHERE codigo = :id";
+                $parametros = array(
+                    "id" => $this->codigo
+                );
+            }
+            // luego buscamos el turno por su id
+            else if (isset($this->id) and !empty($this->id)){
+                $query = "SELECT * FROM turno WHERE id = :id";
+                $parametros = array(
+                    "id" => $this->id
+                );
+            }
+            // si no se especifica el id ni el codigo del turno
+            else{
+                throw new \Exception("El identificador del turno es requerido", self::SHOW_EXCEPTION_TURNO);
+            }
+                $resp = $this->ejecutarStatement($query, $parametros, PDO::FETCH_CLASS, get_class($this));
             if(!($resp = $resp->fetch())){
                 throw new \Exception("Turno no encontrado", self::SHOW_EXCEPTION_TURNO);
             }
