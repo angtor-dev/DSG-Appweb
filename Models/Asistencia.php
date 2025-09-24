@@ -325,15 +325,11 @@ class Asistencia extends Model
                 //$this->ejecutarStatement($query, $parametros);
                 
             }
-
-
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
-            }
-            else {
-                Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con exito", $this->db->pdo());
-            }
+            
+            
+            Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con exito", $this->db->pdo());
+            
+            $this->testHandler();
 
             $this->commit();
             $this->db->disconnect();
@@ -476,10 +472,8 @@ class Asistencia extends Model
 
             Bitacora::registrarTransaccion($bitacoraSms, $this->db->pdo());
 
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
-            }
+            
+            $this->testHandler();
 
             $this->commit();
             $this->db->disconnect();
