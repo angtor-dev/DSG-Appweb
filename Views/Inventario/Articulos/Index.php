@@ -117,4 +117,4 @@
 
 
 <?php // agregarScript("articulo.js") ?>
-<?php // agregarScript("validaciones/articulo.js") ?>
+<?php agregarScript("validaciones/articulo.js") ?>

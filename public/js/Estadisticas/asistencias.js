@@ -27,6 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
     btnFiltrar.addEventListener('click', function() {
         const fechaInicio = fechaInicioInput.value;
         const fechaFin = fechaFinInput.value;
+
+        [fechaFinInput, fechaInicioInput].forEach(input => {
+            input.setValidStatus();
+        });
         
         if (!fechaInicio || !fechaFin) {
             mostrarError('Por favor, ingresa ambas fechas');
@@ -34,7 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (new Date(fechaInicio) > new Date(fechaFin)) {
-            mostrarError("La fecha de inicio no puede ser mayor a la fecha fin");
+            //mostrarError("La fecha de inicio no puede ser mayor a la fecha fin");
+            fechaFinInput.setValidStatus(false, "La fecha de inicio no puede ser mayor a la fecha fin");
             return;
         }
 
@@ -195,7 +200,7 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
         // Ejemplo con fetch:
     if(cedulaTrabajador !='') departamento = "";
 
-        const respuesta = await peticion("/EstadisticasAsistencias", { 
+        const respuesta = await peticion("/Estadisticas/Asistencias", { 
             method: "POST",
             body: JSON.stringify({ 
                 fechaIn: fechaInicio,

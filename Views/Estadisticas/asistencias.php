@@ -30,7 +30,21 @@
 									<input type="date" class="form-control" id="hasta" name="hasta" data-formText="form-text-hasta">
 									<div id="form-text-hasta" class="form-text invalid-feedback"></div>
 								</div>
-								<div class="col px-1">
+								<div class="col-auto">
+									<label for="trabajador_check">por Trabajador</label><br>
+									<input type="checkbox" id="trabajador_check">
+									<script>
+										document.getElementById('trabajador_check').addEventListener('change', function() {
+											if(this.checked) {
+												this.closest('div').nextElementSibling.classList.remove('d-none')
+											}
+											else{
+												this.closest('div').nextElementSibling.classList.add('d-none')
+											}
+										})
+									</script>
+								</div>
+								<div class="col px-1 d-none">
 									<label for="trabajador" class="form-label text-nowrap">Cedula Trabajador</label>
 									<input maxlength="8" type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
 									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>

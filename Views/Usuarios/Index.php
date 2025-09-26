@@ -28,7 +28,6 @@
                 <table class="datatable table table-striped table-hover" id="tabla-usuarios">
                     <thead>
                         <tr>
-                            <th>Id</th>
                             <th>Cedula</th>
                             <th>Nombre y apellido</th>
                             <th>Correo</th>
@@ -39,7 +38,6 @@
                     <tbody>
                         <?php foreach ($usuarios as $usuario): ?>
                             <tr>
-                                <td><?= $usuario->id ?></td>
                                 <td><?= $usuario->getCedula() ?></td>
                                 <td><?= $usuario->getNombreCompleto() ?></td>
                                 <td><?= $usuario->getCorreo() ?></td>

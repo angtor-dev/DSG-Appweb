@@ -152,8 +152,23 @@ class Bitacora extends Model
     public function getRuta() : string {
         return $this->ruta;
     }
+    public function getModulo() : string {
+        $ruta = rtrim($this->ruta, '/');
+        $partes = explode('/', $ruta);
+        array_pop($partes); // Quitar la acción
+        // Separar palabras en PascalCase
+        $partes = array_map(function($parte) {
+            return preg_replace('/([a-z])([A-Z])/', '$1 $2', $parte);
+        }, $partes);
+        return implode(' > ', $partes);
+    }
+    public function getAccion() : string {
+        $ruta = rtrim($this->ruta, '/');
+        $partes = explode('/', $ruta);
+        return end($partes);
+    }
     public function getFecha() : string {
-        return $this->fecha;
+        return getFecha($this->fecha) . ' ' . getHora($this->fecha);
     }
     public function getUsuario_correo() : string|null {
         return $this->usuario_correo;

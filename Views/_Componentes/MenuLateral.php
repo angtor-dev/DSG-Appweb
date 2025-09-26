@@ -157,7 +157,7 @@
             <div class="acordeon-body">
                 <div class="acordeon-items">
                     <?php if (tienePermiso("reporteasistencias", "consultar")): ?>
-                        <a href="<?= LOCAL_DIR ?>/ReporteAsistencia"
+                        <a href="<?= LOCAL_DIR ?>/Reportes/Asistencia"
                             class="<?= strtolower($uriParts[1]) == "reporteasistencia" ? "active" : "" ?>">
                             de Asistencias
                         </a>
@@ -177,7 +177,7 @@
             <div class="acordeon-body">
                 <div class="acordeon-items">
                     <?php if (tienePermiso("estadisticasasistencias", "consultar")): ?>
-                        <a href="<?= LOCAL_DIR ?>/EstadisticasAsistencias"
+                        <a href="<?= LOCAL_DIR ?>/Estadisticas/Asistencias"
                             class="<?= strtolower($uriParts[1]) == "estadisticaasistencia" ? "active" : "" ?>">
                             de Asistencias
                         </a>
@@ -232,4 +232,9 @@
             </div>
         </div>
     <?php endif ?>
+    <a href="<?= LOCAL_DIR ?>/Ayuda" class="sidebar-button mx-3
+        <?= strtolower($uriParts[0]) == "ayuda" ? "active" : "" ?>">
+        <i class="fa-solid fa-book"></i>
+        Manual
+    </a>
 </div>

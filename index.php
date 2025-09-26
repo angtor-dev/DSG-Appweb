@@ -6,6 +6,7 @@ require_once "vendor/autoload.php";
 
 session_start();
 sincronizarPermisosEnSesion();
+cargarNotificacionesEnSesion();
 
 $defaultController = "Index";
 $defaultPath = "Home/";

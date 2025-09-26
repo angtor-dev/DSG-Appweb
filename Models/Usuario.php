@@ -296,9 +296,11 @@ class Usuario extends Model
             
         try {
             $this->db->connectUser();
-            $this->db->pdo()->beginTransaction();
+            $this->beginTransaction();
+            
 
             $this->esValido(self::ACTUALIZAR_USUARIO);
+            
             $pass = false;
             if($this->clave != null) {
                 $this->clave = password_hash($this->clave, PASSWORD_DEFAULT);
@@ -334,14 +336,14 @@ class Usuario extends Model
 
             
             if($this->getTestingMode()) {
-                $this->db->pdo()->rollBack();
-                $this->db->pdo()->beginTransaction();
+                $this->rollBack();
+                $this->beginTransaction();
             }
             else{
+                $this->db->pdo()->commit();
                 Bitacora::registrarTransaccion("Usuario '".$this->getCorreo()."' actualizado", $this->db->pdo());
             }
-            
-            $this->db->pdo()->commit();
+
 
             $this->db->disconnect();
 
@@ -376,7 +378,11 @@ class Usuario extends Model
             if($th instanceof Exception and $th->getCode() == self::SHOW_EXCEPTION) $respuesta['mensaje'] = $th->getMessage();
 
             //if (DEVELOPER_MODE) $respuesta['consoleError'] = "`".addslashes($th->getMessage())." :: File:".addslashes($th->getFile())." :: Linea:".addslashes($th->getLine())."`";
-            if(DEVELOPER_MODE) $respuesta['consoleError'] = $th->getTraceAsString();
+            if(DEVELOPER_MODE) {
+                $respuesta["mensaje"] = $th->getMessage();
+                debug([$th->getTrace(),$respuesta['mensaje']]);
+            }
+            
         }
 
         if($print) echo (json_encode($respuesta));

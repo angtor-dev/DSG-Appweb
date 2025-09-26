@@ -19,7 +19,8 @@
                         <tr>
                             <th>Usuario</th>
                             <th>Registro</th>
-                            <th>Ruta</th>
+                            <th>Módulo</th>
+                            <th>Acción</th>
                             <th>Fecha</th>
                         </tr>
                     </thead>
@@ -28,7 +29,8 @@
                             <tr>
                                 <td><?= ($biracora->getUsuario_correo()) ? $biracora->getUsuario_correo() : "USER_DELETED" ?></td>
                                 <td><?= $biracora->getRegistro() ?></td>
-                                <td><?= $biracora->getRuta() ?></td>
+                                <td><?= $biracora->getModulo() ?></td>
+                                <td><?= $biracora->getAccion() ?></td>
                                 <td><?= $biracora->getFecha() ?></td>
                             </tr>
                         <?php endforeach ?>
