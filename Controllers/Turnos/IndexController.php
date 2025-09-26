@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var array{action: string, codigo:string, id:string} $_POST
+ */
 cargarPost();
 requiereAutenticacion();
 requierePermiso(Modulo::TURNOS, Permiso::CONSULTAR);

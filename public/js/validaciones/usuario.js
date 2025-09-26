@@ -119,6 +119,7 @@ function agregarValidaciones() {
 
 
         iCedula.onkeyup= async function(e){
+            this.setValidStatus();
 
 
             if(iCedula.abortController) iCedula.abortController.abort("nueva peticion");
@@ -140,7 +141,7 @@ function agregarValidaciones() {
 
             if(regCedula.test(this.value)){
                 
-                fetchObj = {useLoader:"#modal-generico .modal-content", signal:abortHolder.signal}
+                fetchObj = {signal:abortHolder.signal}
                 let url = `/Usuarios/Registrar?cedula=${this.value}`
                 if(boolActualizando){
                     url += `&id=${iId.value}`

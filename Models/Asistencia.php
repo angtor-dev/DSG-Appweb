@@ -596,9 +596,41 @@ class Asistencia extends Model
         return $respuesta;
     }
 
+
     public function reporteEstadistica($print = false) {
         try {
             $this->db->connect();
+
+            // validaciones
+            
+            if(empty($this->fechaIn) || empty($this->fechaOut)) {
+            throw new InvalidArgumentException("Las fechas de inicio y fin no pueden estar vacias");
+            }
+
+            if(!preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/", $this->fechaIn) || !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/", $this->fechaOut)) {
+                throw new InvalidArgumentException("Las fechas de inicio y fin deben tener formato AAAA-MM-DD");
+            }
+
+            if(!empty($this->idTrabajador) && !preg_match("/^[0-9]{7,8}$/", $this->idTrabajador)) {
+                throw new InvalidArgumentException("La cedula debe tener 7 u 8 digitos");
+            }
+            else if(!empty($this->idTrabajador)) {
+                $query = "SELECT 1 FROM trabajador WHERE cedula = :cedula";
+                $parametros = [
+                    "cedula" => $this->idTrabajador
+                ];
+                $stmt = $this->ejecutarStatement($query, $parametros, PDO::FETCH_ASSOC);
+                if(!$stmt->fetch() ) {
+                    throw new InvalidArgumentException("El trabajador no existe");
+                }
+            }
+            if(strtotime($this->fechaIn) >= strtotime($this->fechaOut)) {
+                throw new InvalidArgumentException("La fecha de inicio debe ser anterior o igual a la fecha final");
+            }
+
+            
+
+
 
             $queryN = "SELECT
                         DATE_FORMAT(fecha, '%Y-%m') as mes,
@@ -608,11 +640,23 @@ class Asistencia extends Model
             ";
             $where = " WHERE fecha Between :inicio AND :fin";
 
+
+            
+
+            $parametros = [
+                "inicio" => $this->fechaIn,
+                "fin" => $this->fechaOut
+            ];
+
             if(!empty($this->idTrabajador)){
                 $where .= " AND cedula = :cedula";
+                $parametros["cedula"] = $this->idTrabajador;
+
             }
             else if(!empty($this->idDepartamento)){
                 $where .= " AND idDivision = :idDepartamento";
+                $parametros["idDepartamento"] = $this->idDepartamento;
+
             }
 
             $where .= " GROUP BY mes";
@@ -621,18 +665,7 @@ class Asistencia extends Model
 
             $query = $queryN . $where;
 
-            $parametros = [
-                "inicio" => $this->fechaIn,
-                "fin" => $this->fechaOut
-            ];
-
-
-            if(!empty($this->idTrabajador)){
-                $parametros["cedula"] = $this->idTrabajador;
-            }
-            else if(!empty($this->idDepartamento)){
-                $parametros["idDepartamento"] = $this->idDepartamento;
-            }
+          
 
             $listaFinal = $this->ejecutar($query, $parametros, PDO::FETCH_NUM);
 

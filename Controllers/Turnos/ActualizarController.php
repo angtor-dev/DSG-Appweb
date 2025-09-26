@@ -6,8 +6,19 @@ requierePermiso(Modulo::TURNOS, Permiso::ACTUALIZAR);
 if ($_SERVER['REQUEST_METHOD'] === 'GET')
 {
     $turnoObj = new Turno();
-    $turnoObj->set_id($_GET['id']);
+    $turnoObj->set_codigo(urldecode($_GET['id']));
+
     $turnoObj = $turnoObj->obtenerPorId();
+    if(is_array($turnoObj) and isset($turnoObj["success"]) and $turnoObj["success"] == false){
+
+        http_response_code(400);
+        echo $turnoObj["error"];
+
+        die;
+    }
+
+    
+    
     require_once "Views/Turnos/_Actualizar.php";
 }
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
@@ -18,7 +29,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
     {
         $turnos = new Turno();
         $turnos->setterArray([
-            "id" => $_POST['id'] ?? "",
+            "codigo" => $_POST['id'] ?? "",
             "nombre" => $_POST['form-nombre'],
             "horario_entrada" => $_POST['horario_entrada'],
             "horario_salida" => $_POST['horario_salida'],

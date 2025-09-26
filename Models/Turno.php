@@ -24,7 +24,7 @@
 
 class Turno extends Model implements JsonSerializable
 {
-
+    private string $codigo;
     private string $nombre;
     private string $horario_entrada;
     private string $horario_salida;
@@ -51,15 +51,30 @@ class Turno extends Model implements JsonSerializable
     }
 
 
-    public static function getTurnosOptions($checkedId = null) : string
+    public static function getTurnosOptions(string|int $checkedId = null, bool $code = false, bool $chekFirst = false) : string
     {
 
         $turno = new Turno();
 
         $turnos = $turno->listarPadre();
         $options = "";
+
+        $first = ($checkedId == null && $chekFirst) ? true : false;
+
+
+        /**
+         * @var Turno $turno
+         */
+        
         foreach ($turnos as $turno) {
-            $options .= "<option ".($checkedId == $turno->id ? "selected" : "")." value='" . $turno->id . "'>" . $turno->get_nombre() . "</option>";
+            if($code){
+                $options .= "<option ".($checkedId == $turno->codigo|| $first  ? "selected" : "")." value='" . $turno->codigo . "'>" . $turno->get_nombre() . "</option>";
+            }
+            else{
+                $options .= "<option ".($checkedId == $turno->id || $first ? "selected" : "")." value='" . $turno->id . "'>" . $turno->get_nombre() . "</option>";
+            }
+            $first = false;
+            
         }
         return $options;
         
@@ -74,6 +89,8 @@ class Turno extends Model implements JsonSerializable
 	{
 		try {
 			$lista = parent::listar($estado);
+
+
 
 			$resp = [
 				"success" => true,
@@ -93,28 +110,57 @@ class Turno extends Model implements JsonSerializable
 		return $resp;
 
 	}
-
-    public function obtenerPorId():Turno
+    
+    /**
+     * Obtiene un turno por su id
+     * 
+     * (debido a una modificacion en la base de datos se debe obtener el turno por su codigo)
+     * 
+     * @return mixed Un objeto Turno con los datos del turno o un array con la respuesta en caso de error
+     */
+    public function obtenerPorId():mixed
     {
         try {
             $this->db->connect();
-            $query = "SELECT * FROM turno WHERE id = :id";
-            $parametros = array(
-                "id" => $this->id
-            );
-            $resp = $this->ejecutarStatement($query, $parametros, PDO::FETCH_CLASS, get_class($this));
-            $resp = $resp->fetch();
+            // primero buscamos el turno por su codigo
+            if(isset($this->codigo) and !empty($this->codigo)){
+                
+                $query = "SELECT * FROM turno WHERE codigo = :id";
+                $parametros = array(
+                    "id" => $this->codigo
+                );
+            }
+            // luego buscamos el turno por su id
+            else if (isset($this->id) and !empty($this->id)){
+                $query = "SELECT * FROM turno WHERE id = :id";
+                $parametros = array(
+                    "id" => $this->id
+                );
+            }
+            // si no se especifica el id ni el codigo del turno
+            else{
+                throw new \Exception("El identificador del turno es requerido", self::SHOW_EXCEPTION_TURNO);
+            }
+                $resp = $this->ejecutarStatement($query, $parametros, PDO::FETCH_CLASS, get_class($this));
+            if(!($resp = $resp->fetch())){
+                throw new \Exception("Turno no encontrado", self::SHOW_EXCEPTION_TURNO);
+            }
             
             $this->db->disconnect();
             return $resp;
         } catch (\Throwable $th) {
-            if(isset($this->db)) $this->db->disconnect();
-            echo json_encode(array(
+            if(isset($this->db)) $this->db->disconnect(); 
+            $resp = array(
                 "success" => false,
                 "error" => $th->getMessage(),
-                "message" => "Error al obtener el turno")
-            );
-            exit;
+                "line" => $th->getLine(),
+                "message" => "Error al obtener el turno");
+
+            if($th instanceof \Exception and $th->getCode() === self::SHOW_EXCEPTION_TURNO){
+                $resp["message"] = $th->getMessage();
+            }
+            return $resp;
+                
         }        
     }
 
@@ -123,7 +169,7 @@ class Turno extends Model implements JsonSerializable
 
     /**
      * Registra un nuevo turno en el sistema
-     * @param bool $print Si es true imprime los resultados y no retorna nada
+     * @param bool $print Si es true imprime los resultados
      * @return array Un array con el resultado de la operacion
      */
     public function registrar($print = true) : Array
@@ -192,6 +238,9 @@ class Turno extends Model implements JsonSerializable
             if($th instanceof Exception && $th->getCode() == self::SHOW_EXCEPTION_TURNO){ 
                 $resp["message"] = $th->getMessage();
             }
+            if(checkUUIDError($th->getMessage(),"codigo")) {
+                $resp = $this->registrar();
+            }
             
         }
 
@@ -224,9 +273,9 @@ class Turno extends Model implements JsonSerializable
                 viernes = :viernes,
                 sabado = :sabado,
                 domingo = :domingo
-            WHERE id = :id";
+            WHERE codigo = :id";
             $parametros = array(
-                "id" => $this->id,
+                "id" => $this->codigo,
                 "nombre" => $this->nombre,
                 "horario_entrada" => $this->horario_entrada,
                 "horario_salida" => $this->horario_salida,
@@ -299,9 +348,9 @@ class Turno extends Model implements JsonSerializable
             $this->esValido(self::ELIMINAR_TURNO);       
             $this->beginTransaction();
 
-            $query = "DELETE FROM turno WHERE id = :id";
+            $query = "DELETE FROM turno WHERE codigo = :id";
             $parametros = array(
-                "id" => $this->id
+                "id" => $this->codigo
             );
 
             $this->ejecutarStatement($query, $parametros);
@@ -392,13 +441,13 @@ class Turno extends Model implements JsonSerializable
             public $turnoRelacionesEliminar = "El turno esta siendo utilizado y no puede ser eliminado";
 
         };
+
+        
+        
         // valida campos (validado lógico)
         if($operacion == self::ACTUALIZAR_TURNO || $operacion == self::ELIMINAR_TURNO) {
-            if(empty($this->id)) {
+            if(empty($this->codigo)) {
                 throw new Exception ($mensajes->turnoRequerido, self::SHOW_EXCEPTION_TURNO);
-            }
-            if(!preg_match(REG_NUMERICO, $this->id)) {
-                throw new Exception ($mensajes->turnoInvalido, self::SHOW_EXCEPTION_TURNO);
             }
         }
         if($operacion == self::REGISTRAR_TURNO || $operacion == self::ACTUALIZAR_TURNO) {
@@ -411,79 +460,44 @@ class Turno extends Model implements JsonSerializable
             if(empty($this->horario_salida)) {
                 throw new Exception ($mensajes->horarioSalidaRequerido, self::SHOW_EXCEPTION_TURNO);
             }
-            if($this->lunes != '0' and empty($this->lunes)) {
-                throw new Exception ($mensajes->lunesRequerido, self::SHOW_EXCEPTION_TURNO);
-            }
-            if($this->martes != '0' and empty($this->martes)) {
-                
-                throw new Exception ($mensajes->martesRequerido." (martes: $this->martes) ", self::SHOW_EXCEPTION_TURNO);
-            }
-            if($this->miercoles != '0' and empty($this->miercoles)) {
-                throw new Exception ($mensajes->miercolesRequerido, self::SHOW_EXCEPTION_TURNO);
-            }
-            if($this->jueves != '0' and empty($this->jueves)) {
-                throw new Exception ($mensajes->juevesRequerido, self::SHOW_EXCEPTION_TURNO);
-            }
-            if($this->viernes != '0' and empty($this->viernes)) {
-                throw new Exception ($mensajes->viernesRequerido, self::SHOW_EXCEPTION_TURNO);
-            }
-            if($this->sabado != '0' and empty($this->sabado)) {
-                throw new Exception ($mensajes->sabadoRequerido, self::SHOW_EXCEPTION_TURNO);
-            }
-            if($this->domingo != '0' and empty($this->domingo)) {
-                throw new Exception ($mensajes->domingoRequerido, self::SHOW_EXCEPTION_TURNO);
-            }
-            $dias = [
-                $this->lunes ?? 0,
-                $this->martes ?? 0,
-                $this->miercoles ?? 0,
-                $this->jueves ?? 0,
-                $this->viernes ?? 0,
-                $this->sabado ?? 0,
-                $this->domingo ?? 0
+
+            $arreglosDias = [
+                [$this->lunes ?? null, $mensajes->lunesRequerido],
+                [$this->martes ?? null, $mensajes->martesRequerido],
+                [$this->miercoles ?? null, $mensajes->miercolesRequerido],
+                [$this->jueves ?? null, $mensajes->juevesRequerido],
+                [$this->viernes ?? null, $mensajes->viernesRequerido],
+                [$this->sabado ?? null, $mensajes->sabadoRequerido],
+                [$this->domingo ?? null, $mensajes->domingoRequerido],
             ];
 
-            if(!in_array(1, $dias)) {
+            // valida que si los dias fueron seteados que sea con un 0 o 1
+            $diaSelected = false;
+            foreach ($arreglosDias as $dia) {
+                
+                $haystack = [0,1,"0","1"];
+                if(isset($dia[0]) && !in_array($dia[0], $haystack)) {
+                    throw new Exception ($dia[1], self::SHOW_EXCEPTION_TURNO);
+                }
+                else if(isset($dia[0]) && ($dia[0] == 1 || $dia[0] == "1")) {
+                    $diaSelected = true;
+                }
+            }
+            
+
+            if(!$diaSelected) {
                 throw new Exception($mensajes->diasRequeridos, self::SHOW_EXCEPTION_TURNO);
             }
 
-            $haystack = [0,1,"0","1"];
-
-            if(!in_array($this->lunes ?? 0, $haystack)) {
-                throw new Exception($mensajes->lunesInvalido, self::SHOW_EXCEPTION_TURNO);
-            }
-
-            if(!in_array($this->martes ?? 0, $haystack)) {
-                throw new Exception($mensajes->martesInvalido, self::SHOW_EXCEPTION_TURNO);
-            }
-            if(!in_array($this->miercoles ?? 0, $haystack)) {
-                throw new Exception($mensajes->miercolesInvalido, self::SHOW_EXCEPTION_TURNO);
-            }
-
-            if(!in_array($this->jueves ?? 0, $haystack)) {
-                throw new Exception($mensajes->juevesInvalido, self::SHOW_EXCEPTION_TURNO);
-            }
-
-            if(!in_array($this->viernes ?? 0, $haystack)) {
-                throw new Exception($mensajes->viernesInvalido, self::SHOW_EXCEPTION_TURNO);
-            }
-
-            if(!in_array($this->sabado ?? 0, $haystack)) {
-                throw new Exception($mensajes->sabadoInvalido, self::SHOW_EXCEPTION_TURNO);
-            }
-
-            if(!in_array($this->domingo ?? 0, $haystack)) {
-                throw new Exception($mensajes->domingoInvalido, self::SHOW_EXCEPTION_TURNO);
-            }
         }
 
         // valida base de datos
 
         if($operacion == self::ACTUALIZAR_TURNO || $operacion == self::ELIMINAR_TURNO) {
             // valido la existencia por el id
-            $query = "SELECT * FROM turno WHERE id = :id";
+            $query = "SELECT * FROM turno WHERE codigo = :id";
             $parametros = [
-                "id" => $this->id
+                "id" => $this->codigo
             ];
             $stmt = $this->ejecutarStatement($query, $parametros);
             if($stmt->rowCount() == 0) {
@@ -503,8 +517,8 @@ class Turno extends Model implements JsonSerializable
             ];
 
             if($operacion == self::ACTUALIZAR_TURNO) {
-                $query .= " AND id <> :id";
-                $parametros["id"] = $this->id;
+                $query .= " AND codigo <> :id";
+                $parametros["id"] = $this->codigo;
             }
 
             
@@ -517,16 +531,16 @@ class Turno extends Model implements JsonSerializable
         if($operacion == self::ELIMINAR_TURNO) {
             // valida relaciones en la base de datos
 
-            $query = "SELECT
-                    CASE
-                        WHEN EXISTS (SELECT 1 FROM asignacion_laboral as al WHERE al.idTurno = :idAl ) THEN 1
-                        WHEN EXISTS (SELECT 1 FROM tarea as ta WHERE ta.idTurno = :id_tarea) THEN 1
-                        ELSE 0
+            $query = "SELECT CASE WHEN
+                        EXISTS(
+                            SELECT 1 FROM turno as t
+                            JOIN asignacion_laboral as a on a.idTurno = t.id
+                            WHERE t.codigo = :idAl
+                    ) THEN 1 ELSE 0
                     END AS tiene_relaciones;";
 
             $parametros = [
-                "idAl" => $this->id,
-                "id_tarea" => $this->id
+                "idAl" => $this->codigo,
             ];
 
             $stmt = $this->ejecutarStatement($query, $parametros);
@@ -540,7 +554,9 @@ class Turno extends Model implements JsonSerializable
     }
     
 
-
+    /**
+     * @phpstan-type TurnosProps array{id: string,codigo: string,nombre: string,horario_entrada: string,horario_salida: string,lunes: string,martes: string,miercoles: string,jueves: string,viernes: string,sabado: string,domingo: string}
+     */
 
     /**
      * Establece valores en propiedades de la clase.
@@ -550,7 +566,7 @@ class Turno extends Model implements JsonSerializable
      * al setter. Si la propiedad existe como propiedad de lectura y escritura,
      * asigna el valor directamente.
      *
-     * @param array $data
+     * @param TurnosProps $data
      * @return void
      */
     public function setterArray(array $data) : void
@@ -569,7 +585,7 @@ class Turno extends Model implements JsonSerializable
     public function jsonSerialize()
     {
         return [
-            "id" => $this->id ?? "",
+            "id" => $this->codigo ?? "",
             "horario_entrada" => $this->horario_entrada,
             "horario_salida" => $this->horario_salida,
             "nombre" => $this->nombre,
@@ -622,6 +638,14 @@ class Turno extends Model implements JsonSerializable
         if(filter_var($value, FILTER_VALIDATE_INT) !== false){
             $this->domingo = (string) ((int)$value);
         }
+    }
+
+    public function set_codigo($value){
+        $this->codigo = $value;
+    }
+
+    public function get_codigo(){
+        return $this->codigo;
     }
 
 

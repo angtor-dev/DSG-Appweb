@@ -320,3 +320,20 @@ function getFecha(string $fecha) : string {
 function getHora(string $fecha) : string {
     return date("h:i A", strtotime($fecha));
 }
+
+
+/**
+ * Verifica si el error de la base de datos es un error de integridad de clave
+ * unica (UUID) y si es por el campo especificado.
+ * Este es un error poco probable pero puede ocurrir.
+ * @param string $error El mensaje de error de la base de datos
+ * @param string $campo El nombre del campo que se esta verificando
+ * @return bool True si el error es de integridad de clave unica y el campo
+ * coincide, false en caso contrario
+ */
+function checkUUIDError(string $error, string $campo): bool {
+    // mensaje de error tipico : "SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '1' for key 'campoUUID'"
+
+    // Verifica si el error contiene la cadena "Duplicate entry" y "PRIMARY"
+    return strpos($error, "Duplicate entry") !== false && strpos($error, "for key '$campo'") !== false;
+}

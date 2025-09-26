@@ -1,5 +1,7 @@
 // Esperar a que el DOM esté cargado
 var asistenciasChart = undefined;
+var donutAsistenciasChart = undefined;
+var donutInasistenciasChart = undefined;
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener referencias a los elementos
     
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const fechaInicio = fechaInicioInput.value;
         const fechaFin = fechaFinInput.value;
 
-        [fechaFinInput, fechaInicioInput].forEach(input => {
+        [fechaFinInput, fechaInicioInput, cedulaTrabajador].forEach(input => {
             input.setValidStatus();
         });
         
@@ -45,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if(cedulaTrabajador.value != ""){
             if(!/^[0-9]{7,8}$/.test(cedulaTrabajador.value)){
-                mostrarError("La cedula no es valida");
+                cedulaTrabajador.setValidStatus(false, "La cedula no es valida");
                 return;
             }
             else departamento.value = "";
@@ -263,10 +265,10 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
                 document.getElementById("mesPicoInasistencias").innerHTML = getMeses(mesPicoInasistencias);
                 
                 document.getElementById("picoAsistencias").parentNode.parentNode.style.backgroundColor = 'rgb(75, 192, 192)';
-                document.getElementById("picoAsistencias").parentNode.parentNode.style.color = '#006363';
+                document.getElementById("picoAsistencias").parentNode.parentNode.style.color = '#002424';
                 
                 document.getElementById("picoInasistencias").parentNode.parentNode.style.backgroundColor = 'rgb(255, 99, 132)';
-                document.getElementById("picoInasistencias").parentNode.parentNode.style.color = '#950020';
+                document.getElementById("picoInasistencias").parentNode.parentNode.style.color = '#4c0010';
                 let tbody = document.getElementById("promedioDivision");
 
                 tbody.closest("div.row").classList.add("d-none");
@@ -275,6 +277,15 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
                     // promedio es un arreglo con el promedio de asistencias y inasistencias por division de departamento
 
                     tbody.innerHTML = "";
+                    let totalAsistencias = 0;
+                    let totalInasistencias = 0;
+                    let datasetDonutAsistencias = [];
+                    let datasetDonutInasistencias = [];
+                    let labelsDonutAsistencias = [];
+                    let labelsDonutInasistencias = [];
+                    let listColors = [];
+                    let dataAsistencias = {};
+                    let dataInasistencias = {};
                     console.log(data.promedio);
                     data.promedio.forEach(element => {
                         tbody.innerHTML += `<tr>
@@ -284,7 +295,41 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
                         <td>${element.inasistencias}</td>
                         <td>${element.porcentajeInasistencias}%</td>
                         </tr>`;
+
+                        let color1 = getRandomColor(listColors);
+                        let color2 = getRandomColor(listColors);
+
+                        labelsDonutAsistencias.push(element.division);
+                        labelsDonutInasistencias.push(element.division);
+
+                        dataAsistencias = handlerDonutData(element.division, element.asistencias,"Asistencias", color1, dataAsistencias);
+                        dataInasistencias = handlerDonutData(element.division, element.inasistencias,"Inasistencias", color2, dataInasistencias);
+
+
+
+
+
+                   
+
+                        listColors.push(color1);
+                        listColors.push(color1);
+
+                       
+                        
+
+                        totalAsistencias += element.asistencias;
+                        totalInasistencias += element.inasistencias;
+
                     });
+                    console.log("aqui 2" ,dataAsistencias);
+                    donutAsistenciasChart = createDonutChart("donutAsistencias", dataAsistencias, {textCenter:"Asistencias", fontSize:"15px" });
+
+                    donutInasistenciasChart = createDonutChart("donutInasistencias", dataInasistencias, {textCenter:"Inasistencias", fontSize:"15px" });
+
+
+                    
+                    //document.getElementById("promedioAsistencias").innerHTML = totalAsistencias;
+                    //document.getElementById("promedioInasistencias").innerHTML = totalInasistencias;
                     tbody.closest("div.row").classList.remove("d-none");
 
                 }
@@ -322,6 +367,213 @@ async function cargarDatos(fechaInicio, fechaFin, cedulaTrabajador ="", departam
         }
 }
 
+function handlerDonutData(label, data,labelData, backgroundColor, data_donut= {}){
+    if(!data_donut.data){
+            data_donut.data = {
+
+                datasets: [
+                    {
+                        data: [data],
+                        backgroundColor: [backgroundColor],
+                        label: labelData
+                    }
+                ],
+                labels: [label],
+                hoverOffset: 4
+            }
+    }
+    else{
+        data_donut.data = {
+                datasets: [
+                    {
+                        data: [...data_donut.data.datasets[0].data, data],
+                        backgroundColor: [...data_donut.data.datasets[0].backgroundColor, backgroundColor],
+                        hoverOffset: 4,
+                        label: labelData
+                    }
+                ],
+                labels: [...data_donut.data.labels, label]
+            }
+
+        }
+    return data_donut
+}
+
+/**
+ * @typedef {Object} DonutData
+ * @prop {string} [textCenter='Total'] - Texto para mostrar en el centro del gráfico.
+ 
+ * @prop {string} fontSize - default () Tamaño de letra para el texto en el centro.
+ * @default '10px'
+ * @prop {string} color - Color del texto en el centro ej #ff0000.
+ * @default '#000'
+ * @prop {string} fontFamily - Fuente del texto en el centro.
+ * @default 'Arial'
+ * @prop {string} valueFontSize - Tamaño de letra para el valor total en el centro.
+ * @default '20px'
+ * @prop {string} valueFontFamily - Fuente del valor total en el centro.
+ * @default 'Arial'
+ * @prop {string} valueColor - Color del valor total en el centro ej #ff0000.
+ * @default '#000'
+ */
+
+/**
+ * Crea un gráfico de donut con Chart.js y agrega texto en el centro
+ * del gráfico. Los parámetros son:
+ * @param {string} donutID - El ID del elemento HTML que contiene
+ * el gráfico.
+ * @param {object} data - Un objeto que contiene los datos para
+ * el gráfico.
+ * @param {DonutData} textCenter - Un objeto que contiene las opciones
+ * @return {Chart} - El objeto Chart que se ha creado.
+ */
+function createDonutChart(donutID, data, textCenter = {}){
+    if(donutID == "donutAsistencias" && donutAsistenciasChart){
+        donutAsistenciasChart.destroy();
+    }
+    else if(donutID == "donutInasistencias" && donutInasistenciasChart){
+        donutInasistenciasChart.destroy();
+    }
+
+
+    const centerTextPlugin = {
+        id: 'centerText',
+        afterDraw(chart) {
+            if (chart.config.type === 'doughnut' && chart.options.add !== undefined && chart.options.add.textCenter !== undefined) {
+                const ctx = chart.ctx;
+                const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+                const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+                const textCenter = chart.options.add.textCenter;
+                const fontSize = chart.options.add.fontSize || '20px';
+                const color = chart.options.add.color || '#000';
+                const fontFamily = chart.options.add.fontFamily || 'Arial';
+                const fontSizeInt = parseInt(fontSize.match(/\d+/), 10);
+                let lineHeight = fontSizeInt * 1.2;
+                const valueFontSize = chart.options.add.valueFontSize || '16px';
+                const valueColor = chart.options.add.valueColor || '#000';
+                const valueFontFamily = chart.options.add.valueFontFamily || 'Arial';
+                const valueFontSizeInt = parseInt(valueFontSize.match(/\d+/), 10);
+
+                ctx.save(); // Save the current canvas state
+
+                
+
+                ctx.font = `${fontSize} ${fontFamily}`; // Set your desired font
+                ctx.fillStyle = color; // Set your desired text color
+                ctx.textAlign = 'center'; // Center the text horizontally
+                ctx.textBaseline = 'middle'; // Center the text vertically
+
+
+                // Example text:
+                const totalValue = chart.data.datasets[0].data.reduce((sum, value) => sum + value, 0);
+
+                let line1 = `${textCenter}`;
+                let line2 = `${totalValue}`;
+                
+                ctx.fillText(line1, centerX, centerY - lineHeight / 2);
+
+                ctx.font = `${valueFontSize} ${valueFontFamily}`; // Set your desired font
+                ctx.fillStyle = valueColor; // Set your desired text color
+                lineHeight = valueFontSizeInt * 1.2;
+
+
+                ctx.fillText(line2, centerX, centerY + lineHeight / 2);
+
+                ctx.restore(); // Restore the canvas state
+            }
+        }
+    };
+
+    // Register the plugin (do this before creating your chart)
+    Chart.register(centerTextPlugin);
+
+
+
+
+
+
+
+    data = data.data;
+    const options = {
+        plugins: {
+            annotation: {
+                annotations: {
+                    dLabel: {
+                        type: 'doughnutLabel',
+                        content: ({ chart }) => ['Total',
+                            chart.getDatasetMeta(0).total,
+                            'last 7 months'
+                        ],
+                        font: [{ size: 60 }, { size: 50 }, { size: 30 }],
+                        color: ['black', 'red', 'grey']
+                    }
+                }
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+
+    };
+    const defaultTextCenter = {
+        textCenter: 'Total',
+        fontSize: '10px',
+        color: '#757575',
+        fontFamily: 'Arial',
+        valueFontSize: '20px',
+        valueFontFamily: 'Arial',
+        valueColor: '#000000'
+    };
+
+    let addOption = {...defaultTextCenter, ...textCenter};
+
+    let config = {
+        type: 'doughnut',
+        data: {
+            datasets: [
+                {
+                    data: [10, 20, 15, 5, 50],
+                    backgroundColor: [
+                        '#ff6384ff',
+                        '#ff9f40ff',
+                        '#ffcd56ff',
+                        '#4bc0c0ff',
+                        '#36a2ebff',
+                    ],
+                },
+            ],
+            labels: ['Red', 'Orange', 'Yellow', 'Green', 'Blue'],
+            hoverOffset: 4
+        },
+        options: {
+            add: addOption,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#fff', // Color of the text (e.g., white for dark bars)
+                    anchor: 'center', // Position of the label (start, center, end)
+                    align: 'center',  // Alignment relative to the anchor (start, center, end)
+                    font: {
+                        weight: 'bold', // Make the font bold
+                        size: 14        // Set font size
+                    },
+                    formatter: function (value, context) {
+                        // Custom formatting function (e.g., add a currency symbol)
+                        return value + ' units';
+                    }
+                }
+            },
+        }
+    }
+
+    config.data = data;
+
+    let donut = document.getElementById(donutID).getContext('2d');
+    let donutChart = new Chart(donut, config);
+    return donutChart;
+    
+}
+
 /**
  * Convierte un string o un arreglo de strings en formato AAAA-MM en un string o arreglo de strings en formato AAAA-Mes
  * @param {string|Array<string>} fechaArreglo
@@ -344,4 +596,40 @@ function getMeses(fechaArreglo){
         resp.push(anio + "-" + meses[mes]);
     }
         return resp;
+}
+
+/**
+ * Generates a random color in hexadecimal format.
+ * Ensures the generated color is not in the list of colors already used.
+ * @param {Array<string>} coloUsed - Array of colors that have already been used.
+ * @returns {string} A new random color in hexadecimal format.
+ */
+
+function getRandomColor(coloUsed) {
+
+    const firsts = [
+        '#ff6384ff',
+        '#ff9f40ff',
+        '#ffcd56ff',
+        '#4bc0c0ff',
+        '#36a2ebff',
+    ]
+
+    // Intenta utilizar los colores del arreglo firsts
+    for (let color of firsts) {
+        if (!coloUsed.includes(color)) {
+            return color;
+        }
+    }
+
+    // Si todos los colores del arreglo firsts están usados, genera un color aleatorio
+    let letters = '0123456789ABCDEF';
+    let color = '#';
+    do {
+        color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+    } while (coloUsed.includes(color));
+    return color;
 }

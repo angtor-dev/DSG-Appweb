@@ -12,19 +12,21 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     /**
      * payload
-     * 
-     * accion
-     * accion :"Registrar"
-     * domingo :"1"
-     * form-nombre :"Probando registrar"
-     * horario_entrada :"09:00"
-     * horario_salida :"23:00"
-     * jueves :"1"
-     * lunes :"1"
-     * martes :"1"
-     * sabado :"1"
-     * viernes :"1"
+     * @var array{
+     * accion: string, 
+     * form-nombre: string, 
+     * horario_entrada: string, 
+     * horario_salida: string, 
+     * lunes: string, 
+     * martes: string, 
+     * miercoles: string, 
+     * jueves: string, 
+     * viernes: string,
+     * sabado: string, 
+     * domingo: string}
+     * $_POST
      */
+    
 
     if(isset($_POST['accion']) && $_POST['accion'] == "Registrar")
     {

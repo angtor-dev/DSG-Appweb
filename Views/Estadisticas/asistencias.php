@@ -1,4 +1,27 @@
 
+<?php
+	/**
+	 * @var Division[] $departamentos
+	 */
+?>
+
+<style>
+	.trabajador-checkbox-container{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: calc(100% - 32px);
+	}
+	.trabajador-checkbox-container input[type="checkbox"]{
+		width: 20px;
+		height: 20px;
+	}
+
+
+
+
+
+</style>
 
 <div class="panel-header">
     <div class="page-inner">
@@ -31,43 +54,42 @@
 									<div id="form-text-hasta" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col-auto">
-									<label for="trabajador_check">por Trabajador</label><br>
-									<input type="checkbox" id="trabajador_check">
+									<label for="trabajador_check" class="form-label">por Trabajador</label><br>
+									<div class="trabajador-checkbox-container">
+										<input type="checkbox" id="trabajador_check">
+									</div>
 									<script>
 										document.getElementById('trabajador_check').addEventListener('change', function() {
+											let div = document.getElementById('col-trabajador');
 											if(this.checked) {
-												this.closest('div').nextElementSibling.classList.remove('d-none')
+												div.classList.remove('d-none')
+												document.getElementById('departamento').selectedIndex = 0;
+												document.getElementById('col-departamento').classList.add('d-none');
 											}
 											else{
-												this.closest('div').nextElementSibling.classList.add('d-none')
+												div.classList.add('d-none')
+												document.getElementById('col-departamento').classList.remove('d-none');
+												div.querySelector('input').value = '';
 											}
 										})
 									</script>
 								</div>
-								<div class="col px-1 d-none">
+								<div class="col px-1 d-none" id="col-trabajador">
 									<label for="trabajador" class="form-label text-nowrap">Cedula Trabajador</label>
 									<input maxlength="8" type="text" class="form-control" id="cedulaTrabajador" name="cedulaTrabajador" data-formText="form-text-trabajador">
 									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
 								</div>
-								<div class="col px-1">
+								<div class="col px-1" id="col-departamento">
 									<label for="departamento" class="form-label">Division</label>
 									<select name="departamento" id="departamento" class="form-select">
 											<option value="">Todos</option>
-										<?php foreach ($departamentos as $departamento): ?>
+										<?php 
+										
+										foreach ($departamentos as $departamento): ?>
 											<option value="<?= $departamento->id ?>"><?= $departamento->getNombre() ?></option>
 										<?php endforeach; ?>
 									</select>
 									<div id="form-text-departamento" class="form-text invalid-feedback"></div>
-								</div>
-
-								<div class="col px1 d-none">
-									<label for="turno" class="form-label">Turno </label>
-									<select name="turno" id="turno" class="form-select">
-										<option value="">Todos</option>
-										<?= Turno::getTurnosOptions(); ?>
-										
-									</select>
-									<div id="form-text-turno" class="form-text invalid-feedback"></div>
 								</div>
 
 								<div class="col px-1 d-none">
@@ -137,13 +159,37 @@
 								</div>
 							</div>
 							
+							
+						</div>
+					</div>
+					<div class="d-table-row">
+						<div class="container text-center">
+							<hr>
+							<span class="h3">Estadisticas Generales de las Divisiones del Departamento</span></span>
+						</div>
+					</div>
+					<div class="d-table-row">
+						<div class="container">
+							<div class="row">
+								<div class="col-md-6 col-12">
+									<canvas id="donutAsistencias"></canvas>
+								</div>
+								<div class="col-md-6 col-12">
+									<canvas id="donutInasistencias"></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="d-table-row">
+						<div class="container">
 							<div class="row d-none">
 								<div class="col">
 									<div class="text-center">
 										<hr>
-										<span class="h3">Propedio de las Divisiones del Departamento</span>
+										<span class="h3">Promedio de las Divisiones del Departamento</span>
 									</div>
 									<table class="table table-bordered w-auto mx-auto">
+										<caption>Promedio de las divisiones en el periodo seleccionado</caption>
 										<thead>
 											<tr>
 												<th>División</th>

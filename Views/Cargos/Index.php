@@ -26,7 +26,6 @@
                 <table class="datatable table table-striped table-hover" id="tabla-cargos">
                     <thead>
                         <tr>
-                            <th>Id</th>
                             <th>Cargo</th>
                             <th>Nivel</th>
                             <th>Acciones</th>

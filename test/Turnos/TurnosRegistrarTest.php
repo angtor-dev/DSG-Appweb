@@ -4,14 +4,87 @@ use PHPUnit\Framework\TestCase;
 class TurnosRegistrarTest extends TestCase
 {
     private $turnoObj;
+    public $testSuiteControl;
     
 
     protected function setUp(): void
     {
         $this->turnoObj = new Turno;
         $this->turnoObj->setTestingMode(true);
+        $this->testSuiteControl = "Turnos";
         
     }
+
+    /**
+     * @dataProvider ListarTurnosProvider
+     */
+
+    public function testTurnosListar($foo, $respuesta_esperada): void
+    {
+        switch ($this->dataName()) {
+            case 'Listar con todos los permisos':
+                    getUserFalseInsesion(1); // usuario con el rol de super admin
+                    $eliminar = true;
+                    $actualizar = true;
+                break;
+                case 'Listar sin el permiso de eliminar':
+                    getUserFalseInsesion(2); // usuario con rol sin permiso de eliminar
+                    $eliminar = false;
+                    $actualizar = true;
+                break;
+                case 'Listar sin el permiso de actualizar':
+                    getUserFalseInsesion(3); // usuario con rol sin permiso de actualizar
+                    $eliminar = true;
+                    $actualizar = false;
+                break;
+                case 'Listar sin el permiso de actualizar-eliminar':
+                    getUserFalseInsesion(4); // usuario con rol sin permiso de actualizar-eliminar
+                    $eliminar = false;
+                    $actualizar = false;
+                break;
+            
+            default:
+                    getUserFalseInsesion(1); // usuario con el rol de super admin
+                    $eliminar = true;
+                    $actualizar = true;
+                break;
+        }
+
+        $resp = $this->turnoObj->listar();
+
+        if($respuesta_esperada === true){
+            $this->assertEquals($respuesta_esperada, $resp['success']);
+            $this->assertEquals($eliminar, $resp['eliminar']);
+            $this->assertEquals($actualizar, $resp['actualizar']);
+            $this->assertIsArray($resp['data']);
+        }
+        else{
+            $this->assertEquals($respuesta_esperada, $resp['success']);
+            $this->assertIsString($resp['message']);
+        }
+        
+        
+
+        global $test_suite;
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+
+        
+    }
+
+    public function ListarTurnosProvider(): array
+    {
+        return [
+            "Listar con todos los permisos" => ["NA"=>"No hay entradas","resultado esperado"=>true],
+            "Listar sin el permiso de eliminar" => ["NA"=>"No hay entradas","resultado esperado"=>true],
+            "Listar sin el permiso de actualizar"=> ["NA"=>"No hay entradas","resultado esperado"=>true],
+            "Listar sin el permiso de actualizar-eliminar"=> ["NA"=>"No hay entradas","resultado esperado"=>true],
+            //"Error de conexion" => ["NA"=>"No hay entradas","respuesta esperada"=>false],
+        ];
+    }
+
+
+
+
 
     /**
      * @dataProvider RegistrosProvider
@@ -66,10 +139,13 @@ class TurnosRegistrarTest extends TestCase
         $mensaje = ($respuesta['consoleError'] ?? $respuesta['message']) . ' :: '.$mensaje;
 
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
+        global $test_suite;
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
     }
 
     public function RegistrosProvider()
     {
+        /*
         return [
             // casos de prueba
             ['turno1', '08:00:00', '18:00:00', 1, 1, 1, 1, 1, 1, 1, true, 1 ],// valido 
@@ -83,6 +159,113 @@ class TurnosRegistrarTest extends TestCase
             ['turno1', '08:00:00', '18:00:00', 1, 1, 1, 1, 1, 1, 1, true, 8 ],// dias valido
 
         ];
+
+        */
+        return [
+    // casos de prueba
+    "Caso 1 registro valido"=>[
+        "nombre" => 'turno1',
+        "hora de entrada" => '08:00:00',
+        "hora de salida" => '18:00:00',
+        "Lunes" => 1,
+        "Martes" => 1,
+        "Miercoles" => 1,
+        "Jueves" => 1,
+        "Viernes" => 1,
+        "Sabado" => 1,
+        "Domingo" => 1,
+        "resultado esperado" => true,
+        "num_caso" => 1
+    ],
+    "caso 2 registro valido con string en los dias" =>[
+        "nombre" => 'turno1',
+        "hora de entrada" => '08:00:00',
+        "hora de salida" => '18:00:00',
+        "Lunes" => "1",
+        "Martes" => "0",
+        "Miercoles" => "1",
+        "Jueves" => "0",
+        "Viernes" => "1",
+        "Sabado" => "0",
+        "Domingo" => "1",
+        "resultado esperado" => true,
+        "num_caso" => 2
+    ],// valido 
+    "caso 3 registro con nombre invalido"=>[
+        "nombre" => '',
+        "hora de entrada" => '08:00:00',
+        "hora de salida" => '18:00:00',
+        "Lunes" => 1,
+        "Martes" => 1,
+        "Miercoles" => 1,
+        "Jueves" => 1,
+        "Viernes" => 1,
+        "Sabado" => 1,
+        "Domingo" => 1,
+        "resultado esperado" => false,
+        "num_caso" => 3
+    ],// nombre invalido
+    "caso 4 registro con hora entrada invalida"=>[
+        "nombre" => 'turno1',
+        "hora de entrada" => '',
+        "hora de salida" => '18:00:00',
+        "Lunes" => 1,
+        "Martes" => 1,
+        "Miercoles" => 1,
+        "Jueves" => 1,
+        "Viernes" => 1,
+        "Sabado" => 1,
+        "Domingo" => 1,
+        "resultado esperado" => false,
+        "num_caso" => 4
+    ],// hora entrada invalida
+    "caso 5 registro con hora salida invalida"=>[
+        "nombre" => 'turno1',
+        "hora de entrada" => '08:00:00',
+        "hora de salida" => '',
+        "Lunes" => 1,
+        "Martes" => 1,
+        "Miercoles" => 1,
+        "Jueves" => 1,
+        "Viernes" => 1,
+        "Sabado" => 1,
+        "Domingo" => 1,
+        "resultado esperado" => false,
+        "num_caso" => 5
+    ],// hora salida invalida
+
+    "caso 6 registro con dias invalidos" =>[
+        "nombre" => 'turno1',
+        "hora de entrada" => '08:00:00',
+        "hora de salida" => '18:00:00',
+        "Lunes" => null,
+        "Martes" => null,
+        "Miercoles" => null,
+        "Jueves" => null,
+        "Viernes" => null,
+        "Sabado" => null,
+        "Domingo" => null,
+        "resultado esperado" => false,
+        "num_caso" => 6
+    ],// dias invalido
+    "caso 7 registro sin dias seleccionados" =>[
+        "nombre" => 'turno1',
+        "hora de entrada" => '08:00:00',
+        "hora de salida" => '18:00:00',
+        "Lunes" => 0,
+        "Martes" => 0,
+        "Miercoles" => 0,
+        "Jueves" => 0,
+        "Viernes" => 0,
+        "Sabado" => 0,
+        "Domingo" => 0,
+        "resultado esperado" => false,
+        "num_caso" => 7
+    ],// dias invalido
+    ];
+
+
+
     }
 
 
@@ -97,7 +280,7 @@ class TurnosRegistrarTest extends TestCase
     ): void
     {
         // Preparar los datos para la prueba
-        $this->turnoObj->setterArray(['id' => $id]);
+        $this->turnoObj->setterArray(['codigo' => $id]);
 
         // Llamar al método eliminarTurno
         $respuesta = $this->turnoObj->eliminarTurno(false);
@@ -112,6 +295,8 @@ class TurnosRegistrarTest extends TestCase
         $mensaje = ($respuesta['consoleError'] ?? $respuesta['message']) . ' :: '.$mensaje;
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
         $this->assertEquals($mensajeEsperado, $respuesta['message'], $mensaje);
+        global $test_suite;
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
 
     }
 
@@ -150,15 +335,32 @@ class TurnosRegistrarTest extends TestCase
             public $turnoRelacionesEliminar = "El turno esta siendo utilizado y no puede ser eliminado";
 
         };
-
         return [
             // Casos de prueba
-            [1, $mensajeEsperado->turnoRelacionesEliminar, false, 1], // Eliminar turno existente
-            [15, $mensajeEsperado->eliminarTurno, true, 2], // Eliminar turno existente
-            [999, $mensajeEsperado->turnoNoExistente, false, 3], // Eliminar turno inexistente
-            ["queso", $mensajeEsperado->turnoRequerido, false, 4], // Eliminar turno con ID nulo
+            "Eliminar turno existente con relaciones"=>[
+                "codigo" => "e1617263-8d0a-11f0-91e8-d481d7968c88",
+                "mensaje esperado" => $mensajeEsperado->turnoRelacionesEliminar,
+                "resultado esperado" => false,
+                "num_caso" => 1], // Eliminar turno existente
+            "Eliminar turno existente"=>[
+                "codigo" => "ec233a83-8dea-11f0-91e8-d481d7968c88", 
+                "mensaje esperado" => $mensajeEsperado->eliminarTurno,
+                "resultado esperado" => true,
+                "num_caso" => 2], // Eliminar turno existente
+            "Eliminar turno inexistente"=>[
+                "codigo" => "e1617129-8d0a-11f0-91e8-999999999999", 
+                "mensaje esperado" => $mensajeEsperado->turnoNoExistente,
+                "resultado esperado" => false,
+                "num_caso" => 3], // Eliminar turno inexistente
+            "Eliminar turno con ID nulo o invalido"=>[
+                "codigo" => "", 
+                "mensaje esperado" => $mensajeEsperado->turnoRequerido,
+                "resultado esperado" => false,
+                "num_caso" => 4], // Eliminar turno con ID nulo o invalido
         ];
+
     }
+
 
 
     /**
@@ -178,12 +380,11 @@ class TurnosRegistrarTest extends TestCase
         $domingo,
         $mensajeEsperado,
         $resultado_esperado,
-        $num_caso
     ): void
     {
         // Preparar los datos para la prueba
         $listaDatos = [
-            'id' => $id,
+            'codigo' => $id,
             'nombre' => $nombre,
             'horario_entrada' => $horario_entrada,
             'horario_salida' => $horario_salida,
@@ -208,16 +409,22 @@ class TurnosRegistrarTest extends TestCase
         // Llamar al método actualizarTurno
         $respuesta = $this->turnoObj->actualizar(false);
     
-        $mensaje = "Caso ($num_caso)";
+        $mensaje = $this->dataName();
+
+        $mensaje = "\n\n\n\n".$mensaje."\n\n\n\n";
     
         // Verificar el resultado
-        $this->assertNotNull($respuesta);
-        $this->assertIsArray($respuesta);
-        $this->assertArrayHasKey('success', $respuesta);
+        $this->assertNotNull($respuesta, $mensaje);
+        $this->assertIsArray($respuesta, $mensaje);
+        $this->assertArrayHasKey('success', $respuesta, $mensaje);
+        $this->assertArrayHasKey('message', $respuesta, $mensaje);
+        $this->assertSame($mensajeEsperado, $respuesta['message'], $mensaje);
 
-    
-        $mensaje = ($respuesta['consoleError'] ?? $respuesta['message']) . ' :: '.$mensaje;
+
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
+
+        global $test_suite;
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
     }
     
     public function ActualizarTurnoProvider()
@@ -256,16 +463,130 @@ class TurnosRegistrarTest extends TestCase
 
         };
 
+        /*
 
         return [
             // casos de prueba
-            [ 1, 'Nuevo nombre del turno', '08:00', '17:00', 1, 0, 1, 0, 1, 0, 0, $mensajeEsperado->actualizarTurno, true, 1], // valido
-            [ 2, 'Mañana', '08:00', '17:00', 1, 0, 1, 0, 1, 0, 0, $mensajeEsperado->turnoExistente, false, 2], // duplicado
-            [ 1, 'Mañana', '08:00', '17:00', 0, 0, 0, 0, 0, 0, 0, $mensajeEsperado->diasRequeridos, false, 3], // sin dias
+            "caso 1 (Valido)" => 
+            [ "e1616fed-8d0a-11f0-91e8-d481d7968c88", 'Nuevo nombre del turno', '08:00', '17:00', 1, 0, 1, 0, 1, 0, 0, $mensajeEsperado->actualizarTurno, true], // valido
 
-            [ 1, 'turno1', '', '18:00:00', 1, 1, 1, 1, 1, 1, 1,$mensajeEsperado->horarioEntradaRequerido, false, 4 ],// hora entrada invalida
-            [ 1, 'turno1', '08:00:00', '', 1, 1, 1, 1, 1, 1, 1,$mensajeEsperado->horarioSalidaRequerido, false, 5 ],// hora salida invalida
-            [ 1, 'turno1', '08:00:00', '18:00:00', null, null, null, null, null, null,null ,$mensajeEsperado->diasRequeridos, false, 6 ],// dias invalido
+            "caso 2 (nombre duplicado)" => 
+            [ "e1617129-8d0a-11f0-91e8-d481d7968c88", 'Mañana', '08:00', '17:00', 1, 0, 1, 0, 1, 0, 0, $mensajeEsperado->turnoExistente, false], // duplicado
+
+            "caso 3 (sin dias seleccionados)" =>  
+            [ "e1616fed-8d0a-11f0-91e8-d481d7968c88", 'Mañana', '08:00', '17:00', 0, 0, 0, 0, 0, 0, 0, $mensajeEsperado->diasRequeridos, false], // sin dias
+
+            "caso 4 (Hora de entrada invalida) "=>
+            [ "e1616fed-8d0a-11f0-91e8-d481d7968c88", 'turno1', '', '18:00:00', 1, 1, 1, 1, 1, 1, 1,$mensajeEsperado->horarioEntradaRequerido, false],// hora entrada invalida
+
+            "caso 5 (Hora de salida invalida)"=>
+            [ "e1616fed-8d0a-11f0-91e8-d481d7968c88", 'turno1', '08:00:00', '', 1, 1, 1, 1, 1, 1, 1,$mensajeEsperado->horarioSalidaRequerido, false],// hora salida invalida
+
+            "caso 6 (Dias invalido)"=>
+            [ "e1616fed-8d0a-11f0-91e8-d481d7968c88", 'turno1', '08:00:00', '18:00:00', null, null, null, null, null, null,null ,$mensajeEsperado->diasRequeridos, false],// dias invalido
+        ];
+        */
+        return [
+    
+            "caso 1 (Valido)" => 
+            [
+                "codigo" => "e1616fed-8d0a-11f0-91e8-d481d7968c88",
+                "nombre" => 'Nuevo nombre del turno',
+                "hora de entrada" => '08:00',
+                "hora de salida" => '17:00',
+                "Lunes" => 1,
+                "Martes" => 0,
+                "Miercoles" => 1,
+                "Jueves" => 0,
+                "Viernes" => 1,
+                "Sabado" => 0,
+                "Domingo" => 0,
+                "mensaje esperado" => $mensajeEsperado->actualizarTurno,
+                "resultado esperado" => true
+            ], // valido
+
+            "caso 2 (nombre duplicado)" => 
+            [
+                "codigo" => "e1617129-8d0a-11f0-91e8-d481d7968c88",
+                "nombre" => 'Mañana',
+                "hora de entrada" => '08:00',
+                "hora de salida" => '17:00',
+                "Lunes" => 1,
+                "Martes" => 0,
+                "Miercoles" => 1,
+                "Jueves" => 0,
+                "Viernes" => 1,
+                "Sabado" => 0,
+                "Domingo" => 0,
+                "mensaje esperado" => $mensajeEsperado->turnoExistente,
+                "resultado esperado" => false
+            ],
+
+            "caso 3 (sin dias seleccionados)" =>  
+            [
+                "codigo" => "e1616fed-8d0a-11f0-91e8-d481d7968c88",
+                "nombre" => 'Mañana',
+                "hora de entrada" => '08:00',
+                "hora de salida" => '17:00',
+                "Lunes" => 0,
+                "Martes" => 0,
+                "Miercoles" => 0,
+                "Jueves" => 0,
+                "Viernes" => 0,
+                "Sabado" => 0,
+                "Domingo" => 0,
+                "mensaje esperado" => $mensajeEsperado->diasRequeridos,
+                "resultado esperado" => false
+            ],
+
+            "caso 4 (Hora de entrada invalida)" =>
+            [
+                "codigo" => "e1616fed-8d0a-11f0-91e8-d481d7968c88",
+                "nombre" => 'turno1',
+                "hora de entrada" => '',
+                "hora de salida" => '18:00:00',
+                "Lunes" => 1,
+                "Martes" => 1,
+                "Miercoles" => 1,
+                "Jueves" => 1,
+                "Viernes" => 1,
+                "Sabado" => 1,
+                "Domingo" => 1,
+                "mensaje esperado" => $mensajeEsperado->horarioEntradaRequerido,
+                "resultado esperado" => false
+            ],
+
+            "caso 5 (Hora de salida invalida)" =>
+            [
+                "codigo" => "e1616fed-8d0a-11f0-91e8-d481d7968c88",
+                "nombre" => 'turno1',
+                "hora de entrada" => '08:00:00',
+                "hora de salida" => '',
+                "Lunes" => 1,
+                "Martes" => 1,
+                "Miercoles" => 1,
+                "Jueves" => 1,
+                "Viernes" => 1,
+                "Sabado" => 1,
+                "Domingo" => 1,
+                "mensaje esperado" => $mensajeEsperado->horarioSalidaRequerido,
+                "resultado esperado" => false
+            ],
+            "caso 6 (Dias invalido)"=>
+            [
+                "Codigo" => "e1616fed-8d0a-11f0-91e8-d481d7968c88",
+                "nombre" => 'turno1',
+                "hora de entrada" => '08:00:00',
+                "hora de salida" => '18:00:00',
+                "Lunes" => null,
+                "Martes" => null,
+                "Miercoles" => null,
+                "Jueves" => null,
+                "Viernes" => null,
+                "Sabado" => null,
+                "Domingo" => null,
+                "mensaje esperado" => $mensajeEsperado->diasRequeridos,
+                "resultado esperado" => false],// dias invalido
         ];
     }
 

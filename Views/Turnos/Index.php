@@ -26,7 +26,6 @@
                 <table class="datatable table table-striped table-hover" id="tabla-turnos">
                     <thead>
                         <tr>
-                            <th>Id</th>
                             <th>Turno</th>
                             <th>Entrada</th>
                             <th>Salida</th>

@@ -398,6 +398,7 @@ HTMLFormElement.prototype.clearForms = function () {
 */
 HTMLSelectElement.prototype.setValidStatus = HTMLInputElement.prototype.setValidStatus = function (control = null, mensaje = "INVALIDO") {
     let smsContainer = document.getElementById(this.dataset.formText) || document.getElementById(this.dataset.formtext) || this.parentElement.querySelector('.form-text')
+    this.classList.remove('is-processing');
     if (control === true) {
         this.classList.add('is-valid')
         this.classList.remove('is-invalid')

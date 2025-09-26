@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     {
         $turnos = new Turno();
         $turnos->setterArray([
-            "id" => $_POST['id']??""
+            "codigo" => $_POST['id']??""
         ]);
 
         //$turnos->setTestingMode(true);
