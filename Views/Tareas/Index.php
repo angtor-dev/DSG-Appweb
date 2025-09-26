@@ -98,7 +98,7 @@
                                 <tr>
                                     <th style="display: none;">Id</th>
                                     <th>Area</th>
-                                    <th>Departamento</th>
+                                    <th>División</th>
                                     <th>Descripcion</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
@@ -119,7 +119,7 @@
                                 <tr>
                                     <th style="display: none;">Id</th>
                                     <th>Area</th>
-                                    <th>Departamento</th>
+                                    <th>División</th>
                                     <th>Descripcion</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
@@ -140,7 +140,7 @@
                                 <tr>
                                     <th style="display: none;">Id</th>
                                     <th>Area</th>
-                                    <th>Departamento</th>
+                                    <th>División</th>
                                     <th>Descripcion</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
@@ -160,7 +160,7 @@
                                 <tr>
                                      <th style="display: none;">Id</th>
                                     <th>Area</th>
-                                    <th>Departamento</th>
+                                    <th>División</th>
                                     <th>Descripcion</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>

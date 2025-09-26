@@ -685,31 +685,34 @@ $(document).ready(function () {
     });
 }
 
-  // Configuración base común
-  const commonConfig = {
-    serverSide: false,
-    searching: true,
-    ordering: true,
-    paging: true,
-    language: {
-      url: "public/lib/DataTables/datatables-spanish.json",
+ // Configuración base común
+const commonConfig = {
+  serverSide: false,
+  searching: true,
+  ordering: true,
+  paging: true,
+  language: {
+    url: "public/lib/DataTables/datatables-spanish.json",
+  },
+  columns: [
+    { 
+      data: "id",
+      visible: false  
     },
-    columns: [
-      { data: "id" },
-      { data: "area" },
-      { data: "departamento" },
-      { data: "descripcion" },
-      { data: "fecha" },
-      { data: "estado" },
-      {
-        data: null,
-        render: function (data, type, row) {
-          $('[data-bs-toggle="tooltip"]').tooltip('dispose').tooltip();
-          return renderButtons(row);
-        },
+    { data: "area" },
+    { data: "departamento" },
+    { data: "descripcion" },
+    { data: "fecha" },
+    { data: "estado" },
+    {
+      data: null,
+      render: function (data, type, row) {
+        $('[data-bs-toggle="tooltip"]').tooltip('dispose').tooltip();
+        return renderButtons(row);
       },
-    ],
-  };
+    },
+  ],
+};
 
   // Función para renderizar botones según el estado
 
@@ -1085,229 +1088,305 @@ function generarOrdenesDeTrabajo(id_tarea) {
             ocultarLoading();
         });
 }
-
 // Función para generar y mostrar la vista previa de impresión
 function generarVistaPreviaImpresion(tareasSeleccionadas) {
-  // 1. Primero, identificar todos los equipos únicos (combinaciones de personas)
-const equiposUnicos = {};
+    // 1. Primero, identificar todos los equipos únicos (combinaciones de personas)
+    const equiposUnicos = {};
 
-tareasSeleccionadas.forEach(tarea => {
-    // Crear una clave única para el equipo (orden alfabético de IDs para evitar duplicados)
-    const equipoKey = tarea.personal
-        .map(p => p.id)
-        .sort((a, b) => a - b)
-        .join('-');
-    
-    if (!equiposUnicos[equipoKey]) {
-        equiposUnicos[equipoKey] = {
-            personal: tarea.personal,
-            tareas: []
-        };
-    }
-    equiposUnicos[equipoKey].tareas.push(tarea);
-});
+    tareasSeleccionadas.forEach(tarea => {
+        // Crear una clave única para el equipo (orden alfabético de IDs para evitar duplicados)
+        const equipoKey = tarea.personal
+            .map(p => p.id)
+            .sort((a, b) => a - b)
+            .join('-');
+        
+        if (!equiposUnicos[equipoKey]) {
+            equiposUnicos[equipoKey] = {
+                personal: tarea.personal,
+                tareas: []
+            };
+        }
+        equiposUnicos[equipoKey].tareas.push(tarea);
+    });
 
-// 2. Crear el HTML optimizado para impresión
-let htmlCompleto = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Órdenes de Trabajo Agrupadas por Equipos</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>
-            body { 
-                font-family: Arial, sans-serif; 
-                padding: 2mm 5mm; 
-                font-size: 10px !important;
-            }
-            @page { 
-                size: A4 landscape; 
-                margin: 5mm;
-            }
-            .orden-trabajo { 
-                margin-bottom: 5mm;
-                padding: 2mm;
-                border: 1px solid #ddd;
-                page-break-inside: avoid;
-            }
-            .compact-table {
-                font-size: 9px !important;
-            }
-            .compact-table th, .compact-table td { 
-                padding: 2px !important; 
-                line-height: 1.1;
-                border: 1px solid #ddd !important;
-            }
-            .no-print { display: none !important; }
-            .no-print { 
-                display: block !important;
-                position: fixed;
-                top: 10px;
-                right: 10px;
-                z-index: 1000;
-            }
-            .info-box {
-                border: 1px solid #ddd;
-                padding: 2px 5px;
-                margin-right: 5px;
-                display: inline-block;
-            }
-            @media print {
+    // 2. Crear el HTML optimizado para impresión VERTICAL
+    let htmlCompleto = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Órdenes de Trabajo Agrupadas por Equipos</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            <style>
                 body { 
-                    padding: 0;
-                    font-size: 9px !important;
+                    font-family: Arial, sans-serif; 
+                    padding: 10mm 15mm; 
+                    font-size: 12px !important;
+                    max-width: 210mm;
+                    margin: 0 auto;
                 }
-                .orden-trabajo {
-                    border: none;
-                    border-bottom: 1px dashed #ccc;
-                    margin-bottom: 3mm;
-                    padding-bottom: 3mm;
+                @page { 
+                    size: A4 portrait; /* CAMBIADO A VERTICAL */
+                    margin: 10mm;
+                }
+                .orden-trabajo { 
+                    margin-bottom: 10mm;
+                    padding: 5mm;
+                    border: 1px solid #ddd;
+                    page-break-inside: avoid;
+                    position: relative;
+                }
+                .compact-table {
+                    font-size: 11px !important; /* AUMENTADO */
+                }
+                .compact-table th, .compact-table td { 
+                    padding: 4px 3px !important; /* AUMENTADO */
+                    line-height: 1.3; /* MEJORADO */
+                    border: 1px solid #ddd !important;
                 }
                 .no-print { display: none !important; }
-            }
-            .codigo-tarea {
-                position: absolute;
-                top: 5px;
-                right: 5px;
-                font-size: 8px;
-                color: #666;
-                background-color:rgb(255, 255, 255);
-                padding: 2px 5px;
-                border: 1px solid #ddd;
-                border-radius: 3px;
-            }
-            .equipo-list {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 5px;
-                margin-bottom: 5px;
-            }
-            .miembro-equipo {
-                background-color: #f0f0f0;
-                padding: 2px 5px;
-                border-radius: 3px;
-                font-size: 8px;
-            }
-            .tipo-orden {
-                position: absolute;
-                top: 5px;
-                left: 5px;
-                font-size: 8px;
-                color: #fff;
-                background-color: #6c757d;
-                padding: 2px 5px;
-                border-radius: 3px;
-            }
-        </style>
-    </head>
-    <body>
-        <button class="btn btn-primary no-print" onclick="window.print()">
-            <i class="fas fa-print"></i> Imprimir
-        </button>
-`;
-
-// 3. Generar las órdenes por equipo
-Object.values(equiposUnicos).forEach((equipo, index) => {
-    // Generar ID único para la orden con formato: YYYYMMDD-IDTAREA
-    const primeraTarea = equipo.tareas[0];
-    const fechaFormateada = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    const ordenId = `ORD-${fechaFormateada}-${primeraTarea.id}`;
-    
-    // Obtener supervisor de la primera validación si existe
-    const supervisor = primeraTarea.validaciones && primeraTarea.validaciones.length > 0 
-        ? primeraTarea.validaciones[0].supervisor 
-        : 'Sin supervisor asignado';
-    
-    htmlCompleto += ` 
-        <div class="orden-trabajo" style="position: relative;">
-            <div class="codigo-tarea">ID: ${ordenId}</div>
-            <div class="tipo-orden">${primeraTarea.area_nombre}</div>
-            
-            <!-- Encabezado compacto en una sola línea -->
-            <div class="text-center mb-1">
-                <h4 class="mb-0" style="font-size: 12px;">DIRECCIÓN DE SERVICIOS GENERALES - ORDEN DE TRABAJO</h4>
-                <div style="font-size: 9px;">
-                    <span>Fecha: ${new Date().toLocaleDateString()}</span>
-                    <span> | </span>
-                    <span>Hora: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>
-            </div>
-
-            <!-- Datos en cajas separadas -->
-            <div class="d-flex flex-wrap mb-1" style="font-size: 9px;">
-                <div class="info-box">
-                    <strong>Equipo:</strong> 
-                    <div class="equipo-list">
-                        ${equipo.personal.map(p => 
-                            `<span class="miembro-equipo">${p.nombre_completo} (${p.cargo} - ${p.departamento})</span>`
-                        ).join('')}
-                    </div>
-                </div>
-                <div class="info-box"><strong>Área:</strong> ${primeraTarea.area_nombre}</div>
-                <div class="info-box"><strong>Depto:</strong> ${primeraTarea.departamento_nombre}</div>
-                <div class="info-box"><strong>Tipo:</strong> ${primeraTarea.es_comun ? 'Común' : 'Específica'}</div>
-            </div>
-
-            <!-- Tabla de tareas con columna de materiales -->
-            <div class="mb-1">
-                <table class="table compact-table mb-0">
-                    <thead>
-                        <tr class="bg-light">
-                            <th width="5%">#</th>
-                            <th width="45%">Descripción</th>
-                            <th width="20%">Materiales</th>
-                            <th width="15%">Fecha/Hora</th>
-                            <th width="15%">Firma</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${equipo.tareas.map((tarea, i) => `
-                            <tr>
-                                <td>${i + 1}</td>
-                                <td>${tarea.descripcion}</td>
-                                <td>
-                                    ${tarea.materiales ? tarea.materiales.map(m => 
-                                        `${m.nombre} (${m.cantidad} ${m.medida})`).join(', ') : 'N/A'}
-                                </td>
-                                <td>${tarea.fecha_inicio_formateada}</td>
-                                <td></td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Responsable simplificado -->
-            <div class="d-flex justify-content-between border-top pt-1" style="font-size: 9px;">
-                <div style="width: 65%">
-                    <strong>Observaciones:</strong>
-                    <div style="border-bottom: 1px dashed #ccc; min-height: 20px;"></div>
-                </div>
-                <div style="width: 30%">
-                    <div>
-                        <strong>Supervisor:</strong>
-                        <div>${supervisor}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                .no-print { 
+                    display: block !important;
+                    position: fixed;
+                    top: 10px;
+                    right: 10px;
+                    z-index: 1000;
+                }
+                .info-box {
+                    border: 1px solid #ddd;
+                    padding: 4px 8px; /* AUMENTADO */
+                    margin-right: 8px; /* AUMENTADO */
+                    margin-bottom: 5px;
+                    display: inline-block;
+                    font-size: 11px; /* AUMENTADO */
+                }
+                
+                /* MEMBRETE CON IMAGEN */
+                .membrete {
+                    text-align: center;
+                    margin-bottom: 15px;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #000;
+                }
+                
+                .membrete img {
+                    max-width: 100%;
+                    max-height: 80px;
+                    object-fit: contain;
+                }
+                
+                /* PIE DE PÁGINA */
+                .pie-pagina {
+                    text-align: center;
+                    margin-top: 15px;
+                    padding-top: 10px;
+                    border-top: 1px solid #000;
+                    font-weight: bold;
+                    font-size: 12px;
+                }
+                
+                /* TÍTULOS MÁS GRANDES */
+                h4 {
+                    font-size: 16px; /* AUMENTADO */
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                }
+                
+                h5 {
+                    font-size: 14px; /* AUMENTADO */
+                    font-weight: bold;
+                }
+                
+                /* MEJORAS DE ESPACIADO */
+                .mb-1 {
+                    margin-bottom: 8px !important;
+                }
+                
+                .mb-2 {
+                    margin-bottom: 12px !important;
+                }
+                
+                .pt-1 {
+                    padding-top: 8px !important;
+                }
+                
+                .equipo-list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 5px;
+                    margin-top: 3px;
+                }
+                
+                .miembro-equipo {
+                    background-color: #f0f0f0;
+                    padding: 3px 6px; /* AUMENTADO */
+                    border-radius: 3px;
+                    font-size: 10px; /* AUMENTADO */
+                }
+                
+                .codigo-tarea {
+                    position: absolute;
+                    top: 8px; /* AJUSTADO */
+                    right: 8px; /* AJUSTADO */
+                    font-size: 9px; /* AUMENTADO */
+                    color: #666;
+                    background-color: rgb(255, 255, 255);
+                    padding: 3px 6px; /* AUMENTADO */
+                    border: 1px solid #ddd;
+                    border-radius: 3px;
+                }
+                
+                .tipo-orden {
+                    position: absolute;
+                    top: 8px; /* AJUSTADO */
+                    left: 8px; /* AJUSTADO */
+                    font-size: 9px; /* AUMENTADO */
+                    color: #fff;
+                    background-color: #6c757d;
+                    padding: 3px 6px; /* AUMENTADO */
+                    border-radius: 3px;
+                }
+                
+                @media print {
+                    body { 
+                        padding: 10mm;
+                        font-size: 11px !important;
+                    }
+                    .orden-trabajo {
+                        border: none;
+                        border-bottom: 1px dashed #ccc;
+                        margin-bottom: 8mm;
+                        padding-bottom: 5mm;
+                    }
+                    .no-print { display: none !important; }
+                    .membrete img {
+                        max-height: 70px;
+                    }
+                    .compact-table th, .compact-table td {
+                        padding: 3px 2px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <button class="btn btn-primary no-print" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
     `;
-});
 
-htmlCompleto += `
-    </body>
-    </html>
-`;
-  // 4. Abrir ventana de vista previa (sin imprimir automáticamente)
+    // 3. Generar las órdenes por equipo
+    Object.values(equiposUnicos).forEach((equipo, index) => {
+        // Generar ID único para la orden con formato: YYYYMMDD-IDTAREA
+        const primeraTarea = equipo.tareas[0];
+        const fechaFormateada = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        const ordenId = `ORD-${fechaFormateada}-${primeraTarea.id}`;
+        
+        // Obtener supervisor de la primera validación si existe
+        const supervisor = primeraTarea.validaciones && primeraTarea.validaciones.length > 0 
+            ? primeraTarea.validaciones[0].supervisor 
+            : 'Sin supervisor asignado';
+        
+        htmlCompleto += ` 
+            <div class="orden-trabajo" style="position: relative;">
+                <!-- MEMBRETE CON IMAGEN -->
+                <div class="membrete">
+                    <img src="Imagen1.jpg" alt="Membrete Institucional">
+                </div>
+                
+                <div class="codigo-tarea">ID: ${ordenId}</div>
+                <div class="tipo-orden">${primeraTarea.area_nombre}</div>
+                
+                <!-- Encabezado mejorado -->
+                <div class="text-center mb-2">
+                    <h4 class="mb-0">DIRECCIÓN DE SERVICIOS GENERALES</h4>
+                    <h5 class="mb-1">ORDEN DE TRABAJO</h5>
+                    <div style="font-size: 11px;">
+                        <span>Fecha: ${new Date().toLocaleDateString()}</span>
+                        <span> | </span>
+                        <span>Hora: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                </div>
+
+                <!-- Datos en cajas separadas - MEJORADO -->
+                <div class="d-flex flex-wrap mb-2" style="font-size: 11px;">
+                    <div class="info-box">
+                        <strong>Equipo:</strong> 
+                        <div class="equipo-list">
+                            ${equipo.personal.map(p => 
+                                `<span class="miembro-equipo">${p.nombre_completo} (${p.cargo} - ${p.departamento})</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="info-box"><strong>Área:</strong> ${primeraTarea.area_nombre}</div>
+                    <div class="info-box"><strong>División:</strong> ${primeraTarea.departamento_nombre}</div>
+                    <div class="info-box"><strong>Turno:</strong> ${primeraTarea.turno || 'No especificado'}</div>
+                </div>
+
+                <!-- Tabla de tareas con columna de materiales - MEJORADA -->
+                <div class="mb-2">
+                    <h6 style="font-size: 12px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 3px;">
+                        TAREAS ASIGNADAS
+                    </h6>
+                    <table class="table compact-table mb-0">
+                        <thead>
+                            <tr class="bg-light">
+                                <th width="5%">#</th>
+                                <th width="45%">Descripción</th>
+                                <th width="20%">Materiales</th>
+                                <th width="15%">Fecha/Hora</th>
+                                <th width="15%">Firma</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${equipo.tareas.map((tarea, i) => `
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td>${tarea.descripcion}</td>
+                                    <td>
+                                        ${tarea.materiales ? tarea.materiales.map(m => 
+                                            `${m.nombre} (${m.cantidad} ${m.medida})`).join(', ') : 'N/A'}
+                                    </td>
+                                    <td>${tarea.fecha_inicio_formateada}</td>
+                                    <td style="border-bottom: 1px dashed #ccc;"></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Responsable y observaciones - MEJORADO -->
+                <div class="d-flex justify-content-between border-top pt-2" style="font-size: 11px;">
+                    <div style="width: 65%">
+                        <strong>Observaciones:</strong>
+                        <div style="border-bottom: 1px dashed #ccc; min-height: 30px; margin-top: 5px;"></div>
+                    </div>
+                    <div style="width: 30%">
+                        <div class="text-center">
+                            <strong>Responsable</strong>
+                            <div style="border-bottom: 1px solid #000; width: 100%; margin: 8px 0;"></div>
+                            <div><strong>Supervisor:</strong> ${supervisor}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PIE DE PÁGINA -->
+                <div class="pie-pagina">
+                    Pertenencia Social y Participación Popular
+                </div>
+            </div>
+            
+            ${index < Object.keys(equiposUnicos).length - 1 ? '<div style="page-break-after: always;"></div>' : ''}
+        `;
+    });
+
+    htmlCompleto += `
+        </body>
+        </html>
+    `;
+
+    // 4. Abrir ventana de vista previa (sin imprimir automáticamente)
     const ventanaImpresion = window.open('', '_blank');
     ventanaImpresion.document.write(htmlCompleto);
-    
-    // Esperar a que el contenido se cargue antes de imprimir
-   // Añadir Font Awesome para el icono de impresión
-    ventanaImpresion.document.write(`
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    `);
-    
     ventanaImpresion.document.close();
 }
 
@@ -2043,6 +2122,11 @@ $("#btn-guardar-evaluacion").click(function () {
 
       if (materialExistente) {
         materialExistente.cantidad = totalCantidad;
+        if (totalCantidad > 0) {
+          mostrarExito("Material agregado con éxito");
+        } else {
+          mostrarError("Introduzca una cantidad válida");
+        }
       } else {
         materialesSeleccionados.push({
           id: rowData.id,
@@ -2050,6 +2134,7 @@ $("#btn-guardar-evaluacion").click(function () {
           cantidad: cantidad,
           unidad: rowData.unidad,
         });
+        mostrarExito("Material agregado con éxito");
       }
 
       actualizarTablaSeleccionados();
