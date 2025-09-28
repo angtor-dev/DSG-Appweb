@@ -30,7 +30,7 @@
     <a href="<?= LOCAL_DIR ?>" class="sidebar-button mx-3 mt-3
         <?= empty($uriParts[0]) ? "active" : "" ?>">
         <i class="fa-solid fa-house-chimney"></i>
-        Dashboard
+        Inicio
     </a>
 
     <?php if (tienePermiso(Modulo::AREAS, Permiso::CONSULTAR)
