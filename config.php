@@ -1,6 +1,6 @@
 <?php
 date_default_timezone_set('America/Caracas');
-define("APP_NAME", "DSG");
+const APP_NAME = "DSG";
 
 // Default user configs (estas constantes pueden sobrescribirse
 // en el archivo user_config.php)
@@ -28,10 +28,10 @@ defined('DB_USERS_PORT') or define("DB_USERS_PORT", "");
 
 
 // Expresiones regulares
-define("REG_NUMERICO", "/^[0-9]+$/");
-define("REG_ALFABETICO", "/^[a-zA-ZáÁéÉíÍóÓúÚüÜñÑ.,\s]+$/");
-define("REG_ALFANUMERICO", "/^\s*[0-9a-zA-ZáÁéÉíÍóÓúÚüÜñÑ., ]*\s*$/");
-define("REG_CEDULA", "/^[0-9]{7,8}$/");
-define("REG_TELEFONO", "/^[0-9]{11}$/");
-define("REG_CLAVE", "/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/");
-define("REG_FECHA", "/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/");
+const REG_NUMERICO = "/^[0-9]+$/";
+const REG_ALFABETICO = "/^[a-zA-ZáÁéÉíÍóÓúÚüÜñÑ.,\s_-]+$/";
+const REG_ALFANUMERICO = "/^\s*[0-9a-zA-ZáÁéÉíÍóÓúÚüÜñÑ., _-]*\s*$/";
+const REG_CEDULA = "/^[0-9]{7,8}$/";
+const REG_TELEFONO = "/^[0-9]{11}$/";
+const REG_CLAVE = "/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/";
+const REG_FECHA = "/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/";
