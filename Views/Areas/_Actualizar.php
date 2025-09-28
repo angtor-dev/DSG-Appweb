@@ -1,5 +1,6 @@
 <?php /** @var Area $area */ ?>
 <?php /** @var Area[] $areas */ ?>
+<?php usort($areas, fn(Area $a, Area $b) => strcmp($a->getNombre(), $b->getNombre())); ?>
 
 <div class="modal-dialog modal-lg">
 <div class="modal-content">
@@ -21,7 +22,7 @@
                         <label for="idArea" class="form-label">Pertenece a:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-regular fa-fw fa-map"></i></span>
-                            <select class="form-select" name="idArea" id="idArea">
+                            <select class="form-select select2" name="idArea" id="idArea">
                                 <option value=""><i>Ninguno</i></option>
                                 <?php foreach ($areas as $areaPadre): ?>
                                     <?php /** @var Area $areaPadre */ ?>
