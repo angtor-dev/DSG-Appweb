@@ -5,7 +5,7 @@
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
                 <h3 class="pb-2">Artículos</h3>
-                <span class="opacity-75 mb-2">Gestiona los articulos registrados en el sistema</span>
+                <span class="opacity-75 mb-2">Gestiona los artículos registrados en el sistema</span>
             </div>
             <?php if (tienePermiso(modulo::ARTICULOS, Permiso::REGISTRAR)): ?>
                 <div>
