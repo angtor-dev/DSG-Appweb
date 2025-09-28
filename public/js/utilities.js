@@ -30,7 +30,7 @@ document.querySelectorAll('select.select2').forEach(s => $(s).select2({
  */
 function mostrarError(mensaje) {
     Toastify({
-        duration: -1,
+        duration: 4000,
         text: mensaje,
         gravity: "bottom",
         position: "center",
@@ -49,11 +49,12 @@ function mostrarError(mensaje) {
  */
 function mostrarExito(mensaje) {
     Toastify({
-        duration: 5000,
+        duration: 4000,
         text: mensaje,
         gravity: "bottom",
         position: "center",
         stopOnFocus: true,
+        close: true,
         style: {
             background: "var(--bs-success)",
             borderRadius: "8px"
@@ -63,7 +64,7 @@ function mostrarExito(mensaje) {
 
 function mostrarAdvertencia(mensaje) {
     Toastify({
-        duration: 5000,
+        duration: 4000,
         text: mensaje,
         gravity: "bottom",
         position: "center",
