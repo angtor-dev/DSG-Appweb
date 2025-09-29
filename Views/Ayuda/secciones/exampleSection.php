@@ -1,5 +1,5 @@
 <section class="ayuda-seccion">
-    <div class="ayuda-header" id="id-de-seccion">Titulo de la Seccion</div>
+    <div class="ayuda-header" id="id-de-seccion">Titulo de la Sección</div>
     <div class="ayuda-sub-header" id="id-de-subseccion">Subtitulo de ejemplo</div>
     <div class="ayuda-texto">
         <p>Este es un ejemplo de sección de ayuda. Aquí puedes describir cómo funciona una característica específica del sistema.</p>

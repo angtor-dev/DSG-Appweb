@@ -4,8 +4,8 @@
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Estadístasdasas</h3>
-                <span class="opacity-75 mb-2">Muestrasdass con filtros</span>
+                <h3 class="pb-2">Estadísticas</h3>
+                <span class="opacity-75 mb-2">Mostradas con filtros</span>
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
 									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1">
-									<label for="departamento" class="form-label">Division</label>
+									<label for="departamento" class="form-label"><?=DEP_NAME ?></label>
 									<select name="departamento" id="departamento" class="form-select">
 											<option value="">Todos</option>
 										<?php foreach ($departamentos as $departamento): ?>
@@ -127,7 +127,7 @@
 								<div class="col">
 									<div class="text-center">
 										<hr>
-										<span class="h3">Propedio de las Divisiones del Departamento</span>
+										<span class="h3">Promedio de las Divisiones del Departamento</span>
 									</div>
 									<table class="table table-bordered w-auto mx-auto">
 										<thead>

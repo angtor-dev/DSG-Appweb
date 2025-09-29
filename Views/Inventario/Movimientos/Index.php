@@ -6,7 +6,7 @@
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
                 <h3 class="pb-2">Movimientos</h3>
-                <span class="opacity-75 mb-2">Consulta los movimientos de invetario realizados</span>
+                <span class="opacity-75 mb-2">Consulta los movimientos de inventario realizados</span>
             </div>
         </div>
     </div>
@@ -40,7 +40,7 @@
                             <th>Tipo</th>
                             <th>Cantidad</th>
                             <th>Antes</th>
-                            <th>Despues</th>
+                            <th>Después</th>
                             <th>Fecha</th>
                         </tr>
                     </thead>

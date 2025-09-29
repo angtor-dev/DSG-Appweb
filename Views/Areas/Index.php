@@ -4,8 +4,8 @@
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Areas</h3>
-                <span class="opacity-75 mb-2">Gestiona las diferentes areas y zonas donde se realizan servicios</span>
+                <h3 class="pb-2">Áreas</h3>
+                <span class="opacity-75 mb-2">Gestiona las diferentes áreas y zonas donde se realizan servicios</span>
             </div>
             <?php if (tienePermiso(modulo::AREAS, Permiso::REGISTRAR)): ?>
                 <div>
@@ -14,7 +14,7 @@
                         data-bs-toggle="modal" data-bs-target="#modal-generico"
                         data-bs-url="<?= LOCAL_DIR ?>/Areas/Registrar">
                         <i class="fa-solid fa-plus me-2"></i>
-                        Nueva Area
+                        Nueva Área
                     </button>
                 </div>
             <?php endif ?>

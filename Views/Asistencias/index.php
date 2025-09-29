@@ -116,7 +116,7 @@
                             <div class="d-table-cell">
                                 <div class="row flex-nowrap w-100">
                                     <div class="col flex-fill">
-                                        <label for="departamento">Division </label>
+                                        <label for="departamento">División </label>
                                         <select required name="departamento" class="form-select" id="departamento">
                                             <option value=""></option>
                                             <?php foreach ($departamentos as $departamento): ?>

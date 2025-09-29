@@ -261,7 +261,7 @@ class Trabajador extends Model
 
             $resp = array(
                 "success" => true,
-                "message" => "Trabajador registrado con exito"
+                "message" => "Trabajador registrado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -276,7 +276,7 @@ class Trabajador extends Model
 
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al registrar al trabajador"
+                "message" => "Ocurrió un error al registrar al trabajador"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage().":: Linea: ".$th->getLine();
@@ -345,7 +345,7 @@ class Trabajador extends Model
 
             $resp = array(
                 "success" => true,
-                "message" => "Trabajador actualizado con exito"
+                "message" => "Trabajador actualizado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -359,7 +359,7 @@ class Trabajador extends Model
             }
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al actualizar al trabajador"
+                "message" => "Ocurrió un error al actualizar al trabajador"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage().":: Linea: ".$th->getLine();
@@ -420,7 +420,7 @@ class Trabajador extends Model
 
             $resp = array(
                 "success" => true,
-                "message" => "Trabajador eliminado con exito"
+                "message" => "Trabajador eliminado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -433,7 +433,7 @@ class Trabajador extends Model
             }
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al eliminar al trabajador"
+                "message" => "Ocurrió un error al eliminar al trabajador"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage().":: Linea: ".$th->getLine();
@@ -699,7 +699,7 @@ DESC";
             $texto .= $meses . (($meses > 1) ? " meses " : " mes ");
         }
         if($dias > 0) {
-            $texto .= $dias . (($dias > 1) ? " dias " : " dia ");
+            $texto .= $dias . (($dias > 1) ? " días " : " día ");
         }
         return $texto;
     }

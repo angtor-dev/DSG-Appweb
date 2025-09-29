@@ -156,7 +156,7 @@ class Asistencia extends Model
              ];
 
              if($resp[$dias[$diaDeLaSemana]] == 0) {
-                throw new Exception("El turno selecciondado no esta programado para el dia seleccionado (".ucfirst($dias[$diaDeLaSemana]) .")", self::SHOW_EXCEPTIONS);
+                throw new Exception("El turno seleccionado no esta programado para el día seleccionado (".ucfirst($dias[$diaDeLaSemana]) .")", self::SHOW_EXCEPTIONS);
              }
              
 
@@ -229,7 +229,7 @@ class Asistencia extends Model
                 $this->beginTransaction();
             }
             else {
-                Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con exito", $this->db->pdo());
+                Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con éxito", $this->db->pdo());
             }
 
             $this->commit();
@@ -283,7 +283,7 @@ class Asistencia extends Model
 
             
 
-            $bitacoraSms = "Asistencia eliminada de la fecha $this->fecha, turno $this->turno y departamento $this->idDepartamento con exito";
+            $bitacoraSms = "Asistencia eliminada de la fecha $this->fecha, turno $this->turno y departamento $this->idDepartamento con éxito";
 
             Bitacora::registrarTransaccion($bitacoraSms, $this->db->pdo());
 
@@ -296,7 +296,7 @@ class Asistencia extends Model
             $this->db->disconnect();
             $response = [
                 "success" => true,
-                "message" => "Asistencia eliminada con exito"
+                "message" => "Asistencia eliminada con éxito"
             ];
             if ($print) {
                 echo json_encode($response);
@@ -485,7 +485,7 @@ class Asistencia extends Model
                     "Fecha",
                     "Entrada",
                     "Salida",
-                    "Division",
+                    DEP_NAME,
                     "Turno",
                     "Estado"
                 ];
@@ -604,7 +604,7 @@ class Asistencia extends Model
             // validaciones
             
             if(empty($this->fechaIn) || empty($this->fechaOut)) {
-            throw new InvalidArgumentException("Las fechas de inicio y fin no pueden estar vacias");
+            throw new InvalidArgumentException("Las fechas de inicio y fin no pueden estar vaciás");
             }
 
             if(!preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/", $this->fechaIn) || !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/", $this->fechaOut)) {
@@ -612,7 +612,7 @@ class Asistencia extends Model
             }
 
             if(!empty($this->idTrabajador) && !preg_match("/^[0-9]{7,8}$/", $this->idTrabajador)) {
-                throw new InvalidArgumentException("La cedula debe tener 7 u 8 digitos");
+                throw new InvalidArgumentException("La cedula debe tener 7 u 8 dígitos");
             }
             else if(!empty($this->idTrabajador)) {
                 $query = "SELECT 1 FROM trabajador WHERE cedula = :cedula";

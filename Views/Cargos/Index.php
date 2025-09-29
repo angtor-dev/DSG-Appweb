@@ -3,7 +3,7 @@
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
                 <h3 class="pb-2">Cargos</h3>
-                <span class="opacity-75 mb-2">Gestiona los cargos de los trabjadores</span>
+                <span class="opacity-75 mb-2">Gestiona los cargos de los trabajadores</span>
             </div>
             <?php if (tienePermiso(Modulo::CARGOS, Permiso::REGISTRAR)): ?>
                 <div>

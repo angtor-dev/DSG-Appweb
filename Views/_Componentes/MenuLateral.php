@@ -45,7 +45,7 @@
         <a href="<?= LOCAL_DIR ?>/Areas" class="sidebar-button mx-3
             <?= strtolower($uriParts[0]) == "areas" ? "active" : "" ?>">
             <i class="fa-solid fa-map-location"></i>
-            Areas
+            Áreas
         </a>
     <?php endif ?>
     <?php if (tienePermiso(Modulo::CARGOS, Permiso::CONSULTAR)): ?>
@@ -59,7 +59,7 @@
         <a href="<?= LOCAL_DIR ?>/Categorias" class="sidebar-button mx-3
             <?= strtolower($uriParts[0]) == "categorias" ? "active" : "" ?>">
             <i class="fa-solid fa-layer-group"></i>
-            Categorias
+            Categorías
         </a>
     <?php endif ?>
     <?php if (tienePermiso(Modulo::DEPARTAMENTOS, Permiso::CONSULTAR)): ?>
@@ -218,7 +218,7 @@
                     <?php if (tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Bitacora"
                             class="<?= strtolower($uriParts[1]) == "bitacora" ? "active" : "" ?>">
-                            Bitacora
+                            Bitácora
                         </a>
                     <?php endif ?>
                     <!--  colocar permisos -->

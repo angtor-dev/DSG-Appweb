@@ -52,7 +52,7 @@
             <li>
                 <b>Formulario de actualización:</b>
                 <ul>
-                    <li>Se abrirá una ventana emergente (modal) con un formulario similar al de registro. Este formulario ya estará precargado con los datos actuales de la medida seleccionada.</li>
+                    <li>Se abrirá una ventana emergente (modal) con un formulario similar al de registro. Este formulario ya estará pre-cargado con los datos actuales de la medida seleccionada.</li>
                     <li>Realice las modificaciones necesarias en el nombre o las siglas de la unidad.</li>
                 </ul>
             </li>

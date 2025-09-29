@@ -66,7 +66,7 @@
             <li>
                 <b>Formulario de actualización:</b>
                 <ul>
-                    <li>Se abrirá una ventana emergente (modal) con un formulario similar al de registro. Este formulario ya estará precargado con los datos actuales del turno seleccionado.</li>
+                    <li>Se abrirá una ventana emergente (modal) con un formulario similar al de registro. Este formulario ya estará pre-cargado con los datos actuales del turno seleccionado.</li>
                     <li class="list-no-decor"><img src="<?= LOCAL_DIR ?>/public/img/ayuda/turnos-editar-modal.png" alt=""></li>
                     <li>Realice las modificaciones necesarias en los campos deseados.</li>
                 </ul>

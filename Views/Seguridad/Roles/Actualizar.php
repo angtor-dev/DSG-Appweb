@@ -33,7 +33,7 @@
                         <div class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-12">
-                        <label for="descripcion" class="form-label">Descripcion <small class="text-secondary">(opcional)</small></label>
+                        <label for="descripcion" class="form-label">Descripción <small class="text-secondary">(opcional)</small></label>
                         <textarea class="form-control" id="descripcion" name="descripcion"><?= $rol->getDescripcion() ?></textarea>
                         <div class="form-text invalid-feedback"></div>
                     </div>

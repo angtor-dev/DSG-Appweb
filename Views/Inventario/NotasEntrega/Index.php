@@ -6,7 +6,7 @@
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
                 <h3 class="pb-2">Notas de entrega</h3>
-                <span class="opacity-75 mb-2">Consulta las entredas de inventario</span>
+                <span class="opacity-75 mb-2">Consulta las entradas de inventario</span>
             </div>
             <?php if (tienePermiso(modulo::NOTASENTREGA, Permiso::REGISTRAR)): ?>
                 <div>

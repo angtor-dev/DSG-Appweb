@@ -31,7 +31,7 @@
                         sesión.
                     </li>
                     <li>
-                        En su parte inferior contiene accesos directos a los modulos del
+                        En su parte inferior contiene accesos directos a los módulos del
                         sistema, como, "Tareas", "Trabajadores", "Inventario", etc.
                     </li>
                     <li>

@@ -4,7 +4,7 @@
 <div class="modal-content">
         <div class="modal-header bg-white">
             <h5 class="modal-title my-2">
-                Registrar Nueva Division
+                Registrar Nueva División
             </h5>
         </div>
         <div class="modal-body">

@@ -40,7 +40,7 @@
 <div class="page-inner mt--5">
     <div class="card border-0 box-shadow-alt">
         <div class="card-body p-4">
-            <div class="ayuda-title"><h2 class="text-center">Manual de Ayuda para el sistema de gestion de tareas para la direccion de servicios generales</h2></div>
+            <div class="ayuda-title"><h2 class="text-center">Manual de Ayuda para el sistema de gestión de tareas para la dirección de servicios generales</h2></div>
             <?php 
                 foreach ($arreglo_de_secciones as $seccion) {
                     require_once("Views/Ayuda/secciones/".$seccion.".php");
