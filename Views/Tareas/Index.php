@@ -37,7 +37,7 @@
                         data-bs-toggle="modal" data-bs-target="#modal-estadistica"
                         data-bs-url="<?= LOCAL_DIR ?>/Tareas/ReporteA">
                         <i class="fa-solid fa-file-alt me-2"></i>
-                        Reporte de estadistica
+                        Reporte de estadística
                     </button>
                 </div>
             <?php endif ?>
@@ -97,9 +97,9 @@
                             <thead>
                                 <tr>
                                     <th style="display: none;">Id</th>
-                                    <th>Area</th>
-                                    <th>División</th>
-                                    <th>Descripcion</th>
+                                    <th>Área</th>
+                                    <th><?=DEP_NAME ?></th>
+                                    <th>Descripción</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
@@ -118,9 +118,9 @@
                             <thead>
                                 <tr>
                                     <th style="display: none;">Id</th>
-                                    <th>Area</th>
-                                    <th>División</th>
-                                    <th>Descripcion</th>
+                                    <th>Área</th>
+                                    <th><?=DEP_NAME ?></th>
+                                    <th>Descripción</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
@@ -139,9 +139,9 @@
                             <thead>
                                 <tr>
                                     <th style="display: none;">Id</th>
-                                    <th>Area</th>
-                                    <th>División</th>
-                                    <th>Descripcion</th>
+                                    <th>Área</th>
+                                    <th><?=DEP_NAME ?></th>
+                                    <th>Descripción</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
@@ -159,9 +159,9 @@
                             <thead>
                                 <tr>
                                      <th style="display: none;">Id</th>
-                                    <th>Area</th>
-                                    <th>División</th>
-                                    <th>Descripcion</th>
+                                    <th>Área</th>
+                                    <th><?=DEP_NAME ?></th>
+                                    <th>Descripción</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>

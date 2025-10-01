@@ -215,7 +215,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => true,
-                "message" => "Turno registrado con exito"
+                "message" => "Turno registrado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -229,7 +229,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al registrar al turno"
+                "message" => "Ocurrió un error al registrar al turno"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage()." :: Linea: ".$th->getLine();
@@ -307,7 +307,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => true,
-                "message" => "Turno actualizado con exito"
+                "message" => "Turno actualizado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -321,7 +321,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al actualizar al turno"
+                "message" => "Ocurrió un error al actualizar al turno"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage()." :: Linea: ".$th->getLine();
@@ -370,7 +370,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => true,
-                "message" => "Turno eliminado con exito"
+                "message" => "Turno eliminado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -384,7 +384,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al eliminar al turno"
+                "message" => "Ocurrió un error al eliminar al turno"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage()." :: Linea: ".$th->getLine();

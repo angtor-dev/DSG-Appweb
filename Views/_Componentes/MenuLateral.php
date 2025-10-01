@@ -218,7 +218,7 @@
                     <?php if (tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Bitacora"
                             class="<?= strtolower($uriParts[1]) == "bitacora" ? "active" : "" ?>">
-                            Bitacora
+                            Bitácora
                         </a>
                     <?php endif ?>
                     <!--  colocar permisos -->

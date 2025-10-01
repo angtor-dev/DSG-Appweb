@@ -353,7 +353,7 @@ class Usuario extends Model
             $respuesta = [
                 "success" => true,
                 "idModificado" => $this->id,
-                "mensaje" => "Usuario actualizado con exito"
+                "mensaje" => "Usuario actualizado con éxito"
             ];
 
             
@@ -374,7 +374,7 @@ class Usuario extends Model
             //$_SESSION['errores'][] = "Ocurrio un error al actualizar a el usuario";
             $respuesta = [
                 "success" => false,
-                "mensaje" => "Ocurrio un error al actualizar a el usuario",
+                "mensaje" => "Ocurrió un error al actualizar a el usuario",
                 "idModificado" => null
             ];
             

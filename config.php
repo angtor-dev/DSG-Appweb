@@ -18,6 +18,9 @@ defined('DB_USERS_NAME') or define("DB_USERS_NAME", "dsg_db_users");
 defined('DB_USERS_USER') or define("DB_USERS_USER", "root");
 defined('DB_USERS_PASSWORD') or define("DB_USERS_PASSWORD", "");
 defined('DB_USERS_PORT') or define("DB_USERS_PORT", "");
+defined('DEP_NAME') or define("DEP_NAME", "División"); // para cambiar el nombre al modulo fácilmente
+defined('DEP_NAME_M') or define("DEP_NAME_M", "división"); // minúsculas
+defined('DEP_NAME_S') or define("DEP_NAME_S", "divisiones"); // plural
 
 
 // defined('DB_USERS_HOST') or define("DB_USERS_HOST", "61z0o.h.filess.io");

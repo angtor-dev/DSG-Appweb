@@ -22,16 +22,16 @@
             </li>
             <li>
                 (Opcional) Marque la casilla <b>Recordar</b> para que el sistema recuerde
-                y muestre su correo automaticamente la proxima vez que inicie sesión.
+                y muestre su correo automáticamente la próxima vez que inicie sesión.
             </li>
             <li>
                 Pulse el botón <b>INGRESAR</b>.
             </li>
         </ol>
         <p>
-            Si los datos ingresados son correctos, lo proximo que vera sera la pantalla de
+            Si los datos ingresados son correctos, lo próximo que vera sera la pantalla de
             bienvenida del sistema. De lo contrario, se indicará que los datos son
-            incorrectos y debera volver a ingresarlos.
+            incorrectos y deberá volver a ingresarlos.
         </p>
     </div>
 </section>

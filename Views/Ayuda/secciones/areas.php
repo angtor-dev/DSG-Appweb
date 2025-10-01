@@ -18,7 +18,7 @@
                 Ingrese al módulo de Áreas desde el menú lateral.
                 <div class="img">
                     <img src="public/img/ayuda/img04.png">
-                    <div>Modulo de Areas resaltado</div>
+                    <div>Modulo de Áreas resaltado</div>
                 </div>
             </li>
             <li>

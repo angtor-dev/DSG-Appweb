@@ -80,7 +80,7 @@
 									<div id="form-text-trabajador" class="form-text invalid-feedback"></div>
 								</div>
 								<div class="col px-1" id="col-departamento">
-									<label for="departamento" class="form-label">Division</label>
+									<label for="departamento" class="form-label"><?= DEP_NAME ?></label>
 									<select name="departamento" id="departamento" class="form-select">
 											<option value="">Todos</option>
 										<?php 
