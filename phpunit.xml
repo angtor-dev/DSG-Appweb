@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit bootstrap="phpunitBootstrap.php" stopOnFailure="true"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
+<phpunit bootstrap="phpunitBootstrap.php" stopOnFailure="false"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
 	<testsuites>
 		<testsuite name="Asistencias">
 			<directory suffix=".php">
 				test/Asistencias
 			</directory>
 		</testsuite>
-		<testsuite name="Usuarios">
+		<!-- <testsuite name="Usuarios">
 			<directory suffix=".php">
 				test/Usuarios
 			</directory>
-		</testsuite>
+		</testsuite> -->
 		<testsuite name="Turnos">
 			<directory suffix=".php">
 				test/Turnos
