@@ -29,7 +29,7 @@ $_layout = "Login";
                             Recordar
                         </label>
                     </div>
-                    <a class="d-none" href="#">Olvide mi clave</a>
+                    <a class="" href="<?= LOCAL_DIR ?>/Login/ResetPassword  ">Olvide mi clave</a>
                 </div>
                 <button type="submit" class="btn btn-primary fw-medium btn-submit">
                     INGRESAR

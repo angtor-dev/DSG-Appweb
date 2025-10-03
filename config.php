@@ -23,6 +23,16 @@ defined('DEP_NAME_M') or define("DEP_NAME_M", "división"); // minúsculas
 defined('DEP_NAME_S') or define("DEP_NAME_S", "divisiones"); // plural
 
 
+// Credenciales de correo
+
+// TODO : Cambiar por credenciales de correo de la UPTAEB
+
+define("SYS_EMAIL", "reivax.zeraus@gmail.com");
+define("SYS_EMAIL_PASS", 'gexv tail oxwx ejwt');
+define("SYS_EMAIL_NAME", "Dirección de Servicios Generales");
+define("SYS_EMAIL_HOST", "smtp.gmail.com");
+
+
 // defined('DB_USERS_HOST') or define("DB_USERS_HOST", "61z0o.h.filess.io");
 // defined('DB_USERS_NAME') or define("DB_USERS_NAME", "dsgusers_tiredsleep");
 // defined('DB_USERS_USER') or define("DB_USERS_USER", "dsgusers_tiredsleep");
