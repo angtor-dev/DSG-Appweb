@@ -21,6 +21,7 @@ class TurnosRegistrarTest extends TestCase
 
     public function testTurnosListar($foo, $respuesta_esperada): void
     {
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
         switch ($this->dataName()) {
             case 'Listar con todos los permisos':
                     getUserFalseInsesion(1); // usuario con el rol de super admin
@@ -65,8 +66,7 @@ class TurnosRegistrarTest extends TestCase
         
         
 
-        global $test_suite;
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        
 
         
     }
@@ -89,21 +89,14 @@ class TurnosRegistrarTest extends TestCase
     /**
      * @dataProvider RegistrosProvider
      */
-    public function testRegistrar(
-        $turnoNombre,
-        $horario_entrada,
-        $horario_salida,
-        $lunes,
-        $martes,
-        $miercoles,
-        $jueves,
-        $viernes,
-        $sabado,
-        $domingo,
-        $resultado_esperado,
-        $num_caso
+    public function testRegistrarTurnos(
+        $turnoNombre,$horario_entrada,$horario_salida,
+        $lunes, $martes, $miercoles,
+        $jueves, $viernes, $sabado,
+        $domingo, $resultado_esperado, $num_caso
         ):void
     {
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
 
         $listaDatos = [
             'nombre' => $turnoNombre,
@@ -139,8 +132,7 @@ class TurnosRegistrarTest extends TestCase
         $mensaje = ($respuesta['consoleError'] ?? $respuesta['message']) . ' :: '.$mensaje;
 
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
-        global $test_suite;
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        
     }
 
     public function RegistrosProvider()
@@ -279,6 +271,8 @@ class TurnosRegistrarTest extends TestCase
         $num_caso
     ): void
     {
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+
         // Preparar los datos para la prueba
         $this->turnoObj->setterArray(['codigo' => $id]);
 
@@ -295,17 +289,15 @@ class TurnosRegistrarTest extends TestCase
         $mensaje = ($respuesta['consoleError'] ?? $respuesta['message']) . ' :: '.$mensaje;
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
         $this->assertEquals($mensajeEsperado, $respuesta['message'], $mensaje);
-        global $test_suite;
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
 
     }
 
     public function EliminarTurnoProvider()
     {
         $mensajeEsperado = new class {
-            public $eliminarTurno = "Turno eliminado con exito";
-            public $registrarTurno = "Turno registrado con exito";
-            public $actualizarTurno = "Turno actualizado con exito";
+            public $eliminarTurno = "Turno eliminado con éxito";
+            public $registrarTurno = "Turno registrado con éxito";
+            public $actualizarTurno = "Turno actualizado con éxito";
             public $nombreRequerido = "El nombre del turno es requerido";
             public $horarioEntradaRequerido = "El horario de entrada es requerido";
             public $horarioSalidaRequerido = "El horario de salida es requerido";
@@ -367,34 +359,21 @@ class TurnosRegistrarTest extends TestCase
      * @dataProvider ActualizarTurnoProvider
      */
     public function testActualizarTurno(
-        $id,
-        $nombre,
-        $horario_entrada,
-        $horario_salida,
-        $lunes,
-        $martes,
-        $miercoles,
-        $jueves,
-        $viernes,
-        $sabado,
-        $domingo,
-        $mensajeEsperado,
+        $id, $nombre, $horario_entrada,
+        $horario_salida, $lunes, $martes,
+        $miercoles, $jueves, $viernes,
+        $sabado, $domingo, $mensajeEsperado,
         $resultado_esperado,
     ): void
     {
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+
         // Preparar los datos para la prueba
         $listaDatos = [
-            'codigo' => $id,
-            'nombre' => $nombre,
-            'horario_entrada' => $horario_entrada,
-            'horario_salida' => $horario_salida,
-            'lunes' => $lunes,
-            'martes' => $martes,
-            'miercoles' => $miercoles,
-            'jueves' => $jueves,
-            'viernes' => $viernes,
-            'sabado' => $sabado,
-            'domingo' => $domingo
+            'codigo' => $id, 'nombre' => $nombre, 'horario_entrada' => $horario_entrada,
+            'horario_salida' => $horario_salida, 'lunes' => $lunes, 'martes' => $martes,
+            'miercoles' => $miercoles, 'jueves' => $jueves, 'viernes' => $viernes,
+            'sabado' => $sabado, 'domingo' => $domingo
         ];
     
         // si algun campo es nulo eliminar del array
@@ -423,16 +402,14 @@ class TurnosRegistrarTest extends TestCase
 
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
 
-        global $test_suite;
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
     }
     
     public function ActualizarTurnoProvider()
     {
         $mensajeEsperado = new class {
-            public $eliminarTurno = "Turno eliminado con exito";
-            public $registrarTurno = "Turno registrado con exito";
-            public $actualizarTurno = "Turno actualizado con exito";
+            public $eliminarTurno = "Turno eliminado con éxito";
+            public $registrarTurno = "Turno registrado con éxito";
+            public $actualizarTurno = "Turno actualizado con éxito";
             public $nombreRequerido = "El nombre del turno es requerido";
             public $horarioEntradaRequerido = "El horario de entrada es requerido";
             public $horarioSalidaRequerido = "El horario de salida es requerido";

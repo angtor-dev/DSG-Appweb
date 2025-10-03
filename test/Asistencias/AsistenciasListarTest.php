@@ -17,6 +17,7 @@ class AsistenciasListarTest extends TestCase
      * @dataProvider ListarAsistenciasProvider
      */
     public  function testListarAsistencias($departamento,$turno,$fecha,$resultado_esperado){
+        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
         $_POST['idDepartamento'] = $departamento;
         $_POST['turno'] = $turno;
         $_POST['fecha'] = $fecha;
@@ -38,16 +39,18 @@ class AsistenciasListarTest extends TestCase
 
         $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje.= "success failed");
 
+
+
         
         if($resultado_esperado == true){
             $this->assertArrayHasKey('listaTrabajadores',$respuesta, $mensaje.="el arreglo no tiene la llave listaTrabajadores");
             $this->assertIsObject($respuesta['listaTrabajadores'], $mensaje.="el valor de la llave listaTrabajadores no es un objeto");
         }
         else{
-            $this->assertArrayNotHasKey('listaTrabajadores',$respuesta, $mensaje.="el arreglo tiene la llave listaTrabajadores pero no deberia");
+            $this->assertArrayNotHasKey('listaTrabajadores',$respuesta, $mensaje.="el arreglo tiene la llave listaTrabajadores pero no debería");
         }
 
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        
         
 
         

@@ -1,4 +1,3 @@
-
 <?php
 class Asistencia extends Model
 {
