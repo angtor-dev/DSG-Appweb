@@ -13,7 +13,7 @@ $_layout = "Login";
                     </svg>
                 </div>
             </div>
-            <h1 class="fs-4 fw-medium text-primary">Iniciar Sesión</h1>
+            <h1 class="fs-4 fw-medium text-primary">Iniciar Sesión,</h1>
             <form method="post" class="d-flex flex-column gap-3 w-100 px-3 px-sm-5">
                 <input type="email" name="correo" class="form-control" placeholder="Correo">
                 <input type="password" name="clave" class="form-control" placeholder="Contraseña">
