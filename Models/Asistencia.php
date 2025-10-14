@@ -26,23 +26,6 @@ class Asistencia extends Model
             $this->departamento = Division::cargar($this->idDepartamento);
         }
     }
-    /**
-     * llena las propiedades de la clase si el formulario fue enviado
-     * y el campo correspondiente no esta vacio
-     * @return void
-     */
-    public function mapearFormulario(){
-        if(empty($_POST)) return;
-        $this->fechaIn = trim($_POST["fechaIn"] ?? "");
-        $this->fechaOut = trim($_POST["fechaOut"] ?? "");
-        $this->status = trim($_POST["status"] ?? "");
-        $this->idTrabajador = trim($_POST["idTrabajador"] ?? "");
-        $this->idDepartamento = trim($_POST["idDepartamento"] ?? "");
-        $this->fecha = trim($_POST["fecha"] ?? "");
-        $this->turno = trim($_POST["turno"] ?? "");
-        $this->trabajadores = ( isset($_POST['trabajadores']) and is_array($_POST['trabajadores']) ) ? $_POST['trabajadores'] : Array();
-        $this->idAsistencia = trim($_POST["idAsistencia"] ?? "");
-    }
 
     public function setterArray(array $data) : void
     {
@@ -71,9 +54,9 @@ class Asistencia extends Model
             public string $fecha_invalida = "La fecha no es valida";
             public string $turno_no_select = "Debe seleccionar un turno";
             public string $turno_ivalido = "El turno no es valido";
-            public string $departamento_no_select = "Debe seleccionar un departamento";
-            public string $departamento_invalido = "El departamento no es valido";
-            public string $departamento_no_existe = "El departamento seleccionado no existe";
+            public string $departamento_no_select = "Debe seleccionar una ". DEP_NAME_M ;
+            public string $departamento_invalido = "La ". DEP_NAME_M . " no es valida";
+            public string $departamento_no_existe = "La ". DEP_NAME_M . " seleccionada no existe";
             public string $idAsistencia_no_select = "Debe seleccionar una asistencia";
             public string $idAsistencia_invalido = "La asistencia no es valida";
             public string $idAsistencia_no_existe = "La asistencia seleccionada no existe";
@@ -114,21 +97,10 @@ class Asistencia extends Model
 
         }
 
-        if($control == self::ELIMINAR_ASISTENCIA){
-            if(empty($this->idAsistencia)) {
-                throw new Exception($messages->idAsistencia_no_select, self::SHOW_EXCEPTIONS);
-            }
-            if(!preg_match("/^\d+$/", $this->idAsistencia)) {
-                throw new Exception($messages->idAsistencia_invalido, self::SHOW_EXCEPTIONS);
-            }
-            // TODO validar eliminar asistencia
-            
-        }
-
         if($control == self::LISTAR_TRABAJADORES){
             // primero optengo los horarios del turno seleccionado
 
-            $stmt = $this->ejecutarStatement("SELECT * FROM turno WHERE id = :turno", ["turno" => $this->turno]);
+            $stmt = $this->ejecutarStatement("SELECT * FROM turno WHERE codigo = :turno", ["turno" => $this->turno]);
             
             if($stmt->rowCount() == 0) {
                 throw new Exception($messages->turno_no_existente, self::SHOW_EXCEPTIONS);
@@ -170,25 +142,31 @@ class Asistencia extends Model
 
 
 
+/**
+ * Registra una asistencia y sus trabajadores relacionados.
+ *
+ * Esta función recibe un array de trabajadores y los registra en la base de datos.
+ * El array de trabajadores debe tener la siguiente estructura:
+ * [
+ *      "idAsistencia_inasistencia" => int,
+ *      "idTrabajador" => int,
+ *      "tipo_registro" => string,
+ *      "hora_entrada" => string,
+ *      "hora_salida" => string,
+ *      "tipo_justificacion" => string,
+ *      "descripcion_justificacion" => string
+ * ]
+ *
+ * @param boolean $print Si se debe imprimir el resultado en formato json.
+ * @return array Regresa un array con el resultado de la operacion.
+ * @throws Throwable Si ocurre un error al registrar la asistencia.
+ */
     public function registrar($print = true):array {
         try {
             $this->db->connect();
             $this->beginTransaction();
 
-            /*
-
-            CALL `sp_registrar_asistencia`(
-                p_id_asistencia_inasistencia INT,
-                p_fecha DATE,
-                p_trabajador_id INT,
-                p_tipo_registro ENUM,
-                p_hora_entrada TIME,
-                p_hora_salida TIME,
-                p_tipo_inasistencia ENUM,
-                p_descripcion TEXT
-            );
-            */
-            
+          
             $query = "CALL sp_registrar_asistencia(
                 :id_asistencia_inasistencia,
                 :fecha,
@@ -205,6 +183,13 @@ class Asistencia extends Model
                 $setterAuxiliar = function ($value){
                     return (empty($value)) ? NULL : $value;
                 };
+
+
+                // valido la fecha
+                // TODO Validaciones echas depues de las pruebas
+                if(!preg_match("/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", trim($this->fecha))) {
+                    throw new Exception("La fecha es invalida", self::SHOW_EXCEPTIONS);
+                }
                 
                 $parametros = [
                     "fecha" => $this->fecha,
@@ -223,13 +208,10 @@ class Asistencia extends Model
             }
 
 
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
-            }
-            else {
-                Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con éxito", $this->db->pdo());
-            }
+            
+            Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con éxito", $this->db->pdo());
+
+            $this->testHandler();
 
             $this->commit();
             $this->db->disconnect();
@@ -248,6 +230,13 @@ class Asistencia extends Model
                 $response['Error'] = $th->getMessage()." : linea: ".$th->getLine();
                 $response['Trace'] = $th->getTraceAsString();
             }
+            if(strpos($th->getMessage(), "Show::") !== false) {
+
+                // se debe borrar el "show::" de la cadena y todo lo que esta antes de el
+                $response['message'] = substr($th->getMessage(), strpos($th->getMessage(), "Show::") + strlen("Show::"));
+                
+            }
+            
         }
         if ($print) {
             echo json_encode($response);
@@ -261,6 +250,19 @@ class Asistencia extends Model
             //$this->esValido(self::ELIMINAR_ASISTENCIA);
             $this->beginTransaction();
 
+            foreach (["turno", "fecha", "idDepartamento"] as $value) {
+                if(!isset($this->$value) || empty($this->$value)) {
+                    throw new Exception("Todos los campos son obligatorios", self::SHOW_EXCEPTIONS);
+                }
+            }
+            if(!preg_match("/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", trim($this->fecha))) {
+                throw new Exception("La fecha es invalida", self::SHOW_EXCEPTIONS);
+            }
+
+            
+            
+
+
 
 
             $query = "DELETE ai
@@ -269,8 +271,11 @@ class Asistencia extends Model
                 ON fa.id = ai.idFechaAsistencia
             JOIN asignacion_laboral al 
                 ON al.id = ai.idAsignacionLaboral
+            JOIN turno as tu on tu.id = al.idTurno
             WHERE 
-            fa.fecha = :fecha AND al.idTurno = :turno AND al.idDivision =:idDepartamento;";
+            fa.fecha = :fecha AND tu.codigo = :turno AND al.idDivision =:idDepartamento;";
+
+
 
             $parametros = [
                 "fecha" => $this->fecha,
@@ -353,11 +358,13 @@ class Asistencia extends Model
                 JOIN asignacion_laboral as al 
                     ON al.id = ai.idAsignacionLaboral
                 JOIN trabajador as t on t.id = al.idTrabajador
+                JOIN turno as tu on tu.id = al.idTurno
+                
 
                 LEFT JOIN inasistencia i on i.idAsistencia_inasistencia = ai.id
                 LEFT JOIN asistencia a on a.idAsistencia_inasistencia = ai.id
 
-                WHERE fa.fecha = :fecha AND al.idTurno = :turno and al.idDivision = :idDepartamento;";
+                WHERE fa.fecha = :fecha AND tu.codigo = :turno and al.idDivision = :idDepartamento;";
 
             $parametros = [
                 "idDepartamento" => $this->idDepartamento,
@@ -379,7 +386,9 @@ class Asistencia extends Model
                         trabajador AS t
                     JOIN asignacion_laboral al ON
                         al.idTrabajador = t.id AND al.esActual = 1
-                    WHERE al.idTurno = :turno AND al.idDivision = :idDepartamento AND :fecha > t.fechaIngreso";
+                    JOIN turno as tu on 
+                        tu.id = al.idTurno
+                    WHERE tu.codigo = :turno AND al.idDivision = :idDepartamento AND :fecha > t.fechaIngreso";
 
             $trabajadoresRegistros = $this->ejecutar($query, $parametros);
 

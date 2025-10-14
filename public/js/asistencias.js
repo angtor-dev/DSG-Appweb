@@ -13,9 +13,9 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
 
-    // TODO quitar esta parte
-    document.querySelector("#departamento").value = "5";
-    document.querySelector("#turno").value = "5";
+    // quitar esta parte
+    // document.querySelector("#departamento").value = "5";
+    // document.querySelector("#turno").value = "5";
 
     // agrego la fecha actual al campo de fecha
     document.querySelector("#fecha").value = new Date().toISOString().split("T")[0];

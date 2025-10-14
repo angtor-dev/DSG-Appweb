@@ -16,6 +16,122 @@
 				test/Turnos
 			</directory>
 		</testsuite>
+
+
+
+		<!-- 
+
+		<testsuite name ="Ajuste">
+			<directory suffix=".php">
+				test/Ajuste
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Area">
+			<directory suffix=".php">
+				test/Area
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Articulo">
+			<directory suffix=".php">
+				test/Articulo
+			</directory>
+		</testsuite>
+
+		
+
+		<testsuite name ="Bitacora">
+			<directory suffix=".php">
+				test/Bitacora
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Cargo">
+			<directory suffix=".php">
+				test/Cargo
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Categoria">
+			<directory suffix=".php">
+				test/Categoria
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Division">
+			<directory suffix=".php">
+				test/Division
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Entrada">
+			<directory suffix=".php">
+				test/Entrada
+			</directory>
+		</testsuite>
+
+		<testsuite name ="EntradaDetalle">
+			<directory suffix=".php">
+				test/EntradaDetalle
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Medida">
+			<directory suffix=".php">
+				test/Medida
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Modulo">
+			<directory suffix=".php">
+				test/Modulo
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Movimiento">
+			<directory suffix=".php">
+				test/Movimiento
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Notificacion">
+			<directory suffix=".php">
+				test/Notificacion
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Permiso">
+			<directory suffix=".php">
+				test/Permiso
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Rol">
+			<directory suffix=".php">
+				test/Rol
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Tarea">
+			<directory suffix=".php">
+				test/Tarea
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Trabajador">
+			<directory suffix=".php">
+				test/Trabajador
+			</directory>
+		</testsuite>
+
+
+
+		 -->
+
+
+
+
 		<!-- <testsuite name="Cargos">
 			<directory suffix=".php">
 				test/Cargo
