@@ -12,6 +12,7 @@ echo   Paso 1 de 2: Descargando la nueva version de la aplicacion...
 
 REM Ejecuta el comando git pull
 git pull > nul 2>&1
+git fetch --tags > nul 2>&1
 
 echo   Paso 2 de 2: Instalando archivos necesarios...
 
