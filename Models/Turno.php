@@ -50,7 +50,13 @@ class Turno extends Model implements JsonSerializable
         }
     }
 
-
+    /**
+     * Summary of getTurnosOptions
+     * @param string|int $checkedId - el id del turno seleccionado por defecto
+     * @param bool $code - si es true se usa el codigo del turno
+     * @param bool $chekFirst - si es true se pone el primero como seleccionado
+     * @return string
+     */
     public static function getTurnosOptions(string|int $checkedId = null, bool $code = false, bool $chekFirst = false) : string
     {
 

@@ -369,7 +369,15 @@ abstract class Model
         }
     }
 
-
+    /**
+     * verifica si el proceso es de pruebas 
+     * * condicional interna:
+     * * if($this->getTestingMode()) {
+     * * -    $this->rollBack();
+     * * -    $this->beginTransaction();
+     * * }
+     * @return bool
+     */
     public function testHandler() : bool
     {
         $testing = false;
