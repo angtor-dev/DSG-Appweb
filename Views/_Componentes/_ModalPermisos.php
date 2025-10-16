@@ -23,6 +23,33 @@
                                 <th class="text-center" style="width: 175px;">Actualizar</th>
                                 <th class="text-center" style="width: 175px;">Eliminar</th>
                             </tr>
+                            <tr>
+                                <th class="text-end">Todos</th>
+                                <td class="text-center">
+                                    <label class="switch">
+                                        <input type="checkbox" class="todosSelector" data-permiso="consultar">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                                <td class="text-center">
+                                    <label class="switch">
+                                        <input type="checkbox" class="todosSelector" data-permiso="registrar">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                                <td class="text-center">
+                                    <label class="switch">
+                                        <input type="checkbox" class="todosSelector" data-permiso="actualizar">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                                <td class="text-center">
+                                    <label class="switch">
+                                        <input type="checkbox" class="todosSelector" data-permiso="eliminar">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                            </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($modulos as $modulo): ?>

@@ -125,7 +125,7 @@
                                     <div class="col flex-fill">
                                         <label for="departamento">División </label>
                                         <select required name="departamento" class="form-select" id="departamento">
-                                            <option value="">- Seleccione division- </option>
+                                            <option value="">- Seleccione <?= DEP_NAME ?> -</option>
                                             <?php foreach ($departamentos as $departamento): ?>
                                                 <option value="<?= $departamento->id ?>"><?= $departamento->getNombre() ?></option>
                                             <?php endforeach ?>
@@ -135,7 +135,7 @@
                                     <div class="col flex-fill">
                                         <label for="turno">Turno </label>
                                         <select required name="turno" class="form-select" id="turno">
-                                            <option value="">- Seleccione turno-</option>
+                                            <option value="">- Seleccione Turno -</option>
                                             <?= Turno::getTurnosOptions(null,true); ?>
                                         </select>
                                         <div class="form-text invalid-feedback"></div>

@@ -21,7 +21,7 @@ class LoggerPhpUnit
     }
     /**
      * crea un archivo .txt con el nombre del testsuite y por ahora contiene solo un hola mundo
-     * @return void
+     * @return void|array
      */
     public function log() {
 
@@ -108,6 +108,10 @@ class LoggerPhpUnit
 
             fwrite($file, json_encode($arregloDePruebas, JSON_PRETTY_PRINT));
             fclose($file);
+            return [
+                "name" => $name, 
+                "dataset" => $dataset, 
+                "dataname" => $dataname];
         } catch (\Throwable $th) {
             $this->test->fail("".$th->getMessage()."line ".$th->getLine());
         }

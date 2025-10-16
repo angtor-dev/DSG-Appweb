@@ -87,7 +87,7 @@ class Trabajador extends Model
                 throw new Exception("El campo 'Cedula' es obligatorio", self::SHOW_EXCEPTION);
             }
             if (!preg_match(REG_CEDULA, $this->cedula)) {
-                throw new Exception("El campo 'Cedula' solo puede contener números",self::SHOW_EXCEPTION );
+                throw new Exception("El campo 'Cedula' solo puede contener números y no puede tener mas de 8 digitos",self::SHOW_EXCEPTION );
             }
 
             if (empty(trim($this->nombre))) {

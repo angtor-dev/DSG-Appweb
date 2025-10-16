@@ -137,22 +137,6 @@ class TurnosRegistrarTest extends TestCase
 
     public function RegistrosProvider()
     {
-        /*
-        return [
-            // casos de prueba
-            ['turno1', '08:00:00', '18:00:00', 1, 1, 1, 1, 1, 1, 1, true, 1 ],// valido 
-            ['turno1', '08:00:00', '18:00:00', "1", "0", "1", "0", "1", "0", "1", true, 2 ],// valido 
-            ['', '08:00:00', '18:00:00', 1, 1, 1, 1, 1, 1, 1, false, 3 ],// nombre invalido
-            ['turno1', '', '18:00:00', 1, 1, 1, 1, 1, 1, 1, false, 4 ],// hora entrada invalida
-            ['turno1', '08:00:00', '', 1, 1, 1, 1, 1, 1, 1, false, 5 ],// hora salida invalida
-
-            ['turno1', '08:00:00', '18:00:00', null, null, null, null, null, null,null , false, 6 ],// dias invalido
-            ['turno1', '08:00:00', '18:00:00', 0, 0, 0, 0, 0, 0, 0, false, 7 ],// dias invalido
-            ['turno1', '08:00:00', '18:00:00', 1, 1, 1, 1, 1, 1, 1, true, 8 ],// dias valido
-
-        ];
-
-        */
         return [
     // casos de prueba
     "Caso 1 registro valido"=>[
