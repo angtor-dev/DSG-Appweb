@@ -17,6 +17,12 @@
 			</directory>
 		</testsuite>
 
+		<testsuite name ="Trabajador">
+			<directory suffix=".php">
+				test/Trabajador
+			</directory>
+		</testsuite>
+
 
 
 		<!-- 

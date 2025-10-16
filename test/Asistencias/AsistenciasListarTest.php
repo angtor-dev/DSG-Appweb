@@ -274,7 +274,7 @@ class AsistenciasListarTest extends TestCase
                 "turno" => $turnoMañana,
                 "idDepartamento" => '1',
                 "trabajadores" => $validWorker,
-                "resultado_esperado" => true,
+                "resultado esperado" => true,
                 "num_caso" => 1
             ],
             "Fecha no enviada" => [
@@ -282,7 +282,7 @@ class AsistenciasListarTest extends TestCase
                 "turno" => $turnoMañana,
                 "idDepartamento" => '1',
                 "trabajadores" => $validWorker,
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 2
             ],
             "Fecha formato invalido" => [
@@ -290,7 +290,7 @@ class AsistenciasListarTest extends TestCase
                 "turno" => $turnoMañana,
                 "idDepartamento" => '1',
                 "trabajadores" => $validWorker,
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 3
             ],
             "Trabajador sin id (datos trabajador invalidos)" => [
@@ -298,7 +298,7 @@ class AsistenciasListarTest extends TestCase
                 "turno" => $turnoMañana,
                 "idDepartamento" => '1',
                 "trabajadores" => $workerMissingId,
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 4
             ],
             "Varios trabajadores válidos " => [
@@ -317,7 +317,7 @@ class AsistenciasListarTest extends TestCase
                         "descripcion_justificacion" => "Licencia"
                     ]
                 ],
-                "resultado_esperado" => true,
+                "resultado esperado" => true,
                 "num_caso" => 5
             ],
             "Varios trabajadores válidos e invalidos (tipo justificacion no valido)" => [
@@ -336,7 +336,7 @@ class AsistenciasListarTest extends TestCase
                         "descripcion_justificacion" => "Licencia"
                     ]
                 ],
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 6
             ],
             "Varios trabajadores válidos e invalidos (todos los datos faltantes menos el id)" => [
@@ -355,7 +355,7 @@ class AsistenciasListarTest extends TestCase
                         "descripcion_justificacion" => "Licencia"
                     ]
                 ],
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 7
             ],
         ];
@@ -419,7 +419,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => $registroValido['turno'],
                 "idDepartamento" => $registroValido['division'],
-                "resultado_esperado" => true,
+                "resultado esperado" => true,
                 "num_caso" => 1,
                 "mensaje esperado" => $mensajeEsperado['eliminacion exitosa'],
             ],
@@ -427,7 +427,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => '',
                 "turno" => $turnoMañana,
                 "idDepartamento" => $registroValido['division'],
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 2,
                 "mensaje esperado" => $mensajeEsperado['faltan Campos'],
             ],
@@ -435,7 +435,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => '',
                 "idDepartamento" => $registroValido['division'],
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 3,
                 "mensaje esperado" => $mensajeEsperado['faltan Campos'],
             ],
@@ -443,7 +443,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => $turnoMañana,
                 "idDepartamento" => '',
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 4,
                 "mensaje esperado" => $mensajeEsperado['faltan Campos'],
             ],
@@ -451,7 +451,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => null,
                 "turno" => $turnoMañana,
                 "idDepartamento" => $registroValido['division'],
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 5,
                 "mensaje esperado" => $mensajeEsperado['faltan Campos'],
             ],
@@ -459,7 +459,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => null,
                 "idDepartamento" => $registroValido['division'],
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 6,
                 "mensaje esperado" => $mensajeEsperado['faltan Campos'],
             ],
@@ -467,7 +467,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => $turnoMañana,
                 "idDepartamento" => null,
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 7,
                 "mensaje esperado" => $mensajeEsperado['faltan Campos'],
             ],
@@ -475,7 +475,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => '10-10-2025',
                 "turno" => $turnoMañana,
                 "idDepartamento" => $registroValido['division'],
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 8,
                 "mensaje esperado" => $mensajeEsperado['fecha_invalida'],
             ],
@@ -483,7 +483,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => $this->turno_No_existe,
                 "idDepartamento" => $registroValido['division'],
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 9,
                 "mensaje esperado" => $mensajeEsperado['turno_no_existente'],
             ],
@@ -491,7 +491,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => $turnoMañana,
                 "idDepartamento" => $this->turno_No_existe,
-                "resultado_esperado" => false,
+                "resultado esperado" => false,
                 "num_caso" => 10,
                 "mensaje esperado" => $mensajeEsperado['division_no_existente'],
             ],
