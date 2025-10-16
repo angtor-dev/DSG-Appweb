@@ -24,13 +24,10 @@ defined('DEP_NAME_S') or define("DEP_NAME_S", "divisiones"); // plural
 
 
 // Credenciales de correo
-
-// TODO : Cambiar por credenciales de correo de la UPTAEB
-
-define("SYS_EMAIL", "reivax.zeraus@gmail.com");
-define("SYS_EMAIL_PASS", 'gexv tail oxwx ejwt');
-define("SYS_EMAIL_NAME", "Dirección de Servicios Generales");
-define("SYS_EMAIL_HOST", "smtp.gmail.com");
+defined('SYS_EMAIL') or define("SYS_EMAIL", "reivax.zeraus@gmail.com");
+defined('SYS_EMAIL_PASS') or define("SYS_EMAIL_PASS", 'gexv tail oxwx ejwt');
+defined('SYS_EMAIL_NAME') or define("SYS_EMAIL_NAME", "Dirección de Servicios Generales");
+defined('SYS_EMAIL_HOST') or define("SYS_EMAIL_HOST", "smtp.gmail.com");
 
 
 // defined('DB_USERS_HOST') or define("DB_USERS_HOST", "61z0o.h.filess.io");
