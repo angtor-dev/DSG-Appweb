@@ -154,7 +154,11 @@ class Division extends Model
             return false;
         }
     }
-
+    /**
+     * Summary of listar
+     * @param int $estado
+     * @return Division[]
+     */
     public function listar(int $estado = null) : array
     {
 
