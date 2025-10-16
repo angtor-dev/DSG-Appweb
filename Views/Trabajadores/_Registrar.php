@@ -29,7 +29,7 @@
                     </div>
                     <div class="col-md-4">
                         <label for="telefono" class="form-label">Teléfono</label>
-                        <input required disabled type="tel" class="form-control" id="telefono" name="telefono" data-span="invalid-span-telefono">
+                        <input maxlength="11" required disabled type="tel" class="form-control" id="telefono" name="telefono" data-span="invalid-span-telefono">
                         <div id="invalid-span-telefono" class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-4">
