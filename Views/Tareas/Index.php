@@ -31,15 +31,6 @@
                     </button>
                 </div>
 
-                <div>
-                    <button style="padding: .65rem 1.4rem;"
-                        class="btn btn-outline-light rounded-pill"
-                        data-bs-toggle="modal" data-bs-target="#modal-estadistica"
-                        data-bs-url="<?= LOCAL_DIR ?>/Tareas/ReporteA">
-                        <i class="fa-solid fa-file-alt me-2"></i>
-                        Reporte de estadistica
-                    </button>
-                </div>
             <?php endif ?>
         </div>
     </div>

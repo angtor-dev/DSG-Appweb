@@ -211,22 +211,41 @@ class Database
                     "cargo",
                     "turno",
                     "area",
+
                     "categoria",
-                    "departamento",
-                    "articulo",
+                    "division",
                     "fechaasistencia",
                     "medida",
-                    "movimiento",
-                    "tarea",
-                    //"evaluacion",
-                    "recurso",
+                    "articulo",
                     "subarea",
                     "subdivisiones",
+
+
+                    
+                    
+                    
+                    
+                    //"evaluacion",
+                    
+                    
+                    
                     "asignacion_laboral",
-                    "tarea_personal",
                     "asistencia_inasistencia",
-                    "inasistencia",
-                    "asistencia",
+                    //"inasistencia",
+                   // "asistencia",
+                    "inventariohistorial",
+                    "entrada",
+                    
+                    "entradadetalle",
+                    
+                    "tarea",
+                    
+                    "tarea_validacion",
+
+
+                   
+                    "tarea_personal",
+                     "recurso"
                 ];
             }
 
@@ -349,13 +368,14 @@ class Database
                     "cargo",
                     "turno",
                     "area",
+
                     "categoria",
-                    "departamento",
-                    "articulo",
+                    "division",
                     "fechaasistencia",
                     "medida",
-                    "movimiento",
+                    "articulo",
                     "tarea",
+                    "tarea_validacion",
                     //"evaluacion",
                     "recurso",
                     "subarea",
@@ -365,6 +385,9 @@ class Database
                     "asistencia_inasistencia",
                     "inasistencia",
                     "asistencia",
+                    "inventariohistorial",
+                    "entrada",
+                    "entradadetalle"
                 ];
                 $tables = array_reverse($tables);
             }
@@ -375,7 +398,7 @@ class Database
                 if(!preg_match('/^[a-zA-Z_]+$/', $table)){
                     throw new \Exception("El nombre de la tabla $table no es valido", 1001);
                 }
-                echo "Vaciando la tabla $table,\n";
+             //   echo "Vaciando la tabla $table,\n";
                 $conn->prepare("DELETE FROM `$table` WHERE 1")->execute();
             }
 
@@ -384,9 +407,9 @@ class Database
             $querys = explode(';', $sql);
             foreach($querys as $query){
                 if (trim($query) != '') {
-                    echo "<br>----------------------------------------------------------------";
-                    echo "<br>";
-                    echo $query;
+                   // echo "<br>----------------------------------------------------------------";
+                   // echo "<br>";
+                  //  echo $query;
                     $conn->exec($query);
                 }
             }

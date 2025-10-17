@@ -2007,7 +2007,9 @@ $("#btn-guardar-evaluacion").click(function () {
     console.log("Estoy en tareas");
     // Inicializar DataTable para materiales disponibles
     const tablaMateriales = $("#tabla-materiales").DataTable({
-      dom: '<"top"f>rt<"bottom"lip><"clear">',
+      dom: 'rt<"bottom"lip><"clear">',
+      "pageLength": 5,
+      "lengthMenu": [5, 10, 25, 50],
       ajax: {
         url: "Tareas/Materiales",
         type: "GET",
@@ -2018,7 +2020,10 @@ $("#btn-guardar-evaluacion").click(function () {
         },
       },
       columns: [
-        { data: "id" },
+        { 
+          data: "id",
+          visible: false  
+        },
         { data: "nombre" },
         { data: "categoria" },
         { data: "unidad" },
@@ -2113,9 +2118,12 @@ $("#btn-guardar-evaluacion").click(function () {
         ? materialExistente.cantidad + cantidad
         : cantidad;
 
-      if (totalCantidad > rowData.disponible) {
+      // MODIFICACIÓN: Usar obtenerDisponibleOriginal para la validación
+      const disponibleReal = obtenerDisponibleOriginal(rowData.id);
+      
+      if (totalCantidad > disponibleReal) {
         mostrarError(
-          `No hay suficiente stock. Disponible: ${rowData.disponible} ${rowData.unidad}`
+          `No hay suficiente stock. Disponible: ${disponibleReal} ${rowData.unidad}`
         );
         return;
       }
@@ -2124,6 +2132,7 @@ $("#btn-guardar-evaluacion").click(function () {
         materialExistente.cantidad = totalCantidad;
         if (totalCantidad > 0) {
           mostrarExito("Material agregado con éxito");
+
         } else {
           mostrarError("Introduzca una cantidad válida");
         }
@@ -2135,6 +2144,7 @@ $("#btn-guardar-evaluacion").click(function () {
           unidad: rowData.unidad,
         });
         mostrarExito("Material agregado con éxito");
+         $(this).closest("tr").find(".cantidad-material").val('0');
       }
 
       actualizarTablaSeleccionados();
@@ -2151,6 +2161,7 @@ $("#btn-guardar-evaluacion").click(function () {
 
     // Función para actualizar la tabla de seleccionados
 
+
     function actualizarTablaSeleccionados() {
       const tbody = $("#tabla-seleccionados tbody");
       tbody.empty();
@@ -2159,24 +2170,35 @@ $("#btn-guardar-evaluacion").click(function () {
         tbody.append(
           '<tr><td colspan="4" class="text-center text-muted py-3">No hay materiales seleccionados</td></tr>'
         );
+        // ACTUALIZAR DISPONIBILIDAD EN TABLA PRINCIPAL
+        actualizarDisponibilidadEnTabla();
         return;
       }
 
       materialesSeleccionados.forEach((material) => {
         const row = `
-                        <tr data-id="${material.id}">
-                            <td>${material.nombre}</td>
-                            <td>${material.cantidad}</td>
-                            <td>${material.unidad}</td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-danger quitar-material" data-id="${material.id}">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
+          <tr data-id="${material.id}">
+            <td>${material.nombre}</td>
+            <td>${material.cantidad}</td>
+            <td>${material.unidad}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-danger quitar-material" data-id="${material.id}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
         tbody.append(row);
       });
+
+      // Actualizar campo oculto del formulario con los materiales seleccionados
+      $("#materiales-seleccionados").val(
+        JSON.stringify(materialesSeleccionados)
+      );
+      
+      // ACTUALIZAR DISPONIBILIDAD EN TABLA PRINCIPAL (NUEVA LÍNEA)
+      actualizarDisponibilidadEnTabla();
+    
 
       // Actualizar campo oculto del formulario con los materiales seleccionados
       $("#materiales-seleccionados").val(
@@ -2191,6 +2213,37 @@ $("#btn-guardar-evaluacion").click(function () {
     $("#form-tarea").append(
       '<input type="hidden" name="materiales" id="materiales-seleccionados" value="">'
     );
+
+
+      // FUNCIÓN NUEVA: Actualizar la columna "disponible" con la cantidad seleccionada
+  function actualizarDisponibilidadEnTabla() {
+      // Recorrer todas las filas de la tabla de materiales
+      tablaMateriales.rows().every(function() {
+          const rowData = this.data();
+          const materialSeleccionado = materialesSeleccionados.find(m => m.id == rowData.id);
+          const cantidadSeleccionada = materialSeleccionado ? materialSeleccionado.cantidad : 0;
+          
+          // Actualizar el texto en la columna "disponible" (columna 4)
+          const $disponibleCell = $(this.node()).find('td:eq(3)');
+          
+          if (cantidadSeleccionada > 0) {
+              $disponibleCell.html(`
+                  ${rowData.disponible} 
+                  <span class="text-danger">(-${cantidadSeleccionada})</span>
+              `);
+          } else {
+              $disponibleCell.text(rowData.disponible);
+          }
+      });
+  }
+
+  // FUNCIÓN NUEVA: Obtener el disponible original para validaciones
+  function obtenerDisponibleOriginal(id) {
+      const rowData = tablaMateriales.row(function(idx, data, node) {
+          return data.id === id;
+      }).data();
+      return rowData ? rowData.disponible : 0;
+  }
 
     //--------------------------------------------------------- FIN MATERIALES --------------------------------------------//
   }

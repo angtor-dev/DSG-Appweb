@@ -728,20 +728,26 @@ DESC";
         return $resp;
     }
 
-    public function importDatabase ($filePath) : array {
+       public function importDatabase ($filePath) : array {
         $resp = array();
-        $this->setTestingMode(true);
+       
+        $this->setTestingMode(false); 
+        
         try {
-            $this->db->connect();// || $this->db->connectUser(); // para las distintas base de datos
+            $this->db->connect();
             $this->beginTransaction();
-            
 
             $resp = $this->db->importDatabase($filePath);
+            
+           
             if($this->getTestingMode()) {
                 $this->rollBack();
-                $this->beginTransaction();
+               
+            } else {
+               
+                $this->commit();
             }
-            $this->commit();
+            
             $this->db->disconnect();
         } catch (\Throwable $th) {
             $this->disconectHandlerExeption();
