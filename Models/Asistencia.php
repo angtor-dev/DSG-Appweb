@@ -14,6 +14,7 @@ class Asistencia extends Model
     private array $trabajadores;
     // lista de acciones para validar
     const LISTAR_TRABAJADORES = 1;
+    const LISTAR_TRABAJADORES_SEMANAL = 4;
     const REGISTRAR_ASISTENCIA = 2;
     const ELIMINAR_ASISTENCIA = 3;
 
@@ -66,7 +67,9 @@ class Asistencia extends Model
 
         if(
             $control == self::LISTAR_TRABAJADORES ||
-            $control == self::REGISTRAR_ASISTENCIA
+            $control == self::REGISTRAR_ASISTENCIA ||
+            $control == self::LISTAR_TRABAJADORES_SEMANAL
+            
         ) {
             // valido la fecha de asistencia
 
@@ -244,6 +247,114 @@ class Asistencia extends Model
         return $response;
     }
 
+    public function registrarSemanal($print = true):array {
+        try {
+
+
+            $this->db->connect();
+            $this->beginTransaction();
+
+            /*
+
+            CALL `sp_registrar_asistencia`(
+                p_id_asistencia_inasistencia INT,
+                p_fecha DATE,
+                p_trabajador_id INT,
+                p_tipo_registro ENUM,
+                p_hora_entrada TIME,
+                p_hora_salida TIME,
+                p_tipo_inasistencia ENUM,
+                p_descripcion TEXT
+            );
+            */
+            
+            $query = "CALL sp_registrar_asistencia_semanal(
+                :p_fecha,
+                :p_cedula,
+                :p_codigo_asistencia_inasistencia,
+                :p_turno,
+                :p_tipo_inasistencia,
+                :p_descripcion,
+                :p_laborable
+            )";
+
+            
+
+            foreach ($this->trabajadores as $trabajador) {
+
+                $setterAuxiliar = function ($value){
+                    return (empty($value)) ? NULL : $value;
+                };
+                $setterAuxiliarArray = function ($array, $value){
+                    if(isset($array[$value])) return (empty($array[$value])) ? NULL : $array[$value];
+                    else return NULL;
+                };
+                foreach ($trabajador["dias"] as $dia) {
+
+                    
+
+                    $parametros = [
+                        ":p_fecha" => $setterAuxiliarArray($dia, "fecha"),
+                        ":p_cedula" => $trabajador["cedula"],
+                        ":p_codigo_asistencia_inasistencia" => $setterAuxiliarArray($dia, "idAsistencia_inasistencia"),
+                        ":p_turno" => $this->turno,
+                        ":p_tipo_inasistencia" => $setterAuxiliarArray($dia, "tipo_justificacion"),
+                        ":p_descripcion" => $setterAuxiliarArray($dia, "descripcion_justificacion") ?? "",
+                        ":p_laborable" => $dia["laborable"],
+                    ];
+                    $this->ejecutarStatement($query, $parametros);
+                    
+                }
+
+
+                
+                
+
+                //$this->ejecutarStatement($query, $parametros);
+                
+            }
+            
+            
+            Bitacora::registrarTransaccion("Asistencia de la fecha ".$this->fecha." registrada con exito", $this->db->pdo());
+            
+            $this->testHandler();
+
+            $this->commit();
+            $this->db->disconnect();
+            $response = [
+                "success" => true,
+                "message" => "Asistencia registrada con éxito"
+            ];
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+
+            $response = [
+                "success" => false,
+                "message" => "Error al registrar la asistencia"
+            ];
+            if(DEVELOPER_MODE){
+                $response['Error'] = $th->getMessage()." : linea: ".$th->getLine();
+                $response['Trace'] = $th->getTraceAsString();
+            }
+
+            // si $th->getMessage tiene la palabra "Show::" borrar todos desde el comienzo hasta la palabra "Show::" y mostrar el resultado
+            if(strpos($th->getMessage(), "Show::") !== false) {
+                $response['message'] = substr($th->getMessage(), strpos($th->getMessage(), "Show::") + strlen("Show::"));
+            }
+
+            
+
+
+            
+
+            
+        }
+        if ($print) {
+            echo json_encode($response);
+        }
+        return $response;
+    }
+
     public function eliminarFechaAsistencia($print = false): array {
         try {
             $this->db->connect();
@@ -301,6 +412,78 @@ class Asistencia extends Model
             $response = [
                 "success" => true,
                 "message" => "Asistencia eliminada con éxito"
+            ];
+            if ($print) {
+                echo json_encode($response);
+            }
+        } catch (\Throwable $th) {
+            if( 
+                isset($this->db) &&
+                $this->db->pdo() instanceof \PDO &&
+                $this->db->pdo()->inTransaction()
+            ){
+                $this->db->pdo()->rollBack();
+                $this->db->disconnect();
+            }
+            $response = [
+                "success" => false,
+                "message" => ((DEVELOPER_MODE) ? $th->getMessage(): "Error al eliminar la asistencia"),
+                "Error" => $th->getMessage()." : linea: ".$th->getLine(),
+            ];
+            if ($print) {
+                echo json_encode($response);
+            }
+        }
+        return $response;
+    }
+    public function eliminarFechaAsistenciaSemanales($print = false): array {
+        try {
+            $semana = $this->obtenerSemana();
+            $this->db->connect();
+            //$this->esValido(self::ELIMINAR_ASISTENCIA);
+            $this->beginTransaction();
+
+
+
+            $query = "DELETE ai
+            FROM asistencia_inasistencia as ai 
+            JOIN fechaasistencia as fa
+                ON fa.id = ai.idFechaAsistencia
+            JOIN asignacion_laboral al 
+                ON al.id = ai.idAsignacionLaboral
+            JOIN turno tu 
+                ON tu.id = al.idTurno
+            WHERE 
+             tu.codigo = :turno AND al.idDivision =:idDepartamento and fa.fecha between :lunes and :domingo; ";
+
+            
+
+            $lunes = $semana['lunes']['fecha'];
+            $domingo = $semana['domingo']['fecha'];
+
+            $parametros = [
+                "lunes" => $lunes,
+                "domingo" => $domingo,
+                "turno" => $this->turno,
+                "idDepartamento" => $this->idDepartamento
+            ];
+
+            $this->ejecutarStatement($query, $parametros);
+
+            
+
+            $bitacoraSms = "Asistencia eliminada entre las fechas $lunes y $domingo , turno $this->turno y departamento $this->idDepartamento con exito";
+
+            Bitacora::registrarTransaccion($bitacoraSms, $this->db->pdo());
+
+            
+            $this->testHandler();
+
+            $this->commit();
+            $this->db->disconnect();
+            $response = [
+                "success" => true,
+                "message" => "Asistencia eliminada con exito"
             ];
             if ($print) {
                 echo json_encode($response);
@@ -421,8 +604,8 @@ class Asistencia extends Model
             }
             return $resp;
         } catch (Exception $th) {
-            $this->rollBack();
-            $this->db->disconnect();
+
+            $this->disconectHandlerExeption();
             $resp = [
                 "success" => false, 
                 "message" => "Error al obtener la lista de asistencias",
@@ -441,6 +624,203 @@ class Asistencia extends Model
             }
             return $resp;
         }
+    }
+
+
+    public function verAsistenciasSemanal($print = false)  {
+        try {
+            $semana = $this->obtenerSemana();
+            $this->db->connect();
+            $this->esValido(self::LISTAR_TRABAJADORES_SEMANAL, $horarioDevuelto);
+            $this->beginTransaction();
+
+            $query = "SELECT
+                concat('trabajador_',t.cedula) as trabajador
+                ,t.cedula
+                ,t.id AS idTrabajador
+                ,ca.fecha
+                ,t.nombre 
+                ,t.apellido 
+                ,CONCAT(t.nombre,' ',t.apellido) as fullName 
+                ,ca.horaEntrada 
+                ,ca.horaSalida 
+                ,ca.justificacion as tipo_justificacion 
+                ,ca.descripcion as descripcion_justificacion 
+                ,ca.idAsistencias as idAsistencia_inasistencia 
+                ,(if(ca.horaEntrada is not null, 1, 0)) as esAsistencia
+                
+                ,al.id asignacion_laboral
+                ,ca.laborable as laborable
+                
+            FROM
+                trabajador AS t
+            JOIN asignacion_laboral as al ON al.idTrabajador = t.id AND al.esActual IS true
+            JOIN turno as tu ON tu.id = al.idTurno
+            LEFT JOIN (
+                    SELECT 
+                        in_ai.codigoAsistencia as idAsistencias, #asistencia_inasistencia
+                        in_fa.fecha,
+                        in_al.idTrabajador,
+                        in_a.horaEntrada,
+                        in_a.horaSalida,
+                        CAST(in_i.tipo AS INT) as justificacion,
+                        in_i.tipo as justificacionName,
+                        in_i.descripcion,
+                        in_ai.laborable
+
+                        
+                    FROM fechaasistencia as in_fa
+                    JOIN asistencia_inasistencia as in_ai on in_ai.idFechaAsistencia = in_fa.id
+                    JOIN asignacion_laboral as in_al on in_al.id = in_ai.idAsignacionLaboral
+                    LEFT JOIN asistencia as in_a on in_ai.id = in_a.idAsistencia_inasistencia
+                    LEFT JOIN inasistencia as in_i on in_ai.id = in_i.idAsistencia_inasistencia
+                ) as ca # control asistencias
+                on ca.idTrabajador = t.id AND ca.fecha BETWEEN :lunes AND :domingo
+
+
+            WHERE t.estado is true
+            AND tu.codigo = :turno
+            AND al.idDivision = :idDepartamento
+            ORDER BY t.id, ca.fecha";
+
+            $parametros = [
+                "turno"=> $this->turno,
+                "idDepartamento" => $this->idDepartamento,
+                "lunes" => $semana["lunes"]["fecha"],
+                "domingo" => $semana["domingo"]["fecha"],
+            ];
+
+            $lista = $this->ejecutarStatement($query, $parametros);
+
+            $lista = $lista->fetchAll(PDO::FETCH_GROUP);
+
+            $listaNueva = [];
+
+            foreach($lista as $keyTrabajador => $trabajadorValue) {
+                $listaNueva[$keyTrabajador] = [
+                    "cedula" => $trabajadorValue[0]["cedula"],
+                    "idTrabajador" => $trabajadorValue[0]["idTrabajador"],
+                    "fullName" => $trabajadorValue[0]["fullName"],
+                    "asignacion_laboral" => $trabajadorValue[0]["asignacion_laboral"],
+                    "nombre" => $trabajadorValue[0]["nombre"],
+                    "apellido"=> $trabajadorValue[0]["apellido"],
+                    "controlAsistencias" => [],
+                ];
+                foreach($trabajadorValue as $trabajadorDatos) {
+                    $datos = [];
+                    $datos["fecha"] = $trabajadorDatos["fecha"];
+                    $datos["horaEntrada"] = $trabajadorDatos["horaEntrada"];
+                    $datos["horaSalida"] = $trabajadorDatos["horaSalida"];
+                    $datos["justificacion"] = $trabajadorDatos["tipo_justificacion"];
+                    $datos["descripcion_justificacion"] = $trabajadorDatos["descripcion_justificacion"];
+                    $datos["idAsistencia_inasistencia"] = $trabajadorDatos["idAsistencia_inasistencia"];
+                    $datos["esAsistencia"] = $trabajadorDatos["esAsistencia"];
+                    $datos["laborable"] = $trabajadorDatos["laborable"];
+                    $listaNueva[$keyTrabajador]["controlAsistencias"][$datos["fecha"]] = $datos;
+                }
+
+            }
+
+
+            
+
+
+
+
+            
+            
+
+
+
+            if($this->getTestingMode()) {
+                $this->rollBack();
+                $this->beginTransaction();
+            }
+
+            $this->commit();
+            $this->db->disconnect();
+            $resp = [
+                "success"=> true,
+                "listaTrabajadores" => $listaNueva,
+                "semana" => $semana,
+            ];
+            
+            
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+
+            $resp = [
+                "success" => false, 
+                "message" => "Error al obtener la lista de asistencias",
+            ];
+            if(DEVELOPER_MODE) {
+                $resp["error"] = $th->getMessage();
+                $resp["trace"] = $th->getTraceAsString();
+            }
+
+            if($th->getCode() == self::SHOW_EXCEPTIONS) {
+                $resp["message"] = $th->getMessage();
+            }
+            
+            
+        }
+        if($print) {
+            echo json_encode($resp);
+        }
+        return $resp;
+    }
+
+
+    public function obtenerSemana() {
+        $turno_obj = new Turno();
+        $turno_obj->setterArray([
+            "codigo" => $this->turno
+        ]);
+        $turno_obj = $turno_obj->obtenerPorId();
+        if( !($turno_obj instanceof Turno)) {
+            throw new \Exception("Error al obtener el turno", self::SHOW_EXCEPTIONS);
+        }
+        
+
+        $fechaStr = $this->fecha;
+
+
+        // Valida que la cadena de fecha no esté vacía
+        if (empty($fechaStr)) {
+            throw new \Exception("La cadena de fecha no puede estar vacía.", self::SHOW_EXCEPTIONS);
+        }
+
+        // Convierte la cadena de fecha a un objeto DateTime
+        try {
+            $fecha = new DateTime($fechaStr);
+        } catch (Exception $e) {
+            // En caso de que la fecha no sea válida, devuelve un arreglo vacío
+            throw new \Exception("La cadena de fecha no es una fecha válida.",self::SHOW_EXCEPTIONS);
+        }
+
+        // Encuentra el lunes de la semana actual
+        if ($fecha->format('N') != 1) { // 1 representa el lunes en el formato ISO 8601
+            $fecha->modify('last monday');
+        }
+
+        // Crea el arreglo para almacenar las fechas de la semana
+        $semana = [];
+        $dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+
+        // Itera a través de los 7 días de la semana
+        for ($i = 0; $i < 7; $i++) {
+            $semana[$dias[$i]] = [
+                "fecha" => $fecha->format('Y-m-d'),
+                "laborable" => (bool)$turno_obj->{"get_" . $dias[$i]}()
+            ];
+            $fecha->modify('+1 day');
+        }
+
+        return $semana;
+
+
+
+
     }
 
     /**

@@ -6,6 +6,7 @@ requierePermiso(Modulo::ASISTENCIAS, Permiso::ELIMINAR);
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     if(isset($_POST['action']) and $_POST['action'] == "Eliminar"){
+        postTienePermiso(Modulo::ASISTENCIAS, Permiso::ELIMINAR);
         http_response_code(200);
         $asistencia = new Asistencia;
 
@@ -19,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 
 
         //$asistencia->mapearFormulario();
-        $asistencia->eliminarFechaAsistencia(true);
+        $asistencia->eliminarFechaAsistenciaSemanales(true);
         
     }
     else{

@@ -84,15 +84,22 @@
 </style>
 
 <script>
-    // imprime desde php un array asociativo de javascript con el enum Justificacion con el name y value del enum
-    <?php 
-        $enumTemp = [];
-        foreach (Justificacion::cases() as $key => $value) {
-            $enumTemp[] = $value->name;
-            
-        }
-    ?>
-    const justificacionesEnum = <?php echo getJustificacionJson(); ?>;
+
+    /**
+     * @typedef {Object} EnumJustificacion
+     * @property {number} Injustificado
+     * @property {number} Vacaciones
+     * @property {number} Medico
+     * @property {number} Emergencia
+     * @property {number} Judicial
+     * @property {number} Enfermedad
+     * @property {number} Muerte_De_Un_Familiar
+     * @property {number} Otro
+    */
+
+
+    /** @type {EnumJustificacion} */
+    const justificacionesEnum = <?php echo getJustificacionJson(); ?>; // objeto de javascript con el enum Justificacion
 </script>
 
 <div class="panel-header" style="background-color: red;">
@@ -110,7 +117,7 @@
         <div class="card-body p-4">
             <div class="container w-100 overflow-auto">
                 <input type="hidden" name="fecha" id="fechaAsistencia">
-                <form id="form-table-asistencias" class="d-table w-100">
+                <form id="form-table-asistencias" class="d-table w-100" onsubmit="return false">
                     <div style="display: table-row-group">
                         <div class="d-table-row">
                             <div class="d-table-cell">
@@ -147,32 +154,112 @@
                         </div>
                         <hr>
                         <div class="container d-table-row">
-                            
-                                <div id="tabla-asistencias" class="d-none">
+                                <div id="tabla-asistencias-semanales" class="d-none">
 
-                                    <table class="table table-responsive table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Cedula</th>
-                                                <th>Nombre</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- dinamic content  -->
-                                        </tbody>
-                                    </table>
-                                    <div class="container">
-                                        <div class="row justify-content-end">
+                                <?php $diasTh=[ 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do' ]; ?>
+
+                                <style>
+                                    .laborable-info{
+                                        display: block;
+                                        font-size: .8rem;
+                                        font-weight: normal;
+                                        margin-top: 5px;
+                                        white-space: nowrap;
+                                    }
+                                    .asistencia-checkbox + button{
+                                        transition: all .5s ease;
+                                        overflow: hidden;
+                                        width: 34.83px;
+                                        opacity: 1;
+                                    }
+                                    .asistencia-checkbox:disabled + button,
+                                    .asistencia-checkbox:checked + button{
+                                        /* display: none; */
+                                        
+                                        flex-basis: 0%;
+                                        padding: 0;
+                                        opacity: 0;
+                                    }
+                                    .celda-dia{
+                                        display: flex;
+                                        align-items: center;
+                                        align-content: center;
+                                        flex-wrap: nowrap;
+                                        min-height: 47px;
+                                        justify-content: space-between;
+                                    }
+                                    .celda-dia input,
+                                    .celda-dia button{
+                                        flex-grow: 0;
+                                        flex-shrink: 0;
+                                        flex-basis: 50%;
+                                    }
+                                    .asistencia-checkbox{
+                                        margin: 0;
+                                        transition: all .5s ease;
+                                    }
+                                    .asistencia-checkbox:disabled,
+                                    .asistencia-checkbox:checked{
+                                        margin: 0 25%;
+                                        
+                                    }
+
+                                    table.no-records-found label.switch,
+                                    table.no-records-found label.switch+small{
+                                        display: none;
+                                    }
+                                    
+                                    
+                                    
+
+                                </style>
+
+                                <div class="container">
+                                    <div class="row justify-content-end">
+                                        <table class="table table-responsive table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Cedula</th>
+                                                    <th>Nombre</th>
+                                                    <?php foreach ($diasTh as $dia): ?>
+                                                        <th>
+                                                            <div class="text-center">
+
+                                                                <label class="switch switch-small">
+                                                                    <input type="checkbox" class="laborable_check" value="true" name="chekcbox_<?= $dia ?>" id="chekbox_<?= $dia ?>">
+                                                                    <span class="slider round"></span>
+                                                                </label>
+                                                                <small class="laborable-info text-danger">No Laborable</small>
+
+
+                                                            </div>
+                                                            <div class="text-center">
+                                                                <?= $dia ?>
+                                                            </div>
+                                                            <div class="text-center">
+                                                                <small id="dia_th_<?= $dia ?>">2022-12-12</small>
+                                                            </div>
+                                                        </th>    
+                                                    <?php endforeach ?>
+                                                    
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- dinamic content  -->
+                                            </tbody>
+                                        </table>
 
                                             <?php if (tienePermiso('asistencias', Permiso::ELIMINAR)): ?>
-                                                <div class="col-auto text-center d-none">
+                                                <div class="col-auto text-center d-none btn-eliminar-asistencias">
                                                     <button type="button" class="btn btn-danger" id="eliminar-asistencias">Eliminar</button>
                                                 </div>
                                             <?php endif ?>
 
                                         
                                             <?php if (tienePermiso('asistencias', Permiso::REGISTRAR)): ?>
+                                                    <div class="col-auto text-center d-none" id="guardar-asistencias-info">
+                                                        <small>*Los Registros de asistencias aun no han sido guardados</small>
+                                                    </div>
                                                     <div class="col-auto text-center">
                                                         <button type="submit" class="btn btn-primary" id="submit-asistencias">Guardar</button>
                                                     </div>
@@ -185,6 +272,7 @@
 
                                         </div>
                                     </div>
+
                                 </div>
 
                         </div>
@@ -199,6 +287,50 @@
 <?php renderComponent('ModalGenerico') ?>
 <?php renderComponent('modalEliminarPromise') ?>
 
+<style>
+    #modalTrabajadorInfo{
+        font-weight: normal;
+        font-size: 1rem;
+    }
+</style>
+<div class="modal fade" id="modalInasistencia" tabindex="-1" aria-labelledby="modalInasistenciaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formInasistencia" onsubmit="return false">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="modalInasistenciaLabel">Registrar Inasistencia <br> <small id="modalTrabajadorInfo"></small> </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="modalTrabajadorId">
+          <input type="hidden" id="modalDia">
+          <div class="mb-3">
+            <label for="justificacion" class="form-label">Tipo de Justificación</label>
+            <select class="form-select" id="justificacion" required>
+                <?php echo getJustificacionOptions(); ?>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="observacion" class="form-label">Observación (opcional)</label>
+            <textarea class="form-control" id="observacion" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelarModal" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
 
 
-<?php agregarScript("asistencias.js") ?>
+    
+</script>
+
+
+
+<?php agregarScript("asistencias-semanales.js") ?>
+<?php //agregarScript("asistencias.js") ?>
