@@ -12,6 +12,15 @@
         header.classList.toggle('sidebar-hide')
         contenido.classList.toggle('sidebar-hide')
     })
+
+    const scrollPos = sessionStorage.getItem("sideMenuScroll");
+    if (scrollPos) {
+        menu.scrollTop = parseInt(scrollPos, 10);
+    }
+
+    window.addEventListener("beforeunload", e => {
+        sessionStorage.setItem("sideMenuScroll", menu?.scrollTop ?? 0);
+    })
 })()
 
 // Funcionalidad de las notificaciones

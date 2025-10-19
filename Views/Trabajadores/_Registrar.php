@@ -1,3 +1,4 @@
+<?php /** @var Division[] $departamentos */ ?>
 <div class="modal-dialog modal-lg">
 <div class="modal-content">
         <div class="modal-header bg-white">
@@ -11,7 +12,7 @@
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label for="cedula" class="form-label">Cedula </label>
-                        <input maxlength="8" required value="0000000" type="text" class="form-control" id="cedula" name="cedula" data-span="invalid-span-cedula">
+                        <input maxlength="8" required value="" type="text" class="form-control" id="cedula" name="cedula" data-span="invalid-span-cedula">
                         <div id="invalid-span-cedula" class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-6 m-0"></div>
@@ -28,7 +29,7 @@
                     </div>
                     <div class="col-md-4">
                         <label for="telefono" class="form-label">Teléfono</label>
-                        <input required disabled type="tel" class="form-control" id="telefono" name="telefono" data-span="invalid-span-telefono">
+                        <input maxlength="11" required disabled type="tel" class="form-control" id="telefono" name="telefono" data-span="invalid-span-telefono">
                         <div id="invalid-span-telefono" class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-4">

@@ -22,6 +22,9 @@
 .ayuda-title {
     display: none;
 }
+.ayuda-texto {
+    text-align: justify;
+}
 .indice li {
     margin-bottom: 0 !important;
 

@@ -1,5 +1,6 @@
-<?php /** @var Departamento $departamento */ ?>
-<?php /** @var Departamento[] $departamentos */ ?>
+<?php /** @var Division $departamento */ ?>
+<?php /** @var Division[] $departamentos */ ?>
+<?php usort($departamentos, fn(Division $a, Division $b) => strcmp($a->getNombre(), $b->getNombre())); ?>
 
 <div class="modal-dialog modal-lg">
 <div class="modal-content">
@@ -21,10 +22,9 @@
                         <label for="idDepartamento" class="form-label">Pertenece a:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-regular fa-fw fa-map"></i></span>
-                            <select class="form-select" name="idDepartamento" id="idDepartamento">
+                            <select class="form-select select2" name="idDepartamento" id="idDepartamento">
                                 <option value=""><i>Ninguno</i></option>
                                 <?php foreach ($departamentos as $departamentoPadre): ?>
-                                    <?php /** @var Departamento $departamentoPadre */ ?>
                                     <option value="<?= $departamentoPadre->id ?>" <?= $departamento->idDepartamento == $departamentoPadre->id ? "selected" : "" ?>><?= $departamentoPadre->getNombre() ?></option>
                                 <?php endforeach ?>
                             </select>

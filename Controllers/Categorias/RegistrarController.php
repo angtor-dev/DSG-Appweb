@@ -16,7 +16,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
     $color = substr($_POST['color'] ?? '', 1); // Eliminar el símbolo '#'
 
     $categoria = new Categoria();
-    $categoria->setDatos($nombre, $descripcion, $color);
+    $categoria->setDatos(null, $nombre, $descripcion, $color);
 
     if ($categoria->esValido() && $categoria->registrar()) {
         $_SESSION['exitos'][] = "Categoría registrada con exito";

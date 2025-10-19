@@ -8,7 +8,7 @@
     <div id="formato-orden-trabajo" class="p-2">
         <!-- Encabezado institucional compacto -->
         <div class="text-center mb-3">
-            <h4 class="mb-0">DIRECCIÓN DE SERVICIOS GENERALES</h4>
+            <h4 class="mb-0">DIRECaCIÓN DE SERVICIOS GENERALES</h4>
             <h5 class="mb-1">ORDEN DE TRABAJO</h5>
             <div class="d-flex justify-content-center gap-3">
                 <span>Fecha: <span id="orden-fecha">${new Date().toLocaleDateString()}</span></span>
