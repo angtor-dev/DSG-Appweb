@@ -91,13 +91,13 @@ class Trabajador extends Model
             }
 
             if (empty(trim($this->nombre))) {
-                throw new Exception("El campo 'Nombre' es obligatorio", );
+                throw new Exception("El campo 'Nombre' es obligatorio", self::SHOW_EXCEPTION );
             }
             if (!preg_match(REG_ALFABETICO, $this->nombre)) {
                 throw new Exception("El campo 'Nombre' solo puede contener letras y números", self::SHOW_EXCEPTION);
             }
             if (empty(trim($this->apellido))) {
-                throw new Exception("El campo 'Apellido' es obligatorio", );
+                throw new Exception("El campo 'Apellido' es obligatorio",  self::SHOW_EXCEPTION );
             }
             if (!preg_match(REG_ALFABETICO, $this->apellido)) {
                 throw new Exception("El campo 'Apellido' solo puede contener letras y números",self::SHOW_EXCEPTION );
@@ -126,7 +126,7 @@ class Trabajador extends Model
         }
 
         if($control == self::ACTUALIZAR_TRABAJADOR || $control == self::ELIMINAR_TRABAJADOR){
-            if (empty(trim($this->cedulaSeleccion))) {
+            if ( !isset($this->cedulaSeleccion) || empty(trim($this->cedulaSeleccion))) {
                 throw new Exception("Error al obtener la cedula del trabajador seleccionado", self::SHOW_EXCEPTION);
             }
             if (!preg_match(REG_CEDULA, $this->cedulaSeleccion)) {
@@ -249,11 +249,8 @@ class Trabajador extends Model
             // registro la asignacion laboral
             $this->ejecutarStatement($query2, $parametros2);
 
-            Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' registrado", $this->db->pdo());
-
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
+            if(!$this->testHandler()){
+                Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' registrado", $this->db->pdo());
             }
 
             $this->commit();
@@ -332,12 +329,8 @@ class Trabajador extends Model
 
             $this->ejecutarStatement($query, $parametros);
             
-
-            Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' actualizado", $this->db->pdo());
-
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
+            if(!$this->testHandler()) { // si no es una prueba crea la bitacora
+                Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' actualizado", $this->db->pdo());
             }
 
             $this->commit();
@@ -405,13 +398,9 @@ class Trabajador extends Model
 
             }
 
-
-            if($this->getTestingMode()){
-                $this->rollBack();
-                $this->beginTransaction();
+            if(!$this->testHandler()) { // si no es una prueba crea la bitacora
+                Bitacora::registrarTransaccion("Trabajador '".$this->cedulaSeleccion."' eliminado", $this->db->pdo());
             }
-
-            
 
             
 
@@ -566,6 +555,11 @@ class Trabajador extends Model
         }
     }
 
+    /**
+     * Summary of listar
+     * @param mixed $estado
+     * @return Trabajador[]
+     */
     public function listar ($estado = 1):array {
         
         try {

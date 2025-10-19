@@ -1,4 +1,6 @@
 <?php
+if (file_exists("user_config.php"))
+    require_once "user_config.php";
 date_default_timezone_set('America/Caracas');
 const APP_NAME = "DSG";
 
