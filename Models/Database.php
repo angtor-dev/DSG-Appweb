@@ -430,5 +430,8 @@ class Database
         $this->pdo = $pdo;
         $this->connected = true;
     }
+    public function set_connected(bool $connected){
+        $this->connected = $connected;
+    }
 }
 // TODO manejar error de la conexión por try-catch internamente

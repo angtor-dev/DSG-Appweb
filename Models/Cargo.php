@@ -53,12 +53,10 @@ class Cargo extends Model implements JsonSerializable
 			$this->ejecutarStatement($query, $parametros);
 
 			$bitacoraTexto = "Cargo '".$this->nombre."' registrado";
-			
-			Bitacora::registrarTransaccion($bitacoraTexto, $this->db->pdo());
 
-			if($this->getTestingMode()) {
-				$this->rollBack();
-				$this->beginTransaction();
+
+			if(!$this->testHandler()) {
+				Bitacora::registrarTransaccion($bitacoraTexto, $this->db->pdo());
 			}
 
 			$this->commit();
@@ -341,8 +339,6 @@ class Cargo extends Model implements JsonSerializable
 			$stmt = $this->ejecutarStatement($query, $parametros);
 
 			if($stmt->rowCount() > 0) {
-				$resp = $stmt->fetch();
-				debug($code);
 				throw new Exception($mensajes->cargoExistente, self::SHOW_EXCEPTION_CARGO);
 			}
 

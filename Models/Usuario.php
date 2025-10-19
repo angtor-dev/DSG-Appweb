@@ -453,8 +453,8 @@ class Usuario extends Model
                 $this->beginTransaction();
             }
             else{
-                $this->db->pdo()->commit();
                 Bitacora::registrarTransaccion("Usuario '".$this->getCorreo()."' actualizado", $this->db->pdo());
+                $this->db->pdo()->commit();
             }
 
 
@@ -493,7 +493,7 @@ class Usuario extends Model
             //if (DEVELOPER_MODE) $respuesta['consoleError'] = "`".addslashes($th->getMessage())." :: File:".addslashes($th->getFile())." :: Linea:".addslashes($th->getLine())."`";
             if(DEVELOPER_MODE) {
                 $respuesta["mensaje"] = $th->getMessage();
-                debug([$th->getTrace(),$respuesta['mensaje']]);
+                //debug([$th->getTrace(),$respuesta['mensaje']]);
             }
             
         }

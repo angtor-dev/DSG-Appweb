@@ -207,13 +207,13 @@ class Turno extends Model implements JsonSerializable
             $bitacoraTexto = "Turno '".$this->nombre."' registrado";
             $bitacoraTexto .= " desde: ".$this->horario_entrada." hasta: ".$this->horario_salida;
             $bitacoraTexto .= " L: ".$this->lunes." M: ".$this->martes." X: ".$this->miercoles." J: ".$this->jueves." V: ".$this->viernes." S: ".$this->sabado." D: ".$this->domingo;
-            
-            Bitacora::registrarTransaccion($bitacoraTexto, $this->db->pdo());
 
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
+            if(!$this->testHandler()){
+                Bitacora::registrarTransaccion($bitacoraTexto, $this->db->pdo());
             }
+            
+
+            
 
             $this->commit();
 

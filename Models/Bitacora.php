@@ -120,6 +120,10 @@ class Bitacora extends Model
                     $db->disconnect();
                 }
             }
+            if(isset($db) and $newConection){
+                $db->set_pdo($auxiliarPDO);
+                $db->set_connected(true);
+            }
             throw $th;
         }
         
