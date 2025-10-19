@@ -8,6 +8,11 @@ class Ajuste extends Model
     private string $fechaCreacion;
     public Articulo $articulo;
 
+    /**
+     * devuelve un arreglo de ajustes
+     * @param mixed $estado
+     * @return Ajuste[]
+     */
     public function listar(?int $estado = null) : array
     {
         $query = "SELECT aj.id, aj.idInventario, aj.cantidad, aj.descripcion, aj.fechaIncidente,
@@ -70,6 +75,7 @@ class Ajuste extends Model
                   VALUES (:idInventario, :cantidad, :descripcion, :fechaIncidente)";
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue("idInventario", $this->idInventario);
@@ -94,6 +100,9 @@ class Ajuste extends Model
                 }
             }
 
+            $this->testHandler();
+
+            $this->commit();
             $this->db->disconnect();
 
             return true;
