@@ -5,16 +5,58 @@ class Area extends Model
     private string $nombre;
     public ?Area $areaPadre = null;
 
-    public function esValido() : bool {
-        if (empty(trim($this->nombre))) {
-            $_SESSION['errores'][] = "El nombre del área es requerido";
-            return false;
+    const SHOW_EXCEPTION = 1001;
+
+    
+
+    public function esValido($checkId = false) : bool {
+
+        $ok = true;
+
+        try {
+            if (!isset($this->nombre) || empty(trim($this->nombre))) {
+                throw new Exception("El nombre del área es requerido",self::SHOW_EXCEPTION);
+            }
+            if (!preg_match("/^[\s0-9a-zA-ZáÁéÉíÍóÓúÚüÜñÑ.,-]+$/", $this->nombre)) {
+                throw new Exception("El nombre del área no puede contener caracteres especiales",self::SHOW_EXCEPTION);
+            }
+            if($this->idArea != null && !is_numeric($this->idArea)){
+                throw new Exception("El id del área padre debe ser un número",self::SHOW_EXCEPTION);
+            }
+    
+            // base de datos 
+    
+            $query = "SELECT nombre FROM area WHERE nombre = :nombre AND id != :id";
+            $query = $checkId ? $query : "SELECT nombre FROM area WHERE nombre = :nombre";
+    
+            $param = ['nombre' => $this->nombre];
+            if($checkId) $param['id'] = $this->id;
+    
+    
+            $this->db->connect();
+    
+            $resp = $this->ejecutarStatement($query, $param);// valido el nombre que no exista
+            if($data = $resp->fetch()){
+                throw new Exception("El nombre del area (".$data["nombre"].") ya esta registrado", self::SHOW_EXCEPTION);
+            }
+    
+            if($this->idArea != null){
+                $query = "SELECT * FROM area WHERE id = :idArea";
+                $param = ['idArea' => $this->idArea];
+                $resp = $this->ejecutarStatement($query, $param);
+                if(!$resp->fetch()){
+                    throw new Exception("El area padre no existe", self::SHOW_EXCEPTION);
+                }
+            }
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+            if (DEVELOPER_MODE && $th->getCode() != self::SHOW_EXCEPTION) $_SESSION['errores'][] = $th->getMessage();
+            $_SESSION['errores'][] = ($th->getCode() == self::SHOW_EXCEPTION) ? $th->getMessage() : "Ocurrio un error al validar el área";
+            $ok = false;
         }
-        if (!preg_match(REG_ALFANUMERICO, $this->nombre)) {
-            $_SESSION['errores'][] = "El nombre del área no puede contener caracteres especiales";
-            return false;
-        }
-        return true;
+
+        return $ok;
+        
     }
 
     /**
@@ -110,6 +152,10 @@ class Area extends Model
                 $this->ejecutarStatement($query, $param);
             }
 
+            if(!$this->testHandler()){
+                Bitacora::registrarTransaccion("Area {$this->nombre} registrado", $this->db->pdo());
+            }
+
             $this->commit();
 
             
@@ -118,8 +164,9 @@ class Area extends Model
 
             return true;
         } catch (\Throwable $th) {
-            if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
-            $_SESSION['errores'][] = "Ocurrio un error al registrar el área";
+            $this->disconectHandlerExeption();
+            if (DEVELOPER_MODE && $th->getCode() != self::SHOW_EXCEPTION) $_SESSION['errores'][] = $th->getMessage();
+            $_SESSION['errores'][] = ($th->getCode() == self::SHOW_EXCEPTION) ? $th->getMessage() : "Ocurrio un error al registrar el área";
             return false;
         }
     }
@@ -130,12 +177,24 @@ class Area extends Model
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
-            $stmt = $this->prepare($sql);
-            $stmt->bindValue('nombre', $this->nombre);
-            $stmt->bindValue('id', $this->id);
+            
 
-            $stmt->execute();
+            if($this->idArea == $this->id){
+                throw new Exception("El area no puede ser padre de si mismo", self::SHOW_EXCEPTION);
+            }
+
+            $original = $this->ejecutarStatement("SELECT * FROM area WHERE id = :id", ['id' => $this->id])->fetch();
+
+            if(!$original){
+                throw new Exception("El area seleccionada no existe", self::SHOW_EXCEPTION);
+            }
+            
+
+
+            
+            $this->ejecutarStatement($sql, ['nombre' => $this->nombre, 'id' => $this->id]);
 
              $query = 'DELETE FROM subarea WHERE idAreaHijo = :idHijo';
                 $param = [
@@ -145,7 +204,10 @@ class Area extends Model
 
             if($this->idArea != null){
 
-               
+                $originalSub = $this->ejecutarStatement("SELECT * FROM area WHERE id = :id", ['id' => $this->idArea])->fetch();
+                if(!$originalSub){
+                    throw new Exception("El area padre seleccionada no existe", self::SHOW_EXCEPTION);
+                }
 
                 $query = "INSERT INTO subarea (idAreaPadre, idAreaHijo) VALUES (:idPadre, :idHijo)";
                 $param = [
@@ -154,6 +216,12 @@ class Area extends Model
                 ];
                 $this->ejecutarStatement($query, $param);
             }
+
+            if(!$this->testHandler()){
+                $mensaje = ($this->nombre != $original['nombre']) ? "Area '{$original['nombre']}' => '{$this->nombre}' actualizado correctamente" : "Area '{$original['nombre']}' actualizado";
+                Bitacora::registrarTransaccion($mensaje, $this->db->pdo());
+            }
+            $this->commit();
             
 
             
@@ -161,8 +229,8 @@ class Area extends Model
 
             return true;
         } catch (\Throwable $th) {
-            if (DEVELOPER_MODE) debug($th);
-            $_SESSION['errores'][] = "Ha ocurrido un error al actualizar el área.";
+            //if (DEVELOPER_MODE) debug($th);
+            $_SESSION['errores'][] = ($th->getCode() == self::SHOW_EXCEPTION) ? $th->getMessage() : "Ocurrio un error al registrar el área";
             return false;
         }
     }
@@ -182,6 +250,36 @@ class Area extends Model
             return false;
         }
     }
+    public function eliminarArea(){
+        
+        try {
+            /**
+             * @var Area
+             */
+            $area = $this->cargar($this->id);
+            $area->setTestingMode($this->getTestingMode());
+    
+            if (empty($area)) {
+                throw new Exception("El área que intenta eliminar no existe", 1);
+            }
+    
+            $subareas = $area->listarSubareas();
+    
+            if (count($subareas) > 0) {
+                throw new Exception("El área que intenta eliminar tiene subareas, asegurate de eliminarlas primero", 1);
+            }
+    
+            if ($area->eliminar(false)) {
+                $_SESSION['exitos'][] = "Área eliminada con exito";
+                if(!$this->getTestingMode()){ // si no estamos en modo de pruebas
+                    Bitacora::registrar("Área '".$area->getNombre()."' eliminado");
+                }
+            }
+        } catch (\Throwable $th) {
+            $_SESSION['errores'][] = $th->getMessage();
+        }
+    }
+    
 
     /**
      * Establece valores en propiedades de la clase.

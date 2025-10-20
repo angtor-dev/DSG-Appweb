@@ -25,7 +25,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
     $area = new Area();
     $area->mapearFormulario();
 
-    if ($area->esValido() && $area->actualizar()) {
+    if ($area->esValido(true) && $area->actualizar()) {
         $_SESSION['exitos'][] = "Área actualizada con exito";
         Bitacora::registrar("Área '".$area->getNombre()."' actualizada");
     }
