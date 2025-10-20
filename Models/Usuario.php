@@ -503,6 +503,12 @@ class Usuario extends Model
         return $respuesta;
     }
 
+    /**
+     * Elimna el usuario seleccionado por id
+     * @param mixed $print imprime el json basado en el arreglo
+     * @param mixed $logicDelete si es true realiza un soft delete
+     * @return array{idEliminado: string|null, mensaje: string, success: bool} 
+     */
     public function eliminarUsuario($print = true, $logicDelete = false) : array
     {
         try {
@@ -521,12 +527,10 @@ class Usuario extends Model
             $stmt->bindValue("id", $this->id);
             $stmt->execute();
 
-            if($this->getTestingMode()) {
-                $this->db->pdo()->rollBack();
-                $this->db->pdo()->beginTransaction();
+            
+            if(!$this->testHandler()){
+                Bitacora::registrarTransaccion("Usuario ('".$datosDevueltos['usuario']['correo']."') (".$datosDevueltos['usuario']['cedula'].") eliminado", $this->db->pdo());
             }
-
-            Bitacora::registrarTransaccion("Usuario ('".$datosDevueltos['usuario']['correo']."') (".$datosDevueltos['usuario']['cedula'].") eliminado", $this->db->pdo());
 
             $this->db->pdo()->commit();
             $this->db->disconnect();
@@ -664,7 +668,7 @@ class Usuario extends Model
             }
         }
         else if($controlAction == self::ELIMINAR_USUARIO) {
-            if(!preg_match("/^[0-9]+$/", $this->id)){
+            if(!isset($this->id) || !preg_match("/^[0-9]+$/", $this->id)){
                 throw new \Exception($defaultValidationMessages->userNoSelectedDelete,self::SHOW_EXCEPTION);
             }
             if ($this->id == $_SESSION['usuario']->id) {

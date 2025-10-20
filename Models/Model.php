@@ -198,12 +198,14 @@ abstract class Model
 
             return true;
         } catch (\PDOException $th) {
+            $this->disconectHandlerExeption();
             $_SESSION['errores'][] = ($th->getCode() == '23000') 
                 ? "Existen datos relacionados al item seleccionado." 
                 : "Ha ocurrido un error al eliminar $tabla.";
             return false;
         } catch (\Throwable $th) {
-            if (DEVELOPER_MODE) debug($th); // Eliminar esto al crear vista para errores
+            $this->disconectHandlerExeption();
+            //if (DEVELOPER_MODE) debug($th); // Eliminar esto al crear vista para errores
             $_SESSION['errores'][] = "Ha ocurrido un error al eliminar $tabla.";
             return false;
         }

@@ -9,7 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     }
     $usuario = new Usuario();
 
-    $usuario->mapearFormulario();
+
+    $usuario->setterArray(
+        [
+            "id" => $_POST['id']
+        ]
+    );
 
     if (($resp = $usuario->eliminarUsuario(false))['success']) {
         echo json_encode($resp);
