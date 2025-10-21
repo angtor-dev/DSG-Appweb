@@ -27,7 +27,7 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_gestionar_asignacion_laboral` (IN `p_idTrabajador` INT, IN `p_idDepartamento` INT, IN `p_idTurno` INT, IN `p_idCargo` INT, IN `p_fechaAsignacion` DATE)   BEGIN
+CREATE PROCEDURE `sp_gestionar_asignacion_laboral` (IN `p_idTrabajador` INT, IN `p_idDepartamento` INT, IN `p_idTurno` INT, IN `p_idCargo` INT, IN `p_fechaAsignacion` DATE)   BEGIN
     -- Declarar variables para almacenar la asignación laboral actual del trabajador
     DECLARE v_current_id INT;
     DECLARE v_current_idDepartamento INT;
@@ -87,7 +87,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_gestionar_asignacion_laboral` (I
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_registrar_asistencia` (IN `p_id_asistencia_inasistencia` INT, IN `p_fecha` DATE, IN `p_id_trabajador` INT, IN `p_tipo_registro` ENUM('Asistencia','Inasistencia'), IN `p_hora_entrada` TIME, IN `p_hora_salida` TIME, IN `p_tipo_inasistencia` ENUM('Injustificado','Vacaciones','Medico','Emergencia','Judicial','Enfermedad','Muerte De Un Familiar','Otro'), IN `p_descripcion` TEXT)   BEGIN
+CREATE PROCEDURE `sp_registrar_asistencia` (IN `p_id_asistencia_inasistencia` INT, IN `p_fecha` DATE, IN `p_id_trabajador` INT, IN `p_tipo_registro` ENUM('Asistencia','Inasistencia'), IN `p_hora_entrada` TIME, IN `p_hora_salida` TIME, IN `p_tipo_inasistencia` ENUM('Injustificado','Vacaciones','Medico','Emergencia','Judicial','Enfermedad','Muerte De Un Familiar','Otro'), IN `p_descripcion` TEXT)   BEGIN
     DECLARE v_id_fecha_asistencia INT;
     DECLARE v_existe_asistencia INT;
     DECLARE v_cierre INT DEFAULT 0;
@@ -200,7 +200,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_registrar_asistencia` (IN `p_id_
     END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_registrar_asistencia_semanal` (IN `p_fecha` DATE, IN `p_cedula` VARCHAR(10) CHARSET utf8mb4, IN `p_codigo_asistencia_inasistencia` VARCHAR(50), IN `p_turno` VARCHAR(50), IN `p_tipo_inasistencia` INT, IN `p_descripcion` TEXT, IN `p_laborable` TINYINT)   BEGIN
+CREATE PROCEDURE `sp_registrar_asistencia_semanal` (IN `p_fecha` DATE, IN `p_cedula` VARCHAR(10) CHARSET utf8mb4, IN `p_codigo_asistencia_inasistencia` VARCHAR(50), IN `p_turno` VARCHAR(50), IN `p_tipo_inasistencia` INT, IN `p_descripcion` TEXT, IN `p_laborable` TINYINT)   BEGIN
     -- procedure
     -- parametros
     -- # p_fecha DATE
@@ -1270,7 +1270,7 @@ CREATE TABLE `vista_asistencias` (
 --
 DROP TABLE IF EXISTS `vista_asistencias`;
 
-CREATE ALGORITHM=TEMPTABLE DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_asistencias`  AS SELECT `t`.`cedula` AS `cedula`, `t`.`nombre` AS `nombre`, `t`.`apellido` AS `apellido`, `fa`.`fecha` AS `fecha`, `a`.`horaEntrada` AS `horaEntrada`, `a`.`horaSalida` AS `horaSalida`, `i`.`tipo` AS `tipo`, `i`.`descripcion` AS `descripcion`, `d`.`id` AS `idDivision`, `d`.`nombre` AS `division`, `tu`.`id` AS `idTurno`, `tu`.`nombre` AS `turno`, if(`a`.`idAsistencia_inasistencia` is not null,1,0) AS `esAsistencia` FROM (((((((`asistencia_inasistencia` `ai` join `fechaasistencia` `fa` on(`fa`.`id` = `ai`.`idFechaAsistencia`)) join `asignacion_laboral` `al` on(`al`.`id` = `ai`.`idAsignacionLaboral`)) join `trabajador` `t` on(`t`.`id` = `al`.`idTrabajador`)) join `turno` `tu` on(`tu`.`id` = `al`.`idTurno`)) join `division` `d` on(`d`.`id` = `al`.`idDivision`)) left join `asistencia` `a` on(`a`.`idAsistencia_inasistencia` = `ai`.`id`)) left join `inasistencia` `i` on(`i`.`idAsistencia_inasistencia` = `ai`.`id`)) ;
+CREATE ALGORITHM=TEMPTABLE SQL SECURITY DEFINER VIEW `vista_asistencias`  AS SELECT `t`.`cedula` AS `cedula`, `t`.`nombre` AS `nombre`, `t`.`apellido` AS `apellido`, `fa`.`fecha` AS `fecha`, `a`.`horaEntrada` AS `horaEntrada`, `a`.`horaSalida` AS `horaSalida`, `i`.`tipo` AS `tipo`, `i`.`descripcion` AS `descripcion`, `d`.`id` AS `idDivision`, `d`.`nombre` AS `division`, `tu`.`id` AS `idTurno`, `tu`.`nombre` AS `turno`, if(`a`.`idAsistencia_inasistencia` is not null,1,0) AS `esAsistencia` FROM (((((((`asistencia_inasistencia` `ai` join `fechaasistencia` `fa` on(`fa`.`id` = `ai`.`idFechaAsistencia`)) join `asignacion_laboral` `al` on(`al`.`id` = `ai`.`idAsignacionLaboral`)) join `trabajador` `t` on(`t`.`id` = `al`.`idTrabajador`)) join `turno` `tu` on(`tu`.`id` = `al`.`idTurno`)) join `division` `d` on(`d`.`id` = `al`.`idDivision`)) left join `asistencia` `a` on(`a`.`idAsistencia_inasistencia` = `ai`.`id`)) left join `inasistencia` `i` on(`i`.`idAsistencia_inasistencia` = `ai`.`id`)) ;
 
 --
 -- Índices para tablas volcadas
