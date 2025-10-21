@@ -305,23 +305,23 @@ class ArticuloTest extends TestCase
      */
     public function testEliminarArticulo($id, $respuestaEsperada, ...$otros) {
         $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Eliminar Articulo"))->log();
-        /** * @var Area */
-        $area = Articulo::cargar($id);
+        /** * @var Articulo */
+        $articulo = Articulo::cargar($id);
 
         if($respuestaEsperada){
-            $this->assertInstanceOf(Articulo::class, $area, $_logger["dataname"]);
+            $this->assertInstanceOf(Articulo::class, $articulo, $_logger["dataname"]);
         }
 
 
-        if($area instanceof Articulo){
+        if($articulo instanceof Articulo){
 
-            $area->setTestingMode($this->articuloObj->getTestingMode());
+            $articulo->setTestingMode($this->articuloObj->getTestingMode());
     
-            if (empty($area)) {
+            if (empty($articulo)) {
                 $_SESSION['errores'][] = "El artículo que intenta eliminar no existe";
             }
     
-            if ( $resp = $area->eliminar(false)) {
+            if ( $resp = $articulo->eliminar(false)) {
                 $_SESSION['exitos'][] = "Artículo eliminada con exito";
             }
 

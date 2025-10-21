@@ -209,7 +209,7 @@ class AsistenciasListarTest extends TestCase
      */
     public function testRegistrarAsistencia( $fecha, $turno, $idDepartamento, $trabajadores, $resultado_esperado, $num_caso ): void
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Registrar Asistencias/Inasistencias", "Si el tipo de registro es 1 es asistencia y si es 2, es inasistencia"))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Registrar Asistencias/Inasistencias", "Si el tipo de registro es 1 es asistencia y si es 2, es inasistencia. Este metodo se utiliza tambien para actualizar"))->log();
 
         $listaDatos = [
             'fecha' => $fecha,
