@@ -261,15 +261,7 @@ class Trabajador extends Model
                 "message" => "Trabajador registrado con éxito"
             );
         } catch (\Throwable $th) {
-            if( 
-                isset($this->db) && 
-                $this->db->connected() &&
-                $this->db->pdo() instanceof \PDO &&
-                $this->db->pdo()->inTransaction()
-            ){
-                $this->rollBack();
-                $this->db->disconnect();
-            }
+            $this->disconectHandlerExeption();
 
             $resp = array(
                 "success" => false,
@@ -341,15 +333,7 @@ class Trabajador extends Model
                 "message" => "Trabajador actualizado con éxito"
             );
         } catch (\Throwable $th) {
-            if( 
-                isset($this->db) && 
-                $this->db->connected() &&
-                $this->db->pdo() instanceof \PDO &&
-                $this->db->pdo()->inTransaction()
-            ){
-                $this->db->pdo()->rollBack();
-                $this->db->disconnect();
-            }
+            $this->disconectHandlerExeption();
             $resp = array(
                 "success" => false,
                 "message" => "Ocurrió un error al actualizar al trabajador"
@@ -378,7 +362,7 @@ class Trabajador extends Model
 
 
             $this->db->connect();
-            $this->db->pdo()->beginTransaction();
+            $this->beginTransaction();
 
             if( !$logicDelete ) {
                 
@@ -412,14 +396,7 @@ class Trabajador extends Model
                 "message" => "Trabajador eliminado con éxito"
             );
         } catch (\Throwable $th) {
-            if( 
-                isset($this->db) && 
-                $this->db->connected() &&
-                $this->db->pdo()->inTransaction()
-            ){
-                $this->db->pdo()->rollBack();
-                $this->db->disconnect();
-            }
+            $this->disconectHandlerExeption();
             $resp = array(
                 "success" => false,
                 "message" => "Ocurrió un error al eliminar al trabajador"
