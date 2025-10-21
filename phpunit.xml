@@ -3,62 +3,62 @@
 	<testsuites>
 		<testsuite name="Asistencias">
 			<directory suffix=".php">
-				test/Asistencias
+				test/Unit/Asistencias
 			</directory>
 		</testsuite>
 		<testsuite name="Usuarios">
 			<directory suffix=".php">
-				test/Usuarios
+				test/Unit/Usuarios
 			</directory>
 		</testsuite>
 		<testsuite name="Turnos">
 			<directory suffix=".php">
-				test/Turnos
+				test/Unit/Turnos
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Trabajadores">
 			<directory suffix=".php">
-				test/Trabajador
+				test/Unit/Trabajador
 			</directory>
 		</testsuite>
 		<testsuite name ="Cargos">
 			<directory suffix=".php">
-				test/Cargo
+				test/Unit/Cargo
 			</directory>
 		</testsuite>
 		<testsuite name ="Ajustes">
 			<directory suffix=".php">
-				test/Ajuste
+				test/Unit/Ajuste
 			</directory>
 		</testsuite>
 		<testsuite name ="Areas">
 			<directory suffix=".php">
-				test/Area
+				test/Unit/Area
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Articulos">
 			<directory suffix=".php">
-				test/Articulo
+				test/Unit/Articulo
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Categorias">
 			<directory suffix=".php">
-				test/Categoria
+				test/Unit/Categoria
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Medidas">
 			<directory suffix=".php">
-				test/Medida
+				test/Unit/Medida
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Roles">
 			<directory suffix=".php">
-				test/Rol
+				test/Unit/Rol
 			</directory>
 		</testsuite>
 
@@ -75,26 +75,26 @@
 
 		<testsuite name ="Bitacora">
 			<directory suffix=".php">
-				test/Bitacora
+				test/Unit/Bitacora
 			</directory>
 		</testsuite>
 
 
 		<testsuite name ="Division">
 			<directory suffix=".php">
-				test/Division
+				test/Unit/Division
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Entrada">
 			<directory suffix=".php">
-				test/Entrada
+				test/Unit/Entrada
 			</directory>
 		</testsuite>
 
 		<testsuite name ="EntradaDetalle">
 			<directory suffix=".php">
-				test/EntradaDetalle
+				test/Unit/EntradaDetalle
 			</directory>
 		</testsuite>
 
@@ -102,25 +102,25 @@
 
 		<testsuite name ="Modulo">
 			<directory suffix=".php">
-				test/Modulo
+				test/Unit/Modulo
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Movimiento">
 			<directory suffix=".php">
-				test/Movimiento
+				test/Unit/Movimiento
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Notificacion">
 			<directory suffix=".php">
-				test/Notificacion
+				test/Unit/Notificacion
 			</directory>
 		</testsuite>
 
 		<testsuite name ="Permiso">
 			<directory suffix=".php">
-				test/Permiso
+				test/Unit/Permiso
 			</directory>
 		</testsuite>
 
@@ -128,7 +128,7 @@
 
 		<testsuite name ="Tarea">
 			<directory suffix=".php">
-				test/Tarea
+				test/Unit/Tarea
 			</directory>
 		</testsuite>
 
@@ -147,7 +147,7 @@
 		otro se agrega aqui 
 		<testsuite name="Trabajadores (EL nombre aqui no importa solo no se debe repetir)">
 			<directory suffix=".php">
-				test/Trabajadores 
+				test/Unit/Trabajadores 
 				(la ruta de la carpeta donde estaran los archivos *test.php )
 				por ejemplo en esa carpeta podrian estar los archivos
 				TrabajadorRegistrarTest.php
