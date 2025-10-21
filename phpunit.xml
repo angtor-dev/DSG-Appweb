@@ -6,20 +6,59 @@
 				test/Asistencias
 			</directory>
 		</testsuite>
-		<!-- <testsuite name="Usuarios">
+		<testsuite name="Usuarios">
 			<directory suffix=".php">
 				test/Usuarios
 			</directory>
-		</testsuite> -->
+		</testsuite>
 		<testsuite name="Turnos">
 			<directory suffix=".php">
 				test/Turnos
 			</directory>
 		</testsuite>
 
-		<testsuite name ="Trabajador">
+		<testsuite name ="Trabajadores">
 			<directory suffix=".php">
 				test/Trabajador
+			</directory>
+		</testsuite>
+		<testsuite name ="Cargos">
+			<directory suffix=".php">
+				test/Cargo
+			</directory>
+		</testsuite>
+		<testsuite name ="Ajustes">
+			<directory suffix=".php">
+				test/Ajuste
+			</directory>
+		</testsuite>
+		<testsuite name ="Areas">
+			<directory suffix=".php">
+				test/Area
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Articulos">
+			<directory suffix=".php">
+				test/Articulo
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Categorias">
+			<directory suffix=".php">
+				test/Categoria
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Medidas">
+			<directory suffix=".php">
+				test/Medida
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Roles">
+			<directory suffix=".php">
+				test/Rol
 			</directory>
 		</testsuite>
 
@@ -27,23 +66,10 @@
 
 		<!-- 
 
-		<testsuite name ="Ajuste">
-			<directory suffix=".php">
-				test/Ajuste
-			</directory>
-		</testsuite>
+		
 
-		<testsuite name ="Area">
-			<directory suffix=".php">
-				test/Area
-			</directory>
-		</testsuite>
 
-		<testsuite name ="Articulo">
-			<directory suffix=".php">
-				test/Articulo
-			</directory>
-		</testsuite>
+		
 
 		
 
@@ -53,17 +79,6 @@
 			</directory>
 		</testsuite>
 
-		<testsuite name ="Cargo">
-			<directory suffix=".php">
-				test/Cargo
-			</directory>
-		</testsuite>
-
-		<testsuite name ="Categoria">
-			<directory suffix=".php">
-				test/Categoria
-			</directory>
-		</testsuite>
 
 		<testsuite name ="Division">
 			<directory suffix=".php">
@@ -83,11 +98,7 @@
 			</directory>
 		</testsuite>
 
-		<testsuite name ="Medida">
-			<directory suffix=".php">
-				test/Medida
-			</directory>
-		</testsuite>
+		
 
 		<testsuite name ="Modulo">
 			<directory suffix=".php">
@@ -113,11 +124,7 @@
 			</directory>
 		</testsuite>
 
-		<testsuite name ="Rol">
-			<directory suffix=".php">
-				test/Rol
-			</directory>
-		</testsuite>
+		
 
 		<testsuite name ="Tarea">
 			<directory suffix=".php">
@@ -125,11 +132,7 @@
 			</directory>
 		</testsuite>
 
-		<testsuite name ="Trabajador">
-			<directory suffix=".php">
-				test/Trabajador
-			</directory>
-		</testsuite>
+		
 
 
 
@@ -138,11 +141,7 @@
 
 
 
-		<!-- <testsuite name="Cargos">
-			<directory suffix=".php">
-				test/Cargo
-			</directory>
-		</testsuite>
+		<!-- 
 
 	
 		otro se agrega aqui 
@@ -171,10 +170,10 @@
 
 	<logging>
         <junit outputFile="test/reports/junit.xml"/>
-        <text outputFile="test/reports/test_results.log"/>
+        <!-- <text outputFile="test/reports/test_results.log"/>
         <teamcity outputFile="test/reports/teamcity.txt"/>
 	    <testdoxHtml outputFile="test/reports/testdox.html"/>
-	    <testdoxText outputFile="test/reports/testdox.txt"/>
+	    <testdoxText outputFile="test/reports/testdox.txt"/> -->
     </logging>
 
 	
