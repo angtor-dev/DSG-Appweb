@@ -193,7 +193,7 @@ class AjusteTest extends TestCase {
             ];
             
             foreach ($propiedadesRequeridas as $propiedad) {
-                $this->assertObjectHasAttribute($propiedad, $primerAjuste, 
+                $this->assertObjectHasProperty($propiedad, $primerAjuste, 
                     "El objeto ajuste debe tener la propiedad: {$propiedad}");
             }
             

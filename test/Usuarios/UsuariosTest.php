@@ -317,7 +317,7 @@ class UsuariosTest extends TestCase
 
             if(!$idInserted){
                 $query = "INSERT INTO usuario (cedula, idRol, correo, clave, nombre, apellido)
-                            VALUES (:cedula, :idRol, :correo, :clave, :nombre, :apellido) on duplicate key ignore";
+                            VALUES (:cedula, :idRol, :correo, :clave, :nombre, :apellido) on duplicate key update cedula = cedula";
                 $pdo->prepare($query)->execute([
                     "cedula" => "99999999",
                     "idRol" => "1",
@@ -407,7 +407,6 @@ class UsuariosTest extends TestCase
                 $this->fail("Metodo no reconocido");
                 break;
         }
-
 
 
         if($resultado_esperado === null){

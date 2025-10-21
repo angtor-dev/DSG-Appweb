@@ -1,7 +1,6 @@
 <?php 
 use PHPUnit\Framework\TestCase;
 // ->
-session_start();
 class AreaTest extends TestCase
 {
     public $areaObj;
@@ -66,7 +65,6 @@ class AreaTest extends TestCase
             "nombre" => $nombre,
             "idArea" => $idArea
         ];
-
         // eliminar valores nulos que no se quieran enviar
         foreach ($datos as $key => $value) {
             if ($value === null) {
@@ -83,8 +81,6 @@ class AreaTest extends TestCase
         }
 
         $sumResp = $validResp && $resp;
-
-
         
         $this->assertIsBool($resp);
         $this->assertEquals($respuesta_esperada, $sumResp, $_logger["dataname"]);
@@ -96,7 +92,6 @@ class AreaTest extends TestCase
                 $this->assertStringContainsString($otros[0]["mensaje esperado"], $ultimoError);
             }
         }
-        
         // Limpiar sesión después de cada prueba
         if (isset($_SESSION['errores'])) {
             $_SESSION['errores'] = [];
@@ -223,14 +218,12 @@ class AreaTest extends TestCase
             "nombre" => $nombre,
             "idArea" => $idArea
         ];
-
         // eliminar valores nulos que no se quieran enviar
         foreach ($datos as $key => $value) {
             if ($value === null) {
                 unset($datos[$key]);
             }
         }
-
         $this->areaObj->setterArray($datos);
 
         $resp = $this->areaObj->actualizar();
@@ -258,7 +251,7 @@ class AreaTest extends TestCase
                 "Id" => intval($id),
                 "Nombre Area" => $nombre,
                 "Id Area Padre" => $idAreaPadre,
-                "respuesta esperada" => $RespuestaEsperada,
+                "resultado esperado" => $RespuestaEsperada,
                 "mensaje esperado" => $mensaje,
                 ...$otros
             ];
@@ -329,7 +322,7 @@ class AreaTest extends TestCase
         $aux = function ($id, $RespuestaEsperada, $mensaje, ...$otros){
             return [
                 "Id" => intval($id),
-                "respuesta esperada" => $RespuestaEsperada,
+                "resultado esperado" => $RespuestaEsperada,
                 "mensaje esperado" => $mensaje,
                 ...$otros
             ];
