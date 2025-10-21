@@ -390,7 +390,7 @@ class UsuariosTest extends TestCase
      * @dataProvider cargarNombreProvider
      */
     public function testGettersUserInstance($identificador, $method , $resultado_esperado){
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Probar los metodos de carga de usuarios"))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Probar los metodos de carga de usuarios", "Devuelve una instancia de Usuario"))->log();
 
         switch ($method) {
             case 'cargarPorCorreo':

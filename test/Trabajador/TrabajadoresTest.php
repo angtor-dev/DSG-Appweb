@@ -19,7 +19,7 @@ class TrabajadoresTest extends TestCase
      */
     public function testListarTrabajador()
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Listar Trabajadores"))->log();
         if($_logger["dataname"] == "listar Trabajadores Vacio"){
             $resp = $this->trabajadorObj->listar(999); // Usar un estado que no exista para simular sin entradas
             $this->assertIsArray($resp);
@@ -49,7 +49,7 @@ class TrabajadoresTest extends TestCase
      * @dataProvider registrarProvider
      */
     public function testRegistrarTrabajador( $cedula, $nombre, $apellido, $telefono, $cargo, $turno, $idDepartamento, $fechaIngreso, $respuesta_esperada, ...$otros ){
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Registrar Trabajador"))->log();
         $datos = [
             "cedula" => $cedula,
             "nombre" => $nombre,
@@ -143,7 +143,7 @@ class TrabajadoresTest extends TestCase
      */
     public function testActualizarTrabajador($id, $cedulaSeleccion, $cedula, $nombre, $apellido, $telefono, $cargo, $turno, $idDepartamento, $fechaIngreso, $respuesta_esperada, ...$otros)
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Actualizar Trabajador"))->log();
 
         // preparar datos para el setterArray (incluye cedulaSeleccion)
         $datos = [
@@ -246,7 +246,7 @@ class TrabajadoresTest extends TestCase
      */
     public function testEliminarTrabajador($cedulaSeleccion, $respuesta_esperada, ...$otros)
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Eliminar Trabajador"))->log();
 
         $datos = [
             "cedulaSeleccion" => $cedulaSeleccion

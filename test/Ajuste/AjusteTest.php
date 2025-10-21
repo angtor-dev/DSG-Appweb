@@ -20,7 +20,7 @@ class AjusteTest extends TestCase {
 
     public function testRegistrarAjuste($idInventario, $cantidad, $descripcion, $fechaIncidente, $respuesta_esperada, ...$otros)
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Registrar Correcciones de inventario"))->log();
 
         $this->ajusteObj->setDatos($idInventario, $cantidad, $descripcion, $fechaIncidente);
 
@@ -176,7 +176,7 @@ class AjusteTest extends TestCase {
      */
     public function testListarAjustes()
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Listar Correcciones de Inventario"))->log();
 
         $resp = $this->ajusteObj->listar();
         

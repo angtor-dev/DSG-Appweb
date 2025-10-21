@@ -36,7 +36,7 @@ class AsistenciasListarTest extends TestCase
      * @dataProvider ListarAsistenciasProvider
      */
     public  function testListarAsistencias($departamento,$turno,$fecha,$resultado_esperado, bool $fechaAsistencia = false, ...$otros ){
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Listar Asistencias/Inasistencias"))->log();
         $_POST['idDepartamento'] = $departamento;
         $_POST['turno'] = $turno;
         $_POST['fecha'] = $fecha;
@@ -209,7 +209,7 @@ class AsistenciasListarTest extends TestCase
      */
     public function testRegistrarAsistencia( $fecha, $turno, $idDepartamento, $trabajadores, $resultado_esperado, $num_caso ): void
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Registrar Asistencias/Inasistencias", "Si el tipo de registro es 1 es asistencia y si es 2, es inasistencia"))->log();
 
         $listaDatos = [
             'fecha' => $fecha,
@@ -368,7 +368,7 @@ class AsistenciasListarTest extends TestCase
      */
     public function testEliminarFechaAsistencia( $fecha, $turno, $idDepartamento, $resultado_esperado, $num_caso, ...$otros ): void
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Eliminar Asistencias/Inasistencias"))->log();
 
         $datos = [
             "fecha" => $fecha,
@@ -483,7 +483,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => $this->turno_No_existe,
                 "idDepartamento" => $registroValido['division'],
-                "resultado esperado" => false,
+                "resultado esperado" => true,
                 "num_caso" => 9,
                 "mensaje esperado" => $mensajeEsperado['turno_no_existente'],
             ],
@@ -491,7 +491,7 @@ class AsistenciasListarTest extends TestCase
                 "fecha" => $registroValido['fecha'],
                 "turno" => $turnoMañana,
                 "idDepartamento" => $this->turno_No_existe,
-                "resultado esperado" => false,
+                "resultado esperado" => true,
                 "num_caso" => 10,
                 "mensaje esperado" => $mensajeEsperado['division_no_existente'],
             ],

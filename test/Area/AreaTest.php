@@ -22,7 +22,7 @@ class AreaTest extends TestCase
 
     public function testListarArea()
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Listar Areas"))->log();
         $respuesta = $this->areaObj->listar();
 
          $this->assertIsArray($respuesta);
@@ -59,7 +59,7 @@ class AreaTest extends TestCase
      */
     public function testRegistrarArea($nombre, $idArea, $respuesta_esperada, ...$otros)
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Registrar Area"))->log();
 
         $datos = [
             "nombre" => $nombre,
@@ -207,7 +207,7 @@ class AreaTest extends TestCase
      */
     public function testActualizarArea($id, $nombre, $idArea, $respuesta_esperada, ...$otros)
     {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Actualizar Area"))->log();
 
         if($id == "NotFound" || $idArea == "NotFound") {
             $this->fail("El id de area no fue encontrado");
@@ -294,7 +294,7 @@ class AreaTest extends TestCase
      * @dataProvider eliminarAreaProvider
      */
     public function testEliminarArea($id, $respuesta_esperada, $mensaje, ...$otros) {
-        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        $_logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Eliminar Area"))->log();
         if($id == "NotFound") {
             $this->fail("El id de area no fue encontrado");
         }

@@ -21,7 +21,7 @@ class TurnosRegistrarTest extends TestCase
 
     public function testTurnosListar($foo, $respuesta_esperada): void
     {
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        (new LoggerPhpUnit($this, $this->testSuiteControl, "Listar Turnos"))->log();
         switch ($this->dataName()) {
             case 'Listar con todos los permisos':
                     getUserFalseInsesion(1); // usuario con el rol de super admin
@@ -96,7 +96,7 @@ class TurnosRegistrarTest extends TestCase
         $domingo, $resultado_esperado, $num_caso
         ):void
     {
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        (new LoggerPhpUnit($this, $this->testSuiteControl, "Registrar Turnos"))->log();
 
         $listaDatos = [
             'nombre' => $turnoNombre,
@@ -255,7 +255,7 @@ class TurnosRegistrarTest extends TestCase
         $num_caso
     ): void
     {
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        (new LoggerPhpUnit($this, $this->testSuiteControl, "Eliminar Turno"))->log();
 
         // Preparar los datos para la prueba
         $this->turnoObj->setterArray(['codigo' => $id]);
@@ -350,7 +350,7 @@ class TurnosRegistrarTest extends TestCase
         $resultado_esperado,
     ): void
     {
-        (new LoggerPhpUnit($this, $this->testSuiteControl))->log();
+        (new LoggerPhpUnit($this, $this->testSuiteControl, "Actualizar Turno"))->log();
 
         // Preparar los datos para la prueba
         $listaDatos = [
