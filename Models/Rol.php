@@ -3,6 +3,7 @@ class Rol extends Model
 {
     private string $nombre;
     private ?string $descripcion;
+    const SHOW_EXCEPTIONS_CODE = 1001;
 
     /** @var Permiso[] */
     public array $permisos = array();
@@ -48,13 +49,7 @@ class Rol extends Model
                 $stmt->execute();
             }
 
-            if($this->getTestingMode()){
-                $this->rollBack();
-                $this->beginTransaction();
-            }
-            else {
-                Bitacora::registrarTransaccion("Se ha creado el rol " . $this->nombre, $this->db->pdo());
-            }
+            $this->testHandler();
 
             // Guarda los cambios
             $this->commit();
@@ -77,6 +72,13 @@ class Rol extends Model
         $sql = "UPDATE rol SET nombre = :nombre, descripcion = :descripcion WHERE id = :id";
 
         try {
+
+            $original = Rol::cargar($this->id, true);
+
+            if(!$original){
+                throw new Exception("El rol seleccionado no existe", self::SHOW_EXCEPTIONS_CODE);
+            }
+
             $this->db->connectUser();
             $this->beginTransaction();
 
@@ -87,13 +89,7 @@ class Rol extends Model
 
             $stmt->execute();
 
-            if($this->getTestingMode()){
-                $this->rollBack();
-                $this->beginTransaction();
-            }
-            else {
-                Bitacora::registrarTransaccion("Se ha actualizado el rol " . $this->nombre, $this->db->pdo());
-            }
+            $this->testHandler();
 
             $this->commit();
             
@@ -101,7 +97,9 @@ class Rol extends Model
 
             return true;
         } catch (\Throwable $th) {
-            $_SESSION['errores'][] = "Ha ocurrido un error al actualizar el rol.";
+            $this->disconectHandlerExeption();
+            $mensaje = $th->getCode() == self::SHOW_EXCEPTIONS_CODE ? $th->getMessage() : "Ha ocurrido un error al actualizar el rol.";
+            $_SESSION['errores'][] = $mensaje;
             return false;
         }
     }
