@@ -175,6 +175,7 @@
 </div>
 
 <?php renderComponent('ModalCancelar') ?>
+<?php renderComponent('ModalCancelarTarea') ?>
 <?php renderComponent('ModalTerminar') ?>
 <?php renderComponent('ModalGenerico') ?>
 <?php renderComponent('ModalTareas') ?>

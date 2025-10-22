@@ -1,6 +1,7 @@
 // Función para mostrar el modal de confirmación
 function mostrarModalCancelar(id, element) {
     const modal = $('#modal-cancelar');
+    const modalcancelar = $('#modal-cancelartarea');
     
     // Configurar el modal
     modal.find('.modelo').text('la tarea');
@@ -10,7 +11,22 @@ function mostrarModalCancelar(id, element) {
     modal.find('.eliminar').off('click').on('click', function(e) {
         e.preventDefault();
         modal.modal('hide');
-        cancelarTarea(id, element);
+
+        $.ajax({
+        url: "Tareas/Cancelar",
+        method: "GET",
+        success: function (data) {
+
+          modalcancelar.find(".modal-content").html(data);
+
+         obtenerCancelarPorId(id);
+        },
+        error: function () {},
+      });
+
+       // obtenerCancelarPorId(id);
+        
+       // cancelarTarea(id, element);
     });
     
     // Mostrar el modal
@@ -252,9 +268,6 @@ return buttons;
 function mostrarModalEvaluacion(tareaData) {
   const modal = $("#modal-evaluacion"); // Asegúrate que este ID coincide con tu modal de evaluación
 
-  // Cargar plantilla base primero (si es necesario)
-  // modal.find('.modal-content').load('Ruta/PlantillaEvaluacion', function() {
-
   // Insertar datos básicos de la tarea (opcional)
   console.log(tareaData.data); // This shows the full response
   console.log(tareaData); // This shows the wrapper object  // This accesses the tarea object
@@ -474,7 +487,7 @@ function formatPonderacion(ponderacion) {
 
 function obtenerOrdenPorId(idTarea) {
   $.ajax({
-    url: "Tareas/Orden", // Asegúrate que este sea el path correcto
+    url: "Tareas/Orden", 
     type: "POST",
     data: { id: idTarea },
     success: function (response) {
@@ -494,6 +507,286 @@ function obtenerOrdenPorId(idTarea) {
   });
 }
 
+// ------------------------------------------- LLENAR DATOS CANCELAR .-.-------------------------------
+
+
+function obtenerCancelarPorId(idTarea) {
+  $.ajax({
+    url: "Tareas/Cancelar",
+    type: "POST",
+    data: {
+      id: idTarea, // Solo envía el ID para consulta mi estimado :)
+    },
+    success: function (response) {
+      if (response.success) {
+        console.log("Datos de la tarea y evaluación:", response.data);
+        console.log(121212);
+        mostrarModalCancelarTarea(response.data);
+
+      } else {
+        mostrarError(response.message || "Error al obtener los datos");
+      }
+    },
+    error: function (xhr) {
+      mostrarError("Error del servidor al obtener los datos");
+      console.error(xhr.responseText);
+    },
+  });
+}
+
+
+// ------------------------------------------- MOSTRAR DATOS CANCELAR .-.-------------------------------
+
+function mostrarModalCancelarTarea(tareaData) {
+  const modal = $("#modal-cancelartarea");
+
+  // Insertar datos básicos de la tarea
+  console.log('Datos de tarea para cancelación:', tareaData);
+  
+  // Llenar información básica
+  $("#id-tarea").val(tareaData.id);
+  $("#cancelacion-id").text(tareaData.id);
+  $("#cancelacion-departamento").text(tareaData.tarea.departamento_nombre);
+  $("#cancelacion-area").text(tareaData.tarea.area_nombre);
+  $("#cancelacion-descripcion").text(tareaData.tarea.descripcion_tarea);
+  
+  // Formatear fecha
+  const fechaInicio = new Date(tareaData.tarea.fecha_inicio_tarea);
+  $("#cancelacion-fecha").text(fechaInicio.toLocaleDateString());
+
+  // Llenar personal asignado
+  const tbodyPersonal = $("#cancelacion-personal");
+  tbodyPersonal.empty();
+  
+  if (tareaData.tarea.personal && tareaData.tarea.personal.length > 0) {
+    tareaData.tarea.personal.forEach(persona => {
+      const row = `
+        <tr>
+          <td>${persona.nombre} ${persona.apellido}</td>
+          <td>${persona.cargo}</td>
+          <td>${persona.turno}</td>
+        </tr>
+      `;
+      tbodyPersonal.append(row);
+    });
+  } else {
+    tbodyPersonal.append('<tr><td colspan="3" class="text-center">No hay personal asignado</td></tr>');
+  }
+
+  // Llenar tabla de materiales (usando tu lógica existente)
+  const tbody = $("#tabla-materialesDevueltos tbody");
+  tbody.empty();
+
+  if (tareaData.tarea.materialestarea && tareaData.tarea.materialestarea.length > 0) {
+    tareaData.tarea.materialestarea.forEach((material, index) => {
+      // Determinar unidad de medida (puedes ajustar según tu estructura de datos)
+      const unidad = material.medida_nombre || obtenerUnidadPorId(material.idMedida) || "unidades";
+      const esDecimal = ["m", "metro", "kg", "kilogramo", "l", "litro"].includes(unidad.toLowerCase());
+      const step = esDecimal ? 'step="0.1"' : "";
+      const max = parseFloat(material.cantidad);
+
+      const row = `
+        <tr data-id="${material.id}">
+            <td>${material.nombre}</td>
+            <td>${material.cantidad} ${unidad}</td>
+            <td>
+                <input type="hidden" name="materiales[${index}][id]" value="${material.id}">
+                <input type="number" name="materiales[${index}][utilizado]" 
+                       class="form-control form-control-sm material-usado" 
+                       value="0" 
+                       min="0" max="${max}" ${step}>
+            </td>
+            <td>
+                <input type="number" name="materiales[${index}][devuelto]" 
+                       class="form-control form-control-sm material-devuelto" 
+                       value="${material.cantidad}" 
+                       min="0" max="${max}" ${step}>
+            </td>
+        </tr>
+      `;
+      tbody.append(row);
+    });
+  } else {
+    tbody.append('<tr><td colspan="4" class="text-center">No se asignaron materiales</td></tr>');
+  }
+
+  // Configurar validación del formulario
+  configurarValidacionCancelacion();
+
+  // Mostrar el modal
+  modal.modal("show");
+}
+
+// Función auxiliar para obtener unidad por ID (ajusta según tus necesidades)
+function obtenerUnidadPorId(idMedida) {
+  const unidades = {
+    1: "unidades",
+    2: "metros", 
+    3: "kg",
+    // Agrega más según tu configuración
+  };
+  return unidades[idMedida] || "unidades";
+}
+
+// Configurar validación del formulario de cancelación
+function configurarValidacionCancelacion() {
+  const confirmCheckbox = $("#confirmacion-cancelacion");
+  const observacionesTextarea = $("#observaciones-cancelacion");
+  const btnConfirmar = $("#btn-confirmar-cancelacion");
+
+  function validarFormulario() {
+    const confirmado = confirmCheckbox.is(":checked");
+    const observacionesLlenas = observacionesTextarea.val().trim().length > 0;
+    btnConfirmar.prop("disabled", !(confirmado && observacionesLlenas));
+  }
+
+  confirmCheckbox.on("change", validarFormulario);
+  observacionesTextarea.on("input", validarFormulario);
+  
+  // Validación inicial
+  validarFormulario();
+}
+
+// Mantener tu lógica existente de sincronización entre campos
+$(document).on("input", ".material-usado, .material-devuelto", function () {
+  const row = $(this).closest("tr");
+  const maxText = row.find("td:nth-child(2)").text().split(" ")[0];
+  const max = parseFloat(maxText);
+  const unidad = row.find("td:nth-child(2)").text().split(" ")[1] || "";
+  const esDecimal = ["m", "metro", "kg", "kilogramo", "l", "litro"].includes(
+    unidad.toLowerCase()
+  );
+
+  const usado = row.find(".material-usado");
+  const devuelto = row.find(".material-devuelto");
+
+  if ($(this).hasClass("material-usado")) {
+    const val = Math.min(max, parseFloat($(this).val()) || 0);
+    $(this).val(val.toFixed(esDecimal ? 1 : 0));
+    devuelto.val((max - val).toFixed(esDecimal ? 1 : 0));
+  } else {
+    const val = Math.min(max, parseFloat($(this).val()) || 0);
+    $(this).val(val.toFixed(esDecimal ? 1 : 0));
+    usado.val((max - val).toFixed(esDecimal ? 1 : 0));
+  }
+});
+
+// Manejar el envío del formulario de cancelación
+$("#form-cancelacion").on("submit", function(e) {
+  e.preventDefault();
+  
+  if (!$("#confirmacion-cancelacion").is(":checked")) {
+    alert("Debe confirmar la cancelación para proceder.");
+    return;
+  }
+
+  // Aquí va tu lógica para enviar los datos al servidor
+  const formData = new FormData(this);
+  
+  // Procesar datos para envío
+  const datosCancelacion = {
+    id_tarea: formData.get('id_tarea'),
+    comentarios: formData.get('comentarios'),
+    materiales: []
+  };
+
+  // Recoger datos de materiales
+  $("#tabla-materialesDevueltos tbody tr").each(function(index) {
+    const idMaterial = $(this).data('id');
+    if (idMaterial) {
+      datosCancelacion.materiales.push({
+        id_material: idMaterial,
+        utilizado: formData.get(`materiales[${index}][utilizado]`),
+        devuelto: formData.get(`materiales[${index}][devuelto]`)
+      });
+    }
+  });
+
+  console.log('Datos de cancelación a enviar:', datosCancelacion);
+  
+  // Aquí harías el AJAX para enviar los datos
+  // $.ajax({
+  //   url: 'tu_endpoint_cancelacion',
+  //   method: 'POST',
+  //   data: datosCancelacion,
+  //   success: function(response) {
+  //     // Manejar respuesta exitosa
+  //     $("#modal-cancelartarea").modal("hide");
+  //     // Recargar o actualizar la interfaz
+  //   },
+  //   error: function(xhr, status, error) {
+  //     // Manejar error
+  //     alert("Error al cancelar la tarea: " + error);
+  //   }
+  // });
+});
+
+function enviarFormularioCancelacion(e) {
+    console.log("Enviando formulario de cancelaci n...");
+    e.preventDefault();
+
+    if (!$("#confirmacion-cancelacion").is(":checked")) {
+        alert("Debe confirmar la cancelaci n para proceder.");
+        return;
+    }
+
+    // Preparar datos para env o
+    const formData = new FormData($("#form-cancelacion")[0]);
+    const materiales = [];
+
+    // Recoger datos de materiales
+    $("#tabla-materialesDevueltos tbody tr").each(function(index) {
+        const idMaterial = $(this).data('id');
+        if (idMaterial) {
+            const utilizado = $(this).find('.material-usado').val();
+            const devuelto = $(this).find('.material-devuelto').val();
+            
+            materiales.push({
+                id: idMaterial,
+                utilizado: parseFloat(utilizado) || 0,
+                devuelto: parseFloat(devuelto) || 0
+            });
+        }
+    });
+
+    // Crear objeto de datos para enviar
+    const datosCancelacion = {
+        idTarea: formData.get('id_tarea'),
+        comentarios: formData.get('comentarios'),
+        materiales: materiales
+    };
+
+    console.log('Datos de cancelaci n a enviar:', datosCancelacion);
+    
+    // Enviar datos via AJAX
+    $.ajax({
+        url: 'Tareas/Cancelar', // Ajusta la ruta seg n tu estructura
+        method: 'POST',
+        data: datosCancelacion,
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                mostrarExito(response.message);
+                $("#modal-cancelartarea").modal("hide");
+                
+                // Recargar o actualizar la interfaz
+                setTimeout(() => {
+                    location.reload(); // O tu funci n para actualizar la tabla
+                }, 1000);
+            } else {
+                if (response.errors) {
+                    response.errors.forEach(mostrarError);
+                } else {
+                    mostrarError(response.message || "Error al cancelar la tarea");
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error en la solicitud:', error);
+            alert("Error al cancelar la tarea: " + error);
+        }
+    });
+}
 // ------------------------------------------- LLENAR DATOS EVALUACION .-.-------------------------------
 function obtenerEvaluarPorId(idTarea) {
   $.ajax({
@@ -666,7 +959,7 @@ $(document).ready(function () {
   actualizarContadoresTareas();
     
   
-    setInterval(actualizarContadoresTareas, 2000);
+    setInterval(actualizarContadoresTareas, 6000);
 
   function actualizarContadoresTareas() {
     $.ajax({
@@ -701,7 +994,14 @@ const commonConfig = {
     },
     { data: "area" },
     { data: "departamento" },
-    { data: "descripcion" },
+    {
+      data: "descripcion",
+      render: function (data, type, row) {
+        const maxLength = 80;
+        const trimmedString = data.substring(0, maxLength) + (data.length > maxLength ? '...' : '');
+        return trimmedString;
+      },
+    },
     { data: "fecha" },
     { data: "estado" },
     {
@@ -817,11 +1117,6 @@ const commonConfig = {
             } */
   });
 
-
-  // --------------------------------------------------MODAL CANCELAR------------------------------------
-  $(document).on("show.bs.modal", "#modal-cancelar", function (e) {
-   
-  });
 
   //----------------------------------------------------MODAL ORDENES ----------------------------
 
@@ -1390,144 +1685,6 @@ function generarVistaPreviaImpresion(tareasSeleccionadas) {
     ventanaImpresion.document.close();
 }
 
-// Ejemplo de uso con dos órdenes de trabajo
-function mostrarEjemplo() {
-    const tareasEjemplo = [
-        // Orden 1: Un solo técnico con una sola tarea simple
-        {
-            id: 501,
-            descripcion: "Cambio de bombillo en pasillo principal",
-            departamento: "Electricidad",
-            area: "Pasillo Central",
-            personal: [
-                {
-                    id: 50,
-                    nombre_completo: "Mario Silva",
-                    cargo: "Electricista"
-                }
-            ]
-        },
-        
-        // Orden 2: Un técnico con múltiples tareas en diferentes áreas
-        {
-            id: 502,
-            descripcion: "Reparación de ventana en oficina de gerencia",
-            departamento: "Carpintería",
-            area: "Oficinas Gerenciales",
-            personal: [
-                {
-                    id: 51,
-                    nombre_completo: "Carlos Andrade",
-                    cargo: "Carpintero"
-                }
-            ]
-        },
-        {
-            id: 503,
-            descripcion: "Instalación de estante en almacén",
-            departamento: "Carpintería",
-            area: "Almacén 2",
-            personal: [
-                {
-                    id: 51,
-                    nombre_completo: "Carlos Andrade",
-                    cargo: "Carpintero"
-                }
-            ]
-        },
-        
-        // Orden 3: Equipo de trabajo (2 personas) en una tarea compleja
-        {
-            id: 504,
-            descripcion: "Mantenimiento mayor a compresor de aire",
-            departamento: "Mantenimiento",
-            area: "Sala de Máquinas",
-            personal: [
-                {
-                    id: 52,
-                    nombre_completo: "Luisa Fernández",
-                    cargo: "Técnico Mecánico"
-                },
-                {
-                    id: 53,
-                    nombre_completo: "Jorge Rojas",
-                    cargo: "Ayudante Especializado"
-                }
-            ]
-        },
-        
-        // Orden 4: Técnico con tarea que requiere materiales especiales
-        {
-            id: 505,
-            descripcion: "Aplicación de pintura anti-corrosiva en estructura",
-            departamento: "Pintura",
-            area: "Área de Producción",
-            materiales: "Pintura epóxica, brochas, thinner",
-            personal: [
-                {
-                    id: 54,
-                    nombre_completo: "Ana Martínez",
-                    cargo: "Pintor Industrial"
-                }
-            ]
-        },
-        
-        // Orden 5: Técnico compartido entre departamentos
-        {
-            id: 506,
-            descripcion: "Reparación de puerta eléctrica",
-            departamento: "Electricidad",
-            area: "Entrada Principal",
-            personal: [
-                {
-                    id: 55,
-                    nombre_completo: "Pedro Vásquez",
-                    cargo: "Técnico Multifuncional"
-                }
-            ]
-        },
-        {
-            id: 507,
-            descripcion: "Ajuste de cerradura mecánica",
-            departamento: "Herrería",
-            area: "Oficina de Recursos Humanos",
-            personal: [
-                {
-                    id: 55,
-                    nombre_completo: "Pedro Vásquez",
-                    cargo: "Técnico Multifuncional"
-                }
-            ]
-        },
-        
-        // Orden 6: Equipo completo para proyecto grande
-        {
-            id: 508,
-            descripcion: "Instalación de nuevo sistema de ventilación",
-            departamento: "Mantenimiento",
-            area: "Planta Completa",
-            personal: [
-                {
-                    id: 56,
-                    nombre_completo: "Ricardo Mora",
-                    cargo: "Supervisor de Mantenimiento"
-                },
-                {
-                    id: 57,
-                    nombre_completo: "Sofía Jiménez",
-                    cargo: "Técnico en HVAC"
-                },
-                {
-                    id: 58,
-                    nombre_completo: "Diego Cordero",
-                    cargo: "Ayudante"
-                }
-            ]
-        }
-    ];
-
-    generarVistaPreviaImpresion(tareasEjemplo);
-}
 
 // En tu modal, llamarías esto al hacer clic en "Vista Previa":
 $('#btn-generar-preview').click(function() {
@@ -1708,8 +1865,10 @@ $("#btn-guardar-evaluacion").click(function () {
             if (response.success) {
               mostrarExito(response.message);
               $("#modal-evaluar-tarea").modal("hide");
+               tablaVencidas.ajax.reload();
               if (typeof tablaActivas !== "undefined") {
-                tablaActivas.ajax.reload();
+                tablaVencidas.ajax.reload();
+
               $("#modal-evaluar").modal("hide");
               }
             } else {

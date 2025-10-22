@@ -61,9 +61,17 @@
                                     <div class="col-12">
                                         <label for="descripcion" class="form-label fw-semibold">Descripción detallada</label>
                                         <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required
-                                            placeholder="Describa la tarea a realizar con todos los detalles necesarios..."></textarea>
+                                            placeholder="Describa la tarea a realizar con todos los detalles necesarios..."
+                                            onkeyup="verificarLongitud(this, 500)"></textarea>
                                         <small class="text-muted">Máximo 500 caracteres</small>
                                         <div class="invalid-feedback">Por favor ingrese una descripción</div>
+                                        <script>
+                                            function verificarLongitud(textarea, longitudMaxima) {
+                                                if (textarea.value.length > longitudMaxima) {
+                                                    textarea.value = textarea.value.substring(0, longitudMaxima);
+                                                }
+                                            }
+                                        </script>
                                     </div>
                                 </div>
                             </div>
