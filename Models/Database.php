@@ -10,6 +10,7 @@ class Database
     private string $password;
     private string $charset;
     private bool $connected = false;
+    private bool $isTestConnection = false;
     /**
      * 
      * @var 'normal'|'user' $last_instance
@@ -49,6 +50,7 @@ class Database
 
     public function connect() : bool
     {
+        if ($this->isTestConnection && $this->connected) return true;
         try {
             $dns = "mysql:host=".$this->host.";dbname=".$this->dbname.";charset=".$this->charset;
             $options = [
@@ -169,6 +171,7 @@ class Database
 
     public function disconnect() : void
     {
+        if ($this->isTestConnection) return;
         $this->pdo = null;
         unset($this->pdo);
         $this->connected = false;
@@ -455,6 +458,14 @@ class Database
     }
     public function set_connected(bool $connected){
         $this->connected = $connected;
+    }
+
+    public function setTestConnection(bool $isTestConnection){
+        $this->isTestConnection = $isTestConnection;
+    }
+
+    public function isTestConnection() {
+        return $this->isTestConnection;
     }
 }
 // TODO manejar error de la conexión por try-catch internamente

@@ -141,9 +141,10 @@ class Trabajador extends Model
             $trabajador = Trabajador::cargarPorCedula($this->cedula);
             $this->estado = "";
 
-            if(!empty($trabajador) and ( $this->estado = $trabajador->getEstado() ) == self::TRABAJADOR_ACTIVO){
-                throw new Exception("El trabajador con cedula $this->cedula ya existe en la base de datos", self::SHOW_EXCEPTION);
-            }
+            // Temporal para las pruebas
+            // if(!empty($trabajador) and ( $this->estado = $trabajador->getEstado() ) == self::TRABAJADOR_ACTIVO){
+            //     throw new Exception("El trabajador con cedula $this->cedula ya existe en la base de datos", self::SHOW_EXCEPTION);
+            // }
             if(!empty($trabajador)){
                 $this->id = $trabajador->id;
             }

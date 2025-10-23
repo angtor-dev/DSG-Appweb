@@ -51,6 +51,15 @@ abstract class Model
         return $resp;
     }
 
+    public function cargarUltimo(bool $userBD = false) : null|self
+    {
+        $items = $userBD ? $this->listarDBUser() : $this->listar();
+        if (empty($items)) {
+            return null;
+        }
+        return end($items);
+    }
+
     /**
      * Retorna un array de objetos del modelo que lo instacía
      *
@@ -58,7 +67,7 @@ abstract class Model
      * Si se especifica, retorna las filas donde el estado sea igual al indicado.
      * @return array<self>
      **/
-    public function listar(int $estado = null): array
+    public function listar(?int $estado = null): array
     {
         $table = strtolower(static::class);
         $query = "SELECT * FROM $table" . (isset($estado) ? " WHERE estado = :estado" : "");
@@ -78,7 +87,7 @@ abstract class Model
         return $stmt->fetchAll();
     }
 
-    public function listarDBUser(int $estado = null): array
+    public function listarDBUser(?int $estado = null): array
     {
         $table = strtolower(static::class);
         $query = "SELECT * FROM $table" . (isset($estado) ? " WHERE estado = :estado" : "");
@@ -109,7 +118,7 @@ abstract class Model
      * @param int|null $estatus Si se especifica, retorna las filas donde el estatus sea igual al indicado.
      * @return array<self>
      */
-    public static function listarPorRelacion(int $id, string $tablaForanea, int $estado = null, bool $userBD = false) : array
+    public static function listarPorRelacion(int $id, string $tablaForanea, ?int $estado = null, bool $userBD = false) : array
     {
         $bd = Database::getInstance();
         $table = strtolower(static::class);
@@ -331,6 +340,9 @@ abstract class Model
     protected function beginTransaction() : void
     {
         if(isset($this->db) and $this->db->connected()){
+            if ($this->db->pdo()->inTransaction()) {
+                return;
+            }
             $this->db->pdo()->beginTransaction();
         }
         else {
@@ -338,9 +350,32 @@ abstract class Model
         }
     }
 
+    public function beginTestTransaction() : void
+    {
+        $this->db->setTestConnection(true);
+        $this->db->connect();
+        if ($this->db->pdo()->inTransaction()) {
+            throw new Exception("Ya hay una transacción en curso.");
+        }
+        $this->db->pdo()->beginTransaction();
+    }
+
+    public function stopTestTransaction() : void
+    {
+        $this->db->setTestConnection(false);
+        if ($this->db->connected()) {
+            if ($this->db->pdo()->inTransaction()) {
+                $this->db->pdo()->rollBack();
+            }
+            $this->db->disconnect();
+        }
+    }
+
     /** shorthand para PDO::commit*/
     protected function commit() : void
     {
+        if ($this->db->isTestConnection()) return;
+        
         if(isset($this->db) and $this->db->connected() and $this->db->pdo()->inTransaction()){
             $this->db->pdo()->commit();
         }
@@ -393,6 +428,9 @@ abstract class Model
      */
     public function testHandler() : bool
     {
+        if ($this->db->isTestConnection()) {
+            return true;
+        }
         $testing = false;
         if($this->getTestingMode()) {
             $this->rollBack();

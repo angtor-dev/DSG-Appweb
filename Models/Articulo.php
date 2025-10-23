@@ -15,7 +15,7 @@ class Articulo extends Model
      * Retorna un array de objetos Articulo con todos los registros de la tabla articulos.
      * @return Articulo[]
      */
-    public function listar(int $estado = null): array
+    public function listar(?int $estado = null): array
     {
         $query = "SELECT a.id, a.idCategoria, a.idMedida, a.nombre, a.descripcion, a.cantidad,
             a.esConsumible, c.nombre AS categoria_nombre, c.descripcion AS categoria_descripcion,
@@ -227,7 +227,7 @@ class Articulo extends Model
     }
 
     // Setters
-    public function setDatos(int $id = null, int $idCategoria, int $idMedida, string $nombre,
+    public function setDatos(?int $id = null, int $idCategoria, int $idMedida, string $nombre,
         ?string $descripcion, float $cantidad, bool $esConsumible) : void
     {
         if (isset($id)) {
