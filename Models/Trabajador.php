@@ -186,7 +186,6 @@ class Trabajador extends Model
             if(empty($cargo)){
                 throw new Exception("El cargo seleccionado no es valido", self::SHOW_EXCEPTION);
             }
-            
         }
 
         if($control == self::ELIMINAR_TRABAJADOR){
@@ -566,6 +565,7 @@ class Trabajador extends Model
                 $parametros["estado"] = $estado;
             }
 
+            $query .= " ORDER BY t.id ASC";
 
             $resp = $this->ejecutar($query, $parametros, $fetchMode, $fetchArg);
             $this->db->disconnect();
@@ -636,6 +636,9 @@ DESC";
     public function getCargo() : string {
         // TODO get desde el modelo
         return $this->cargo;
+    }
+    public function getIdCargo() : ?int {
+        return ($this->cargo instanceof Cargo) ? $this->cargo->id : (int)$this->idCargo;
     }
     public function getTurno() : string {
         // TODO get desde el modelo

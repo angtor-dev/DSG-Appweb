@@ -393,6 +393,15 @@ class Cargo extends Model implements JsonSerializable
 		return parent::listar($estado);
 	}
 
+	public function cargarUltimo(bool $userBD = false): ?self
+	{
+		$respuesta = $this->listar();
+		if (count($respuesta['data']) === 0) {
+			return null;
+		}
+		return end($respuesta['data']);
+	}
+
 
 
 

@@ -1,7 +1,7 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-final class TareasTest extends TestCase
+final class TareasIntTest extends TestCase
 {
     private static Usuario $usuario;
 
@@ -64,9 +64,8 @@ final class TareasTest extends TestCase
     public function registrarTrabajador() : void
     {
         // Arrange
-
         $trabajador = new Trabajador();
-        $cedula = "12345679";
+        $cedula = "12345671";
         $nombre = "Trabajador de pruebas";
         $apellido = "Apellido de prueba";
         $telefono = "12345678912";

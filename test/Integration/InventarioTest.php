@@ -1,7 +1,7 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-final class InventarioTest extends TestCase
+final class InventarioIntTest extends TestCase
 {
     private static Usuario $usuario;
 
