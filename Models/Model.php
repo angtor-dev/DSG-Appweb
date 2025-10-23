@@ -339,6 +339,7 @@ abstract class Model
     /** shorthand para PDO::beginTransaction*/
     protected function beginTransaction() : void
     {
+        if ($this->db->isTestConnection()) return;
         if(isset($this->db) and $this->db->connected()){
             if ($this->db->pdo()->inTransaction()) {
                 return;
@@ -382,6 +383,7 @@ abstract class Model
     }
     protected function rollBack() : void
     {
+        if ($this->db->isTestConnection()) return;
         if(isset($this->db) and $this->db->connected() and $this->db->pdo()->inTransaction()){
             $this->db->pdo()->rollBack();
         }
@@ -408,6 +410,7 @@ abstract class Model
      */
     public function disconectHandlerExeption() : void
     {
+        if ($this->db->isTestConnection()) return;
         if( isset($this->db) && $this->db->connected() ){
             
             if($this->db->pdo()->inTransaction()){

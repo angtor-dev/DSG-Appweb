@@ -66,7 +66,7 @@ final class TrabajadoresIntTest extends TestCase
         } catch (\Throwable $th) {
             $esValido = false;
         }
-        $respuesta = $cargo->registrar();
+        $respuesta = $cargo->registrar(false);
         $ultimoCargo = $cargo->cargarUltimo();
 
         // Assert
@@ -121,7 +121,7 @@ final class TrabajadoresIntTest extends TestCase
         } catch (\Throwable $th) {
             $esValido = false;
         }
-        $respuesta = $turno->registrar();
+        $respuesta = $turno->registrar(false);
         $ultimoTurno = $turno->cargarUltimo();
 
         // Assert
@@ -165,7 +165,7 @@ final class TrabajadoresIntTest extends TestCase
         } catch (\Throwable $e) {
             $esValido = false;
         }
-        $respuesta = $trabajador->registrar();
+        $respuesta = $trabajador->registrar(false);
 
         // Assert
         $this->assertTrue($esValido, "El trabajador debería ser válido.");
@@ -216,7 +216,7 @@ final class TrabajadoresIntTest extends TestCase
         } catch (\Throwable $e) {
             $esValido = false;
         }
-        $respuesta = $ultimoTrabajador->actualizar();
+        $respuesta = $ultimoTrabajador->actualizar(false);
         /** @var Trabajador */
         $trabajadorActualizado = Trabajador::cargar($ultimoTrabajador->id);
 

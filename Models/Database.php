@@ -68,6 +68,24 @@ class Database
         }
     }
 
+    public function beginTransaction() : void
+    {
+        if ($this->isTestConnection && $this->connected) return;
+        $this->pdo->beginTransaction();
+    }
+
+    public function rollback() : void
+    {
+        if ($this->isTestConnection && $this->connected) return;
+        $this->pdo->rollBack();
+    }
+
+    public function commit() : void
+    {
+        if ($this->isTestConnection && $this->connected) return;
+        $this->pdo->commit();
+    }
+
     /**
      * Establece una conexión a la base de datos de usuarios usando las credenciales
      * y la configuración definidas en las constantes DB_USERS_HOST, DB_USERS_NAME,
