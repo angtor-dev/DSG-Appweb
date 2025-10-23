@@ -52,7 +52,7 @@ class Tarea extends Model
      */
 public function registrar(): bool {
     $this->db->connect();
-    $this->db->pdo()->beginTransaction();
+    $this->beginTransaction();
 
     try {
         if (!$this->esValido()) {
@@ -79,16 +79,16 @@ public function registrar(): bool {
         if (!empty($this->materiales)) {
             $this->asignarMateriales($this->id, $this->materiales);
         }
+        $this->testHandler();
 
-        $this->db->pdo()->commit();
+        $this->commit();
+        $this->db->disconnect();
         return true;
     } catch (\Throwable $th) {
-        $this->db->pdo()->rollBack();
+        $this->disconectHandlerExeption();
         $_SESSION['errores'][] = $th->getMessage();
         error_log("Error al registrar tarea: " . $th->getMessage());
         return false;
-    } finally {
-        $this->db->disconnect();
     }
 }
   
@@ -397,7 +397,8 @@ private function validarDisponibilidadMateriales(array $materiales): void
 
 public function evaluar(): bool {
     $this->db->connect();
-    $this->db->pdo()->beginTransaction();
+    $this->beginTransaction();
+
 
     try {
         if (!$this->esValidoEval()) {
@@ -426,15 +427,17 @@ public function evaluar(): bool {
             $this->actualizarRecursos($this->id, $this->materiales);
         }
 
+        $this->testHandler();
+
         $this->db->pdo()->commit();
+        $this->db->disconnect();
         return true;
     } catch (\Throwable $e) {
+        $this->disconectHandlerExeption();
         $this->db->pdo()->rollBack();
         $_SESSION['errores'][] = $e->getMessage();
         error_log("Error al evaluar tarea: " . $e->getMessage());
         return false;
-    } finally {
-        $this->db->disconnect();
     }
 }
 

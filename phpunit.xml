@@ -62,6 +62,12 @@
 			</directory>
 		</testsuite>
 
+		<testsuite name ="Tarea">
+			<directory suffix=".php">
+				test/Unit/Tarea
+			</directory>
+		</testsuite>
+
 
 
 		<!-- 
