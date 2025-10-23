@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-10-2025 a las 04:09:10
+-- Tiempo de generación: 23-10-2025 a las 23:47:35
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -238,10 +238,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_registrar_asistencia_semanal` (I
     -- obtener el v_id_trabajador
     
         SELECT id INTO v_id_trabajador FROM trabajador WHERE cedula = p_cedula;
-        
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "paso de la cedula";
-        
-        
         
         IF v_id_trabajador IS NULL THEN
             SET v_signal_Text = CONCAT("Show::El trabajador con cedula ", p_cedula, " no existe.");
@@ -770,7 +766,8 @@ INSERT INTO `categoria` (`id`, `nombre`, `descripcion`, `color`) VALUES
 (27, 'Camping', 'Equipo para actividades al aire libre', 'B8FF33'),
 (28, 'Regalos', 'Artículos para obsequios', 'FF338A'),
 (29, 'Mascotas', 'Alimentos y accesorios para animales', '338AFF'),
-(30, 'Decomiso', 'Objetos de recuperación o reasignación', '8AFF33');
+(30, 'Decomiso', 'Objetos de recuperación o reasignación', '8AFF33'),
+(37, 'Categoria test', '', '56c6b5');
 
 -- --------------------------------------------------------
 
