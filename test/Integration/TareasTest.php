@@ -105,7 +105,6 @@ final class TareasTest extends TestCase
         $idSupervisor = (new Trabajador())->cargarUltimo()->id;
         $idTrabajador = (new Trabajador())->cargarUltimo()->id;
         $idArticulo = (new Articulo())->cargarUltimo()->id;
-        echo $idArticulo;
 
         // Act
         $datos = [
@@ -152,23 +151,88 @@ final class TareasTest extends TestCase
             $ultimaTarea->getDescripcion(),
             "La descripción de la última tarea debería coincidir con la registrada."
         );
+        $this->assertEquals(
+            "activo",
+            $ultimaTarea->getEstado(),
+            "El estado de la última tarea debería ser 'activo'."
+        );
     }
 
     /** @test */
-    public function actualizarTarea() : void
+    public function terminarTarea() : void
     {
         // Arrange
         $tarea = new Tarea();
-        $nuevaDescripcion = "Tarea de prueba actualizada";
 
         // Act
+        /** @var Tarea $ultimaTarea */
         $ultimaTarea = $tarea->cargarUltimo();
-        $ultimaTarea->setDescripcion($nuevaDescripcion);
-        $esValido = $ultimaTarea->esValido();
-        $seActualizo = $ultimaTarea->actualizar();
+        $ultimaTarea->terminar();
+        $tareaActualizada = $tarea->obtenerPorId($ultimaTarea->id);
 
         // Assert
-        $this->assertTrue($esValido, "La tarea actualizada debería ser válida.");
-        $this->assertTrue($seActualizo, "La tarea debería haberse actualizado correctamente.");
+        $this->assertEquals(
+            $ultimaTarea->id,
+            $tareaActualizada->id,
+            "El ID de la tarea debería coincidir después de actualizarla."
+        );
+        $this->assertEquals(
+            "vencida",
+            $tareaActualizada->getEstado(),
+            "El estado de la tarea debería ser 'vencida' después de finalizarla."
+        );
+    }
+
+    public function evaluarTarea() : void
+    {
+        // Arrange
+        $tarea = new Tarea();
+
+        /** @var Tarea $ultimaTarea */
+        $ultimaTarea = $tarea->cargarUltimo();
+        $idArticulo = (new Articulo())->cargarUltimo()->id;
+        $ponderacion = 'buenobueno';
+        $comentarios = 'Observaciones de prueba del supervisor';
+        $aprobacion = 1;
+
+        $ponderacion_director = 'buenomedio';
+        $comentarios_director = 'Observaciones de prueba del director';
+        $aprobacion_director = 1;
+        $materiales = [
+            ['id' => $idArticulo, 'utilizado' => 1, 'devuelto' => 0]
+        ];
+
+        $datosEvaluacion = [
+            'id' => $ultimaTarea->id,
+            'evaluacion' => [
+                'ponderacion' => $ponderacion,
+                'comentarios' => $comentarios,
+                'aprobacion' => $aprobacion
+            ],
+            'evaluacionDirector' => [
+                'ponderacion' => $ponderacion_director,
+                'comentarios' => $comentarios_director,
+                'aprobacion' => $aprobacion_director
+            ],
+            'materiales' => $materiales
+        ];
+
+        // Act
+        $tarea->setterArray($datosEvaluacion);
+        $seEvaluo = $tarea->evaluar();
+        $tareaEvaluada = $tarea->obtenerPorId($ultimaTarea->getId());
+
+        // Assert
+        $this->assertTrue($seEvaluo, "La tarea debería haberse evaluado correctamente.");
+        $this->assertEquals(
+            $ultimaTarea->getId(),
+            $tareaEvaluada->getId(),
+            "El ID de la tarea debería coincidir después de evaluarla."
+        );
+        $this->assertEquals(
+            'evaluada',
+            $tareaEvaluada->getEstado(),
+            "El estado de la tarea debería ser 'evaluada' después de evaluarla."
+        );
     }
 }
