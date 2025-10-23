@@ -235,21 +235,6 @@ class Area extends Model
         }
     }
 
-    public function mapearFormulario() : bool
-    {
-        try {
-            $this->nombre = $_POST['nombre'];
-            $this->idArea = !empty($_POST['idArea']) ? intval($_POST['idArea']) : null;
-            if (!empty($_POST['id'])) {
-                $this->id = $_POST['id'];
-            }
-
-            return true;
-        } catch (\Throwable $th) {
-            $_SESSION['errores'][] = "Error al mapear el formulario: " . $th->getMessage();
-            return false;
-        }
-    }
     public function eliminarArea(){
         
         try {

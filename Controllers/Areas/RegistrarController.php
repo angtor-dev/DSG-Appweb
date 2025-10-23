@@ -12,7 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     $area = new Area();
-    $area->mapearFormulario();
+    $area->setterArray([
+        "nombre" => $_POST["nombre"],
+        "idArea" => (!empty($_POST["idArea"])) ? intval($_POST["idArea"]) : null
+    ]);
 
     if ($area->esValido() && $area->registrar()) {
         $_SESSION['exitos'][] = "Área registrada con exito";

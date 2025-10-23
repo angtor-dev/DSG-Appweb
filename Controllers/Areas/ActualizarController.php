@@ -23,7 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     $area = new Area();
-    $area->mapearFormulario();
+    $area->setterArray([
+        "id" => $_POST["id"],
+        "nombre" => $_POST["nombre"],
+        "idArea" => (!empty($_POST["idArea"])) ? intval($_POST["idArea"]) : null
+    ]);
 
     if ($area->esValido(true) && $area->actualizar()) {
         $_SESSION['exitos'][] = "Área actualizada con exito";
