@@ -1,7 +1,9 @@
 <?php
 requiereAutenticacion();
 requierePermiso(Modulo::ARTICULOS, Permiso::ELIMINAR);
-
+/**
+ * @var Area
+ */
 $area = Articulo::cargar($_GET['id']);
 
 if (empty($area)) {

@@ -15,13 +15,30 @@ class LoggerPhpUnit
      */
     private $test;
     private $testSuite;
-    public function __construct( $test, $testSuite = "TestSuite") {
+    private $objetivo;
+    private $observacion;
+
+    /**
+     * constructor 
+     * @param mixed $test instancia de la prueba (para obtener los datos)
+     * @param mixed $testSuite nombre del testsuite
+     * @param mixed $objetivo objetivo de la prueba que se agrega al json para el archivo
+     * @param mixed $observacion observacion de la prueba
+     */
+    public function __construct( $test, $testSuite = "TestSuite", $objetivo = "", $observacion = "") {
         $this->test = $test;
         $this->testSuite = $testSuite;
+        $this->objetivo = $objetivo;
+        $this->observacion = $observacion;
     }
+
     /**
-     * crea un archivo .txt con el nombre del testsuite y por ahora contiene solo un hola mundo
-     * @return void
+     * crea un archivo .txt con las entradas de las pruebas
+     * @return array{
+     *     "name": string, // nombre de la prueba
+     *     "dataset": array, // dataset con las entradas
+     *     "dataname": string, // nombre del dataset
+     * }
      */
     public function log() {
 
@@ -76,6 +93,8 @@ class LoggerPhpUnit
             $objJsonMethods->setName($this->test->getName(false));
             $objJsonMethods->addDataset($this->test->getProvidedData(), $this->test->dataName());
             $objJsonMethods->setAssertions($this->test->getNumAssertions());
+            $objJsonMethods->setObjetivo($this->objetivo);
+            $objJsonMethods->setObservacion($this->observacion);
             $objJson->addMethod($objJsonMethods);
 
 
@@ -108,8 +127,13 @@ class LoggerPhpUnit
 
             fwrite($file, json_encode($arregloDePruebas, JSON_PRETTY_PRINT));
             fclose($file);
+            return [
+                "name" => $name, 
+                "dataset" => $dataset, 
+                "dataname" => $dataname];
         } catch (\Throwable $th) {
             $this->test->fail("".$th->getMessage()."line ".$th->getLine());
+            return [];
         }
 
         
@@ -155,6 +179,8 @@ class logJsonTest {
                 $methodControl->setWarnings($method->warnings);
                 $methodControl->setFailures($method->failures);
                 $methodControl->setTime($method->time);
+                $methodControl->setObservacion($method->observacion ?? "");
+                $methodControl->setObjetivo($method->objetivo ?? "");
                 $obj->addMethod($methodControl);
             }
         }
@@ -205,6 +231,9 @@ class logJsonTestMethod{
     public $time;
     public $dataset;
 
+    public $objetivo;
+    public $observacion;
+
     public function __construct() {
         $this->dataset = new stdClass();
     }
@@ -214,7 +243,21 @@ class logJsonTestMethod{
 
 
 
+    public function setObjetivo(string $objetivo) : self {
+        $this->objetivo = $objetivo;
+        return $this;
+    }
+    public function getObjetivo() : string {
+        return $this->objetivo ?? "";
+    }
 
+    public function setObservacion(string $observacion) : self {
+        $this->observacion = $observacion;
+        return $this;
+    }
+    public function getObservacion() : string {
+        return $this->observacion ?? "";
+    }
 
 
     public function setName(string $name) : self {

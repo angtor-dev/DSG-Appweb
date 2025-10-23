@@ -31,6 +31,7 @@ class Medida extends Model
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue("unidad", $this->unidad);
@@ -38,10 +39,15 @@ class Medida extends Model
 
             $stmt->execute();
 
+
+            $this->testHandler();
+            $this->commit();
+
             $this->db->disconnect();
 
             return true;
         } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
             if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = "Ocurrio un error al registrar la medida";
             return false;
@@ -55,6 +61,7 @@ class Medida extends Model
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue("id", $this->id);
@@ -63,10 +70,14 @@ class Medida extends Model
 
             $stmt->execute();
 
+            $this->testHandler();
+            $this->commit();
+
             $this->db->disconnect();
 
             return true;
         } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
             if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = "Ocurrio un error al actualizar la medida";
             return false;

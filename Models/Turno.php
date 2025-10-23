@@ -50,7 +50,13 @@ class Turno extends Model implements JsonSerializable
         }
     }
 
-
+    /**
+     * Summary of getTurnosOptions
+     * @param string|int $checkedId - el id del turno seleccionado por defecto
+     * @param bool $code - si es true se usa el codigo del turno
+     * @param bool $chekFirst - si es true se pone el primero como seleccionado
+     * @return string
+     */
     public static function getTurnosOptions(string|int $checkedId = null, bool $code = false, bool $chekFirst = false) : string
     {
 
@@ -201,13 +207,13 @@ class Turno extends Model implements JsonSerializable
             $bitacoraTexto = "Turno '".$this->nombre."' registrado";
             $bitacoraTexto .= " desde: ".$this->horario_entrada." hasta: ".$this->horario_salida;
             $bitacoraTexto .= " L: ".$this->lunes." M: ".$this->martes." X: ".$this->miercoles." J: ".$this->jueves." V: ".$this->viernes." S: ".$this->sabado." D: ".$this->domingo;
-            
-            Bitacora::registrarTransaccion($bitacoraTexto, $this->db->pdo());
 
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
+            if(!$this->testHandler()){
+                Bitacora::registrarTransaccion($bitacoraTexto, $this->db->pdo());
             }
+            
+
+            
 
             $this->commit();
 
@@ -215,7 +221,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => true,
-                "message" => "Turno registrado con exito"
+                "message" => "Turno registrado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -229,7 +235,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al registrar al turno"
+                "message" => "Ocurrió un error al registrar al turno"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage()." :: Linea: ".$th->getLine();
@@ -307,7 +313,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => true,
-                "message" => "Turno actualizado con exito"
+                "message" => "Turno actualizado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -321,7 +327,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al actualizar al turno"
+                "message" => "Ocurrió un error al actualizar al turno"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage()." :: Linea: ".$th->getLine();
@@ -370,7 +376,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => true,
-                "message" => "Turno eliminado con exito"
+                "message" => "Turno eliminado con éxito"
             );
         } catch (\Throwable $th) {
             if( 
@@ -384,7 +390,7 @@ class Turno extends Model implements JsonSerializable
 
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al eliminar al turno"
+                "message" => "Ocurrió un error al eliminar al turno"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage()." :: Linea: ".$th->getLine();

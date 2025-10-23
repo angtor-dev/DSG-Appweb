@@ -9,6 +9,7 @@ class Articulo extends Model
     private bool $esConsumible;
     public Categoria $categoria;
     public Medida $medida;
+    const SHOW_EXCEPTIONS_CODE = 1001;
 
     /**
      * Retorna un array de objetos Articulo con todos los registros de la tabla articulos.
@@ -84,6 +85,24 @@ class Articulo extends Model
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
+
+            $medida = Medida::cargar($this->idMedida);
+            $categoria = Categoria::cargar($this->idCategoria);
+
+            if(!$medida||!$categoria){
+                throw new Exception("La medida/Categoria no existe", self::SHOW_EXCEPTIONS_CODE);
+            }
+
+            if(!isset($this->nombre) || empty($this->nombre)){
+                throw new Exception("El nombre no puede estar vacio", self::SHOW_EXCEPTIONS_CODE);
+            }
+
+            $stmt = $this->ejecutarStatement("SELECT id FROM articulo WHERE nombre = :nombre", ["nombre" => $this->nombre]);
+            if($stmt->fetch()){
+                throw new Exception("El articulo con el nombre {$this->nombre} ya existe", self::SHOW_EXCEPTIONS_CODE);
+            }
+
 
             $stmt = $this->prepare($query);
             $stmt->bindValue("idCategoria", $this->idCategoria);
@@ -95,12 +114,18 @@ class Articulo extends Model
 
             $stmt->execute();
 
+            $this->testHandler();
+
+            $this->commit();
+
             $this->db->disconnect();
 
             return true;
         } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
             if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
-            $_SESSION['errores'][] = "Ocurrio un error al registrar el área";
+            $mensaje = $th->getCode() == self::SHOW_EXCEPTIONS_CODE ? $th->getMessage() : "Ocurrio un error al registrar el artículo";
+            $_SESSION['errores'][] = $mensaje;
             return false;
         }
     }
@@ -117,6 +142,29 @@ class Articulo extends Model
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
+
+            $original = $this->ejecutarStatement("SELECT * FROM articulo WHERE id = :id", ["id" => $this->id])->fetch();
+
+            if(!$original){
+                throw new Exception("El articulo seleccionado no existe", self::SHOW_EXCEPTIONS_CODE);
+            }
+
+            $medida = Medida::cargar($this->idMedida);
+            $categoria = Categoria::cargar($this->idCategoria);
+
+            if(!$medida||!$categoria){
+                throw new Exception("La medida/Categoria no existe", self::SHOW_EXCEPTIONS_CODE);
+            }
+
+            if(!isset($this->nombre) || empty($this->nombre)){
+                throw new Exception("El nombre no puede estar vacio", self::SHOW_EXCEPTIONS_CODE);
+            }
+
+            $stmt = $this->ejecutarStatement("SELECT id FROM articulo WHERE nombre = :nombre AND id != :id", ["nombre" => $this->nombre, "id" => $this->id]);
+            if($stmt->fetch()){
+                throw new Exception("El articulo con el nombre {$this->nombre} ya existe", self::SHOW_EXCEPTIONS_CODE);
+            }
 
             $stmt = $this->prepare($query);
             $stmt->bindValue("idCategoria", $this->idCategoria);
@@ -128,10 +176,18 @@ class Articulo extends Model
 
             $stmt->execute();
 
+
+            $this->testHandler();
+
+            $this->commit();
+
+
+
             $this->db->disconnect();
 
             return true;
         } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
             if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = "Ocurrió un error al actualizar el artículo";
             return false;

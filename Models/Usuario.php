@@ -1,6 +1,7 @@
 <?php
 class Usuario extends Model
 {
+    use Correos;
     public int|null $idRol = null;
     private string|null $correo = null;
     private int|string|null $estado = null;
@@ -67,6 +68,115 @@ class Usuario extends Model
         $_SESSION['usuario'] = $usuario;
 
         return true;
+    }
+
+    /**
+     * Funcion que envia el correo de restablecimiento de contraseña
+     * @return void
+     */
+    public function ResetPasswordMail() : array {
+        try {
+            $this->db->connectUser();
+            $this->beginTransaction();
+
+            if(empty($this->correo)) throw new Exception("El correo no puede estar vacio", self::SHOW_EXCEPTION);
+            if(!filter_var( $this->correo , FILTER_VALIDATE_EMAIL)) throw new Exception("El correo no es valido", self::SHOW_EXCEPTION);
+
+            $code = random_int(1000, 9999);
+
+            $query = "SELECT * FROM usuario WHERE correo = :correo";
+            $parametros = [
+                "correo" => $this->correo
+            ];
+            $consulta = $this->ejecutar($query, $parametros);
+            if(count($consulta) != 0) {
+                $query = "UPDATE usuario SET token = :code WHERE correo = :correo";
+                $parametros = [
+                    "code" => $code,
+                    "correo" => $this->correo
+                ];
+                $this->ejecutarStatement($query, $parametros);
+                $templatePath = "./Views/Login/template/reset_password";
+                $this->enviar_correo(["code" => $code, "email" => $this->correo], $templatePath, "Restablecimiento de contraseña");
+                $_SESSION["RESET_PASSWORD_EMAIL"] = ["email" => $this->correo, "TIMESTAMP" => time()];
+            }
+            
+            
+            $this->testHandler(); 
+            $this->commit();
+            $this->db->disconnect();
+            $resp = array(
+                "success" => true,
+                "message" => "Si este correo pertenece a un usuario, se le ha enviado un correo con el código de restablecimiento"
+            );
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+            $resp = array(
+                "success" => false,
+                "message" => "Ha ocurrido un error al restablecer la contraseña"
+            );
+            if($th instanceof Exception && $th->getCode() == self::SHOW_EXCEPTION){ 
+                $resp["message"] = $th->getMessage();
+            }
+        }
+        return $resp;
+    }
+
+    public function resetPassword(string $code) : array{
+        try {
+            $this->db->connectUser();
+            $this->beginTransaction();
+
+            if(empty($this->correo)) throw new Exception("ERROR");
+            if(!filter_var( $this->correo , FILTER_VALIDATE_EMAIL)) throw new Exception("ERROR");
+            if (!preg_match(REG_CLAVE, $this->clave)) {
+                throw new \Exception("La clave debe tener al menos 6 caracteres, una letra mayúscula, una letra minúscula y un número",self::SHOW_EXCEPTION);
+            }
+
+            $query = "SELECT correo FROM usuario WHERE token = :code";
+            $parametros = [
+                "code" => $code
+            ];
+            $consulta = $this->ejecutar($query, $parametros);
+            if(count($consulta) != 0) {
+                $query = "UPDATE usuario SET token = NULL, clave = :clave WHERE correo = :correo";
+                $parametros = [
+                    "clave" => password_hash($this->clave, PASSWORD_DEFAULT),
+                    "correo" => $consulta[0]["correo"]
+                ];
+                $this->ejecutarStatement($query, $parametros);
+            }
+            else{
+                $query = "UPDATE usuario SET token = NULL WHERE correo = :correo";
+                $parametros = [
+                    "correo" => $this->correo
+                ];
+                $this->ejecutarStatement($query, $parametros);
+                throw new Exception("ERROR", self::SHOW_EXCEPTION);
+            }
+            $bitacoraTexto = "Se ha restablecido la contraseña del usuario: " . $this->correo;
+            Bitacora::registrarTransaccion($bitacoraTexto, $this->db->pdo());
+            $this->testHandler(); 
+            $this->commit();
+            $this->db->disconnect();
+            $resp = array(
+                "success" => true,
+                "message" => "OPERACION EXITOSA"
+            );
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+            $resp = array(
+                "success" => false,
+                "message" => "ERROR"
+            );
+            if($th instanceof Exception && $th->getCode() == self::SHOW_EXCEPTION){ 
+                $resp["message"] = $th->getMessage();
+            }
+            if($resp["message"] == "ERROR"){
+                unset($_SESSION['RESET_PASSWORD_EMAIL']);
+            }
+        }
+        return $resp;
     }
 
     private function validarClave(string $clave) : bool
@@ -343,8 +453,8 @@ class Usuario extends Model
                 $this->beginTransaction();
             }
             else{
-                $this->db->pdo()->commit();
                 Bitacora::registrarTransaccion("Usuario '".$this->getCorreo()."' actualizado", $this->db->pdo());
+                $this->db->pdo()->commit();
             }
 
 
@@ -353,7 +463,7 @@ class Usuario extends Model
             $respuesta = [
                 "success" => true,
                 "idModificado" => $this->id,
-                "mensaje" => "Usuario actualizado con exito"
+                "mensaje" => "Usuario actualizado con éxito"
             ];
 
             
@@ -374,7 +484,7 @@ class Usuario extends Model
             //$_SESSION['errores'][] = "Ocurrio un error al actualizar a el usuario";
             $respuesta = [
                 "success" => false,
-                "mensaje" => "Ocurrio un error al actualizar a el usuario",
+                "mensaje" => "Ocurrió un error al actualizar a el usuario",
                 "idModificado" => null
             ];
             
@@ -383,7 +493,7 @@ class Usuario extends Model
             //if (DEVELOPER_MODE) $respuesta['consoleError'] = "`".addslashes($th->getMessage())." :: File:".addslashes($th->getFile())." :: Linea:".addslashes($th->getLine())."`";
             if(DEVELOPER_MODE) {
                 $respuesta["mensaje"] = $th->getMessage();
-                debug([$th->getTrace(),$respuesta['mensaje']]);
+                //debug([$th->getTrace(),$respuesta['mensaje']]);
             }
             
         }
@@ -393,6 +503,12 @@ class Usuario extends Model
         return $respuesta;
     }
 
+    /**
+     * Elimna el usuario seleccionado por id
+     * @param mixed $print imprime el json basado en el arreglo
+     * @param mixed $logicDelete si es true realiza un soft delete
+     * @return array{idEliminado: string|null, mensaje: string, success: bool} 
+     */
     public function eliminarUsuario($print = true, $logicDelete = false) : array
     {
         try {
@@ -411,12 +527,10 @@ class Usuario extends Model
             $stmt->bindValue("id", $this->id);
             $stmt->execute();
 
-            if($this->getTestingMode()) {
-                $this->db->pdo()->rollBack();
-                $this->db->pdo()->beginTransaction();
+            
+            if(!$this->testHandler()){
+                Bitacora::registrarTransaccion("Usuario ('".$datosDevueltos['usuario']['correo']."') (".$datosDevueltos['usuario']['cedula'].") eliminado", $this->db->pdo());
             }
-
-            Bitacora::registrarTransaccion("Usuario ('".$datosDevueltos['usuario']['correo']."') (".$datosDevueltos['usuario']['cedula'].") eliminado", $this->db->pdo());
 
             $this->db->pdo()->commit();
             $this->db->disconnect();
@@ -554,7 +668,7 @@ class Usuario extends Model
             }
         }
         else if($controlAction == self::ELIMINAR_USUARIO) {
-            if(!preg_match("/^[0-9]+$/", $this->id)){
+            if(!isset($this->id) || !preg_match("/^[0-9]+$/", $this->id)){
                 throw new \Exception($defaultValidationMessages->userNoSelectedDelete,self::SHOW_EXCEPTION);
             }
             if ($this->id == $_SESSION['usuario']->id) {

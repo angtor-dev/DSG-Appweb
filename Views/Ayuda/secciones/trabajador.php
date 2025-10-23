@@ -30,8 +30,8 @@
                 <ul>
                     <li>Una vez que haya llenado el formulario, haga clic en el botón "Registrar" ubicado en la parte inferior derecha del formulario.</li>
                     <li>El sistema mostrará un indicador de carga mientras guarda la información.</li>
-                    <li>Al finalizar, verá un mensaje de "Registro exitoso" si la operación se completó correctamente, o un mensaje de error si hubo algun problema.</li>
-                    <li>La tabla de trabajadores se actualizará automáticomente para mostrar el nuevo registro.</li>
+                    <li>Al finalizar, verá un mensaje de "Registro exitoso" si la operación se completó correctamente, o un mensaje de error si hubo algún problema.</li>
+                    <li>La tabla de trabajadores se actualizará automáticamente para mostrar el nuevo registro.</li>
                 </ul>
             </li>
             
@@ -52,7 +52,7 @@
             <li>
                 <b>Formulario de actualización:</b>
                 <ul>
-                    <li>Se abrirá una ventana emergente (modal) con un formulario similar al de registro. Este formulario ya estará precargado con los datos actuales del trabajador seleccionado.</li>
+                    <li>Se abrirá una ventana emergente (modal) con un formulario similar al de registro. Este formulario ya estará pre-cargado con los datos actuales del trabajador seleccionado.</li>
                     <li>Realice las modificaciones necesarias en los campos deseados.</li>
                 </ul>
             </li>

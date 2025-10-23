@@ -63,7 +63,7 @@
         </div>
         <h1>Página no encontrada</h1>
         <p>
-            Parace que intentas acceder a un recurso que no existe. <br>
+            Parece que intentas acceder a un recurso que no existe. <br>
             Valida la dirección e intenta de nuevo.
         </p>
         <a href="<?= LOCAL_DIR ?>/" class="btn btn-primary">Volver al Inicio</a>

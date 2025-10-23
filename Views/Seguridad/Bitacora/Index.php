@@ -4,7 +4,7 @@
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Bitacora</h3>
+                <h3 class="pb-2">Bitácora</h3>
                 <span class="opacity-75 mb-2">Consulta las acciones realizas en el sistema</span>
             </div>
         </div>

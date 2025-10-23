@@ -15,6 +15,25 @@
             let data = await response.text()
 
             modal.innerHTML = data
+            eventoTodos();
         })
-    })
+    });
+
+    function eventoTodos(){
+        console.log("evento");
+        if( document.querySelector(".todosSelector") ){
+            document.querySelectorAll(".todosSelector").forEach((item)=>{
+                console.log("bucle 1");
+                item.onclick=function(){
+                    console.log("evento2");
+                    let permiso = item.dataset.permiso;
+                    let inputs = document.querySelectorAll(`[name*=${permiso}]`);
+                    inputs.forEach((key)=>{
+                        console.log("bucle 2");
+                        key.checked = item.checked;
+                    });
+                }
+            });
+        }
+    }
 </script>

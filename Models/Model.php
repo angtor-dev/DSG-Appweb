@@ -183,22 +183,29 @@ abstract class Model
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue('id', $this->id);
 
             $stmt->execute();
 
+            $this->testHandler();
+
+            $this->commit();
+
             $this->db->disconnect();
 
             return true;
         } catch (\PDOException $th) {
+            $this->disconectHandlerExeption();
             $_SESSION['errores'][] = ($th->getCode() == '23000') 
                 ? "Existen datos relacionados al item seleccionado." 
                 : "Ha ocurrido un error al eliminar $tabla.";
             return false;
         } catch (\Throwable $th) {
-            if (DEVELOPER_MODE) debug($th); // Eliminar esto al crear vista para errores
+            $this->disconectHandlerExeption();
+            //if (DEVELOPER_MODE) debug($th); // Eliminar esto al crear vista para errores
             $_SESSION['errores'][] = "Ha ocurrido un error al eliminar $tabla.";
             return false;
         }
@@ -212,11 +219,15 @@ abstract class Model
 
         try {
             $this->db->connectUser();
+            $this->beginTransaction();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue('id', $this->id);
 
             $stmt->execute();
+
+            $this->testHandler();
+            $this->commit();
 
             $this->db->disconnect();
 
@@ -234,7 +245,7 @@ abstract class Model
         }
     }
     /**
-     * Ejecuta un query SQL con los parámetros proporcionados y devuelve los resultados.
+     * Ejecuta un query SQL con los parámetros proporcionados y devuelve los resultados con fetchAll.
      *
      * @param string $query El query SQL a ejecutar.
      * @param mixed ...$parametros Los parámetros para el query SQL.
@@ -356,20 +367,30 @@ abstract class Model
             $this->id = (int)$value;
         }
     }
-
+    /**
+     * Si esta conectada y en una transaccion aplica un rollback y la desconecta
+     * @return void
+     */
     public function disconectHandlerExeption() : void
     {
-        if( 
-            isset($this->db) &&
-            $this->db->connected() &&
-            $this->db->pdo()->inTransaction()
-        ){
-            $this->rollBack();
+        if( isset($this->db) && $this->db->connected() ){
+            
+            if($this->db->pdo()->inTransaction()){
+                $this->rollBack();
+            }
+
             $this->db->disconnect();
         }
     }
 
-
+    /**
+     * verifica si el proceso es de pruebas 
+     * si devuelve true el proceso es de pruebas
+     * - se hace un rollBack y un nuevo beginTransaction
+     * 
+     * si devuelve false el proceso no es de pruebas
+     * @return bool
+     */
     public function testHandler() : bool
     {
         $testing = false;

@@ -1,4 +1,6 @@
 <?php
+if (file_exists("user_config.php"))
+    require_once "user_config.php";
 date_default_timezone_set('America/Caracas');
 const APP_NAME = "DSG";
 
@@ -18,6 +20,16 @@ defined('DB_USERS_NAME') or define("DB_USERS_NAME", "dsg_db_users");
 defined('DB_USERS_USER') or define("DB_USERS_USER", "root");
 defined('DB_USERS_PASSWORD') or define("DB_USERS_PASSWORD", "");
 defined('DB_USERS_PORT') or define("DB_USERS_PORT", "");
+defined('DEP_NAME') or define("DEP_NAME", "División"); // para cambiar el nombre al modulo fácilmente
+defined('DEP_NAME_M') or define("DEP_NAME_M", "división"); // minúsculas
+defined('DEP_NAME_S') or define("DEP_NAME_S", "divisiones"); // plural
+
+
+// Credenciales de correo
+defined('SYS_EMAIL') or define("SYS_EMAIL", "reivax.zeraus@gmail.com");
+defined('SYS_EMAIL_PASS') or define("SYS_EMAIL_PASS", 'gexv tail oxwx ejwt');
+defined('SYS_EMAIL_NAME') or define("SYS_EMAIL_NAME", "Dirección de Servicios Generales");
+defined('SYS_EMAIL_HOST') or define("SYS_EMAIL_HOST", "smtp.gmail.com");
 
 
 // defined('DB_USERS_HOST') or define("DB_USERS_HOST", "61z0o.h.filess.io");

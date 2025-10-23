@@ -36,6 +36,7 @@ class Categoria extends Model
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue("nombre", $this->nombre);
@@ -44,10 +45,15 @@ class Categoria extends Model
 
             $stmt->execute();
 
+            $this->testHandler();
+
+            $this->commit();
+
             $this->db->disconnect();
 
             return true;
         } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
             if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = "Ocurrio un error al registrar la categoría";
             return false;
@@ -61,6 +67,7 @@ class Categoria extends Model
 
         try {
             $this->db->connect();
+            $this->beginTransaction();
 
             $stmt = $this->prepare($query);
             $stmt->bindValue("id", $this->id);
@@ -70,10 +77,14 @@ class Categoria extends Model
 
             $stmt->execute();
 
+            $this->testHandler();
+            $this->commit();
+
             $this->db->disconnect();
 
             return true;
         } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
             if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = "Ocurrio un error al actualizar la categoría";
             return false;
@@ -108,7 +119,7 @@ class Categoria extends Model
     }
 
     // Setters
-    public function setDatos(int $id = null, string $nombre, string $descripcion, string $color): void {
+    public function setDatos(?int $id, string $nombre, string $descripcion, string $color): void {
         if (isset($id)) {
             $this->id = $id;
         }

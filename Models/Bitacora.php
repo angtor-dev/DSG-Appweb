@@ -77,15 +77,22 @@ class Bitacora extends Model
 
     public static function registrarTransaccion(string $registro,\PDO $pdo) 
     {
+        $newConection = false;
+        $newTransaction = false;
         try {
             global $requestUri;
     
             $db = Database::getInstance();
             $auxiliarPDO = $pdo;
-            $db->connectUser();
-            //$db->connectUser();
-            $pdo = $db->pdo();
-            $pdo->beginTransaction();
+            if($db->last_instance == 'normal'){
+                $db->connectUser();
+                $pdo = $db->pdo();
+                $newConection = true;
+            }
+            if(!$pdo->inTransaction()){
+                $pdo->beginTransaction();
+                $newTransaction = true;
+            }
             $idUsuario = !empty($_SESSION['usuario']->id) ? $_SESSION['usuario']->id : "NULL";
             $ruta = $requestUri."/";
             
@@ -97,16 +104,25 @@ class Bitacora extends Model
             $stmt->bindParam('ruta', $ruta);
     
             $stmt->execute();
-    
-            $pdo->commit();
-            $db->disconnect();
-            $db->set_pdo($auxiliarPDO);
+            if($newTransaction == true){
+                $pdo->commit();
+            }
+            if($newConection == true){
+                $db->disconnect();
+                $db->set_pdo($auxiliarPDO);
+            }
             
         } catch (\Throwable $th) {
 
             if(isset($db) and $db->connected() and $db->pdo()->inTransaction()){
-                $db->pdo()->rollBack();
-                $db->disconnect();
+                if($newTransaction){
+                    $db->pdo()->rollBack();
+                    $db->disconnect();
+                }
+            }
+            if(isset($db) and $newConection){
+                $db->set_pdo($auxiliarPDO);
+                $db->set_connected(true);
             }
             throw $th;
         }

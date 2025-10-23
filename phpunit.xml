@@ -1,32 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit bootstrap="phpunitBootstrap.php" stopOnFailure="true"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
+<phpunit bootstrap="phpunitBootstrap.php" stopOnFailure="false"  backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true">
 	<testsuites>
 		<testsuite name="Asistencias">
 			<directory suffix=".php">
-				test/Asistencias
+				test/Unit/Asistencias
 			</directory>
 		</testsuite>
 		<testsuite name="Usuarios">
 			<directory suffix=".php">
-				test/Usuarios
+				test/Unit/Usuarios
 			</directory>
 		</testsuite>
 		<testsuite name="Turnos">
 			<directory suffix=".php">
-				test/Turnos
+				test/Unit/Turnos
 			</directory>
 		</testsuite>
-		<!-- <testsuite name="Cargos">
+
+		<testsuite name ="Trabajadores">
 			<directory suffix=".php">
-				test/Cargo
+				test/Unit/Trabajador
 			</directory>
 		</testsuite>
+		<testsuite name ="Cargos">
+			<directory suffix=".php">
+				test/Unit/Cargo
+			</directory>
+		</testsuite>
+		<testsuite name ="Ajustes">
+			<directory suffix=".php">
+				test/Unit/Ajuste
+			</directory>
+		</testsuite>
+		<testsuite name ="Areas">
+			<directory suffix=".php">
+				test/Unit/Area
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Articulos">
+			<directory suffix=".php">
+				test/Unit/Articulo
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Categorias">
+			<directory suffix=".php">
+				test/Unit/Categoria
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Medidas">
+			<directory suffix=".php">
+				test/Unit/Medida
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Roles">
+			<directory suffix=".php">
+				test/Unit/Rol
+			</directory>
+		</testsuite>
+
+
+
+		<!-- 
+
+		
+
+
+		
+
+		
+
+		<testsuite name ="Bitacora">
+			<directory suffix=".php">
+				test/Unit/Bitacora
+			</directory>
+		</testsuite>
+
+
+		<testsuite name ="Division">
+			<directory suffix=".php">
+				test/Unit/Division
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Entrada">
+			<directory suffix=".php">
+				test/Unit/Entrada
+			</directory>
+		</testsuite>
+
+		<testsuite name ="EntradaDetalle">
+			<directory suffix=".php">
+				test/Unit/EntradaDetalle
+			</directory>
+		</testsuite>
+
+		
+
+		<testsuite name ="Modulo">
+			<directory suffix=".php">
+				test/Unit/Modulo
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Movimiento">
+			<directory suffix=".php">
+				test/Unit/Movimiento
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Notificacion">
+			<directory suffix=".php">
+				test/Unit/Notificacion
+			</directory>
+		</testsuite>
+
+		<testsuite name ="Permiso">
+			<directory suffix=".php">
+				test/Unit/Permiso
+			</directory>
+		</testsuite>
+
+		
+
+		<testsuite name ="Tarea">
+			<directory suffix=".php">
+				test/Unit/Tarea
+			</directory>
+		</testsuite>
+
+		
+
+
+
+		 -->
+
+
+
+
+		<!-- 
 
 	
 		otro se agrega aqui 
 		<testsuite name="Trabajadores (EL nombre aqui no importa solo no se debe repetir)">
 			<directory suffix=".php">
-				test/Trabajadores 
+				test/Unit/Trabajadores 
 				(la ruta de la carpeta donde estaran los archivos *test.php )
 				por ejemplo en esa carpeta podrian estar los archivos
 				TrabajadorRegistrarTest.php
@@ -49,10 +170,10 @@
 
 	<logging>
         <junit outputFile="test/reports/junit.xml"/>
-        <text outputFile="test/reports/test_results.log"/>
+        <!-- <text outputFile="test/reports/test_results.log"/>
         <teamcity outputFile="test/reports/teamcity.txt"/>
 	    <testdoxHtml outputFile="test/reports/testdox.html"/>
-	    <testdoxText outputFile="test/reports/testdox.txt"/>
+	    <testdoxText outputFile="test/reports/testdox.txt"/> -->
     </logging>
 
 	

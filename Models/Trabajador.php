@@ -87,17 +87,17 @@ class Trabajador extends Model
                 throw new Exception("El campo 'Cedula' es obligatorio", self::SHOW_EXCEPTION);
             }
             if (!preg_match(REG_CEDULA, $this->cedula)) {
-                throw new Exception("El campo 'Cedula' solo puede contener números",self::SHOW_EXCEPTION );
+                throw new Exception("El campo 'Cedula' solo puede contener números y no puede tener mas de 8 digitos",self::SHOW_EXCEPTION );
             }
 
             if (empty(trim($this->nombre))) {
-                throw new Exception("El campo 'Nombre' es obligatorio", );
+                throw new Exception("El campo 'Nombre' es obligatorio", self::SHOW_EXCEPTION );
             }
             if (!preg_match(REG_ALFABETICO, $this->nombre)) {
                 throw new Exception("El campo 'Nombre' solo puede contener letras y números", self::SHOW_EXCEPTION);
             }
             if (empty(trim($this->apellido))) {
-                throw new Exception("El campo 'Apellido' es obligatorio", );
+                throw new Exception("El campo 'Apellido' es obligatorio",  self::SHOW_EXCEPTION );
             }
             if (!preg_match(REG_ALFABETICO, $this->apellido)) {
                 throw new Exception("El campo 'Apellido' solo puede contener letras y números",self::SHOW_EXCEPTION );
@@ -126,7 +126,7 @@ class Trabajador extends Model
         }
 
         if($control == self::ACTUALIZAR_TRABAJADOR || $control == self::ELIMINAR_TRABAJADOR){
-            if (empty(trim($this->cedulaSeleccion))) {
+            if ( !isset($this->cedulaSeleccion) || empty(trim($this->cedulaSeleccion))) {
                 throw new Exception("Error al obtener la cedula del trabajador seleccionado", self::SHOW_EXCEPTION);
             }
             if (!preg_match(REG_CEDULA, $this->cedulaSeleccion)) {
@@ -249,11 +249,8 @@ class Trabajador extends Model
             // registro la asignacion laboral
             $this->ejecutarStatement($query2, $parametros2);
 
-            Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' registrado", $this->db->pdo());
-
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
+            if(!$this->testHandler()){
+                Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' registrado", $this->db->pdo());
             }
 
             $this->commit();
@@ -261,22 +258,14 @@ class Trabajador extends Model
 
             $resp = array(
                 "success" => true,
-                "message" => "Trabajador registrado con exito"
+                "message" => "Trabajador registrado con éxito"
             );
         } catch (\Throwable $th) {
-            if( 
-                isset($this->db) && 
-                $this->db->connected() &&
-                $this->db->pdo() instanceof \PDO &&
-                $this->db->pdo()->inTransaction()
-            ){
-                $this->rollBack();
-                $this->db->disconnect();
-            }
+            $this->disconectHandlerExeption();
 
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al registrar al trabajador"
+                "message" => "Ocurrió un error al registrar al trabajador"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage().":: Linea: ".$th->getLine();
@@ -332,12 +321,8 @@ class Trabajador extends Model
 
             $this->ejecutarStatement($query, $parametros);
             
-
-            Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' actualizado", $this->db->pdo());
-
-            if($this->getTestingMode()) {
-                $this->rollBack();
-                $this->beginTransaction();
+            if(!$this->testHandler()) { // si no es una prueba crea la bitacora
+                Bitacora::registrarTransaccion("Trabajador '".$this->getNombreCompleto()."' actualizado", $this->db->pdo());
             }
 
             $this->commit();
@@ -345,21 +330,13 @@ class Trabajador extends Model
 
             $resp = array(
                 "success" => true,
-                "message" => "Trabajador actualizado con exito"
+                "message" => "Trabajador actualizado con éxito"
             );
         } catch (\Throwable $th) {
-            if( 
-                isset($this->db) && 
-                $this->db->connected() &&
-                $this->db->pdo() instanceof \PDO &&
-                $this->db->pdo()->inTransaction()
-            ){
-                $this->db->pdo()->rollBack();
-                $this->db->disconnect();
-            }
+            $this->disconectHandlerExeption();
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al actualizar al trabajador"
+                "message" => "Ocurrió un error al actualizar al trabajador"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage().":: Linea: ".$th->getLine();
@@ -385,7 +362,7 @@ class Trabajador extends Model
 
 
             $this->db->connect();
-            $this->db->pdo()->beginTransaction();
+            $this->beginTransaction();
 
             if( !$logicDelete ) {
                 
@@ -405,13 +382,9 @@ class Trabajador extends Model
 
             }
 
-
-            if($this->getTestingMode()){
-                $this->rollBack();
-                $this->beginTransaction();
+            if(!$this->testHandler()) { // si no es una prueba crea la bitacora
+                Bitacora::registrarTransaccion("Trabajador '".$this->cedulaSeleccion."' eliminado", $this->db->pdo());
             }
-
-            
 
             
 
@@ -420,20 +393,13 @@ class Trabajador extends Model
 
             $resp = array(
                 "success" => true,
-                "message" => "Trabajador eliminado con exito"
+                "message" => "Trabajador eliminado con éxito"
             );
         } catch (\Throwable $th) {
-            if( 
-                isset($this->db) && 
-                $this->db->connected() &&
-                $this->db->pdo()->inTransaction()
-            ){
-                $this->db->pdo()->rollBack();
-                $this->db->disconnect();
-            }
+            $this->disconectHandlerExeption();
             $resp = array(
                 "success" => false,
-                "message" => "Ocurrio un error al eliminar al trabajador"
+                "message" => "Ocurrió un error al eliminar al trabajador"
             );
             if(DEVELOPER_MODE) {
                 $resp["error"] = $th->getMessage().":: Linea: ".$th->getLine();
@@ -566,6 +532,11 @@ class Trabajador extends Model
         }
     }
 
+    /**
+     * Summary of listar
+     * @param mixed $estado
+     * @return Trabajador[]
+     */
     public function listar ($estado = 1):array {
         
         try {
@@ -699,7 +670,7 @@ DESC";
             $texto .= $meses . (($meses > 1) ? " meses " : " mes ");
         }
         if($dias > 0) {
-            $texto .= $dias . (($dias > 1) ? " dias " : " dia ");
+            $texto .= $dias . (($dias > 1) ? " días " : " día ");
         }
         return $texto;
     }

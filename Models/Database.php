@@ -10,6 +10,14 @@ class Database
     private string $password;
     private string $charset;
     private bool $connected = false;
+    /**
+     * 
+     * @var 'normal'|'user' $last_instance
+     * * string vacio
+     * * 'normal'
+     * * 'user'
+     */
+    public string $last_instance = '';
 
     private function __construct()
     {
@@ -18,6 +26,7 @@ class Database
         $this->user = DB_USER;
         $this->password = DB_PASSWORD;
         $this->charset = "utf8mb4";
+        $this->last_instance = '';
     }
     
     public static function getInstance() : Database
@@ -48,6 +57,7 @@ class Database
             ];
             $this->pdo = new PDO($dns, $this->user, $this->password, $options);
             $this->connected = true;
+            $this->last_instance = "normal";
             
             return true;
         } catch (\PDOException $e) {
@@ -76,6 +86,7 @@ class Database
             ];
             $this->pdo = new PDO($dns, DB_USERS_USER, DB_USERS_PASSWORD, $options);
             $this->connected = true;
+            $this->last_instance = "user";
             return true;
         } catch (\PDOException $e) {
             $resp = [
@@ -121,11 +132,11 @@ class Database
     
         if ($userBD) {
             // si ya esta conectado a la base de datos de usuarios
-            if ($conectedBefore && checkHostBD($this->pdo(), DB_USERS_HOST)) {
+            if ($conectedBefore && $this->last_instance == "user" ) {
                 $disconnectAfter = false;
             }
             // si esta conectada pero no a la base de datos de usuarios
-            elseif ($conectedBefore && !checkHostBD($this->pdo(), DB_USERS_HOST)) {
+            elseif ($conectedBefore && $this->last_instance != 'user') {
                 $auxiliarPDO = $this->pdo();
                 $this->connectUser();
             }
@@ -135,11 +146,11 @@ class Database
             }
         } else {
             // si ya esta conectado a la base de datos principal
-            if ($conectedBefore && checkHostBD($this->pdo(), DB_HOST)) {
+            if ($conectedBefore && $this->last_instance == 'normal') {
                 $disconnectAfter = false;
             }
             // si esta conectada pero no a la base de datos principal
-            elseif ($conectedBefore && !checkHostBD($this->pdo(), DB_HOST)) {
+            elseif ($conectedBefore && $this->last_instance != 'normal') {
                 $auxiliarPDO = $this->pdo();
                 $this->connect();
             }
@@ -441,6 +452,9 @@ class Database
     public function set_pdo(\PDO $pdo){
         $this->pdo = $pdo;
         $this->connected = true;
+    }
+    public function set_connected(bool $connected){
+        $this->connected = $connected;
     }
 }
 // TODO manejar error de la conexión por try-catch internamente
