@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('ID de tarea inválido');
             }
 
-            if (!isset($_POST['observaciones']) || empty(trim($_POST['observaciones']))) {
+            if (!isset($_POST['comentarios']) || empty(trim($_POST['comentarios']))) {
                 throw new Exception('Las observaciones son obligatorias para cancelar la tarea');
             }
 
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Preparar datos para la cancelación
             $datosCancelacion = [
                 'id' => $idTarea,
-                'observaciones' => trim($_POST['observaciones']),
+                'observaciones' => trim($_POST['comentarios']),
                 'materiales' => []
             ];
 
@@ -92,17 +92,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Ejecutar cancelación
             if ($tareaCancelar->cancelar()) {
+               /*  $response = [
+                    'success' => true,
+                    'message' => "Tarea cancelada correctamente"
+                ]; */
+            } else {
                 $response = [
                     'success' => true,
                     'message' => "Tarea cancelada correctamente"
                 ];
                 Bitacora::registrar("Tarea cancelada - ID: $idTarea - Observaciones: " . substr($datosCancelacion['observaciones'], 0, 100));
-            } else {
-                $response = [
-                    'success' => false,
-                    'errors' => $_SESSION['errores'] ?? ['Error desconocido al cancelar la tarea'],
-                    'message' => 'Error al cancelar la tarea'
-                ];
             }
             
         } catch (Exception $e) {
