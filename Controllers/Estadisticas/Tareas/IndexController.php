@@ -63,4 +63,4 @@ else if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
     exit;
 }
 
-require_once "Views/Tareas/_ReporteA.php";
+renderView("Estadisticas/tareas", "");

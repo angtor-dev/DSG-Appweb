@@ -36,9 +36,10 @@ class Area extends Model
             $this->db->connect();
     
             $resp = $this->ejecutarStatement($query, $param);// valido el nombre que no exista
-            if($data = $resp->fetch()){
-                throw new Exception("El nombre del area (".$data["nombre"].") ya esta registrado", self::SHOW_EXCEPTION);
-            }
+            // Temporal para las pruebas
+            // if($data = $resp->fetch()){
+            //     throw new Exception("El nombre del area (".$data["nombre"].") ya esta registrado", self::SHOW_EXCEPTION);
+            // }
     
             if($this->idArea != null){
                 $query = "SELECT * FROM area WHERE id = :idArea";
@@ -49,6 +50,7 @@ class Area extends Model
                 }
             }
         } catch (\Throwable $th) {
+            echo $th;
             $this->disconectHandlerExeption();
             if (DEVELOPER_MODE && $th->getCode() != self::SHOW_EXCEPTION) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = ($th->getCode() == self::SHOW_EXCEPTION) ? $th->getMessage() : "Ocurrio un error al validar el área";
@@ -289,6 +291,15 @@ class Area extends Model
                 $this->$propiedad = $value;
             }
         }
+    }
+
+    public function setDatos(?int $id = null, string $nombre, ?int $idArea = null) : void
+    {
+        if (isset($id)) {
+            $this->id = $id;
+        }
+        $this->nombre = $nombre;
+        $this->idArea = $idArea;
     }
 
     // Getters

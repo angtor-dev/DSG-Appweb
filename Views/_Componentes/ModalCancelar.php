@@ -7,7 +7,7 @@
                 </span>
                 <b>¿Estas seguro?</b>
                 <span class="text-secondary text-center">
-                    ¿Quieres Cancelar <span class="modelo"></span> <b class="nombre"></b>?
+                    ¿Quieres Cancelar la tarea</b>?
                     <br>
                     Esta acción no puede revertirse
                 </span>

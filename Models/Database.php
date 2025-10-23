@@ -10,6 +10,7 @@ class Database
     private string $password;
     private string $charset;
     private bool $connected = false;
+    private bool $isTestConnection = false;
     /**
      * 
      * @var 'normal'|'user' $last_instance
@@ -49,6 +50,7 @@ class Database
 
     public function connect() : bool
     {
+        if ($this->isTestConnection && $this->connected) return true;
         try {
             $dns = "mysql:host=".$this->host.";dbname=".$this->dbname.";charset=".$this->charset;
             $options = [
@@ -169,6 +171,7 @@ class Database
 
     public function disconnect() : void
     {
+        if ($this->isTestConnection) return;
         $this->pdo = null;
         unset($this->pdo);
         $this->connected = false;
@@ -222,22 +225,41 @@ class Database
                     "cargo",
                     "turno",
                     "area",
+
                     "categoria",
-                    "departamento",
-                    "articulo",
+                    "division",
                     "fechaasistencia",
                     "medida",
-                    "movimiento",
-                    "tarea",
-                    //"evaluacion",
-                    "recurso",
+                    "articulo",
                     "subarea",
                     "subdivisiones",
+
+
+                    
+                    
+                    
+                    
+                    //"evaluacion",
+                    
+                    
+                    
                     "asignacion_laboral",
-                    "tarea_personal",
                     "asistencia_inasistencia",
-                    "inasistencia",
-                    "asistencia",
+                    //"inasistencia",
+                   // "asistencia",
+                    "inventariohistorial",
+                    "entrada",
+                    
+                    "entradadetalle",
+                    
+                    "tarea",
+                    
+                    "tarea_validacion",
+
+
+                   
+                    "tarea_personal",
+                     "recurso"
                 ];
             }
 
@@ -360,13 +382,14 @@ class Database
                     "cargo",
                     "turno",
                     "area",
+
                     "categoria",
-                    "departamento",
-                    "articulo",
+                    "division",
                     "fechaasistencia",
                     "medida",
-                    "movimiento",
+                    "articulo",
                     "tarea",
+                    "tarea_validacion",
                     //"evaluacion",
                     "recurso",
                     "subarea",
@@ -376,6 +399,9 @@ class Database
                     "asistencia_inasistencia",
                     "inasistencia",
                     "asistencia",
+                    "inventariohistorial",
+                    "entrada",
+                    "entradadetalle"
                 ];
                 $tables = array_reverse($tables);
             }
@@ -386,7 +412,7 @@ class Database
                 if(!preg_match('/^[a-zA-Z_]+$/', $table)){
                     throw new \Exception("El nombre de la tabla $table no es valido", 1001);
                 }
-                echo "Vaciando la tabla $table,\n";
+             //   echo "Vaciando la tabla $table,\n";
                 $conn->prepare("DELETE FROM `$table` WHERE 1")->execute();
             }
 
@@ -395,9 +421,9 @@ class Database
             $querys = explode(';', $sql);
             foreach($querys as $query){
                 if (trim($query) != '') {
-                    echo "<br>----------------------------------------------------------------";
-                    echo "<br>";
-                    echo $query;
+                   // echo "<br>----------------------------------------------------------------";
+                   // echo "<br>";
+                  //  echo $query;
                     $conn->exec($query);
                 }
             }
@@ -432,6 +458,14 @@ class Database
     }
     public function set_connected(bool $connected){
         $this->connected = $connected;
+    }
+
+    public function setTestConnection(bool $isTestConnection){
+        $this->isTestConnection = $isTestConnection;
+    }
+
+    public function isTestConnection() {
+        return $this->isTestConnection;
     }
 }
 // TODO manejar error de la conexión por try-catch internamente

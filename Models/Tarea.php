@@ -806,7 +806,7 @@ private function obtenerPersonalAsignado($idTarea) {
     }, $personal);
 }
 
-    public static function obtenerPorId($id)
+    public static function obtenerPorId($id) : ?self
     {
         $bd = Database::getInstance();
         $bd->connect();

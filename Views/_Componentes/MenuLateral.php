@@ -162,6 +162,12 @@
                             de Asistencias
                         </a>
                     <?php endif ?>
+                    <?php if (true/*tienePermiso("reporteasistencias", "consultar")*/): ?>
+                        <a href="<?= LOCAL_DIR ?>/Reportes/Tarea"
+                            class="<?= strtolower($uriParts[1]) == "reportetarea" ? "active" : "" ?>">
+                            de Tareas
+                        </a>
+                    <?php endif ?>
                 </div>
             </div>
         </div>
@@ -180,6 +186,12 @@
                         <a href="<?= LOCAL_DIR ?>/Estadisticas/Asistencias"
                             class="<?= strtolower($uriParts[1]) == "estadisticaasistencia" ? "active" : "" ?>">
                             de Asistencias
+                        </a>
+                    <?php endif ?>
+                <?php if (true/*tienePermiso("estadisticasasistencias", "consultar")*/): ?>
+                        <a href="<?= LOCAL_DIR ?>/Estadisticas/Tareas"
+                            class="<?= strtolower($uriParts[1]) == "estadisticatarea" ? "active" : "" ?>">
+                            de Tareas
                         </a>
                     <?php endif ?>
                 </div>
@@ -224,7 +236,7 @@
                     <!--  colocar permisos -->
                     <?php if (true/*tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)*/): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Respaldo"
-                            class="d-none <?= strtolower($uriParts[1]) == "respaldo" ? "active" : "" ?>">
+                            class="<?= strtolower($uriParts[1]) == "respaldo" ? "active" : "" ?>">
                             Respaldo BD
                         </a>
                     <?php endif ?>

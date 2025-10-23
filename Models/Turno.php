@@ -116,6 +116,15 @@ class Turno extends Model implements JsonSerializable
 		return $resp;
 
 	}
+
+    public function cargarUltimo(bool $userBD = false): ?self
+    {
+        $respuesta = $this->listar();
+        if (count($respuesta['data']) === 0) {
+            return null;
+        }
+        return end($respuesta['data']);
+    }
     
     /**
      * Obtiene un turno por su id

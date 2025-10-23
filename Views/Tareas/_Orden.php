@@ -62,7 +62,7 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th width="60%">Descripción de la Tarea</th>
+                            <th width="60%" style="word-break: break-word;">Descripción de la Tarea</th>
                             <th width="35%">Materiales</th>
                         </tr>
                     </thead>
@@ -78,7 +78,7 @@
             <div class="col-md-8">
                 <div class="mb-3">
                     <label class="form-label"><strong>Observaciones:</strong></label>
-                    <textarea class="form-control" id="orden-observaciones" rows="3"></textarea>
+                    <textarea class="form-control" id="orden-observaciones" rows="3" disabled></textarea>
                 </div>
             </div>
             <div class="col-md-4">

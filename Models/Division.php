@@ -221,6 +221,15 @@ class Division extends Model
         }
     }
 
+    public function setDatos(?int $id = null, string $nombre, ?int $idDepartamento = null) : void
+    {
+        if (isset($id)) {
+            $this->id = $id;
+        }
+        $this->nombre = $nombre;
+        $this->idDepartamento = $idDepartamento;
+    }
+
     // Getters
     public function getNombre() : string {
         return $this->nombre;

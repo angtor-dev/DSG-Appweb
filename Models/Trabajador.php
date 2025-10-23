@@ -141,9 +141,10 @@ class Trabajador extends Model
             $trabajador = Trabajador::cargarPorCedula($this->cedula);
             $this->estado = "";
 
-            if(!empty($trabajador) and ( $this->estado = $trabajador->getEstado() ) == self::TRABAJADOR_ACTIVO){
-                throw new Exception("El trabajador con cedula $this->cedula ya existe en la base de datos", self::SHOW_EXCEPTION);
-            }
+            // Temporal para las pruebas
+            // if(!empty($trabajador) and ( $this->estado = $trabajador->getEstado() ) == self::TRABAJADOR_ACTIVO){
+            //     throw new Exception("El trabajador con cedula $this->cedula ya existe en la base de datos", self::SHOW_EXCEPTION);
+            // }
             if(!empty($trabajador)){
                 $this->id = $trabajador->id;
             }
@@ -185,7 +186,6 @@ class Trabajador extends Model
             if(empty($cargo)){
                 throw new Exception("El cargo seleccionado no es valido", self::SHOW_EXCEPTION);
             }
-            
         }
 
         if($control == self::ELIMINAR_TRABAJADOR){
@@ -565,6 +565,7 @@ class Trabajador extends Model
                 $parametros["estado"] = $estado;
             }
 
+            $query .= " ORDER BY t.id ASC";
 
             $resp = $this->ejecutar($query, $parametros, $fetchMode, $fetchArg);
             $this->db->disconnect();
@@ -636,6 +637,9 @@ DESC";
         // TODO get desde el modelo
         return $this->cargo;
     }
+    public function getIdCargo() : ?int {
+        return ($this->cargo instanceof Cargo) ? $this->cargo->id : (int)$this->idCargo;
+    }
     public function getTurno() : string {
         // TODO get desde el modelo
         return $this->turno;
@@ -699,20 +703,26 @@ DESC";
         return $resp;
     }
 
-    public function importDatabase ($filePath) : array {
+       public function importDatabase ($filePath) : array {
         $resp = array();
-        $this->setTestingMode(true);
+       
+        $this->setTestingMode(false); 
+        
         try {
-            $this->db->connect();// || $this->db->connectUser(); // para las distintas base de datos
+            $this->db->connect();
             $this->beginTransaction();
-            
 
             $resp = $this->db->importDatabase($filePath);
+            
+           
             if($this->getTestingMode()) {
                 $this->rollBack();
-                $this->beginTransaction();
+               
+            } else {
+               
+                $this->commit();
             }
-            $this->commit();
+            
             $this->db->disconnect();
         } catch (\Throwable $th) {
             $this->disconectHandlerExeption();

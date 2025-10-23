@@ -77,12 +77,15 @@ class Bitacora extends Model
 
     public static function registrarTransaccion(string $registro,\PDO $pdo) 
     {
+        $db = Database::getInstance();
+        if ($db->isTestConnection()) {
+            return;
+        }
         $newConection = false;
         $newTransaction = false;
         try {
             global $requestUri;
     
-            $db = Database::getInstance();
             $auxiliarPDO = $pdo;
             if($db->last_instance == 'normal'){
                 $db->connectUser();

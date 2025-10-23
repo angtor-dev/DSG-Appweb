@@ -1,5 +1,7 @@
 <?php
-/** @var array $backups */ // Asumiendo que el controlador pasará este array
+// En la vista (al inicio del archivo):
+/** @var array $backups */
+$backups = getBackupFiles();
 ?>
 
 <div class="panel-header" style="background-color: #4e73df;">
@@ -67,7 +69,7 @@
                                     <tr>
                                         <td><?= htmlspecialchars($backup['filename']) ?></td>
                                         <td><?= formatSizeUnits($backup['filesize']) ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($backup['filemtime'])) ?></td>
+                                        <td><?= date('d/m/Y H:i', $backup['filemtime']) ?></td>
                                         <td>
                                             <button class="btn btn-sm btn-success restoreBackup" 
                                                     data-file="<?= htmlspecialchars($backup['filepath']) ?>">
@@ -93,12 +95,10 @@
 $(document).ready(function() {
     // Inicializar DataTable
     const table = $('#backupsTable').DataTable({
-        language: {
-            url: '<?= LOCAL_DIR ?>/assets/js/datatables-spanish.json'
-        },
+        
         responsive: true,
         columnDefs: [
-            { orderable: false, targets: [3] } // Deshabilitar ordenación para columna de acciones
+            { orderable: false, targets: [3] }
         ]
     });
 
@@ -116,11 +116,11 @@ $(document).ready(function() {
     $('#exportarBtn').click(function() {
         if(confirm('¿Estás seguro de que deseas generar una copia de seguridad?')) {
             showLoading();
-            $.post('<?= LOCAL_DIR ?>/Database/exportar', function(response) {
+            $.post('Respaldo/Index', { action: 'exportar' }, function(response) {
                 hideLoading();
                 if (response.success) {
                     alert(response.message);
-                    table.ajax.reload();
+                    location.reload(); // Recargar para mostrar el nuevo backup
                 } else {
                     alert('Error: ' + response.message);
                 }
@@ -131,16 +131,17 @@ $(document).ready(function() {
         }
     });
 
-    // Restaurar desde formulario
+    // Restaurar desde formulario (upload)
     $('#restaurarForm').submit(function(e) {
         e.preventDefault();
         
         if(confirm('¡ADVERTENCIA! Esta acción sobrescribirá todos los datos actuales. ¿Estás seguro de que deseas continuar?')) {
             showLoading();
             const formData = new FormData(this);
+            formData.append('action', 'restaurar');
             
             $.ajax({
-                url: '<?= LOCAL_DIR ?>/Database/restaurar',
+                url: 'Respaldo/Index',
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -149,7 +150,7 @@ $(document).ready(function() {
                     hideLoading();
                     if (response.success) {
                         alert(response.message);
-                        table.ajax.reload();
+                        location.reload();
                     } else {
                         alert('Error: ' + response.message);
                     }
@@ -169,11 +170,14 @@ $(document).ready(function() {
         
         if(confirm(`¿Estás seguro de que deseas restaurar la copia de seguridad "${fileName}"?\n\n¡ADVERTENCIA! Esta acción sobrescribirá todos los datos actuales.`)) {
             showLoading();
-            $.post('<?= LOCAL_DIR ?>/Database/restaurar', { filePath: filePath }, function(response) {
+            $.post('Respaldo/Index', { 
+                action: 'restaurar',
+                filePath: filePath 
+            }, function(response) {
                 hideLoading();
                 if (response.success) {
                     alert(response.message);
-                    table.ajax.reload();
+                    location.reload();
                 } else {
                     alert('Error: ' + response.message);
                 }
@@ -191,11 +195,14 @@ $(document).ready(function() {
         
         if(confirm(`¿Estás seguro de que deseas eliminar la copia de seguridad "${fileName}"?`)) {
             showLoading();
-            $.post('<?= LOCAL_DIR ?>/Database/eliminarBackup', { filePath: filePath }, function(response) {
+            $.post('Respaldo/Index', { 
+                action: 'eliminarBackup',
+                filePath: filePath 
+            }, function(response) {
                 hideLoading();
                 if (response.success) {
                     alert(response.message);
-                    table.ajax.reload();
+                    location.reload();
                 } else {
                     alert('Error: ' + response.message);
                 }
@@ -211,27 +218,24 @@ $(document).ready(function() {
         const fileName = $(this).val().split('\\').pop();
         $(this).next('.custom-file-label').text(fileName || 'Seleccionar archivo (.sql)');
     });
-
-    // Estilos para el loading overlay
-    $('head').append(`
-        <style>
-            .loading-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 9999;
-            }
-            .loading-overlay .spinner-border {
-                width: 3rem;
-                height: 3rem;
-            }
-        </style>
-    `);
 });
 </script>
+
+<style>
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+.custom-file-input:focus ~ .custom-file-label {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+</style>

@@ -1,5 +1,5 @@
 <div class="modal-header bg-white">
-    <h5 class="modal-title my-2">
+    <h5 class="modal-title">
         Asignar nueva tarea
     </h5>
      <button type="button" class="btn-close btn-close-black" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -61,9 +61,17 @@
                                     <div class="col-12">
                                         <label for="descripcion" class="form-label fw-semibold">Descripción detallada</label>
                                         <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required
-                                            placeholder="Describa la tarea a realizar con todos los detalles necesarios..."></textarea>
+                                            placeholder="Describa la tarea a realizar con todos los detalles necesarios..."
+                                            onkeyup="verificarLongitud(this, 500)"></textarea>
                                         <small class="text-muted">Máximo 500 caracteres</small>
                                         <div class="invalid-feedback">Por favor ingrese una descripción</div>
+                                        <script>
+                                            function verificarLongitud(textarea, longitudMaxima) {
+                                                if (textarea.value.length > longitudMaxima) {
+                                                    textarea.value = textarea.value.substring(0, longitudMaxima);
+                                                }
+                                            }
+                                        </script>
                                     </div>
                                 </div>
                             </div>
@@ -165,57 +173,6 @@
                 <div class="tab-pane fade" id="detalles">
                     <h4 class="mb-4"><i class="fa-solid fa-list-check me-2"></i>Detalles y Materiales</h4>
 
-                    <!-- Filtros de búsqueda -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-8">
-                                    <label for="buscar-material" class="form-label">Buscar Material</label>
-                                    <input type="text" class="form-control" id="buscar-material"
-                                        placeholder="Nombre, código o categoría">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="categoria" class="form-label">Categoría</label>
-                                    <select class="form-select" id="categoria">
-                                        <option value="">Todas las categorías</option>
-                                        <option value="herramientas">Herramientas</option>
-                                        <option value="tornilleria">Tornillería</option>
-                                        <option value="electricos">Materiales Eléctricos</option>
-                                        <option value="plomeria">Plomería</option>
-                                        <option value="pintura">Pintura</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tabla de materiales disponibles con DataTables -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0"><i class="fa-solid fa-boxes-stacked me-2"></i> Materiales Disponibles</h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-                                <table class="table table-hover mb-0" id="tabla-materiales" style="width: 100%;">
-                                    <thead class="table-light position-sticky top-0">
-                                        <tr>
-                                            <th width="50px">#</th>
-                                            <th width="280px">Material</th>
-                                            <th>Categoría</th>
-                                            <th>Unidad</th>
-                                            <th>Disponible</th>
-                                            <th width="80px">Cantidad</th>
-                                            <th width="50px">Acción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Los datos se cargarán dinámicamente via AJAX -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Materiales seleccionados -->
                     <div class="card">
                         <div class="card-header bg-light">
@@ -239,6 +196,62 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Filtros de búsqueda -->
+                    <div class="card mb-4">
+                        
+                    </div>
+
+                    
+
+                    <!-- Tabla de materiales disponibles con DataTables -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0"><i class="fa-solid fa-boxes-stacked me-2"></i> Materiales Disponibles</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label for="buscar-material" class="form-label">Buscar Material</label>
+                                    <input type="text" class="form-control" id="buscar-material"
+                                        placeholder="Nombre, código o categoría">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="categoria" class="form-label">Categoría</label>
+                                    <select class="form-select" id="categoria">
+                                        <option value="">Todas las categorías</option>
+                                        <option value="herramientas">Herramientas</option>
+                                        <option value="tornilleria">Tornillería</option>
+                                        <option value="electricos">Materiales Eléctricos</option>
+                                        <option value="plomeria">Plomería</option>
+                                        <option value="pintura">Pintura</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                <table class="table table-hover mb-0" id="tabla-materiales" style="width: 100%;">
+                                    <thead class="table-light position-sticky top-0">
+                                        <tr>
+                                            <th style="display: none;">#</th>
+                                            <th width="280px">Material</th>
+                                            <th>Categoría</th>
+                                            <th>Unidad</th>
+                                            <th>Disponible</th>
+                                            <th width="80px">Cantidad</th>
+                                            <th width="50px">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Los datos se cargarán dinámicamente via AJAX -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    
 
                     <div class="col-12 d-flex justify-content-between mt-4">
                         <button type="button" class="btn btn-secondary anterior" data-prev="datos-basicos">

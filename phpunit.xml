@@ -165,6 +165,12 @@
 		</testsuite> 
 		-->
 
+		<testsuite name="Integration">
+            <directory suffix=".php">
+				test/Integration
+			</directory>
+        </testsuite>
+
 	</testsuites>
 	
 	<coverage>
