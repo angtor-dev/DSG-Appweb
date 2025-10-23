@@ -52,7 +52,7 @@ class Tarea extends Model
      */
 public function registrar(): bool {
     $this->db->connect();
-    $this->db->pdo()->beginTransaction();
+    $this->beginTransaction();
 
     try {
         if (!$this->esValido()) {
@@ -83,6 +83,7 @@ public function registrar(): bool {
         $this->db->pdo()->commit();
         return true;
     } catch (\Throwable $th) {
+        echo $th;
         $this->db->pdo()->rollBack();
         $_SESSION['errores'][] = $th->getMessage();
         error_log("Error al registrar tarea: " . $th->getMessage());
