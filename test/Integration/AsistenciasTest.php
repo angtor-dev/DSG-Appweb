@@ -1,7 +1,7 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-final class TrabajadoresIntTest extends TestCase
+final class AsistenciasIntTest extends TestCase
 {
     private static Usuario $usuario;
 
@@ -48,38 +48,6 @@ final class TrabajadoresIntTest extends TestCase
     }
 
     /** @test */
-    public function registrarCargo() : void
-    {
-        // Arrange
-        $cargo = new Cargo();
-        $nombre = "Cargo de prueba";
-        $nivel = 1;
-        
-        // Act
-        $cargo->setterArray([
-            "nombre" => $nombre,
-            "nivel" => $nivel,
-        ]);
-        $esValido = true;
-        try {
-            $cargo->esValido(Cargo::REGISTRAR_CARGO);
-        } catch (\Throwable $th) {
-            $esValido = false;
-        }
-        $respuesta = $cargo->registrar(false);
-        $ultimoCargo = $cargo->cargarUltimo();
-
-        // Assert
-        $this->assertTrue($esValido, "El cargo debería ser válido.");
-        $this->assertTrue($respuesta['success'], "El cargo debería haberse registrado correctamente.");
-        $this->assertEquals(
-            $nombre,
-            $ultimoCargo->get_nombre(),
-            "El nombre del último cargo debería coincidir con el registrado."
-        );
-    }
-
-    /** @test */
     public function registrarTurno() : void
     {
         // Arrange
@@ -95,11 +63,9 @@ final class TrabajadoresIntTest extends TestCase
         $miercoles = "1";
         $jueves = "1";
         $viernes = "1";
-        $sabado = "0";
-        $domingo = "0";
-        
-        // Act
-        $turno->setterArray([
+        $sabado = "1";
+        $domingo = "1";
+        $datos = [
             "codigo" => $codigo,
             "nombre" => $nombre,
             "horario_entrada" => $horario_entrada,
@@ -113,8 +79,10 @@ final class TrabajadoresIntTest extends TestCase
             "viernes" => $viernes,
             "sabado" => $sabado,
             "domingo" => $domingo,
-        ]);
-
+        ];
+        
+        // Act
+        $turno->setterArray($datos);
         $esValido = true;
         try {
             $turno->esValido(Turno::REGISTRAR_TURNO);
@@ -139,13 +107,13 @@ final class TrabajadoresIntTest extends TestCase
     {
         // Arrange
         $trabajador = new Trabajador();
-        $cedula = "87654321";
+        $cedula = "11122233";
         $nombre = "Nombre de prueba";
         $apellido = "Apellido de prueba";
-        $telefono = "12345678999";
-        $idCargo = (new Cargo())->cargarUltimo()->id;
-        $idTurno = (new Turno())->cargarUltimo()->id;
-        $idDepartamento = (new Division())->cargarUltimo()->id;
+        $telefono = "04161234567";
+        $idCargo = 1;
+        $idTurno = (new Turno())->cargarUltimo()->id; // registrado en el test anterior
+        $idDepartamento = (new Division())->cargarUltimo()->id; // registrado en el test anterior
         $fechaIngreso = date('Y-m-d');
 
         // Act
@@ -173,87 +141,91 @@ final class TrabajadoresIntTest extends TestCase
     }
 
     /** @test */
-    public function listarTrabajadores() : void
+    final public function registrarAsistencia() : void
     {
         // Arrange
-        $trabajador = new Trabajador();
+        $asistencia = new Asistencia();
+        $fecha = date('Y-m-d', strtotime('+1 day'));
+        /** @var Trabajador */
+        $trabajador = (new Trabajador())->cargarUltimo(); // registrado en el test anterior
+        $turno = (new Turno())->cargarUltimo(); // registrado en el test anterior
+        $idDepartamento = $trabajador->idDepartamento;
+        $trabajadores = [
+            [
+                "idAsistencia_inasistencia" => null,
+                "idTrabajador" => $trabajador->id,
+                "tipo_registro" => "1", // asistencia
+                "horaEntrada" => $turno->get_horario_entrada(),
+                "horaSalida" => $turno->get_horario_salida(),
+                "tipo_justificacion" => null,
+                "descripcion_justificacion" => null
+            ]
+        ];
+        $datos = [
+            'fecha' => $fecha,
+            'turno' => $turno->get_codigo(),
+            'idDepartamento' => $idDepartamento,
+            'trabajadores' => $trabajadores
+        ];
 
         // Act
-        $trabajadores = $trabajador->listar();
-        $ultimoTrabajador = end($trabajadores);
-
-        // Assert
-        $this->assertIsArray($trabajadores, "El resultado debería ser un array.");
-        $this->assertNotEmpty($trabajadores, "El array de trabajadores no debería estar vacío.");
-        $this->assertEquals(
-            "87654321",
-            $ultimoTrabajador->getCedula(),
-            "La cédula del último trabajador debería coincidir con la registrada. {$ultimoTrabajador->getNombre()}"
-        );
-    }
-
-    /** @test */
-    public function actualizarTrabajador() : void
-    {
-        // Arrange
-        $trabajador = new Trabajador();
-        $trabajadores = $trabajador->listar();
-        $ultimoTrabajador = end($trabajadores);
-        $nuevoApellido = "Apellido actualizado";
-        $nuevoTelefono = "09876543211";
-
-        // Act
-        $ultimoTrabajador->setterArray([
-            "cedulaSeleccion" => $ultimoTrabajador->getCedula(),
-            "apellido" => $nuevoApellido,
-            "telefono" => $nuevoTelefono,
-            "cargo" => 1,
-            "turno" => 1,
-        ]);
+        $asistencia->setterArray($datos);
         $esValido = true;
         try {
-            $ultimoTrabajador->esValido(Trabajador::ACTUALIZAR_TRABAJADOR);
+            $asistencia->esValido(Asistencia::REGISTRAR_ASISTENCIA);
         } catch (\Throwable $e) {
             $esValido = false;
         }
-        $respuesta = $ultimoTrabajador->actualizar(false);
-        /** @var Trabajador */
-        $trabajadorActualizado = Trabajador::cargar($ultimoTrabajador->id);
+        $respuesta = $asistencia->registrar(false);
 
         // Assert
-        $this->assertTrue($esValido, "El trabajador actualizado debería ser válido.");
-        $this->assertTrue($respuesta['success'], "El trabajador debería haberse actualizado correctamente.");
-        $this->assertEquals(
-            $nuevoApellido,
-            $trabajadorActualizado->getApellido(),
-            "El apellido del trabajador debería haberse actualizado."
-        );
-        $this->assertEquals(
-            $nuevoTelefono,
-            $trabajadorActualizado->getTelefono(),
-            "El teléfono del trabajador debería haberse actualizado."
-        );
+        $this->assertTrue($esValido, "La asistencia debería ser válida.");
+        $this->assertTrue($respuesta['success'], "La asistencia debería haberse registrado correctamente.");
     }
 
     /** @test */
-    public function eliminarTrabajador() : void
+    public function listarAsistencias() : void
     {
         // Arrange
-        $trabajador = new Trabajador();
-        $trabajadores = $trabajador->listar();
-        $ultimoTrabajador = end($trabajadores);
+        $asistencia = new Asistencia();
+        $idDetpartamento = (new Division())->cargarUltimo()->id; // registrado en el test anterior
+        $turno = (new Turno())->cargarUltimo(); // registrado en el test anterior
+        $fecha = date('Y-m-d', strtotime('+1 day'));
+        $datos = [
+            'fecha' => $fecha,
+            'turno' => $turno->get_codigo(),
+            'idDepartamento' => $idDetpartamento,
+        ];
 
         // Act
-        $ultimoTrabajador->setterArray([
-            "cedulaSeleccion" => $ultimoTrabajador->getCedula(),
-        ]);
-        $seElimino = $ultimoTrabajador->eliminar();
-        /** @var Trabajador */
-        $trabajadorEliminado = Trabajador::cargar($ultimoTrabajador->id);
-        $estado = (int)$trabajadorEliminado->getEstado();
+        $asistencia->setterArray($datos);
+        $respuesta = $asistencia->verAsistencias(false);
 
         // Assert
-        $this->assertTrue($seElimino, "El trabajador debería haberse eliminado correctamente.");
-        $this->assertEquals(0, $estado, "El estado del trabajador debería ser 0 (eliminado).");
+        $this->assertIsArray($respuesta, "La respuesta debería ser un arreglo.");
+        $this->assertNotEmpty($respuesta, "La respuesta no debería estar vacía.");
+        $this->assertTrue($respuesta['success'], "La consulta debería haberse realizado correctamente.");
+    }
+
+    /** @test */
+    public function eliminarAsistencia() : void
+    {
+        // Arrange
+        $asistencia = new Asistencia();
+        $idDepartamento = (new Division())->cargarUltimo()->id; // registrado en el test anterior
+        $turno = (new Turno())->cargarUltimo(); // registrado en el test anterior
+        $fecha = date('Y-m-d', strtotime('+1 day'));
+        $datos = [
+            'fecha' => $fecha,
+            'turno' => $turno->get_codigo(),
+            'idDepartamento' => $idDepartamento,
+        ];
+
+        // Act
+        $asistencia->setterArray($datos);
+        $respuesta = $asistencia->eliminarFechaAsistencia(false);
+
+        // Assert
+        $this->assertTrue($respuesta['success'], "La asistencia debería haberse eliminado correctamente.");
     }
 }

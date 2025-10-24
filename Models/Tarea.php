@@ -399,7 +399,6 @@ public function evaluar(): bool {
     $this->db->connect();
     $this->beginTransaction();
 
-
     try {
         if (!$this->esValidoEval()) {
             throw new Exception("Datos de evaluación inválidos");
@@ -533,7 +532,7 @@ public function evaluar(): bool {
         ];
 
         $checkQuery = "SELECT id FROM tarea_validacion WHERE idTarea = :idTarea";
-        $checkStmt = $this->db->pdo()->prepare($checkQuery);
+        $checkStmt = $this->prepare($checkQuery);
         $checkStmt->execute([':idTarea' => $idTarea]);
         $exists = $checkStmt->fetch();
 
@@ -557,7 +556,7 @@ public function evaluar(): bool {
                     )";
         }
 
-        $stmt = $this->db->pdo()->prepare($query);
+        $stmt = $this->prepare($query);
         $stmt->execute($params);
     }
 
@@ -574,7 +573,7 @@ private function guardarEvaluacionDirector(
 
   
     $currentObsQuery = "SELECT observacion FROM tarea_validacion WHERE idTarea = :idTarea";
-    $currentObsStmt = $this->db->pdo()->prepare($currentObsQuery);
+    $currentObsStmt = $this->prepare($currentObsQuery);
     $currentObsStmt->execute([':idTarea' => $idTarea]);
     $currentObs = $currentObsStmt->fetchColumn();
 
@@ -599,7 +598,7 @@ private function guardarEvaluacionDirector(
                 observacion = :observacion
             WHERE idTarea = :idTarea";
 
-    $stmt = $this->db->pdo()->prepare($query);
+    $stmt = $this->prepare($query);
     $stmt->execute($params);
 }
 
@@ -608,7 +607,7 @@ private function guardarEvaluacionDirector(
     private function actualizarEstadoTarea(int $idTarea, string $estado): void
 {
     $query = "UPDATE tarea SET estado_tarea = :estado WHERE id = :id";
-    $stmt = $this->db->pdo()->prepare($query);
+    $stmt = $this->prepare($query);
     $stmt->execute([
         ':estado' => $estado,
         ':id' => $idTarea
@@ -623,7 +622,7 @@ private function guardarEvaluacionDirector(
         $devuelto = (float)$m['devuelto'];
 
        
-        $stmt = $this->db->pdo()->prepare("
+        $stmt = $this->prepare("
             SELECT cantidadDevolucion 
             FROM recurso 
             WHERE idTarea = :idTarea AND idArticulo = :idInventario
@@ -645,7 +644,7 @@ private function guardarEvaluacionDirector(
                     devolucion = 1
                 WHERE idTarea = :idTarea AND idArticulo = :idInventario";
 
-        $stmt = $this->db->pdo()->prepare($query);
+        $stmt = $this->prepare($query);
         $stmt->execute([
             ':usada' => $utilizado,
             ':devuelto' => $devuelto,
@@ -659,7 +658,7 @@ private function guardarEvaluacionDirector(
                         SET cantidad = cantidad + :devuelto 
                         WHERE id = :id";
 
-            $stmt = $this->db->pdo()->prepare($queryStock);
+            $stmt = $this->prepare($queryStock);
             $stmt->execute([
                 ':devuelto' => $devolucionNeta,
                 ':id' => $idInventario
@@ -678,7 +677,7 @@ private function guardarEvaluacionDirector(
 
         try {
             $query = "UPDATE tarea SET estado_tarea = 'cancelado' WHERE id = :id";
-            $stmt = $this->db->pdo()->prepare($query);
+            $stmt = $this->prepare($query);
             $stmt->bindValue(":id", $this->id, PDO::PARAM_INT);
 
             if (!$stmt->execute()) {
@@ -695,7 +694,7 @@ private function guardarEvaluacionDirector(
 
         try {
             $query = "UPDATE tarea SET estado_tarea = 'vencida' WHERE id = :id";
-            $stmt = $this->db->pdo()->prepare($query);
+            $stmt = $this->prepare($query);
             $stmt->bindValue(":id", $this->id, PDO::PARAM_INT);
 
             if (!$stmt->execute()) {
@@ -812,10 +811,7 @@ private function obtenerPersonalAsignado($idTarea) {
         $bd->connect();
 
         try {
-            $pdo = $bd->pdo();
-
-           
-            $pdo->beginTransaction();
+            $bd->beginTransaction();
 
             $query = "SELECT t.*, a.nombre as area_nombre, d.nombre as departamento_nombre, t.descripcion  as descripcion_tarea, t.fecha_inicio as fecha_inicio_tarea
                       FROM tarea t
@@ -823,13 +819,13 @@ private function obtenerPersonalAsignado($idTarea) {
                       LEFT JOIN division d ON t.idDepartamento = d.id
                       WHERE t.id = :id";
 
-            $stmt = $pdo->prepare($query);
+            $stmt = $bd->pdo()->prepare($query);
             $stmt->execute([':id' => $id]);
             $stmt->setFetchMode(PDO::FETCH_CLASS, "Tarea");
             $tarea = $stmt->fetch();
 
             if (!$tarea) {
-                $pdo->rollBack();
+                $bd->rollBack();
                 return null;
             }
 
@@ -849,7 +845,7 @@ private function obtenerPersonalAsignado($idTarea) {
                  WHERE tp.idTarea = :idTarea
                  AND al.esActual = 1";
 
-            $stmt = $pdo->prepare($queryPersonal);
+            $stmt = $bd->pdo()->prepare($queryPersonal);
             $stmt->execute([':idTarea' => $id]);
             $tarea->personal = $stmt->fetchAll(PDO::FETCH_OBJ);
 
@@ -867,7 +863,7 @@ private function obtenerPersonalAsignado($idTarea) {
                     WHERE r.idTarea = :idTarea";
 
             
-            $stmt = $pdo->prepare($queryMateriales);
+            $stmt = $bd->pdo()->prepare($queryMateriales);
             $stmt->execute([':idTarea' => $id]);
             $tarea->materialestarea = $stmt->fetchAll(PDO::FETCH_OBJ);
 
@@ -885,7 +881,7 @@ private function obtenerPersonalAsignado($idTarea) {
                    JOIN cargo c ON al.idCargo = c.id
                    WHERE tv.idTarea = :idTarea";
 
-            $stmt = $pdo->prepare($querySupervisor);
+            $stmt = $bd->pdo()->prepare($querySupervisor);
             $stmt->execute([':idTarea' => $id]);
             $tarea->supervisor = $stmt->fetchAll(PDO::FETCH_OBJ);
 
@@ -903,17 +899,17 @@ private function obtenerPersonalAsignado($idTarea) {
                 LEFT JOIN trabajador t ON tv.idSupervisor = t.id
                 WHERE tv.idTarea = :idTarea";
 
-            $stmt = $pdo->prepare($queryEvaluacion);
+            $stmt = $bd->pdo()->prepare($queryEvaluacion);
             $stmt->execute([':idTarea' => $id]);
             $tarea->evaluacion_tarea = $stmt->fetch(PDO::FETCH_ASSOC); // Cambiado a FETCH_ASSOC
 
           
-            $pdo->commit();
+            $bd->commit();
 
             return $tarea;
         } catch (Exception $e) {
           
-            $pdo->rollBack();
+            $bd->rollBack();
             throw $e;
         } finally {
             $bd->disconnect();

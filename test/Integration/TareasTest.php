@@ -65,7 +65,7 @@ final class TareasIntTest extends TestCase
     {
         // Arrange
         $trabajador = new Trabajador();
-        $cedula = "12345671";
+        $cedula = "12312312";
         $nombre = "Trabajador de pruebas";
         $apellido = "Apellido de prueba";
         $telefono = "12345678912";
@@ -85,7 +85,7 @@ final class TareasIntTest extends TestCase
             "idDepartamento" => $idDepartamento,
             "fechaIngreso" => $fechaIngreso,
         ]);
-        $seRegistro = $trabajador->registrar();
+        $seRegistro = $trabajador->registrar(false);
 
         // Assert
         $this->assertTrue($seRegistro['success'], "El trabajador debería haberse registrado correctamente.");
