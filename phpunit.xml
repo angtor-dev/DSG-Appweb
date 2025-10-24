@@ -62,6 +62,12 @@
 			</directory>
 		</testsuite>
 
+		<testsuite name ="Tarea">
+			<directory suffix=".php">
+				test/Unit/Tarea
+			</directory>
+		</testsuite>
+
 
 
 		<!-- 
@@ -171,6 +177,15 @@
         <include>
             <directory>./Models</directory>
         </include>
+		<exclude>
+
+            <directory>./Models/Enums</directory>
+			<file>.Modles/setterArray.php</file>
+			<file>.Modles/correos.php</file>
+			<file>.Modles/Notificacion.php</file>
+
+		</exclude>
+
     </coverage>
 
 
