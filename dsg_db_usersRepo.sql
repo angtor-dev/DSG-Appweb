@@ -3,17 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-07-2025 a las 19:51:48
+-- Tiempo de generación: 24-10-2025 a las 04:14:33
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
-CREATE DATABASE IF NOT EXISTS `dsg_db_users` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-
-USE `dsg_db_users`;
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -24,6 +20,8 @@ USE `dsg_db_users`;
 --
 -- Base de datos: `dsg_db_users`
 --
+CREATE DATABASE IF NOT EXISTS `dsg_db_users` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `dsg_db_users`;
 
 -- --------------------------------------------------------
 
@@ -239,7 +237,64 @@ INSERT INTO `permiso` (`id`, `idRol`, `idModulo`, `consultar`, `registrar`, `act
 (157, 14, 17, 0, 0, 0, 0),
 (158, 14, 18, 1, 0, 0, 0),
 (159, 14, 19, 0, 0, 0, 0),
-(160, 14, 20, 0, 0, 0, 0);
+(160, 14, 20, 0, 0, 0, 0),
+(161, 15, 1, 1, 1, 1, 0),
+(162, 15, 2, 1, 1, 1, 0),
+(163, 15, 3, 1, 1, 1, 0),
+(164, 15, 4, 1, 1, 1, 0),
+(165, 15, 5, 1, 1, 1, 0),
+(166, 15, 6, 1, 1, 1, 0),
+(167, 15, 7, 1, 1, 1, 0),
+(168, 15, 9, 1, 1, 1, 0),
+(169, 15, 10, 1, 1, 1, 0),
+(170, 15, 11, 1, 1, 1, 0),
+(171, 15, 12, 1, 1, 1, 0),
+(172, 15, 13, 1, 1, 1, 0),
+(173, 15, 14, 1, 1, 1, 0),
+(174, 15, 15, 1, 1, 1, 0),
+(175, 15, 16, 1, 1, 1, 0),
+(176, 15, 17, 1, 1, 1, 0),
+(177, 15, 18, 1, 1, 1, 0),
+(178, 15, 19, 1, 1, 1, 0),
+(179, 15, 20, 1, 1, 1, 0),
+(180, 16, 1, 1, 1, 0, 1),
+(181, 16, 2, 1, 1, 0, 1),
+(182, 16, 3, 1, 1, 0, 1),
+(183, 16, 4, 1, 1, 0, 1),
+(184, 16, 5, 1, 1, 0, 1),
+(185, 16, 6, 1, 1, 0, 1),
+(186, 16, 7, 1, 1, 0, 1),
+(187, 16, 9, 1, 1, 0, 1),
+(188, 16, 10, 1, 1, 0, 1),
+(189, 16, 11, 1, 1, 0, 1),
+(190, 16, 12, 1, 1, 0, 1),
+(191, 16, 13, 1, 1, 0, 1),
+(192, 16, 14, 1, 1, 0, 1),
+(193, 16, 15, 1, 1, 0, 1),
+(194, 16, 16, 1, 1, 0, 1),
+(195, 16, 17, 1, 1, 0, 1),
+(196, 16, 18, 1, 1, 0, 1),
+(197, 16, 19, 1, 1, 0, 1),
+(198, 16, 20, 1, 1, 0, 1),
+(199, 17, 1, 1, 1, 0, 0),
+(200, 17, 2, 1, 1, 0, 0),
+(201, 17, 3, 1, 1, 0, 0),
+(202, 17, 4, 1, 1, 0, 0),
+(203, 17, 5, 1, 1, 0, 0),
+(204, 17, 6, 1, 1, 0, 0),
+(205, 17, 7, 1, 1, 0, 0),
+(206, 17, 9, 1, 1, 0, 0),
+(207, 17, 10, 1, 1, 0, 0),
+(208, 17, 11, 1, 1, 0, 0),
+(209, 17, 12, 1, 1, 0, 0),
+(210, 17, 13, 1, 1, 0, 0),
+(211, 17, 14, 1, 1, 0, 0),
+(212, 17, 15, 1, 1, 0, 0),
+(213, 17, 16, 1, 1, 0, 0),
+(214, 17, 17, 1, 1, 0, 0),
+(215, 17, 18, 1, 1, 0, 0),
+(216, 17, 19, 1, 1, 0, 0),
+(217, 17, 20, 1, 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -265,7 +320,10 @@ INSERT INTO `rol` (`id`, `nombre`, `descripcion`, `estado`) VALUES
 (11, 'xavier', 'perro', 0),
 (12, 'xavier', '', 0),
 (13, 'xavier', '', 0),
-(14, 'prueba de Permisos', '', 1);
+(14, 'prueba de Permisos', '', 1),
+(15, 'sin eliminar', '', 1),
+(16, 'sin actualizar', '', 1),
+(17, 'sin eliminar actuali', '', 1);
 
 -- --------------------------------------------------------
 
@@ -292,7 +350,6 @@ CREATE TABLE `usuario` (
 INSERT INTO `usuario` (`id`, `cedula`, `idRol`, `correo`, `clave`, `nombre`, `apellido`, `estado`, `token`) VALUES
 (1, '00000001', 1, 'admin@dsg.com', '$2y$10$UxGlmjwVYDiPeJ/mz/aeru9taZtf7MKIQCUmxm6ffp3duvxcjsVty', 'Admin', 'Dsg', 1, NULL),
 (27, '0777777', 1, 'algo@esto.chauX', '$2y$10$.bb2n9fjxRS0qFj6QcDVMuaEVYqJELF7L/1tjTsVOEHPMCcyg2uYe', 'probando nuevo formulario', 'queso                  ', 0, NULL),
-(28, '0777779', 1, 'algo@esto.chau', '$2y$10$Aof2fU0EV.z02qoDTsAxNOVbJLi2Ugj4HcOX05bOOTX71rmvRFQ2O', 'otro para probar', 'Jamom', 1, NULL),
 (30, '2720544', 8, 'admin@dsg.com1', '$2y$10$4tQ1VbPeoWWgBIu9ys148uOn/MBrTKHBTW5d785I/nU5qyydSu5g2', 'xavier', 'sanchez', 1, NULL);
 
 --
@@ -351,7 +408,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=418;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=920;
 
 --
 -- AUTO_INCREMENT de la tabla `modulo`
@@ -369,19 +426,19 @@ ALTER TABLE `notificacion`
 -- AUTO_INCREMENT de la tabla `permiso`
 --
 ALTER TABLE `permiso`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=161;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=693;
 
 --
 -- AUTO_INCREMENT de la tabla `rol`
 --
 ALTER TABLE `rol`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139;
 
 --
 -- Restricciones para tablas volcadas

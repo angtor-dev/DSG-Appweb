@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-09-2025 a las 01:00:04
+-- Tiempo de generación: 24-10-2025 a las 04:09:10
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -27,7 +27,7 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE PROCEDURE `sp_gestionar_asignacion_laboral` (IN `p_idTrabajador` INT, IN `p_idDepartamento` INT, IN `p_idTurno` INT, IN `p_idCargo` INT, IN `p_fechaAsignacion` DATE)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_gestionar_asignacion_laboral` (IN `p_idTrabajador` INT, IN `p_idDepartamento` INT, IN `p_idTurno` INT, IN `p_idCargo` INT, IN `p_fechaAsignacion` DATE)   BEGIN
     -- Declarar variables para almacenar la asignación laboral actual del trabajador
     DECLARE v_current_id INT;
     DECLARE v_current_idDepartamento INT;
@@ -87,7 +87,7 @@ CREATE PROCEDURE `sp_gestionar_asignacion_laboral` (IN `p_idTrabajador` INT, IN 
 
 END$$
 
-CREATE PROCEDURE `sp_registrar_asistencia` (IN `p_id_asistencia_inasistencia` INT, IN `p_fecha` DATE, IN `p_id_trabajador` INT, IN `p_tipo_registro` ENUM('Asistencia','Inasistencia'), IN `p_hora_entrada` TIME, IN `p_hora_salida` TIME, IN `p_tipo_inasistencia` ENUM('Injustificado','Vacaciones','Medico','Emergencia','Judicial','Enfermedad','Muerte De Un Familiar','Otro'), IN `p_descripcion` TEXT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_registrar_asistencia` (IN `p_id_asistencia_inasistencia` INT, IN `p_fecha` DATE, IN `p_id_trabajador` INT, IN `p_tipo_registro` ENUM('Asistencia','Inasistencia'), IN `p_hora_entrada` TIME, IN `p_hora_salida` TIME, IN `p_tipo_inasistencia` ENUM('Injustificado','Vacaciones','Medico','Emergencia','Judicial','Enfermedad','Muerte De Un Familiar','Otro'), IN `p_descripcion` TEXT)   BEGIN
     DECLARE v_id_fecha_asistencia INT;
     DECLARE v_existe_asistencia INT;
     DECLARE v_cierre INT DEFAULT 0;
@@ -200,7 +200,7 @@ CREATE PROCEDURE `sp_registrar_asistencia` (IN `p_id_asistencia_inasistencia` IN
     END IF;
 END$$
 
-CREATE PROCEDURE `sp_registrar_asistencia_semanal` (IN `p_fecha` DATE, IN `p_cedula` VARCHAR(10) CHARSET utf8mb4, IN `p_codigo_asistencia_inasistencia` VARCHAR(50), IN `p_turno` VARCHAR(50), IN `p_tipo_inasistencia` INT, IN `p_descripcion` TEXT, IN `p_laborable` TINYINT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_registrar_asistencia_semanal` (IN `p_fecha` DATE, IN `p_cedula` VARCHAR(10) CHARSET utf8mb4, IN `p_codigo_asistencia_inasistencia` VARCHAR(50), IN `p_turno` VARCHAR(50), IN `p_tipo_inasistencia` INT, IN `p_descripcion` TEXT, IN `p_laborable` TINYINT)   BEGIN
     -- procedure
     -- parametros
     -- # p_fecha DATE
@@ -385,6 +385,13 @@ CREATE TABLE `ajuste` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Volcado de datos para la tabla `ajuste`
+--
+
+INSERT INTO `ajuste` (`id`, `idInventario`, `cantidad`, `descripcion`, `fechaIncidente`, `fechaCreacion`) VALUES
+(1, 1, -1, 'perdida', '2025-10-17 00:00:00', '2025-10-17 13:06:15');
+
+--
 -- Disparadores `ajuste`
 --
 DELIMITER $$
@@ -415,11 +422,11 @@ INSERT INTO `area` (`id`, `nombre`) VALUES
 (1, 'Hilandera'),
 (2, 'Aula H1'),
 (3, 'Giraluna'),
-(4, 'Planta baja'),
 (9, 'G3'),
 (14, 'Edificio Rio de las 7 Estrellas'),
 (15, 'Aula R1'),
-(16, 'Plaza de las banderas');
+(16, 'Plaza de las banderas'),
+(89, 'planta baja');
 
 -- --------------------------------------------------------
 
@@ -442,23 +449,23 @@ CREATE TABLE `articulo` (
 --
 
 INSERT INTO `articulo` (`id`, `idCategoria`, `idMedida`, `nombre`, `descripcion`, `cantidad`, `esConsumible`) VALUES
-(1, 1, 1, 'Bolígrafo Azul', 'Bolígrafo de tinta azul, punta fina', 150.00, 1),
-(2, 2, 3, 'Jabón Líquido', 'Jabón desinfectante para manos, 1 litro', 21.50, 1),
+(1, 1, 1, 'Bolígrafo Azul', 'Bolígrafo de tinta azul, punta fina', 149.00, 1),
+(2, 2, 3, 'Jabón Líquido', 'Jabón desinfectante para manos, 1 litro', 12.50, 1),
 (3, 3, 1, 'Martillo de Uña', 'Martillo de carpintero con mango de goma', 9.00, 0),
 (4, 4, 1, 'Guantes de Seguridad', 'Guantes de protección de nitrilo, talla M', 49.00, 1),
 (5, 5, 1, 'Silla Ergonómica', 'Silla de oficina ajustable, color negro', 5.00, 0),
-(6, 6, 1, 'Cable HDMI', 'Cable de video HDMI de 2 metros', 30.00, 0),
-(7, 7, 1, 'Resma de Papel', 'Papel bond blanco tamaño carta, 500 hojas', 40.00, 1),
-(8, 8, 1, 'Clavos surtidos', 'Caja de clavos de diferentes tamaños', 3.75, 1),
-(9, 9, 1, 'Bombillo LED', 'Bombillo de bajo consumo, luz blanca', 20.00, 1),
-(10, 10, 1, 'Cinta de Teflón', 'Cinta selladora para tuberías', 9.00, 1),
+(6, 6, 1, 'Cable HDMI', 'Cable de video HDMI de 2 metros', 28.00, 0),
+(7, 7, 1, 'Resma de Papel', 'Papel bond blanco tamaño carta, 500 hojas', 38.00, 1),
+(8, 8, 1, 'Clavos surtidos', 'Caja de clavos de diferentes tamaños', 0.75, 1),
+(9, 9, 1, 'Bombillo LED', 'Bombillo de bajo consumo, luz blanca', 17.00, 1),
+(10, 10, 1, 'Cinta de Teflón', 'Cinta selladora para tuberías', 6.00, 1),
 (11, 11, 1, 'Chaleco Reflectivo', 'Chaleco de alta visibilidad, talla L', 15.00, 0),
 (12, 12, 1, 'Tijeras de Podar', 'Tijeras de jardín para ramas pequeñas', 7.00, 0),
 (13, 13, 1, 'Alcohol Antiséptico', 'Alcohol isopropílico al 70%, 500ml', 30.00, 1),
 (14, 14, 1, 'Balón de Baloncesto', 'Balón reglamentario de baloncesto', 3.00, 0),
 (15, 15, 1, 'Vasos de Precipitado', 'Juego de vasos de vidrio para laboratorio', 5.00, 0),
 (16, 16, 1, 'Juego de Cubiertos', 'Set de cubiertos de acero inoxidable', 10.00, 0),
-(17, 17, 3, 'Aceite de Motor', 'Aceite lubricante para motores, 1 litro', 18.00, 1),
+(17, 17, 3, 'Aceite de Motor', 'Aceite lubricante para motores, 1 litro', 12.00, 1),
 (18, 18, 1, 'Hilo de Coser', 'Carrete de hilo de poliéster, color blanco', 25.00, 1),
 (19, 19, 1, 'Cuaderno Anillado', 'Cuaderno de tapa dura, 100 hojas', 50.00, 1),
 (20, 20, 1, 'Set de Pinceles', 'Juego de pinceles para pintura acrílica', 8.00, 0),
@@ -635,7 +642,9 @@ INSERT INTO `asignacion_laboral` (`id`, `idTrabajador`, `idDivision`, `idTurno`,
 (149, 180, 1, 1, 2, '2025-07-02 00:36:56', '2025-07-02 00:47:31'),
 (150, 1, 5, 5, 24, '2025-07-03 11:27:33', '2025-07-03 11:27:51'),
 (151, 1, 5, 5, 1, '2025-07-03 11:27:51', NULL),
-(152, 181, 2, 1, 6, '2025-09-19 00:00:00', NULL);
+(152, 181, 2, 1, 6, '2025-09-19 00:00:00', NULL),
+(166, 183, 1, 1, 1, '2025-10-17 00:00:00', '2025-10-17 08:14:52'),
+(306, 239, 1, 2, 3, '2025-10-22 00:00:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -648,11 +657,6 @@ CREATE TABLE `asistencia` (
   `horaEntrada` time NOT NULL,
   `horaSalida` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `asistencia`
---
-
 
 -- --------------------------------------------------------
 
@@ -667,10 +671,6 @@ CREATE TABLE `asistencia_inasistencia` (
   `idAsignacionLaboral` int(11) NOT NULL,
   `laborable` tinyint(4) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `asistencia_inasistencia`
---
 
 -- --------------------------------------------------------
 
@@ -720,6 +720,7 @@ INSERT INTO `cargo` (`id`, `nombre`, `nivel`) VALUES
 (29, 'Supervisor de mantenimiento', 4),
 (30, 'Supervisor de cocina', 4),
 (31, 'Supervisor de electromecánica', 4),
+(35, 'Para Probar', 5),
 (37, 'Pintor', 4);
 
 -- --------------------------------------------------------
@@ -810,6 +811,13 @@ CREATE TABLE `entrada` (
   `idUsuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `entrada`
+--
+
+INSERT INTO `entrada` (`id`, `fechaEntrada`, `FechaRegistro`, `numeroDocumento`, `observaciones`, `idUsuario`) VALUES
+(1, '2025-10-23', '2025-10-23 02:46:06', '13213', 'tardo', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -822,6 +830,13 @@ CREATE TABLE `entradadetalle` (
   `idArticulo` int(11) NOT NULL,
   `cantidad` decimal(11,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `entradadetalle`
+--
+
+INSERT INTO `entradadetalle` (`id`, `idEntrada`, `idArticulo`, `cantidad`) VALUES
+(1, 1, 1, 3.00);
 
 --
 -- Disparadores `entradadetalle`
@@ -847,12 +862,6 @@ CREATE TABLE `fechaasistencia` (
   `cierre` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `fechaasistencia`
---
-
-
-
 -- --------------------------------------------------------
 
 --
@@ -864,12 +873,6 @@ CREATE TABLE `inasistencia` (
   `tipo` enum('Injustificado','Vacaciones','Medico','Emergencia','Judicial','Enfermedad','Muerte De Un Familiar','Otro') NOT NULL,
   `descripcion` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `inasistencia`
---
-
-
 
 -- --------------------------------------------------------
 
@@ -920,7 +923,23 @@ INSERT INTO `movimiento` (`idArticulo`, `cantidad`, `fecha`, `antes`, `despues`)
 (4, 1.00, '2025-07-04 11:26:29', 48, 49),
 (10, -2.00, '2025-07-04 13:16:06', 12, 10),
 (10, -1.00, '2025-09-19 14:13:17', 10, 9),
-(2, -3.00, '2025-09-19 14:13:17', 25, 22);
+(2, -3.00, '2025-09-19 14:13:17', 25, 22),
+(1, -1.00, '2025-10-17 13:06:15', 150, 149),
+(17, 1.00, '2025-10-17 13:22:42', 18, 19),
+(17, -5.00, '2025-10-19 20:48:40', 19, 14),
+(17, -4.00, '2025-10-19 20:59:51', 14, 10),
+(17, 2.00, '2025-10-19 21:03:19', 10, 12),
+(1, -1.00, '2025-10-21 11:50:21', 149, 148),
+(8, -3.00, '2025-10-21 11:50:21', 4, 1),
+(9, -3.00, '2025-10-21 11:50:21', 20, 17),
+(10, -3.00, '2025-10-21 11:50:21', 9, 6),
+(2, -8.00, '2025-10-22 21:31:01', 22, 14),
+(1, 3.00, '2025-10-23 02:46:06', 148, 151),
+(6, -2.00, '2025-10-23 07:51:58', 30, 28),
+(7, -2.00, '2025-10-23 07:51:58', 40, 38),
+(1, -1.00, '2025-10-23 07:54:22', 151, 150),
+(2, -1.00, '2025-10-23 07:54:22', 14, 13),
+(1, -1.00, '2025-10-23 08:47:56', 150, 149);
 
 -- --------------------------------------------------------
 
@@ -950,7 +969,19 @@ INSERT INTO `recurso` (`id`, `idTarea`, `idArticulo`, `cantidad`, `devolucion`, 
 (8, 35, 10, 2, 0, 0),
 (9, 35, 3, 18, 0, 0),
 (10, 36, 10, 1, 0, 0),
-(11, 36, 2, 3, 0, 0);
+(11, 36, 2, 3, 0, 0),
+(12, 37, 17, 5, 0, 0),
+(13, 38, 17, 2, 1, 2),
+(14, 39, 1, 1, 0, 0),
+(15, 39, 8, 3, 0, 0),
+(16, 39, 9, 3, 0, 0),
+(17, 39, 10, 3, 0, 0),
+(18, 40, 2, 8, 0, 0),
+(19, 41, 6, 2, 0, 0),
+(20, 41, 7, 2, 0, 0),
+(21, 42, 1, 1, 0, 0),
+(22, 42, 2, 1, 0, 0),
+(23, 43, 1, 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -1016,7 +1047,14 @@ INSERT INTO `tarea` (`id`, `idArea`, `idDepartamento`, `descripcion`, `fechaCrea
 (33, 1, 4, 'arreglar toma de agua', '2025-07-04 11:21:06', '2025-07-02 00:00:00', 'activo', 0),
 (34, 9, 2, 'lijar y pintar puerta', '2025-07-04 11:23:18', '2025-07-04 00:00:00', 'vencida', 0),
 (35, 3, 3, 'Se repararan sillas en giraluna', '2025-07-04 13:16:06', '2025-07-04 00:00:00', 'activo', 0),
-(36, 16, 4, 'plaza de las banderas', '2025-09-19 14:13:17', '2025-09-22 00:00:00', 'activo', 0);
+(36, 16, 4, 'plaza de las banderas', '2025-09-19 14:13:17', '2025-09-22 00:00:00', 'activo', 0),
+(37, 15, 2, 'xd no se', '2025-10-19 20:48:40', '2025-10-19 00:00:00', 'cancelado', 0),
+(38, 9, 2, 'loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj loremsd asldkjfañ lsdkfja ñsl alñskdj añlk ajñld jkañsld jañsdklj añsdkl jasdlñkjañsdlk jañsdkljañdlk jañld jañdl kjañlsk jañlsd jañsdlk jañldkj añldkj añlkj lkj añlkd jañldkj añldkj añlkdjañ ldkjañldkj añdlkf jañdlk jañsdlkfj añsdklj', '2025-10-19 20:59:51', '2025-10-31 00:00:00', 'evaluada', 0),
+(39, 9, 1, 'XAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jh XAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jh XAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jh XAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jh XAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jhXAAAAAAAAAAA hdfaksdjfh dk fjahdgsfkasdj hfagkdsj faksd hgakj gakdh gakjdf gakdjshf gaksjdhf akjs gfaksj gfaksdj gaksjd fgkasdj gfkja gfkasj gfakjsd gfakjsh gaksjh fkasdhfk a gfak fasdj agkdfjhagsd kfjadfkaj hgaksjd agkdjgahkdfj hagkdjhagksdgaksdfj k h fkajd gfkajd gfakj gdjg kafj kagsjd hgak jdsgaksjdgaskjd fgaksjd hgaksjd fgaksjdh gakdjf hagsdkfjhagdsk jhagdkf jasdhg kajsdfgaksdjhgaksd jh', '2025-10-21 11:50:21', '2025-10-21 00:00:00', 'cancelado', 0),
+(40, 9, 1, 'descripcion', '2025-10-22 21:31:01', '2025-10-22 00:00:00', 'activo', 0),
+(41, 9, 1, 'descirp', '2025-10-23 07:51:58', '2025-10-23 00:00:00', 'activo', 0),
+(42, 1, 2, 'dddddddd', '2025-10-23 07:54:22', '2025-10-23 00:00:00', 'activo', 0),
+(43, 9, 1, 'dasdf', '2025-10-23 08:47:56', '2025-10-23 00:00:00', 'activo', 0);
 
 -- --------------------------------------------------------
 
@@ -1040,7 +1078,15 @@ INSERT INTO `tarea_personal` (`idTarea`, `idAsignacionLaboral`) VALUES
 (34, 11),
 (35, 7),
 (36, 40),
-(36, 102);
+(36, 102),
+(37, 11),
+(38, 11),
+(39, 16),
+(40, 16),
+(41, 16),
+(42, 11),
+(42, 73),
+(43, 16);
 
 -- --------------------------------------------------------
 
@@ -1069,7 +1115,14 @@ INSERT INTO `tarea_validacion` (`id`, `idTarea`, `idSupervisor`, `fechaAsignado`
 (24, 33, 31, '2025-07-04 11:21:06', NULL, NULL, NULL, NULL),
 (25, 34, 113, '2025-07-04 11:23:18', NULL, NULL, NULL, NULL),
 (26, 35, 33, '2025-07-04 13:16:06', NULL, NULL, NULL, NULL),
-(27, 36, 31, '2025-09-19 14:13:17', NULL, NULL, NULL, NULL);
+(27, 36, 31, '2025-09-19 14:13:17', NULL, NULL, NULL, NULL),
+(28, 37, 113, '2025-10-19 20:48:40', NULL, NULL, NULL, NULL),
+(29, 38, 113, '2025-10-19 20:59:51', '2025-10-19 21:03:19', 'buenobueno', NULL, ''),
+(30, 39, 29, '2025-10-21 11:50:21', NULL, NULL, NULL, NULL),
+(31, 40, 29, '2025-10-22 21:31:01', NULL, NULL, NULL, NULL),
+(32, 41, 29, '2025-10-23 07:51:58', NULL, NULL, NULL, NULL),
+(33, 42, 113, '2025-10-23 07:54:22', NULL, NULL, NULL, NULL),
+(34, 43, 29, '2025-10-23 08:47:56', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1202,11 +1255,13 @@ INSERT INTO `trabajador` (`id`, `cedula`, `nombre`, `apellido`, `telefono`, `fec
 (122, '00000007', 'Pablo ', 'Escobar', '04145555555', '1993-12-02', 1),
 (136, '1111111', 'probando nuevo formulario', 'Queso', '04145555555', '2025-12-31', 1),
 (137, '11111112', 'probando nuevo formulario', 'Queso', '04145555555', '2025-12-31', 1),
-(171, '00000000', 'xavier', 'sanchez', '04145555555', '2025-06-10', 1),
+(171, '00000000', 'xavier', 'sanchez', '04145555554', '2025-06-10', 1),
 (176, '0000111', 'xavier', 'sanchez', '04145555555', '2025-06-10', 0),
 (178, '00000777', 'probando nuevo formulario', 'Escobar', '04145555555', '2025-12-31', 1),
 (180, '00000003', 'xavier', 'suarez', '05135135131', '2025-07-02', 0),
-(181, '18843756', 'Adsalom', 'Rodriguez', '04120580061', '2025-09-19', 1);
+(181, '18843756', 'Adsalom', 'Rodriguez', '04120580061', '2025-09-19', 1),
+(183, '55555555', 'xavier', 'prueba ', '04145555555', '2025-10-17', 0),
+(239, '77777777', 'xavier', 'sanchez', '04145555555', '2025-10-22', 1);
 
 -- --------------------------------------------------------
 
@@ -1451,43 +1506,43 @@ ALTER TABLE `turno`
 -- AUTO_INCREMENT de la tabla `ajuste`
 --
 ALTER TABLE `ajuste`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=262;
 
 --
 -- AUTO_INCREMENT de la tabla `area`
 --
 ALTER TABLE `area`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=257;
 
 --
 -- AUTO_INCREMENT de la tabla `articulo`
 --
 ALTER TABLE `articulo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
 
 --
 -- AUTO_INCREMENT de la tabla `asignacion_laboral`
 --
 ALTER TABLE `asignacion_laboral`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=331;
 
 --
 -- AUTO_INCREMENT de la tabla `asistencia_inasistencia`
 --
 ALTER TABLE `asistencia_inasistencia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26465;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `cargo`
 --
 ALTER TABLE `cargo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
 
 --
 -- AUTO_INCREMENT de la tabla `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT de la tabla `division`
@@ -1499,55 +1554,55 @@ ALTER TABLE `division`
 -- AUTO_INCREMENT de la tabla `entrada`
 --
 ALTER TABLE `entrada`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `entradadetalle`
 --
 ALTER TABLE `entradadetalle`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `fechaasistencia`
 --
 ALTER TABLE `fechaasistencia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=364;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `medida`
 --
 ALTER TABLE `medida`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `recurso`
 --
 ALTER TABLE `recurso`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `tarea`
 --
 ALTER TABLE `tarea`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT de la tabla `tarea_validacion`
 --
 ALTER TABLE `tarea_validacion`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT de la tabla `trabajador`
 --
 ALTER TABLE `trabajador`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=182;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=248;
 
 --
 -- AUTO_INCREMENT de la tabla `turno`
 --
 ALTER TABLE `turno`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=166;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=246;
 
 --
 -- Restricciones para tablas volcadas
