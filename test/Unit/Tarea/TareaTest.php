@@ -12,7 +12,7 @@ class TareaTest extends TestCase
         $this->testSuiteControl = "Tarea";
     }
 
-    public function testListarTarea()
+    public function ListarTarea()
     {
         // This test method is intentionally left blank.
     }
@@ -64,7 +64,7 @@ class TareaTest extends TestCase
 
     }
 
-    public function crearTareaProvider($id, $idTarea, $ponderacion, $comentarios, $aprobacion,) {
+    public function crearTareaProvider() {
         /*
             /*    {
     "nombre": "xavier",
@@ -453,7 +453,7 @@ class TareaTest extends TestCase
      * @dataProvider providerEvaluar
      * @return void
      */
-    public function testEvaluarTarea(){
+    public function EvaluarTarea(){
 
         $datosEvaluacion = [
             'id' => (int)$_POST['idTarea'],

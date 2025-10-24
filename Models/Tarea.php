@@ -87,7 +87,7 @@ public function registrar(): bool {
     } catch (\Throwable $th) {
         $this->disconectHandlerExeption();
         $_SESSION['errores'][] = $th->getMessage();
-        error_log("Error al registrar tarea: " . $th->getMessage());
+        // error_log("Error al registrar tarea: " . $th->getMessage());
         return false;
     }
 }

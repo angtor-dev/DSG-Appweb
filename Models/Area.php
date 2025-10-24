@@ -36,10 +36,9 @@ class Area extends Model
             $this->db->connect();
     
             $resp = $this->ejecutarStatement($query, $param);// valido el nombre que no exista
-            // Temporal para las pruebas
-            // if($data = $resp->fetch()){
-            //     throw new Exception("El nombre del area (".$data["nombre"].") ya esta registrado", self::SHOW_EXCEPTION);
-            // }
+            if($data = $resp->fetch()){
+                throw new Exception("El nombre del area (".$data["nombre"].") ya esta registrado", self::SHOW_EXCEPTION);
+            }
     
             if($this->idArea != null){
                 $query = "SELECT * FROM area WHERE id = :idArea";
