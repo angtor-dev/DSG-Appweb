@@ -10,7 +10,7 @@
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Reporte de Asistencias</h3>
+                <h3 class="pb-2">Reporte de Asistencias/Inasistencias</h3>
                 <span class="opacity-75 mb-2">Muestra los reporte de asistencias con filtros</span>
             </div>
         </div>
@@ -65,6 +65,7 @@
         					<option value="trabajadores">Trabajadores</option>
         					<option value="departamentos">Divisiones</option>
         					<option value="turnos">Turnos</option>
+        					<option value="semana">Semanal</option>
         				</select>
         				<div id="form-text-agrupar" class="form-text invalid-feedback"></div>
         			</div>

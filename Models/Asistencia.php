@@ -845,6 +845,10 @@ class Asistencia extends Model
 
 
         try {
+            if (!empty($fechaInicio) && !preg_match("/^\d{4}-\d{2}-\d{2}$/", trim($fechaInicio))) {
+                throw new Exception("La fecha de inicio no es valida", self::SHOW_EXCEPTIONS);
+            }
+            
             $this->db->connect();
             $pdo = $this->db->pdo();
 
@@ -927,6 +931,73 @@ class Asistencia extends Model
                     "Asistencias"
                 ];
             }
+            else if($grupo == "semana"){
+                // 1. Calcular el Lunes y el Domingo de la semana de $fechaInicio
+                $dateTime = new \DateTime($fechaInicio);
+                
+                // El 'w' en PHP date() devuelve 0 (Domingo) a 6 (Sábado).
+                // El 'N' en PHP date() devuelve 1 (Lunes) a 7 (Domingo), que es más útil.
+                // Restamos (Día de la semana - 1) días para llegar al Lunes (Día 1)
+                $diaSemana = (int)$dateTime->format('N');
+                $fechaLunes = $dateTime->modify('-' . ($diaSemana - 1) . ' days')->format('Y-m-d');
+                
+                // Usamos el Lunes calculado para obtener el Domingo (6 días después)
+                $dateTimeDomingo = new \DateTime($fechaLunes);
+                $fechaMartes = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaMiercoles = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaJueves = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaViernes = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaSabado = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaDomingo = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                
+                // Se ajustan las fechas de inicio y fin al rango semanal
+                $parametros["fechaInicio"] = $fechaLunes; 
+                $parametros["fechaFin"] = $fechaDomingo;
+                $fechaInicio = $fechaLunes; // Se actualizan para la explicación del header si fuera necesario
+                $fechaFin = $fechaDomingo;
+                
+                // 2. Consulta SQL para el reporte semanal (se utiliza un pivote condicional)
+                // Se usa la función DAYOFWEEK() de MySQL (1=Domingo, 2=Lunes, ..., 7=Sábado)
+                // En el resultado se transformará a Lunes=1 a Domingo=7 para el procesamiento en PHP
+                $querySelect = "SELECT 
+                    t.cedula,
+                    t.nombre,
+                    t.apellido,
+                    
+                    MAX(CASE WHEN v.fecha = '$fechaLunes' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as lunes,
+                    MAX(CASE WHEN v.fecha = '$fechaMartes' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as martes,
+                    MAX(CASE WHEN v.fecha = '$fechaMiercoles' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as miercoles,
+                    MAX(CASE WHEN v.fecha = '$fechaJueves' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as jueves,
+                    MAX(CASE WHEN v.fecha = '$fechaViernes' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as viernes,
+                    MAX(CASE WHEN v.fecha = '$fechaSabado' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as sabado,
+                    MAX(CASE WHEN v.fecha = '$fechaDomingo' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as domingo
+                    
+                FROM 
+                    trabajador as t
+                LEFT JOIN 
+                    vista_asistencias as v 
+                    ON t.cedula = v.cedula
+                    AND v.fecha BETWEEN '$fechaLunes' AND '$fechaDomingo'";
+                    
+                $groupBy = " group by t.cedula, t.nombre, t.apellido, t.fechaIngreso";
+                $where = "WHERE (fecha between :fechaInicio and :fechaFin) OR fecha is null";
+                $dateTimeDomingo = new \DateTime($fechaLunes);
+                // 3. Encabezados de la tabla
+                $headerTable = [
+                    "Cedula",
+                    "Nombre",
+                    "Apellido",
+                    "Lunes ({$dateTimeDomingo->format('d/m/Y')})",
+                    "Martes ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
+                    "Miércoles ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
+                    "Jueves ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
+                    "Viernes ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
+                    "Sábado ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
+                    "Domingo ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})"
+                ];
+            }
+
+
             else{
                 throw new Exception("Error al generar el reporte", self::SHOW_EXCEPTIONS);
             }
@@ -967,7 +1038,9 @@ class Asistencia extends Model
            $this->disconectHandlerExeption();
             $respuesta = [
                 "success" => false,
-                "message" => "Error al reportar asistencias"
+                "message" => "Error al reportar asistencias",
+                "data" => [],
+                "headers" => []
             ];
 
             if(DEVELOPER_MODE){

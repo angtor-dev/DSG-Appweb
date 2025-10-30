@@ -154,6 +154,7 @@
                         </div>
                         <hr>
                         <div class="container d-table-row">
+                            <?php if(ASISTENCIAS_SEMANALES):?>
                                 <div id="tabla-asistencias-semanales" class="d-none">
 
                                 <?php $diasTh=[ 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do' ]; ?>
@@ -213,6 +214,10 @@
                                     
 
                                 </style>
+                            <?php else: // phpcs:disable ?>
+                                
+                                <div id="tabla-asistencias" class="d-none"></div>
+                            <?php endif;// phpcs:enable ?>
 
                                 <div class="container">
                                     <div class="row justify-content-end">
@@ -221,26 +226,28 @@
                                                 <tr>
                                                     <th>Cedula</th>
                                                     <th>Nombre</th>
-                                                    <?php foreach ($diasTh as $dia): ?>
-                                                        <th>
-                                                            <div class="text-center">
+                                                    <?php if(ASISTENCIAS_SEMANALES): ?>
+                                                        <?php foreach ($diasTh as $dia): ?>
+                                                            <th>
+                                                                <div class="text-center">
 
-                                                                <label class="switch switch-small">
-                                                                    <input type="checkbox" class="laborable_check" value="true" name="chekcbox_<?= $dia ?>" id="chekbox_<?= $dia ?>">
-                                                                    <span class="slider round"></span>
-                                                                </label>
-                                                                <small class="laborable-info text-danger">No Laborable</small>
+                                                                    <label class="switch switch-small">
+                                                                        <input type="checkbox" class="laborable_check" value="true" name="chekcbox_<?= $dia ?>" id="chekbox_<?= $dia ?>">
+                                                                        <span class="slider round"></span>
+                                                                    </label>
+                                                                    <small class="laborable-info text-danger">No Laborable</small>
 
 
-                                                            </div>
-                                                            <div class="text-center">
-                                                                <?= $dia ?>
-                                                            </div>
-                                                            <div class="text-center">
-                                                                <small id="dia_th_<?= $dia ?>">2022-12-12</small>
-                                                            </div>
-                                                        </th>    
-                                                    <?php endforeach ?>
+                                                                </div>
+                                                                <div class="text-center">
+                                                                    <?= $dia ?>
+                                                                </div>
+                                                                <div class="text-center">
+                                                                    <small id="dia_th_<?= $dia ?>">2022-12-12</small>
+                                                                </div>
+                                                            </th>    
+                                                        <?php endforeach ?>
+                                                    <?php endif; ?>
                                                     
                                                 </tr>
                                             </thead>
@@ -271,7 +278,7 @@
                                             <?php endif ?>
 
                                         </div>
-                                    </div>
+                                </div>
 
                                 </div>
 
@@ -332,5 +339,13 @@
 
 
 
-<?php agregarScript("asistencias-semanales.js") ?>
-<?php //agregarScript("asistencias.js") ?>
+<?php 
+if(ASISTENCIAS_SEMANALES){
+    agregarScript("asistencias-semanales.js");
+}
+else{
+    // phpcs:disable
+    agregarScript("asistencias.js");
+    // phpcs:enable
+}
+?>

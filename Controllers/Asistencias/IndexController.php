@@ -6,14 +6,29 @@ require_once("Models/Enums/Justificacion.php");
 
 
 if(!empty($_POST)){
-    $asistenciaObj = new Asistencia();
-    //$asistenciaObj->mapearFormulario();
-    $asistenciaObj->setterArray([
-        "idDepartamento" => $_POST['idDepartamento'],
-        "fecha" => $_POST['fecha'],
-        "turno" => $_POST['turno']
-    ]);
-    $asistenciaObj->verAsistenciasSemanal(true);
+    if(isset($_POST['consultar']) && $_POST['consultar']){
+        $asistenciaObj = new Asistencia();
+        //$asistenciaObj->mapearFormulario();
+        $asistenciaObj->setterArray([
+            "idDepartamento" => $_POST['idDepartamento'],
+            "fecha" => $_POST['fecha'],
+            "turno" => $_POST['turno']
+        ]);
+        $asistenciaObj->verAsistenciasSemanal(true);
+    }
+    else if (isset($_POST['consultarDia']) && $_POST['consultarDia']) {
+        // phpcs:disable
+        if(ASISTENCIAS_SEMANALES) die;// solo para asistencias diarias desactivadas por el momento
+        $asistenciaObj = new Asistencia();
+        //$asistenciaObj->mapearFormulario();
+        $asistenciaObj->setterArray([
+            "idDepartamento" => $_POST['idDepartamento'],
+            "fecha" => $_POST['fecha'],
+            "turno" => $_POST['turno']
+        ]);
+        $asistenciaObj->verAsistencias(true);
+        // phpcs:enable
+    }
     die;
 }
 
