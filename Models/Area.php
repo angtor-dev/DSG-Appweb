@@ -49,7 +49,6 @@ class Area extends Model
                 }
             }
         } catch (\Throwable $th) {
-            echo $th;
             $this->disconectHandlerExeption();
             if (DEVELOPER_MODE && $th->getCode() != self::SHOW_EXCEPTION) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = ($th->getCode() == self::SHOW_EXCEPTION) ? $th->getMessage() : "Ocurrio un error al validar el área";
