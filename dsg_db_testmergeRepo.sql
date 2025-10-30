@@ -341,6 +341,7 @@ CREATE  PROCEDURE `sp_registrar_asistencia_semanal` (IN `p_fecha` DATE, IN `p_ce
                 
                 SET v_id_asistencia_inasistencia = LAST_INSERT_ID();
             -- insertar la asistencia o la inasistencia
+            IF p_laborable = 1 THEN
                 IF p_tipo_inasistencia IS NULL THEN -- asistencia
 
 
@@ -360,6 +361,7 @@ CREATE  PROCEDURE `sp_registrar_asistencia_semanal` (IN `p_fecha` DATE, IN `p_ce
                     VALUES 
                     (v_id_asistencia_inasistencia, p_tipo_inasistencia, p_descripcion);
                 END IF;
+            END IF;
         END IF;
 END$$
 
@@ -1322,7 +1324,7 @@ CREATE TABLE `vista_asistencias` (
 --
 DROP TABLE IF EXISTS `vista_asistencias`;
 
-CREATE ALGORITHM=TEMPTABLE SQL SECURITY DEFINER VIEW `vista_asistencias`  AS SELECT `t`.`cedula` AS `cedula`, `t`.`nombre` AS `nombre`, `t`.`apellido` AS `apellido`, `fa`.`fecha` AS `fecha`, `a`.`horaEntrada` AS `horaEntrada`, `a`.`horaSalida` AS `horaSalida`, `i`.`tipo` AS `tipo`, `i`.`descripcion` AS `descripcion`, `d`.`id` AS `idDivision`, `d`.`nombre` AS `division`, `tu`.`id` AS `idTurno`, `tu`.`nombre` AS `turno`, if(`a`.`idAsistencia_inasistencia` is not null,1,0) AS `esAsistencia` FROM (((((((`asistencia_inasistencia` `ai` join `fechaasistencia` `fa` on(`fa`.`id` = `ai`.`idFechaAsistencia`)) join `asignacion_laboral` `al` on(`al`.`id` = `ai`.`idAsignacionLaboral`)) join `trabajador` `t` on(`t`.`id` = `al`.`idTrabajador`)) join `turno` `tu` on(`tu`.`id` = `al`.`idTurno`)) join `division` `d` on(`d`.`id` = `al`.`idDivision`)) left join `asistencia` `a` on(`a`.`idAsistencia_inasistencia` = `ai`.`id`)) left join `inasistencia` `i` on(`i`.`idAsistencia_inasistencia` = `ai`.`id`)) ;
+CREATE ALGORITHM=TEMPTABLE SQL SECURITY DEFINER VIEW `vista_asistencias`  AS SELECT `t`.`cedula` AS `cedula`, `t`.`nombre` AS `nombre`, `t`.`apellido` AS `apellido`, `fa`.`fecha` AS `fecha`, `a`.`horaEntrada` AS `horaEntrada`, `a`.`horaSalida` AS `horaSalida`, `i`.`tipo` AS `tipo`, `i`.`descripcion` AS `descripcion`, `d`.`id` AS `idDivision`, `d`.`nombre` AS `division`, `tu`.`id` AS `idTurno`, `tu`.`nombre` AS `turno`, if(`a`.`idAsistencia_inasistencia` is not null,1,if(`i`.`idAsistencia_inasistencia` is not null,0,NULL)) AS `esAsistencia` FROM (((((((`asistencia_inasistencia` `ai` join `fechaasistencia` `fa` on(`fa`.`id` = `ai`.`idFechaAsistencia`)) join `asignacion_laboral` `al` on(`al`.`id` = `ai`.`idAsignacionLaboral`)) join `trabajador` `t` on(`t`.`id` = `al`.`idTrabajador`)) join `turno` `tu` on(`tu`.`id` = `al`.`idTurno`)) join `division` `d` on(`d`.`id` = `al`.`idDivision`)) left join `asistencia` `a` on(`a`.`idAsistencia_inasistencia` = `ai`.`id`)) left join `inasistencia` `i` on(`i`.`idAsistencia_inasistencia` = `ai`.`id`)) ;
 
 --
 -- Índices para tablas volcadas
