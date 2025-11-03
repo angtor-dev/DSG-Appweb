@@ -142,6 +142,16 @@
 
 				//*************************************
 
+				if(agrupar == ""){
+					data.forEach(dato => {
+						let fecha = dato[3];
+						if((fecha = fecha.split("-")).length === 3){
+							dato[3] = fecha.reverse().join("/");
+						}
+					});
+				}
+
+
 
 				
 				
