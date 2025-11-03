@@ -845,8 +845,25 @@ class Asistencia extends Model
 
 
         try {
+
+            $numerico = function ($value) :bool {
+                if(isset($value) && !empty($value)) {
+                    return preg_match(REG_NUMERICO, $value);
+                }
+                else return true;
+            };
+
             if (!empty($fechaInicio) && !preg_match("/^\d{4}-\d{2}-\d{2}$/", trim($fechaInicio))) {
                 throw new Exception("La fecha de inicio no es valida", self::SHOW_EXCEPTIONS);
+            }
+            if (!empty($fechaFin) && !preg_match("/^\d{4}-\d{2}-\d{2}$/", trim($fechaFin))) {
+                throw new Exception("La fecha de fin no es valida", self::SHOW_EXCEPTIONS);
+            }
+            if(!$numerico($idDepartamento)) {
+                throw new Exception("El Departamento no es valido", self::SHOW_EXCEPTIONS);
+            }
+            if(!$numerico($turno)) {
+                throw new Exception("El Turno no es valido", self::SHOW_EXCEPTIONS);
             }
             
             $this->db->connect();
@@ -858,7 +875,7 @@ class Asistencia extends Model
             $where = " WHERE fecha between :fechaInicio and :fechaFin";
             $groupBy = "";
 
-            if($grupo == null){
+            if($grupo == null || $grupo == "") {
                 $querySelect = "SELECT 
                  cedula,
                  nombre,
@@ -980,7 +997,7 @@ class Asistencia extends Model
                     AND v.fecha BETWEEN '$fechaLunes' AND '$fechaDomingo'";
                     
                 $groupBy = " group by t.cedula, t.nombre, t.apellido, t.fechaIngreso";
-                $where = "WHERE (fecha between :fechaInicio and :fechaFin) OR fecha is null";
+                $where = " WHERE ( (fecha between :fechaInicio and :fechaFin) OR fecha is null )";
                 $dateTimeDomingo = new \DateTime($fechaLunes);
                 // 3. Encabezados de la tabla
                 $headerTable = [

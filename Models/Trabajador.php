@@ -615,6 +615,170 @@ DESC";
     }
 
 
+    public function reporte($fechaInicio = "", $fechaFin = "", $division = "", $turno = "", $cargo = "", $estado = "", $grupo = "") : array {
+        $exceptionCode = 1001;
+        try {
+            $numerico = function ($value) :bool {
+                if(isset($value) && !empty($value)) {
+                    return preg_match(REG_NUMERICO, $value);
+                }
+                else return true;
+            };
+
+
+
+            if (!empty($fechaInicio) && !preg_match("/^\d{4}-\d{2}-\d{2}$/", trim($fechaInicio))) {
+                throw new Exception("La fecha de inicio no es valida", $exceptionCode);
+            }
+            if (!empty($fechaFin) && !preg_match("/^\d{4}-\d{2}-\d{2}$/", trim($fechaFin))) {
+                throw new Exception("La fecha de fin no es valida", $exceptionCode);
+            }
+            if(!$numerico($division)) {
+                throw new Exception("La Division no es valida", $exceptionCode);
+            }
+            if(!$numerico($turno)) {
+                throw new Exception("El Turno no es valido", $exceptionCode);
+            }
+            if(!$numerico($cargo)) {
+                throw new Exception("El Cargo no es valido", $exceptionCode);
+            }
+            if(!$numerico($estado)) {
+                throw new Exception("El Estado no es valido", $exceptionCode);
+            }
+            
+
+            $this->db->connect();
+            
+            $headerTable = [];
+            $where = " WHERE 1 = 1 ";
+            $groupBy = "";
+            $parametros = [];
+
+            if($grupo == null) {
+                
+                $query = "SELECT 
+                t.cedula,
+                CONCAT(t.apellido, ' ', t.nombre) as nombre,
+                t.telefono,
+                DATE_FORMAT(t.fechaIngreso, '%d/%m/%Y') as fechaIngreso,
+                d.nombre as division,
+                tu.nombre as turno,
+                c.nombre as cargo,
+                if(t.estado = 1, 'Activo', 'Inactivo') as estado
+                FROM trabajador as t 
+                JOIN asignacion_laboral as al on al.idTrabajador = t.id
+                join turno as tu on tu.id = al.idTurno
+                join cargo as c on c.id = al.idCargo
+                join division as d on d.id = al.idDivision
+                ";
+                $headerTable = [
+                    "Cedula",
+                    "Nombre",
+                    "Telefono",
+                    "Fecha Ingreso",
+                    "Division",
+                    "Turno",
+                    "Cargo",
+                    "Estado"
+                ];
+            }
+            else if($grupo == "departamentos") {
+
+                $query = "SELECT 
+                d.nombre as division,
+                COUNT(t.id) as cantidad
+                FROM trabajador as t 
+                JOIN asignacion_laboral as al on al.idTrabajador = t.id
+                join turno as tu on tu.id = al.idTurno
+                join cargo as c on c.id = al.idCargo
+                join division as d on d.id = al.idDivision
+                ";
+                $groupBy = " GROUP BY al.idDivision";
+                $headerTable = [
+                    "Division",
+                    "Num. Trabajadores"
+                ];
+            }
+            else if($grupo == "turnos") {
+
+                $query = "SELECT 
+                tu.nombre as turno,
+                COUNT(t.id) as cantidad
+                FROM trabajador as t 
+                JOIN asignacion_laboral as al on al.idTrabajador = t.id
+                join turno as tu on tu.id = al.idTurno
+                join cargo as c on c.id = al.idCargo
+                join division as d on d.id = al.idDivision
+                ";
+                $groupBy = " GROUP BY al.idTurno";
+                $headerTable = [
+                    "Turno",
+                    "Num. Trabajadores"
+                ];
+            }
+            else {
+                throw new Exception("La Agrupación no es valida", 1);
+                
+            }
+
+
+            if($division !== "") {
+                $where .= " AND al.idDivision = :division";
+                $parametros["division"] = $division;
+            }
+            if($turno !== "") {
+                $where .= " AND al.idTurno = :turno";
+                $parametros["turno"] = $turno;
+            }
+            if($cargo !== "") {
+                $where .= " AND al.idCargo = :cargo";
+                $parametros["cargo"] = $cargo;
+            }
+            if($estado !== "") {
+                $where .= " AND t.estado = :estado";
+                $parametros["estado"] = $estado;
+            }
+            if($fechaInicio !== "") {
+                $where .= " AND t.fechaIngreso >= :fechaInicio";
+                $parametros["fechaInicio"] = $fechaInicio;
+            }
+            if($fechaFin !== "") {
+                $where .= " AND t.fechaIngreso <= :fechaFin";
+                $parametros["fechaFin"] = $fechaFin;
+            }
+            $querySelect = $query.$where.$groupBy;
+            $data = $this->ejecutar($querySelect, $parametros,PDO::FETCH_NUM);
+
+            $respuesta = [
+                "success" => true,
+                "message" => "Reporte de trabajadores",
+                "data" => $data,
+                "headers" => $headerTable
+            ];
+
+
+
+
+
+        } catch (\Throwable $th) {
+            $this->disconectHandlerExeption();
+            $respuesta = [
+                "success" => false,
+                "message" => "Error al reportar asistencias",
+                "data" => [],
+                "headers" => []
+            ];
+
+            if(DEVELOPER_MODE){
+                $respuesta["message"] = $th->getMessage();
+                $respuesta["trace"] = $th->getTraceAsString();
+                $respuesta["line"] = $th->getFile()."::".$th->getLine();
+            }
+        }
+        return $respuesta;
+    }
+
+
 
 
     // Getters
