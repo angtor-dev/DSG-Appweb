@@ -666,7 +666,7 @@ DESC";
                 c.nombre as cargo,
                 if(t.estado = 1, 'Activo', 'Inactivo') as estado
                 FROM trabajador as t 
-                JOIN asignacion_laboral as al on al.idTrabajador = t.id
+                JOIN asignacion_laboral as al on al.idTrabajador = t.id and al.esActual = 1
                 join turno as tu on tu.id = al.idTurno
                 join cargo as c on c.id = al.idCargo
                 join division as d on d.id = al.idDivision
@@ -688,7 +688,7 @@ DESC";
                 d.nombre as division,
                 COUNT(t.id) as cantidad
                 FROM trabajador as t 
-                JOIN asignacion_laboral as al on al.idTrabajador = t.id
+                JOIN asignacion_laboral as al on al.idTrabajador = t.id and al.esActual = 1
                 join turno as tu on tu.id = al.idTurno
                 join cargo as c on c.id = al.idCargo
                 join division as d on d.id = al.idDivision
@@ -705,7 +705,7 @@ DESC";
                 tu.nombre as turno,
                 COUNT(t.id) as cantidad
                 FROM trabajador as t 
-                JOIN asignacion_laboral as al on al.idTrabajador = t.id
+                JOIN asignacion_laboral as al on al.idTrabajador = t.id and al.esActual = 1
                 join turno as tu on tu.id = al.idTurno
                 join cargo as c on c.id = al.idCargo
                 join division as d on d.id = al.idDivision
