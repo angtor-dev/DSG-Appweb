@@ -991,26 +991,27 @@ class Asistencia extends Model
                     
                 FROM 
                     trabajador as t
-                LEFT JOIN 
+                JOIN 
                     vista_asistencias as v 
                     ON t.cedula = v.cedula
-                    AND v.fecha BETWEEN '$fechaLunes' AND '$fechaDomingo'";
+                    AND v.fecha BETWEEN :fechaInicio AND :fechaFin";
                     
                 $groupBy = " group by t.cedula, t.nombre, t.apellido, t.fechaIngreso";
-                $where = " WHERE ( (fecha between :fechaInicio and :fechaFin) OR fecha is null )";
+                //$where = " WHERE ( (v.fecha between :fechaInicio and :fechaFin) OR v.fecha is null )";
+                $where = "";
                 $dateTimeDomingo = new \DateTime($fechaLunes);
                 // 3. Encabezados de la tabla
                 $headerTable = [
                     "Cedula",
                     "Nombre",
                     "Apellido",
-                    "Lunes ({$dateTimeDomingo->format('d/m/Y')})",
-                    "Martes ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
-                    "Miércoles ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
-                    "Jueves ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
-                    "Viernes ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
-                    "Sábado ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})",
-                    "Domingo ({$dateTimeDomingo->modify('+1 days')->format('d/m/Y')})"
+                    "Lunes <small>({$dateTimeDomingo->format('d/m/y')})</small>",
+                    "Martes <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Miércoles <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Jueves <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Viernes <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Sábado <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Domingo <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>"
                 ];
             }
 

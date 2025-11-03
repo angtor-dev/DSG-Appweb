@@ -25,7 +25,20 @@
 		fechaHasta.addEventListener("change", enviar);
 		departamento.addEventListener("change", enviar);
 		turno.addEventListener("change", enviar);
-		agrupar.addEventListener("change", enviar);
+		agrupar.addEventListener("change", (e)=>{
+			
+			let sms = e.target.dataset.formtext;
+			sms = document.getElementById(sms);
+			if(e.target.value === "semana"){
+				sms.innerText = "Para este modo se utilizara la fecha de inicio para calcular la semana";
+				sms.classList.add("d-block", "text-info");
+			}
+			else{
+				sms.innerText = "";
+				sms.classList.remove("d-block", "text-info");
+			}
+			enviar();
+		});
 
 
 	});
@@ -95,10 +108,20 @@
 
 				let tr = document.createElement("tr");
 
+				let semanaDias = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+
 				console.log(headers);
 				headers.forEach(header => {
 					let th = document.createElement("th");
-					th.innerText = header;
+					th.innerHTML = header;
+					
+					if(agrupar === "semana"){
+						if(semanaDias.includes(header.replace(/^(.+)\s.*/,"$1"))){
+							th.classList.add("no-sort");
+						}
+					}
+
+
 					tr.appendChild(th);
 				})
 				thead.appendChild(tr);
@@ -139,11 +162,14 @@
 								}
 				            },
 				            ordering: true,
-							responsive: true,
+							responsive: false,
 							data: data,
 							initComplete: function () {
 								mostrarLoader("body", false);
-							}
+							},
+							columnDefs: [
+								{ orderable: false, targets: '.no-sort' } // Columnas con clase 'no-sort'
+							]
 				        });
 				}
 

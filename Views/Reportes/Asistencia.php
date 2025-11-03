@@ -5,7 +5,11 @@
  * 
  */
 ?>
-
+<style>
+	th small{
+		font-size: 10px;
+	}
+</style>
 <div class="panel-header">
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
@@ -60,7 +64,7 @@
 
         			<div class="col px-1">
         				<label for="agrupar" class="form-label">Agrupar por</label>
-        				<select name="agrupar" id="agrupar" class="form-select">
+        				<select name="agrupar" id="agrupar" class="form-select" data-formText="form-text-agrupar">
         					<option value=""></option>
         					<option value="trabajadores">Trabajadores</option>
         					<option value="departamentos">Divisiones</option>
