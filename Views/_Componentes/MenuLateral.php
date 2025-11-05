@@ -163,7 +163,7 @@
                         </a>
                     <?php endif ?>
                     <?php if (true/*tienePermiso("reporteasistencias", "consultar")*/): ?>
-                        <a href="<?= LOCAL_DIR ?>/Reportes/Tarea"
+                        <a href="<?= LOCAL_DIR ?>/Reportes/Tareas"
                             class="<?= strtolower($uriParts[1]) == "reportetarea" ? "active" : "" ?>">
                             de Tareas
                         </a>

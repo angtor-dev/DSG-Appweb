@@ -42,4 +42,4 @@ if(!empty($_POST)) {
 // }
 
 
-renderView("Asistencia", "Tareas/");
+renderView("Reportes/tareas", "");

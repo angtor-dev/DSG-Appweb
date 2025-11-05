@@ -1245,7 +1245,7 @@ function ocultarLoading() {
                     return '<input type="checkbox" class="form-check-input tarea-checkbox" value="' + row.id + '" style="transform: scale(1.5);">';
                 }
             },
-            { data: "id" },
+            { data: "id", visible: false },
             { 
                 data: "personal_nombre",
                 render: function(data, type, row) {
