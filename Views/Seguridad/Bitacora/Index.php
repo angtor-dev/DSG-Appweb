@@ -26,12 +26,14 @@
                     </thead>
                     <tbody>
                         <?php foreach ($bitacoras as $biracora): ?>
+                            <!-- Ignorar temporalmente usuarios inexistenes porque no se como desaparecieron -->
+                            <?php if (!$biracora->getUsuario_correo()) continue; ?>
                             <tr>
                                 <td><?= ($biracora->getUsuario_correo()) ? $biracora->getUsuario_correo() : "USER_DELETED" ?></td>
                                 <td><?= $biracora->getRegistro() ?></td>
                                 <td><?= $biracora->getModulo() ?></td>
                                 <td><?= $biracora->getAccion() ?></td>
-                                <td><?= $biracora->getFecha() ?></td>
+                                <td data-sort="<?= $biracora->getTimestamp() ?>"><?= $biracora->getFecha() ?></td>
                             </tr>
                         <?php endforeach ?>
                     </tbody>
@@ -51,7 +53,7 @@
             language: {
                 url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
             },
-            order: [[3, 'desc']]
+            order: [[4, 'desc']]
         })
     })
 </script>

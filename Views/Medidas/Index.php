@@ -28,7 +28,6 @@
                 <table class="datatable table table-striped table-hover" id="tabla-medidas">
                     <thead>
                         <tr>
-                            <th>Id</th>
                             <th>Unidad</th>
                             <th>Siglas</th>
                             <th>Acciones</th>
@@ -37,7 +36,6 @@
                     <tbody>
                         <?php foreach ($medidas as $medida): ?>
                             <tr>
-                                <td><?= $medida->id ?></td>
                                 <td><?= $medida->getUnidad() ?></td>
                                 <td><?= $medida->getSubUnidad() ?></td>
                                 <td>

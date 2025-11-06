@@ -92,6 +92,9 @@ class Ajuste extends Model
             $articuloStmt->execute();
             $articulo = $articuloStmt->fetch(PDO::FETCH_ASSOC);
 
+            $this->commit();
+            $this->beginTransaction();
+
             if ($articulo && isset($articulo['cantidad']) && (int)$articulo['cantidad'] === 0) {
                 $notificacion = new Notificacion();
                 $usuarios = (new Usuario())->listarDBUser();
