@@ -46,8 +46,6 @@ $listTest = LIST_TESTS;
 
 if($__executeTest("login")) (new LoginSelenium($apicontroller))->testLogin();
 if($__executeTest("areas")) (new AreasSelenium($apicontroller))->testArea();
-//if($__executeTest("areas")) (new AreasSelenium($apicontroller))->testActualizarArea();
-//if($__executeTest("areas")) (new AreasSelenium($apicontroller))->testEliminarArea();
 
 
 echo "\n END \n";
