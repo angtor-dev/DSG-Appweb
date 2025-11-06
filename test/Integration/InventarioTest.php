@@ -120,10 +120,10 @@ final class InventarioIntTest extends TestCase
         $descripcion = "Descripción del artículo de prueba";
         $cantidad = 0;
         $esConsumible = true;
-        
-        // Act
         $categoria = $categoria->cargarUltimo();
         $medida = $medida->cargarUltimo();
+        
+        // Act
         $articulo->setDatos(
             null,
             $categoria->id,
@@ -169,6 +169,73 @@ final class InventarioIntTest extends TestCase
             "Kilogramo prueba",
             $ultimoArticulo->medida->getUnidad(),
             "El nombre de la medida del último artículo debería coincidir con el registrado."
+        );
+    }
+
+    /** @test */
+    public function actualizarArticulo() : void
+    {
+        // Arrange
+        $articulo = new Articulo();
+        /** @var Articulo */
+        $ultimoArticulo = $articulo->cargarUltimo();
+        $nuevoNombre = "Artículo de prueba actualizado";
+        $nuevaDescripcion = "Descripción del artículo de prueba actualizada";
+        $esConsumible = false;
+
+        // Act
+        $ultimoArticulo->setDatos(
+            $ultimoArticulo->id,
+            $ultimoArticulo->idCategoria,
+            $ultimoArticulo->idMedida,
+            $nuevoNombre,
+            $nuevaDescripcion,
+            $ultimoArticulo->getCantidad(),
+            $esConsumible
+        );
+        $esValido = $ultimoArticulo->esValido();
+        $seActualizo = $ultimoArticulo->actualizar();
+        /** @var Articulo */
+        $articuloActualizado = $articulo->cargar($ultimoArticulo->id);
+
+        // Assert
+        $this->assertTrue($esValido, "El artículo actualizado debería ser válido.");
+        $this->assertTrue($seActualizo, "El artículo debería haberse actualizado correctamente.");
+        $this->assertEquals(
+            $nuevoNombre,
+            $articuloActualizado->getNombre(),
+            "El nombre del artículo debería haberse actualizado correctamente."
+        );
+        $this->assertEquals(
+            $nuevaDescripcion,
+            $articuloActualizado->getDescripcion(),
+            "La descripción del artículo debería haberse actualizado correctamente."
+        );
+        $this->assertEquals(
+            $esConsumible,
+            $articuloActualizado->getEsConsumible(),
+            "El estado de consumible del artículo debería haberse actualizado correctamente."
+        );
+    }
+
+    /** @test */
+    public function eliminarArticulo() : void
+    {
+        // Arrange
+        $articulo = new Articulo();
+        /** @var Articulo */
+        $ultimoArticulo = $articulo->cargarUltimo();
+
+        // Act
+        $seElimino = $ultimoArticulo->eliminar(false);
+        /** @var Articulo */
+        $articuloEliminado = $articulo->cargar($ultimoArticulo->id);
+
+        // Assert
+        $this->assertTrue($seElimino, "El artículo debería haberse eliminado correctamente.");
+        $this->assertNull(
+            $articuloEliminado,
+            "El artículo eliminado no debería poder cargarse desde la base de datos."
         );
     }
 }

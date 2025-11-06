@@ -189,6 +189,10 @@ class Bitacora extends Model
     public function getFecha() : string {
         return getFecha($this->fecha) . ' ' . getHora($this->fecha);
     }
+    public function getTimestamp() : int {
+        $ts = strtotime($this->fecha);
+        return $ts === false ? 0 : (int) $ts;
+    }
     public function getUsuario_correo() : string|null {
         return $this->usuario_correo;
     }

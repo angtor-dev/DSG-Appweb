@@ -27,7 +27,7 @@
                         <label for="idCategoria" class="form-label">Categoría</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-fw fa-layer-group"></i></span>
-                            <select class="form-select rounded-end" name="idCategoria" id="idCategoria">
+                            <select class="form-select select2 rounded-end" name="idCategoria" id="idCategoria">
                                 <?php foreach ($categorias as $categoria): ?>
                                     <option value="<?= $categoria->id ?>" <?= $articulo->idCategoria == $categoria->id ? "selected" : "" ?>><?= $categoria->getNombre() ?></option>
                                 <?php endforeach ?>
@@ -39,7 +39,7 @@
                         <label for="idMedida" class="form-label">Medida</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-fw fa-ruler"></i></span>
-                            <select class="form-select rounded-end" name="idMedida" id="idMedida">
+                            <select class="form-select select2 rounded-end" name="idMedida" id="idMedida">
                                 <option value="0"><i>Seleccionar</i></option>
                                 <?php foreach ($medidas as $medida): ?>
                                     <option value="<?= $medida->id ?>" <?= $articulo->idMedida == $medida->id ? "selected" : "" ?>><?= $medida->getUnidad() ?> (<?= $medida->getSubUnidad() ?>)</option>

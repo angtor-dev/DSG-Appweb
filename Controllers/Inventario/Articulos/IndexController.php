@@ -2,7 +2,7 @@
 requiereAutenticacion();
 requierePermiso(Modulo::ARTICULOS, Permiso::CONSULTAR);
 
-$articuloObj = new Articulo();
-$articulos = $articuloObj->listar();
+$objArticulo = new Articulo();
+$articulos = $objArticulo->listar();
 
 renderView();
