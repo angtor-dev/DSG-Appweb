@@ -59,20 +59,20 @@ class Articulo extends Model
     public function esValido() : bool
     {
         if (empty(trim($this->nombre))) {
-            $_SERVER['errores'][] = "El nombre del artículo es obligatorio.";
+            $_SESSION['errores'][] = "El nombre del artículo es obligatorio.";
             return false;
         } elseif (strlen($this->nombre) < 3 || strlen($this->nombre) > 100) {
-            $_SERVER['errores'][] = "El nombre del artículo debe tener entre 3 y 100 caracteres.";
+            $_SESSION['errores'][] = "El nombre del artículo debe tener entre 3 y 100 caracteres.";
             return false;
         }
 
         if ($this->idCategoria <= 0) {
-            $_SERVER['errores'][] = "Debe seleccionar una categoría válida.";
+            $_SESSION['errores'][] = "Debe seleccionar una categoría válida.";
             return false;
         }
 
         if ($this->idMedida <= 0) {
-            $_SERVER['errores'][] = "Debe seleccionar una medida válida.";
+            $_SESSION['errores'][] = "Debe seleccionar una medida válida.";
             return false;
         }
 
@@ -193,7 +193,9 @@ class Articulo extends Model
             return false;
         }
     }
-
+/**
+     * @codeCoverageIgnore of getNombre
+     */
     public function mapearFormulario() : bool
     {
         try {if (!empty($_POST['id'])) {
@@ -216,12 +218,21 @@ class Articulo extends Model
     public function getNombre() : string {
         return $this->nombre;
     }
+    /**
+     * @codeCoverageIgnore of getNombre
+     */
     public function getDescripcion() : ?string {
         return $this->descripcion;
     }
+    /**
+     * @codeCoverageIgnore of getNombre
+     */
     public function getCantidad() : int {
         return $this->cantidad;
     }
+    /**
+     * @codeCoverageIgnore of getNombre
+     */
     public function getEsConsumible() : bool {
         return $this->esConsumible;
     }

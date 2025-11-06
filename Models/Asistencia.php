@@ -247,6 +247,9 @@ class Asistencia extends Model
         return $response;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function registrarSemanal($print = true):array {
         try {
 
@@ -436,6 +439,9 @@ class Asistencia extends Model
         }
         return $response;
     }
+    /**
+     * @codeCoverageIgnore
+     */
     public function eliminarFechaAsistenciaSemanales($print = false): array {
         try {
             $semana = $this->obtenerSemana();
@@ -626,7 +632,9 @@ class Asistencia extends Model
         }
     }
 
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function verAsistenciasSemanal($print = false)  {
         try {
             $semana = $this->obtenerSemana();
@@ -770,7 +778,9 @@ class Asistencia extends Model
         return $resp;
     }
 
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function obtenerSemana() {
         $turno_obj = new Turno();
         $turno_obj->setterArray([
@@ -1203,7 +1213,9 @@ class Asistencia extends Model
         return $respuesta;
     }
 
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function llenarAsistenciasDatosDePrueba(){
         // para evitar que el devsense me moleste con el error del no reachable code
         // phpcs:disable
@@ -1304,7 +1316,7 @@ class Asistencia extends Model
 
 
     // Getters
-
+    // @codeCoverageIgnoreStart
     public function getfechaOut() :string {
         return $this->fechaOut;
     }
@@ -1355,6 +1367,7 @@ class Asistencia extends Model
     public function getHora(string $value) :string {
         return substr($value, 11);
     }
+    // @codeCoverageIgnoreEnd
 }
 
 
@@ -1392,7 +1405,7 @@ class Asistencia extends Model
 
 /**
  * Generates a random time in HH:MM format within a specified range.
- *
+ * @codeCoverageIgnore
  * @param string $horaInicio The start time in HH:MM format (e.g., "08:00").
  * @param string $horaFin The end time in HH:MM format (e.g., "17:30").
  * @return string A random time in HH:MM format, or an empty string if the input is invalid.

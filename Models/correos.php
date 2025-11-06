@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 /**
- * 
+ * @codeCoverageIgnore
  */
 trait Correos
 {

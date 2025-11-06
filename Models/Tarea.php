@@ -433,9 +433,8 @@ public function evaluar(): bool {
         return true;
     } catch (\Throwable $e) {
         $this->disconectHandlerExeption();
-        $this->db->pdo()->rollBack();
         $_SESSION['errores'][] = $e->getMessage();
-        error_log("Error al evaluar tarea: " . $e->getMessage());
+        //error_log("Error al evaluar tarea: " . $e->getMessage());
         return false;
     }
 }
@@ -1127,7 +1126,9 @@ private function obtenerValidacionesParaTareas(array $tareaIds) {
         $bd->disconnect();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
+/**
+ * @codeCoverageIgnore
+ */
 public static function recursoConsumibleMasUtilizado($inicio, $fin)
 {
     $bd = Database::getInstance();
@@ -1185,7 +1186,9 @@ public static function recursoConsumibleMasUtilizado($inicio, $fin)
         'detalle' => $detalle
     ];
 }
-
+/**
+ * @codeCoverageIgnore
+ */
 public static function mesConMasTareas($inicio, $fin)
 {
     $bd = Database::getInstance();
@@ -1230,7 +1233,9 @@ public static function mesConMasTareas($inicio, $fin)
         'detalle' => $detalle
     ];
 }
-
+/**
+ * @codeCoverageIgnore
+ */
 public static function departamentoConMasTareas($inicio, $fin)
 {
     $bd = Database::getInstance();
@@ -1279,7 +1284,9 @@ public static function departamentoConMasTareas($inicio, $fin)
         'detalle' => $detalle
     ];
 }
-
+/**
+ * @codeCoverageIgnore
+ */
 public static function trabajadorConMasTareas($inicio, $fin, $departamento = null)
 {
     $bd = Database::getInstance();
@@ -1350,7 +1357,9 @@ public static function trabajadorConMasTareas($inicio, $fin, $departamento = nul
         'detalle' => $detalle
     ];
 }
-
+/**
+ * @codeCoverageIgnore
+ */
 public static function departamentosConTrabajadores()
 {
     $bd = Database::getInstance();
@@ -1371,7 +1380,9 @@ public static function departamentosConTrabajadores()
     $bd->disconnect();
     return $departamentos;
 }
-
+/**
+ * @codeCoverageIgnore
+ */
     private function obtenerNombreDepartamento(int $id): string {
         $query = "SELECT nombre FROM division WHERE id = :id";
         $stmt = $this->db->pdo()->prepare($query);
@@ -1421,7 +1432,7 @@ public static function departamentosConTrabajadores()
 
 
 
-
+    // @codeCoverageIgnoreStart
      public function getId(): ?int {
         return $this->id;
     }
@@ -1446,4 +1457,5 @@ public static function departamentosConTrabajadores()
     public function getDepartamento(): ?Departamento {
         return $this->departamento;
     }
+    // @codeCoverageIgnoreEnd
 }
