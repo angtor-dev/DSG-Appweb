@@ -9,7 +9,7 @@ function mostrarModalCancelar(id, element) {
     
     // Configurar el botón de aceptar
     modal.find('.eliminar').off('click').on('click', function(e) {
-        e.preventDefault();
+        e.preventDefault(e);
         modal.modal('hide');
 
         $.ajax({
@@ -443,16 +443,6 @@ function mostrarModalDetalle(tareaData) {
                 </div>
                 <div class="col">
                     <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Evaluación del Director</h6>
-                        </div>
-                        <div class="card-body">
-                            <p>${evaluacionDirector ? formatPonderacion(evaluacionDirector) : 'Ninguna'}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
                         <div class="card-header bg-light">
                             <h6 class="mb-0">Información adicional</h6>
                         </div>
@@ -674,59 +664,21 @@ $(document).on("input", ".material-usado, .material-devuelto", function () {
 // Manejar el envío del formulario de cancelación
 $("#form-cancelacion").on("submit", function(e) {
   e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
   
-  if (!$("#confirmacion-cancelacion").is(":checked")) {
-    alert("Debe confirmar la cancelación para proceder.");
-    return;
-  }
-
-  // Aquí va tu lógica para enviar los datos al servidor
-  const formData = new FormData(this);
-  
-  // Procesar datos para envío
-  const datosCancelacion = {
-    id_tarea: formData.get('id_tarea'),
-    comentarios: formData.get('comentarios'),
-    materiales: []
-  };
-
-  // Recoger datos de materiales
-  $("#tabla-materialesDevueltos tbody tr").each(function(index) {
-    const idMaterial = $(this).data('id');
-    if (idMaterial) {
-      datosCancelacion.materiales.push({
-        id_material: idMaterial,
-        utilizado: formData.get(`materiales[${index}][utilizado]`),
-        devuelto: formData.get(`materiales[${index}][devuelto]`)
-      });
-    }
-  });
-
-  console.log('Datos de cancelación a enviar:', datosCancelacion);
-  
-  // Aquí harías el AJAX para enviar los datos
-  // $.ajax({
-  //   url: 'tu_endpoint_cancelacion',
-  //   method: 'POST',
-  //   data: datosCancelacion,
-  //   success: function(response) {
-  //     // Manejar respuesta exitosa
-  //     $("#modal-cancelartarea").modal("hide");
-  //     // Recargar o actualizar la interfaz
-  //   },
-  //   error: function(xhr, status, error) {
-  //     // Manejar error
-  //     alert("Error al cancelar la tarea: " + error);
-  //   }
-  // });
 });
 
 function enviarFormularioCancelacion(e) {
+  
     console.log("Enviando formulario de cancelaci n...");
     e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    e.stopImmediatePropagation = true; // Evitar que el formulario se env e y se recargue la p gina
 
     if (!$("#confirmacion-cancelacion").is(":checked")) {
-        alert("Debe confirmar la cancelaci n para proceder.");
+        alert("Debe confirmar la cancelación para proceder.");
         return;
     }
 
@@ -756,7 +708,7 @@ function enviarFormularioCancelacion(e) {
         materiales: materiales
     };
 
-    console.log('Datos de cancelaci n a enviar:', datosCancelacion);
+    console.log('Datos de cancelación a enviar:', datosCancelacion);
     
     // Enviar datos via AJAX
     $.ajax({
@@ -1830,62 +1782,76 @@ $("#btn-guardar-evaluacion").click(function () {
   enviarEvaluacion();
 });
 
-      // Función para enviar la evaluación
-      function enviarEvaluacion() {
-        const formData = new FormData($("#form-evaluacion")[0]);
+        // Función para enviar la evaluación
+        function enviarFormularioCancelacion(e) {
+      console.log("Enviando formulario de cancelación...");
+      e.preventDefault();
 
-        // Recolectar materiales dinámicamente (si existen)
-        const materiales = [];
-        if ($("#tabla-materialesDevueltos").length) {
-          $("#tabla-materialesDevueltos tbody tr").each(function () {
-            const row = $(this);
-            materiales.push({
-              id: row.data("id"),
-              utilizado: row.find("input").eq(1).val(),
-              devuelto: row.find("input").eq(2).val(),
-            });
-          });
-        }
-
-        console.log("Materiales a enviar:", materiales);
-
-        // Agregar datos adicionales al FormData
-        formData.append("materiales", JSON.stringify(materiales));
-        formData.append("idTarea", modalId);
-        console.log("ID de tarea:", modalId);
-
-        // Enviar la evaluación
-        $.ajax({
-          url: "Tareas/Evaluar",
-          type: "POST",
-          data: formData,
-          processData: false,
-          contentType: false,
-          success: function (response) {
-            if (response.success) {
-              mostrarExito(response.message);
-              $("#modal-evaluar-tarea").modal("hide");
-               tablaVencidas.ajax.reload();
-              if (typeof tablaActivas !== "undefined") {
-                tablaVencidas.ajax.reload();
-
-              $("#modal-evaluar").modal("hide");
-              }
-            } else {
-              if (response.errors) {
-                response.errors.forEach(mostrarError);
-              } else {
-                mostrarError("Ocurrió un error al procesar la evaluación");
-              }
-            }
-          },
-          error: function (xhr, status, error) {
-            mostrarError("Error al enviar la evaluación");
-            console.error("Error en AJAX:", error);
-            console.log("Respuesta del servidor:", xhr.responseText);
-          },
-        });
+      if (!$("#confirmacion-cancelacion").is(":checked")) {
+          alert("Debe confirmar la cancelación para proceder.");
+          return;
       }
+
+      // Usar FormData como en Evaluar
+      const formData = new FormData($("#form-cancelacion")[0]);
+      const materiales = [];
+
+      // Recoger datos de materiales (igual que antes)
+      $("#tabla-materialesDevueltos tbody tr").each(function(index) {
+          const idMaterial = $(this).data('id');
+          if (idMaterial) {
+              const utilizado = $(this).find('.material-usado').val();
+              const devuelto = $(this).find('.material-devuelto').val();
+              
+              materiales.push({
+                  id: idMaterial,
+                  utilizado: parseFloat(utilizado) || 0,
+                  devuelto: parseFloat(devuelto) || 0
+              });
+          }
+      });
+
+      // Agregar datos adicionales al FormData (igual que en Evaluar)
+      formData.append("materiales", JSON.stringify(materiales));
+      formData.append("idTarea", formData.get('id_tarea')); // Asegurar que se llame idTarea
+      
+      console.log('Datos de cancelación a enviar:', {
+          idTarea: formData.get('id_tarea'),
+          comentarios: formData.get('comentarios'),
+          materiales: materiales
+      });
+
+      // Enviar datos via AJAX (igual que en Evaluar)
+      $.ajax({
+          url: 'Tareas/Cancelar',
+          type: 'POST',
+          data: formData,
+          processData: false,  // IMPORTANTE: no procesar datos
+          contentType: false,  // IMPORTANTE: no establecer content-type
+          success: function(response) {
+              if (response.success) {
+                  mostrarExito(response.message);
+                  $("#modal-cancelartarea").modal("hide");
+                  
+                  // Recargar o actualizar la interfaz
+                  setTimeout(() => {
+                      location.reload(); // O tu función para actualizar la tabla
+                  }, 1000);
+              } else {
+                  if (response.errors) {
+                      response.errors.forEach(mostrarError);
+                  } else {
+                      mostrarError(response.message || "Error al cancelar la tarea");
+                  }
+              }
+          },
+          error: function(xhr, status, error) {
+              console.error('Error en la solicitud:', error);
+              console.log('Respuesta del servidor:', xhr.responseText);
+              mostrarError("Error al cancelar la tarea: " + error);
+          }
+      });
+  }
 
       // Cargar datos al abrir el modal
       //----------------------------------Revisar por si esto esta dando un problema

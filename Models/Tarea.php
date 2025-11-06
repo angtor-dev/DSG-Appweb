@@ -671,22 +671,65 @@ private function guardarEvaluacionDirector(
 
 
 
-    public function cancelar()
-    {
-        $this->db->connect();
+        public function cancelar(): bool {
+            $this->db->connect();
+            $this->beginTransaction();
 
-        try {
-            $query = "UPDATE tarea SET estado_tarea = 'cancelado' WHERE id = :id";
-            $stmt = $this->prepare($query);
-            $stmt->bindValue(":id", $this->id, PDO::PARAM_INT);
+            try {
 
-            if (!$stmt->execute()) {
-                throw new Exception("No se pudo cancelar la tarea");
+                if (!$this->esValidoCancelar()) {
+                    throw new Exception("Datos de cancelación inválidos");
+                }
+                
+                $this->guardarObservacionesCancelacion(
+                    $this->id,
+                    $this->observaciones
+                );
+                
+                $this->actualizarEstadoTarea($this->id, 'cancelado');
+                
+                if (!empty($this->materiales) && count(array_filter(array_map(function($m) {
+                    return $m['devuelto'] > 0;
+                }, $this->materiales))) > 0) {
+                    $this->actualizarRecursos($this->id, $this->materiales);
+                }
+
+                $this->db->pdo()->commit();
+                $this->db->disconnect();
+                return true;
+            } catch (\Throwable $e) {
+                $this->db->pdo()->rollBack();
+                $this->db->disconnect();
+                $_SESSION['errores'][] = $e->getMessage();
+                error_log("Error al cancelar tarea: " . $e->getMessage());
+                return false;
             }
-        } finally {
-            $this->db->disconnect();
         }
-    }
+
+        private function esValidoCancelar(): bool {
+            if (empty($this->id) || !is_numeric($this->id)) {
+                $_SESSION['errores'][] = "ID de tarea inválido";
+                return false;
+            }
+            
+            if (empty(trim($this->observaciones))) {
+                $_SESSION['errores'][] = "Las observaciones son obligatorias para cancelar";
+                return false;
+            }
+            
+            return true;
+        }
+
+        private function guardarObservacionesCancelacion($idTarea, $observaciones) {
+            $query = "UPDATE tarea_validacion SET observacion = :observaciones WHERE idTarea = :id";
+            $stmt = $this->prepare($query);
+            $stmt->bindValue(":observaciones", $observaciones, PDO::PARAM_STR);
+            $stmt->bindValue(":id", $idTarea, PDO::PARAM_INT);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("No se pudieron guardar las observaciones de cancelación");
+            }
+        }
 
         public function terminar()
     {
