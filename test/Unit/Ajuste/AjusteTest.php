@@ -24,10 +24,19 @@ class AjusteTest extends TestCase {
 
         $this->ajusteObj->setDatos($idInventario, $cantidad, $descripcion, $fechaIncidente);
 
-        $resp = $this->ajusteObj->registrar();
-        
-        $this->assertIsBool($resp);
-        $this->assertEquals($respuesta_esperada, $resp, $_logger["dataname"]);
+        $validResult = $this->ajusteObj->esValido();
+
+        if(!$validResult) {
+            $this->assertEquals($respuesta_esperada, $validResult, $_logger["dataname"]);
+        }
+        else{
+
+            $resp = $this->ajusteObj->registrar();
+            
+            $this->assertIsBool($resp);
+            $this->assertEquals($respuesta_esperada, $resp, $_logger["dataname"]);
+        }
+
         
         if (!$respuesta_esperada && isset($_SESSION['errores'])) {
             $ultimoError = end($_SESSION['errores']);
@@ -87,7 +96,8 @@ class AjusteTest extends TestCase {
                 $cantidadCero,
                 $descripcionValida,
                 $fechaValida,
-                true
+                false,
+                ["mensaje error esperado" => "La cantidad no puede ser cero."]
             ),
             
             "Registrar - descripción vacía" => $aux(
@@ -95,7 +105,8 @@ class AjusteTest extends TestCase {
                 $cantidadPositiva,
                 $descripcionVacia,
                 $fechaValida,
-                true 
+                false,
+                ["mensaje error esperado" => "La descripción es obligatoria."]
             ),
             
             "Registrar - idInventario inválido" => $aux(
@@ -107,14 +118,22 @@ class AjusteTest extends TestCase {
                 ["mensaje error esperado" => "Ocurrió un error al registrar el ajuste"]
             ),
             // TODO activar esto
-            // "Registrar - fecha inválida" => $aux(
-            //     $idInventarioValido,
-            //     $cantidadPositiva,
-            //     $descripcionValida,
-            //     $fechaInvalida,
-            //     false,
-            //     ["mensaje error esperado" => "Ocurrió un error al registrar el ajuste"]
-            // ),
+            "Registrar - fecha inválida" => $aux(
+                $idInventarioValido,
+                $cantidadPositiva,
+                $descripcionValida,
+                $fechaInvalida,
+                false,
+                ["mensaje error esperado" => "La fecha del incidente no es válida."]
+            ),
+            "Registrar - fecha Vacia" => $aux(
+                $idInventarioValido,
+                $cantidadPositiva,
+                $descripcionValida,
+                "",
+                false,
+                ["mensaje error esperado" => "Debe ingresar la fecha del incidente."]
+            ),
             
             // "Registrar - idInventario nulo" => $aux(
             //     null,
@@ -166,7 +185,7 @@ class AjusteTest extends TestCase {
                 -1000, 
                 "Ajuste por pérdida total",
                 $fechaValida,
-                true
+                false
             ),
         ];
     }

@@ -84,9 +84,17 @@ class ArticuloTest extends TestCase
         ];
         $this->articuloObj->setterArray($datos);
 
+        $validResult = $this->articuloObj->esValido();
 
-        $resp = $this->articuloObj->registrar();
-        $this->assertEquals($respuestaEsperada, $resp, $_logger["dataname"]);
+        if(!$validResult) {
+            $this->assertEquals($respuestaEsperada, $validResult, $_logger["dataname"]);
+        }
+        else{
+            $resp = $this->articuloObj->registrar();
+            $this->assertEquals($respuestaEsperada, $resp, $_logger["dataname"]);
+            
+        }
+
 
         if($respuestaEsperada == false) {
             $this->assertArrayHasKey("errores", $_SESSION, $_logger["dataname"]);
@@ -171,6 +179,38 @@ class ArticuloTest extends TestCase
                 false,
                 ...["mensaje esperado" => "El articulo con el nombre {$nombreRepetido} ya existe"]
             ),
+            "Entradas Invalidas - Nombre Vacio" => $aux(
+                "",
+                $descripcionValida,
+                $idMedidaValida,
+                $idCategoriaValida,
+                $esConsumibleValido,
+                false,
+                ...["mensaje esperado" => "El nombre del artículo es obligatorio."]),
+            "Entradas Invalidas - Nombre Menor a 3 Caracteres" => $aux(
+                "ab",
+                $descripcionValida,
+                $idMedidaValida,
+                $idCategoriaValida,
+                $esConsumibleValido,
+                false,
+                ...["mensaje esperado" => "El nombre del artículo debe tener entre 3 y 100 caracteres."]),
+            "Entradas Invalidas - Categoria Invalida" => $aux(
+                $nombreValido,
+                $descripcionValida,
+                $idMedidaValida,
+                0,
+                $esConsumibleValido,
+                false,
+                ...["mensaje esperado" => "Debe seleccionar una categoría válida."]),
+            "Entradas Invalidas - Medida Invalida" => $aux(
+                $nombreValido,
+                $descripcionValida,
+                0,
+                $idCategoriaValida,
+                $esConsumibleValido,
+                false,
+                ...["mensaje esperado" => "Debe seleccionar una medida válida."]),
         ];
 
     }
