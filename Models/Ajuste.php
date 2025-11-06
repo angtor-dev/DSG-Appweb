@@ -77,6 +77,14 @@ class Ajuste extends Model
             $this->db->connect();
             $this->beginTransaction();
 
+            if($this->cantidad < 0) {
+                $resp = $this->ejecutarStatement("SELECT cantidad, nombre FROM articulo WHERE id = :idInventario", ["idInventario" => $this->idInventario]);
+                $resp = $resp->fetch(PDO::FETCH_ASSOC);
+                if($resp['cantidad'] + $this->cantidad < 0) {
+                    throw new Exception("No puede disminuir la cantidad de un articulo a menos de 0", 1);
+                }
+            }
+
             $stmt = $this->prepare($query);
             $stmt->bindValue("idInventario", $this->idInventario);
             $stmt->bindValue("cantidad", $this->cantidad);
@@ -106,7 +114,8 @@ class Ajuste extends Model
             $this->db->disconnect();
 
             return true;
-        } catch (\Throwable $th) {
+        }
+         catch (\Throwable $th) {
             if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = "Ocurrió un error al registrar el ajuste";
             return false;
@@ -139,7 +148,6 @@ class Ajuste extends Model
         }
         return true;
     }
-
     /**
      * Establece valores en propiedades de la clase.
      *
@@ -147,7 +155,7 @@ class Ajuste extends Model
      * propiedades correspondientes. Si la propiedad existe como setter, llama
      * al setter. Si la propiedad existe como propiedad de lectura y escritura,
      * asigna el valor directamente.
-     *
+     * @codeCoverageIgnore
      * @param array $data
      * @return void
      */
@@ -175,7 +183,7 @@ class Ajuste extends Model
         $this->descripcion = $descripcion;
         $this->fechaIncidente = $fechaIncidente;
     }
-
+    // @codeCoverageIgnoreStart
     public function getCantidad(): int
     {
         return $this->cantidad;
@@ -202,4 +210,5 @@ class Ajuste extends Model
     {
         return (new DateTime($this->fechaCreacion))->format('d/m/Y h:ia');
     }
+    // @codeCoverageIgnoreEnd
 }
