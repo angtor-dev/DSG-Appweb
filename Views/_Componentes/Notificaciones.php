@@ -18,7 +18,7 @@ $totalNotificacionesNuevas = count($notificacionesNuevas);
             </span>
         <?php endif ?>
     </button>
-    <ul class="dropdown-menu <?= $totalNotificaciones == 0 ? "pb-0" : "" ?>" style="width: 380px;">
+    <ul class="dropdown-menu <?= $totalNotificaciones == 0 ? "pb-0" : "" ?>" style="width: 380px; max-height: 500px; overflow-y: auto; overflow-x: hidden;">
         <div class="pb-2 px-3 text-center <?= $totalNotificaciones > 0 ? "border-bottom" : "" ?>">
             <span>Tienes <?= $totalNotificacionesNuevas ?> notificaciones nuevas</span>
         </div>
