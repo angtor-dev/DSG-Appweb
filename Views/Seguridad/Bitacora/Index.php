@@ -34,6 +34,7 @@
                                 <td><?= $biracora->getModulo() ?></td>
                                 <td><?= $biracora->getAccion() ?></td>
                                 <td data-sort="<?= $biracora->getTimestamp() ?>"><?= $biracora->getFecha() ?></td>
+                                <td> <?php echo $biracora->getTimestamp() ?></td>
                             </tr>
                         <?php endforeach ?>
                     </tbody>
@@ -53,7 +54,11 @@
             language: {
                 url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
             },
-            order: [[4, 'desc']]
+            order: [[4, 'desc']],
+            columnDefs: [
+                {"targets": [4], "orderData": [5] },
+                {"targets": [5], "visible": false}
+            ]
         })
     })
 </script>
