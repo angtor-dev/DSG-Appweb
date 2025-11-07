@@ -14,7 +14,7 @@
 <div class="page-inner mt--5">
     <div class="card border-0 box-shadow-alt">
         <div class="card-body p-4">
-            <div class="d-flex gap-2 pb-2 align-items-end">
+            <!-- <div class="d-flex gap-2 pb-2 align-items-end">
                 <div class="p-2 d-inline" style="color: #8d9498">
                     <i class="fa-solid fa-filter"></i>
                 </div>
@@ -31,7 +31,7 @@
                 </select>
                 <input type="date" class="form-control flex-grow-1" style="width: unset;" name="desde" id="desde">
                 <input type="date" class="form-control flex-grow-1" style="width: unset;" name="hasta" id="hasta">
-            </div>
+            </div> -->
             <div class="table-responsive table-dsg">
                 <table class="datatable table table-striped table-hover" id="tabla-medidas">
                     <thead>
@@ -52,7 +52,7 @@
                                 <td><?= $movimiento->getCantidad() ?></td>
                                 <td><?= $movimiento->getAntes() ?></td>
                                 <td><?= $movimiento->getDespues() ?></td>
-                                <td><?= $movimiento->getFechaLegible() ?></td>
+                                <td data-sort="<?= $movimiento->getFecha()->getTimestamp() ?>"><?= $movimiento->getFechaLegible() ?></td>
                             </tr>
                         <?php endforeach ?>
                     </tbody>
@@ -79,7 +79,8 @@
                 bottom2End: {
                     buttons: ['excel', 'pdf', 'print']
                 },
-            }
+            },
+            order: [[5, 'desc']]
         })
     })
 </script>

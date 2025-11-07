@@ -103,6 +103,12 @@ class Ajuste extends Model
             $this->commit();
             $this->beginTransaction();
 
+            $superUsuarios = Usuario::listarPorRol(1);
+            foreach ($superUsuarios as $usuario) {
+                $notificacion = new Notificacion();
+                $notificacion->notificarUsuario($usuario->id, "Se ha registrado una corrección en el inventario del artículo ".$articulo['nombre']);
+            }
+
             if ($articulo && isset($articulo['cantidad']) && (int)$articulo['cantidad'] === 0) {
                 $notificacion = new Notificacion();
                 $usuarios = (new Usuario())->listarDBUser();
