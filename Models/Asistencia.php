@@ -917,7 +917,7 @@ class Asistencia extends Model
                     COUNT(if((esAsistencia = 0 and (tipo+0) = 1 ), 1, NULL)) as injusti,
                     COUNT(if(esAsistencia=0,1,NULL)) as inasitencias,
                     COUNT(if(esAsistencia=1,1,NULL)) as asistencias,
-                    COUNT(cedula) as TOTAL
+                    COUNT(if(esAsistencia is not Null,1,NULL)) as TOTAL
                     from vista_asistencias";
                 $groupBy = " group by cedula";
                 $headerTable = [
