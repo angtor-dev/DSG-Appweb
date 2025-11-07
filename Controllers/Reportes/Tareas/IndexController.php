@@ -1,45 +1,78 @@
 <?php
-$_POST = json_decode(file_get_contents("php://input"), true);
-
 requiereAutenticacion();
-requierePermiso("reporteasistencias", "consultar");
-//requierePermiso("reporteAsistencias", "consultar");
-// TODO validar permisos
+requierePermiso(Modulo::TAREAS, Permiso::CONSULTAR);
 
-
-
-$departamentos = (new Division())->listar();
-if(!empty($_POST)) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
     
-    if(isset($_POST['action']) && $_POST['action'] == "consultar") {
-        http_response_code(200);
-        $asistencias = new Asistencia;
-        $asistencias->reporte(
-            $_POST['fechaInicio'],
-            $_POST['hasta'],
-            $_POST['departamento']??null,
-            $_POST['turno']??null,
-            $_POST['agrupar']??null,
-            true);
-        die;
-    }
-    else{
-        http_response_code(405);
-        exit;
-    }
+    try {
+        $tipo = $_POST['tipo_reporte'] ?? null;
+        $fechaInicio = $_POST['fechaInicio'] ?? null;
+        $fechaFin = $_POST['fechaFin'] ?? null;
+        $filtroTrabajador = $_POST['filtroTrabajador'] ?? null;
+        $filtroDivision = $_POST['filtroDivision'] ?? null;
+
+        if (!$tipo || !$fechaInicio || !$fechaFin) {
+            throw new Exception('Faltan parámetros obligatorios');
+        }
+
+        switch ($tipo) {
+            case 'productividad_trabajador':
+                $result = Tarea::reporteProductividadTrabajador($fechaInicio, $fechaFin, $filtroTrabajador);
+                break;
+            case 'rendimiento_division':
+                $result = Tarea::reporteRendimientoDivision($fechaInicio, $fechaFin, $filtroDivision);
+                break;
+            case 'general_extenso':
+            $result = Tarea::reporteGeneralExtenso($fechaInicio, $fechaFin);
+            break;
+            default:
+                throw new Exception('Tipo de reporte no soportado');
+        }
+
+        echo json_encode([
+            'success' => true, 
+            'data' => $result,
+            'filtros' => [
+                'tipo' => $tipo,
+                'fechaInicio' => $fechaInicio,
+                'fechaFin' => $fechaFin
+            ]
+        ]);
         
+    } catch (Exception $ex) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false, 
+            'message' => $ex->getMessage()
+        ]);
+    }
+    exit;
 }
 
-// if(isset($_GET['fechaInicio']) && isset($_GET['hasta'])) {
-//     $fechaInicio = $_GET['fechaInicio'];
-//     $fechaFin = $_GET['hasta'];
-//     $idDepartamento = $_GET['departamento'] ?? null;
-//     $turno = $_GET['turno'] ?? null;
-//     $grupo = $_GET['agrupar'] ?? null;
-//     $asistencias = new Asistencia;
-//     $lista = $asistencias->reporte($fechaInicio, $fechaFin, $idDepartamento, $turno, $grupo);
-//     $lista = $lista['data'];
-// }
+// Para cargar datos iniciales (trabajadores, divisiones)
+else if (isset($_GET['ajax']) && $_GET['ajax'] === 'cargar_datos') {
+    header('Content-Type: application/json');
+    
+    try {
+        $trabajadores = Tarea::obtenerTrabajadoresActivos();
+        $divisiones = Tarea::obtenerDivisionesActivas();
+        
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                'trabajadores' => $trabajadores,
+                'divisiones' => $divisiones
+            ]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+    exit;
+}
 
-
-renderView("Asistencia", "Tareas/");
+renderView("Reportes/tareas", "");

@@ -23,7 +23,7 @@
 
     <!-- Cuerpo del Modal -->
     <div class="modal-body">
-        <form id="form-cancelacion">
+        <form id="form-cancelacion" onsubmit="event.preventDefault();">
             <input type="hidden" id="id-tarea" name="id_tarea" value="" style="display: none;">
 
             <!-- Información de la Tarea -->
@@ -134,7 +134,7 @@
     <!-- Pie del Modal -->
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-danger" id="btn-confirmar-cancelacion" onclick="event.preventDefault(); enviarFormularioCancelacion(event)">
+        <button type="button" class="btn btn-danger" id="btn-confirmar-cancelacion" onclick=" enviarFormularioCancelacion(event)">
             <i class="fa-solid fa-ban me-2"></i>Confirmar Cancelación
         </button>
     </div>

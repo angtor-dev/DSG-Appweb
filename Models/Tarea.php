@@ -670,22 +670,65 @@ private function guardarEvaluacionDirector(
 
 
 
-    public function cancelar()
-    {
-        $this->db->connect();
+        public function cancelar(): bool {
+            $this->db->connect();
+            $this->beginTransaction();
 
-        try {
-            $query = "UPDATE tarea SET estado_tarea = 'cancelado' WHERE id = :id";
-            $stmt = $this->prepare($query);
-            $stmt->bindValue(":id", $this->id, PDO::PARAM_INT);
+            try {
 
-            if (!$stmt->execute()) {
-                throw new Exception("No se pudo cancelar la tarea");
+                if (!$this->esValidoCancelar()) {
+                    throw new Exception("Datos de cancelación inválidos");
+                }
+                
+                $this->guardarObservacionesCancelacion(
+                    $this->id,
+                    $this->observaciones
+                );
+                
+                $this->actualizarEstadoTarea($this->id, 'cancelado');
+                
+                if (!empty($this->materiales) && count(array_filter(array_map(function($m) {
+                    return $m['devuelto'] > 0;
+                }, $this->materiales))) > 0) {
+                    $this->actualizarRecursos($this->id, $this->materiales);
+                }
+
+                $this->db->pdo()->commit();
+                $this->db->disconnect();
+                return true;
+            } catch (\Throwable $e) {
+                $this->db->pdo()->rollBack();
+                $this->db->disconnect();
+                $_SESSION['errores'][] = $e->getMessage();
+                error_log("Error al cancelar tarea: " . $e->getMessage());
+                return false;
             }
-        } finally {
-            $this->db->disconnect();
         }
-    }
+
+        private function esValidoCancelar(): bool {
+            if (empty($this->id) || !is_numeric($this->id)) {
+                $_SESSION['errores'][] = "ID de tarea inválido";
+                return false;
+            }
+            
+            if (empty(trim($this->observaciones))) {
+                $_SESSION['errores'][] = "Las observaciones son obligatorias para cancelar";
+                return false;
+            }
+            
+            return true;
+        }
+
+        private function guardarObservacionesCancelacion($idTarea, $observaciones) {
+            $query = "UPDATE tarea_validacion SET observacion = :observaciones WHERE idTarea = :id";
+            $stmt = $this->prepare($query);
+            $stmt->bindValue(":observaciones", $observaciones, PDO::PARAM_STR);
+            $stmt->bindValue(":id", $idTarea, PDO::PARAM_INT);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("No se pudieron guardar las observaciones de cancelación");
+            }
+        }
 
         public function terminar()
     {
@@ -1430,6 +1473,276 @@ public static function departamentosConTrabajadores()
     return (int)$result['total'];
 }
 
+//-----------------------------------------------LLenar reportes
+
+// Agregar estos métodos a tu clase Tarea
+
+public static function reporteProductividadTrabajador($fechaInicio, $fechaFin, $trabajadorId = null) {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $whereTrabajador = "";
+    $params = [
+        ':fechaInicio' => $fechaInicio . ' 00:00:00',
+        ':fechaFin' => $fechaFin . ' 23:59:59'
+    ];
+    
+    if ($trabajadorId) {
+        $whereTrabajador = "AND tr.id = :trabajadorId";
+        $params[':trabajadorId'] = $trabajadorId;
+    }
+    
+    $query = "SELECT 
+                tr.id,
+                tr.nombre,
+                tr.apellido,
+                COUNT(DISTINCT tp.idTarea) as total_tareas,
+                SUM(CASE WHEN ta.estado_tarea = 'evaluada' THEN 1 ELSE 0 END) as tareas_completadas,
+                SUM(CASE WHEN ta.estado_tarea = 'activo' THEN 1 ELSE 0 END) as tareas_activas,
+                SUM(CASE WHEN ta.estado_tarea = 'cancelado' THEN 1 ELSE 0 END) as tareas_canceladas,
+                SUM(CASE WHEN ta.estado_tarea = 'vencida' THEN 1 ELSE 0 END) as tareas_vencidas,
+                ROUND(
+                    (SUM(CASE WHEN ta.estado_tarea = 'evaluada' THEN 1 ELSE 0 END) * 100.0 / 
+                    NULLIF(COUNT(DISTINCT tp.idTarea), 0)), 2
+                ) as eficiencia_porcentaje,
+                AVG(CASE WHEN tv.fechaEval IS NOT NULL THEN 
+                    DATEDIFF(tv.fechaEval, ta.fecha_inicio) 
+                END) as promedio_dias_completar
+            FROM trabajador tr
+            INNER JOIN asignacion_laboral al ON tr.id = al.idTrabajador AND al.esActual = 1
+            INNER JOIN tarea_personal tp ON al.id = tp.idAsignacionLaboral
+            INNER JOIN tarea ta ON tp.idTarea = ta.id
+            LEFT JOIN tarea_validacion tv ON ta.id = tv.idTarea
+            WHERE ta.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+            {$whereTrabajador}
+            GROUP BY tr.id, tr.nombre, tr.apellido
+            ORDER BY total_tareas DESC";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute($params);
+    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $bd->disconnect();
+    return $resultados;
+}
+
+public static function reporteGeneralExtenso($fechaInicio, $fechaFin) {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $params = [
+        ':fechaInicio' => $fechaInicio . ' 00:00:00',
+        ':fechaFin' => $fechaFin . ' 23:59:59'
+    ];
+    
+    // Consulta principal simplificada y corregida
+    $query = "SELECT 
+                t.id,
+                t.descripcion,
+                t.estado_tarea,
+                t.fechaCreacion,
+                t.fecha_inicio,
+                a.nombre as area_nombre,
+                d.nombre as departamento_nombre,
+                
+                -- Información de personal asignado
+                (SELECT GROUP_CONCAT(CONCAT(tr.nombre, ' ', tr.apellido) SEPARATOR ', ')
+                 FROM tarea_personal tp
+                 JOIN asignacion_laboral al ON tp.idAsignacionLaboral = al.id
+                 JOIN trabajador tr ON al.idTrabajador = tr.id
+                 WHERE tp.idTarea = t.id AND al.esActual = 1) as personal_asignado,
+                 
+                -- Información de evaluación
+                tv.evalSupervisor as evaluacion_supervisor,
+                tv.evalSuperior as evaluacion_director,
+                tv.observacion as observaciones,
+                tv.fechaEval as fecha_evaluacion,
+                
+                -- Información del supervisor
+                (SELECT CONCAT(trs.nombre, ' ', trs.apellido)
+                 FROM trabajador trs
+                 WHERE trs.id = tv.idSupervisor) as supervisor_nombre,
+                 
+                -- Tiempo de completación
+                CASE 
+                    WHEN tv.fechaEval IS NOT NULL THEN 
+                        DATEDIFF(tv.fechaEval, t.fecha_inicio)
+                    ELSE NULL
+                END as dias_completacion
+
+            FROM tarea t
+            LEFT JOIN area a ON t.idArea = a.id
+            LEFT JOIN division d ON t.idDepartamento = d.id
+            LEFT JOIN tarea_validacion tv ON t.id = tv.idTarea
+            WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+            ORDER BY t.fechaCreacion DESC
+            LIMIT 100";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute($params);
+    $tareas = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Obtener estadísticas generales con consulta separada
+    $estadisticas = self::obtenerEstadisticasGeneralesCorregido($fechaInicio, $fechaFin);
+    
+    $bd->disconnect();
+    
+    return [
+        'tareas' => $tareas,
+        'estadisticas' => $estadisticas,
+        'total_registros' => count($tareas)
+    ];
+}
+
+private static function obtenerEstadisticasGeneralesCorregido($fechaInicio, $fechaFin) {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $params = [
+        ':fechaInicio' => $fechaInicio . ' 00:00:00',
+        ':fechaFin' => $fechaFin . ' 23:59:59'
+    ];
+    
+    // Consulta separada para estadísticas sin parámetros duplicados
+    $query = "SELECT 
+                COUNT(*) as total_tareas,
+                SUM(CASE WHEN estado_tarea = 'evaluada' THEN 1 ELSE 0 END) as completadas,
+                SUM(CASE WHEN estado_tarea = 'activo' THEN 1 ELSE 0 END) as en_progreso,
+                SUM(CASE WHEN estado_tarea = 'cancelado' THEN 1 ELSE 0 END) as canceladas,
+                SUM(CASE WHEN estado_tarea = 'vencida' THEN 1 ELSE 0 END) as vencidas,
+                COUNT(DISTINCT idDepartamento) as departamentos_involucrados,
+                COUNT(DISTINCT idArea) as areas_atendidas,
+                AVG(CASE WHEN tv.fechaEval IS NOT NULL THEN 
+                    DATEDIFF(tv.fechaEval, t.fecha_inicio) 
+                END) as promedio_dias_completacion
+            FROM tarea t
+            LEFT JOIN tarea_validacion tv ON t.id = tv.idTarea
+            WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute($params);
+    $estadisticas = $consulta->fetch(PDO::FETCH_ASSOC);
+    
+    // Consulta separada para trabajadores involucrados
+    $queryTrabajadores = "SELECT COUNT(DISTINCT al.idTrabajador) as trabajadores_involucrados
+                         FROM tarea_personal tp
+                         JOIN asignacion_laboral al ON tp.idAsignacionLaboral = al.id
+                         JOIN tarea t ON tp.idTarea = t.id
+                         WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+                         AND al.esActual = 1";
+    
+    $consulta = $bd->pdo()->prepare($queryTrabajadores);
+    $consulta->execute($params);
+    $trabajadores = $consulta->fetch(PDO::FETCH_ASSOC);
+    $estadisticas['trabajadores_involucrados'] = $trabajadores['trabajadores_involucrados'];
+    
+    // Consulta separada para recursos utilizados
+    $queryRecursos = "SELECT COUNT(DISTINCT r.idArticulo) as tipos_recursos_utilizados
+                     FROM recurso r
+                     JOIN tarea t ON r.idTarea = t.id
+                     WHERE t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin";
+    
+    $consulta = $bd->pdo()->prepare($queryRecursos);
+    $consulta->execute($params);
+    $recursos = $consulta->fetch(PDO::FETCH_ASSOC);
+    $estadisticas['tipos_recursos_utilizados'] = $recursos['tipos_recursos_utilizados'];
+    
+    $bd->disconnect();
+    return $estadisticas;
+}
+
+public static function reporteRendimientoDivision($fechaInicio, $fechaFin, $divisionId = null) {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $whereDivision = "";
+    $params = [
+        ':fechaInicio' => $fechaInicio . ' 00:00:00',
+        ':fechaFin' => $fechaFin . ' 23:59:59'
+    ];
+    
+    if ($divisionId) {
+        $whereDivision = "AND d.id = :divisionId";
+        $params[':divisionId'] = $divisionId;
+    }
+    
+    $query = "SELECT 
+                d.id,
+                d.nombre as division_nombre,
+                COUNT(DISTINCT t.id) as total_tareas,
+                SUM(CASE WHEN t.estado_tarea = 'evaluada' THEN 1 ELSE 0 END) as tareas_completadas,
+                SUM(CASE WHEN t.estado_tarea = 'activo' THEN 1 ELSE 0 END) as tareas_activas,
+                SUM(CASE WHEN t.estado_tarea = 'cancelado' THEN 1 ELSE 0 END) as tareas_canceladas,
+                SUM(CASE WHEN t.estado_tarea = 'vencida' THEN 1 ELSE 0 END) as tareas_vencidas,
+                COUNT(DISTINCT tp.idAsignacionLaboral) as total_trabajadores_asignados,
+                COUNT(DISTINCT r.idArticulo) as total_recursos_utilizados,
+                ROUND(
+                    (SUM(CASE WHEN t.estado_tarea = 'evaluada' THEN 1 ELSE 0 END) * 100.0 / 
+                    NULLIF(COUNT(DISTINCT t.id), 0)), 2
+                ) as eficiencia_porcentaje,
+                AVG(CASE WHEN tv.fechaEval IS NOT NULL THEN 
+                    DATEDIFF(tv.fechaEval, t.fecha_inicio) 
+                END) as promedio_dias_completar
+            FROM division d
+            LEFT JOIN tarea t ON d.id = t.idDepartamento 
+                AND t.fechaCreacion BETWEEN :fechaInicio AND :fechaFin
+            LEFT JOIN tarea_personal tp ON t.id = tp.idTarea
+            LEFT JOIN recurso r ON t.id = r.idTarea
+            LEFT JOIN tarea_validacion tv ON t.id = tv.idTarea
+            WHERE d.id IS NOT NULL
+            {$whereDivision}
+            GROUP BY d.id, d.nombre
+            ORDER BY total_tareas DESC";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute($params);
+    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $bd->disconnect();
+    return $resultados;
+}
+
+public static function obtenerTrabajadoresActivos() {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $query = "SELECT 
+                t.id,
+                CONCAT(t.nombre, ' ', t.apellido) as nombre_completo,
+                c.nombre as cargo,
+                d.nombre as division
+            FROM trabajador t
+            INNER JOIN asignacion_laboral al ON t.id = al.idTrabajador AND al.esActual = 1
+            INNER JOIN cargo c ON al.idCargo = c.id
+            INNER JOIN division d ON al.idDivision = d.id
+            WHERE t.estado = 1
+            ORDER BY t.nombre, t.apellido";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute();
+    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $bd->disconnect();
+    return $resultados;
+}
+
+public static function obtenerDivisionesActivas() {
+    $bd = Database::getInstance();
+    $bd->connect();
+    
+    $query = "SELECT 
+                id,
+                nombre
+            FROM division
+            ORDER BY nombre";
+    
+    $consulta = $bd->pdo()->prepare($query);
+    $consulta->execute();
+    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    
+    $bd->disconnect();
+    return $resultados;
+}
 
 
     // @codeCoverageIgnoreStart

@@ -67,10 +67,9 @@
                 </div>
             </div>
 
-            <!-- Evaluación del Supervisor -->
             <div class="card mb-4" id="seccion-supervisor">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Evaluación del Supervisor</h6>
+                    <h6 class="mb-0">Evaluación de la tarea</h6>
                     <span class="badge bg-info">Pendiente</span>
                 </div>
                 <div class="card-body">
@@ -101,47 +100,6 @@
                     </div>
                 </div>
             </div>
-<?php if (tienePermiso(Modulo::TAREAS, Permiso::ACTUALIZAR)): ?> 
-            <div class="card mb-4" id="seccion-director">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Evaluación del Director</h6>
-                    <span class="badge bg-secondary">No disponible</span>
-                </div>
-                <div class="card-body" id="contenido-director" style="display: none;">
-                    <div class="mb-3">
-                        <label class="form-label"><strong>Ponderación:</strong></label>
-                        <select class="form-select" id="ponderacion-director" name="ponderacion_director">
-                            <option value="" disabled selected>Seleccione una ponderación</option>
-                            <option value="buenobueno">Bueno-Bueno</option>
-                            <option value="buenomedio">Bueno-Medio</option>
-                            <option value="buenomalo">Bueno-Malo</option>
-                            <option value="mediomedio">Medio-Medio</option>
-                            <option value="mediomalo">Medio-Malo</option>
-                            <option value="malomalo">Malo-Malo</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="comentarios-director" class="form-label"><strong>Comentarios:</strong></label>
-                        <textarea class="form-control" id="comentarios-director" name="comentarios_director" rows="3"
-                            placeholder="Describa su evaluación de la tarea"></textarea>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="aprobacion-director" name="aprobacion_director">
-                        <label class="form-check-label" for="aprobacion-director">
-                            Aprobar finalización definitiva de tarea
-                        </label>
-                    </div>
-                </div>
-                <div class="card-body" id="mensaje-director">
-                    <div class="alert alert-info">
-                        Esta sección se habilitará después de la aprobación del supervisor.
-                    </div>
-                </div>
-            </div>
-
-             <?php endif ?>
             <!-- Confirmación -->
             <div class="card">
                 <div class="card-header bg-light">

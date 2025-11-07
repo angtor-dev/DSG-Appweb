@@ -75,12 +75,6 @@
 
         <!-- Observaciones y firmas -->
         <div class="row mb-4">
-            <div class="col-md-8">
-                <div class="mb-3">
-                    <label class="form-label"><strong>Observaciones:</strong></label>
-                    <textarea class="form-control" id="orden-observaciones" rows="3" disabled></textarea>
-                </div>
-            </div>
             <div class="col-md-4">
                 <div class="text-center border p-2 mt-4">
                     <div class="mb-3 border-bottom pb-4">
