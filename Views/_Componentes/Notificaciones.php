@@ -18,7 +18,7 @@ $totalNotificacionesNuevas = count($notificacionesNuevas);
             </span>
         <?php endif ?>
     </button>
-    <ul class="dropdown-menu <?= $totalNotificaciones == 0 ? "pb-0" : "" ?>" style="width: 280px;">
+    <ul class="dropdown-menu <?= $totalNotificaciones == 0 ? "pb-0" : "" ?>" style="width: 380px;">
         <div class="pb-2 px-3 text-center <?= $totalNotificaciones > 0 ? "border-bottom" : "" ?>">
             <span>Tienes <?= $totalNotificacionesNuevas ?> notificaciones nuevas</span>
         </div>
@@ -31,7 +31,7 @@ $totalNotificacionesNuevas = count($notificacionesNuevas);
                             color: white; border-radius: 50px">
                         <i class="fa-solid fa-user"></i>
                     </div>
-                    <div class="d-flex flex-column gap-2 py-2">
+                    <div class="d-flex flex-column gap-2 py-2 pe-2">
                         <span style="white-space: normal;"><?= $notificacion->getDescripcion() ?></span>
                         <small class="light"><?= $notificacion->tiempoTranscurrido() ?></small>
                     </div>

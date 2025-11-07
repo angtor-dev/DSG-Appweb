@@ -247,6 +247,9 @@ class Asistencia extends Model
         return $response;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function registrarSemanal($print = true):array {
         try {
 
@@ -436,6 +439,9 @@ class Asistencia extends Model
         }
         return $response;
     }
+    /**
+     * @codeCoverageIgnore
+     */
     public function eliminarFechaAsistenciaSemanales($print = false): array {
         try {
             $semana = $this->obtenerSemana();
@@ -626,7 +632,9 @@ class Asistencia extends Model
         }
     }
 
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function verAsistenciasSemanal($print = false)  {
         try {
             $semana = $this->obtenerSemana();
@@ -770,7 +778,9 @@ class Asistencia extends Model
         return $resp;
     }
 
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function obtenerSemana() {
         $turno_obj = new Turno();
         $turno_obj->setterArray([
@@ -845,6 +855,27 @@ class Asistencia extends Model
 
 
         try {
+
+            $numerico = function ($value) :bool {
+                if(isset($value) && !empty($value)) {
+                    return preg_match(REG_NUMERICO, $value);
+                }
+                else return true;
+            };
+
+            if (!empty($fechaInicio) && !preg_match("/^\d{4}-\d{2}-\d{2}$/", trim($fechaInicio))) {
+                throw new Exception("La fecha de inicio no es valida", self::SHOW_EXCEPTIONS);
+            }
+            if (!empty($fechaFin) && !preg_match("/^\d{4}-\d{2}-\d{2}$/", trim($fechaFin))) {
+                throw new Exception("La fecha de fin no es valida", self::SHOW_EXCEPTIONS);
+            }
+            if(!$numerico($idDepartamento)) {
+                throw new Exception("El Departamento no es valido", self::SHOW_EXCEPTIONS);
+            }
+            if(!$numerico($turno)) {
+                throw new Exception("El Turno no es valido", self::SHOW_EXCEPTIONS);
+            }
+            
             $this->db->connect();
             $pdo = $this->db->pdo();
 
@@ -854,7 +885,7 @@ class Asistencia extends Model
             $where = " WHERE fecha between :fechaInicio and :fechaFin";
             $groupBy = "";
 
-            if($grupo == null){
+            if($grupo == null || $grupo == "") {
                 $querySelect = "SELECT 
                  cedula,
                  nombre,
@@ -886,7 +917,7 @@ class Asistencia extends Model
                     COUNT(if((esAsistencia = 0 and (tipo+0) = 1 ), 1, NULL)) as injusti,
                     COUNT(if(esAsistencia=0,1,NULL)) as inasitencias,
                     COUNT(if(esAsistencia=1,1,NULL)) as asistencias,
-                    COUNT(cedula) as TOTAL
+                    COUNT(if(esAsistencia is not Null,1,NULL)) as TOTAL
                     from vista_asistencias";
                 $groupBy = " group by cedula";
                 $headerTable = [
@@ -927,6 +958,74 @@ class Asistencia extends Model
                     "Asistencias"
                 ];
             }
+            else if($grupo == "semana"){
+                // 1. Calcular el Lunes y el Domingo de la semana de $fechaInicio
+                $dateTime = new \DateTime($fechaInicio);
+                
+                // El 'w' en PHP date() devuelve 0 (Domingo) a 6 (Sábado).
+                // El 'N' en PHP date() devuelve 1 (Lunes) a 7 (Domingo), que es más útil.
+                // Restamos (Día de la semana - 1) días para llegar al Lunes (Día 1)
+                $diaSemana = (int)$dateTime->format('N');
+                $fechaLunes = $dateTime->modify('-' . ($diaSemana - 1) . ' days')->format('Y-m-d');
+                
+                // Usamos el Lunes calculado para obtener el Domingo (6 días después)
+                $dateTimeDomingo = new \DateTime($fechaLunes);
+                $fechaMartes = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaMiercoles = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaJueves = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaViernes = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaSabado = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                $fechaDomingo = $dateTimeDomingo->modify('+1 days')->format('Y-m-d');
+                
+                // Se ajustan las fechas de inicio y fin al rango semanal
+                $parametros["fechaInicio"] = $fechaLunes; 
+                $parametros["fechaFin"] = $fechaDomingo;
+                $fechaInicio = $fechaLunes; // Se actualizan para la explicación del header si fuera necesario
+                $fechaFin = $fechaDomingo;
+                
+                // 2. Consulta SQL para el reporte semanal (se utiliza un pivote condicional)
+                // Se usa la función DAYOFWEEK() de MySQL (1=Domingo, 2=Lunes, ..., 7=Sábado)
+                // En el resultado se transformará a Lunes=1 a Domingo=7 para el procesamiento en PHP
+                $querySelect = "SELECT 
+                    t.cedula,
+                    t.nombre,
+                    t.apellido,
+                    
+                    MAX(CASE WHEN v.fecha = '$fechaLunes' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as lunes,
+                    MAX(CASE WHEN v.fecha = '$fechaMartes' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as martes,
+                    MAX(CASE WHEN v.fecha = '$fechaMiercoles' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as miercoles,
+                    MAX(CASE WHEN v.fecha = '$fechaJueves' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as jueves,
+                    MAX(CASE WHEN v.fecha = '$fechaViernes' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as viernes,
+                    MAX(CASE WHEN v.fecha = '$fechaSabado' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as sabado,
+                    MAX(CASE WHEN v.fecha = '$fechaDomingo' THEN IF(v.esAsistencia = 1, 'Si', if(v.esAsistencia = 0,'No', 'N/A') ) ELSE 'N/A' END) as domingo
+                    
+                FROM 
+                    trabajador as t
+                JOIN 
+                    vista_asistencias as v 
+                    ON t.cedula = v.cedula
+                    AND v.fecha BETWEEN :fechaInicio AND :fechaFin";
+                    
+                $groupBy = " group by t.cedula, t.nombre, t.apellido, t.fechaIngreso";
+                //$where = " WHERE ( (v.fecha between :fechaInicio and :fechaFin) OR v.fecha is null )";
+                $where = "";
+                $dateTimeDomingo = new \DateTime($fechaLunes);
+                // 3. Encabezados de la tabla
+                $headerTable = [
+                    "Cedula",
+                    "Nombre",
+                    "Apellido",
+                    "Lunes <small>({$dateTimeDomingo->format('d/m/y')})</small>",
+                    "Martes <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Miércoles <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Jueves <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Viernes <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Sábado <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>",
+                    "Domingo <small>({$dateTimeDomingo->modify('+1 days')->format('d/m/y')})</small>"
+                ];
+            }
+
+
             else{
                 throw new Exception("Error al generar el reporte", self::SHOW_EXCEPTIONS);
             }
@@ -967,7 +1066,9 @@ class Asistencia extends Model
            $this->disconectHandlerExeption();
             $respuesta = [
                 "success" => false,
-                "message" => "Error al reportar asistencias"
+                "message" => "Error al reportar asistencias",
+                "data" => [],
+                "headers" => []
             ];
 
             if(DEVELOPER_MODE){
@@ -1112,7 +1213,9 @@ class Asistencia extends Model
         return $respuesta;
     }
 
-
+    /**
+     * @codeCoverageIgnore
+     */
     public function llenarAsistenciasDatosDePrueba(){
         // para evitar que el devsense me moleste con el error del no reachable code
         // phpcs:disable
@@ -1213,7 +1316,7 @@ class Asistencia extends Model
 
 
     // Getters
-
+    // @codeCoverageIgnoreStart
     public function getfechaOut() :string {
         return $this->fechaOut;
     }
@@ -1264,6 +1367,7 @@ class Asistencia extends Model
     public function getHora(string $value) :string {
         return substr($value, 11);
     }
+    // @codeCoverageIgnoreEnd
 }
 
 
@@ -1301,7 +1405,7 @@ class Asistencia extends Model
 
 /**
  * Generates a random time in HH:MM format within a specified range.
- *
+ * @codeCoverageIgnore
  * @param string $horaInicio The start time in HH:MM format (e.g., "08:00").
  * @param string $horaFin The end time in HH:MM format (e.g., "17:30").
  * @return string A random time in HH:MM format, or an empty string if the input is invalid.

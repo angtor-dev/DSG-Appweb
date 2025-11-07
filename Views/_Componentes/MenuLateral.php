@@ -168,6 +168,12 @@
                             de Tareas
                         </a>
                     <?php endif ?>
+                    <?php if (tienePermiso(Modulo::TRABAJADORES, Permiso::CONSULTAR)): ?>
+                        <a href="<?= LOCAL_DIR ?>/Reportes/Trabajadores"
+                            class="<?= strtolower($uriParts[1]) == "reportetrabajadores" ? "active" : "" ?>">
+                            de Trabajadores
+                        </a>
+                    <?php endif ?>
                 </div>
             </div>
         </div>

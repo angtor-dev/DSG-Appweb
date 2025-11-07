@@ -38,7 +38,6 @@
                 <table class="datatable table table-striped table-hover" id="tabla-categorias">
                     <thead>
                         <tr>
-                            <th>Id</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th>Color</th>
@@ -48,7 +47,6 @@
                     <tbody>
                         <?php foreach ($categorias as $categoria): ?>
                             <tr>
-                                <td><?= $categoria->id ?></td>
                                 <td><?= $categoria->getNombre() ?></td>
                                 <td><?= $categoria->getDescripcion() ?></td>
                                 <td>

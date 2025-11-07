@@ -41,8 +41,8 @@
                                 <td><?= $ajuste->articulo->getNombre() ?></td>
                                 <td><?= $ajuste->getCantidad()." ".$ajuste->articulo->medida->getSubUnidad() ?></td>
                                 <td><?= $ajuste->getDescripcion() ?></td>
-                                <td><?= $ajuste->getFechaIncidenteLegible() ?></td>
-                                <td><?= $ajuste->getFechaCreacionLegible() ?></td>
+                                <td data-sort="<?= $ajuste->getFechaIncidente()->getTimestamp() ?>"><?= $ajuste->getFechaIncidenteLegible() ?></td>
+                                <td data-sort="<?= $ajuste->getFechaCreacion()->getTimestamp() ?>"><?= $ajuste->getFechaCreacionLegible() ?></td>
                             </tr>
                         <?php endforeach ?>
                     </tbody>

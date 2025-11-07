@@ -120,10 +120,10 @@ final class InventarioIntTest extends TestCase
         $descripcion = "Descripción del artículo de prueba";
         $cantidad = 0;
         $esConsumible = true;
-        
-        // Act
         $categoria = $categoria->cargarUltimo();
         $medida = $medida->cargarUltimo();
+        
+        // Act
         $articulo->setDatos(
             null,
             $categoria->id,
@@ -215,6 +215,27 @@ final class InventarioIntTest extends TestCase
             $esConsumible,
             $articuloActualizado->getEsConsumible(),
             "El estado de consumible del artículo debería haberse actualizado correctamente."
+        );
+    }
+
+    /** @test */
+    public function eliminarArticulo() : void
+    {
+        // Arrange
+        $articulo = new Articulo();
+        /** @var Articulo */
+        $ultimoArticulo = $articulo->cargarUltimo();
+
+        // Act
+        $seElimino = $ultimoArticulo->eliminar(false);
+        /** @var Articulo */
+        $articuloEliminado = $articulo->cargar($ultimoArticulo->id);
+
+        // Assert
+        $this->assertTrue($seElimino, "El artículo debería haberse eliminado correctamente.");
+        $this->assertNull(
+            $articuloEliminado,
+            "El artículo eliminado no debería poder cargarse desde la base de datos."
         );
     }
 }

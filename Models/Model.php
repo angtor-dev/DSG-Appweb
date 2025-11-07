@@ -185,6 +185,7 @@ abstract class Model
      */
     public function eliminar(bool $eliminadoLogico = true) : bool
     {
+        $seElimino = false;
         $tabla = strtolower(get_class($this));
         $query = $eliminadoLogico
             ? "UPDATE $tabla set estado = 0 WHERE id = :id"
@@ -205,19 +206,20 @@ abstract class Model
 
             $this->db->disconnect();
 
-            return true;
+            $seElimino = true;
         } catch (\PDOException $th) {
             $this->disconectHandlerExeption();
             $_SESSION['errores'][] = ($th->getCode() == '23000') 
                 ? "Existen datos relacionados al item seleccionado." 
                 : "Ha ocurrido un error al eliminar $tabla.";
-            return false;
+            $seElimino = false;
         } catch (\Throwable $th) {
             $this->disconectHandlerExeption();
             //if (DEVELOPER_MODE) debug($th); // Eliminar esto al crear vista para errores
             $_SESSION['errores'][] = "Ha ocurrido un error al eliminar $tabla.";
-            return false;
+            $seElimino = false;
         }
+        return $seElimino;
     }
     public function eliminarDBUser(bool $eliminadoLogico = true) : bool
     {

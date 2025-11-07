@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", async function(){
                     idDepartamento: departamento.value,
                     turno: turno.value,
                     fecha: fecha.value,
-                    consultar: true
+                    consultarDia: true
                 }),
                 before: () => {
                     document.querySelector("#form-table-asistencias table tbody").innerHTML = "";

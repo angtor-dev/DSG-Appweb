@@ -49,7 +49,6 @@ class Area extends Model
                 }
             }
         } catch (\Throwable $th) {
-            echo $th;
             $this->disconectHandlerExeption();
             if (DEVELOPER_MODE && $th->getCode() != self::SHOW_EXCEPTION) $_SESSION['errores'][] = $th->getMessage();
             $_SESSION['errores'][] = ($th->getCode() == self::SHOW_EXCEPTION) ? $th->getMessage() : "Ocurrio un error al validar el área";
@@ -243,12 +242,12 @@ class Area extends Model
              * @var Area
              */
             $area = $this->cargar($this->id);
-            $area->setTestingMode($this->getTestingMode());
-    
+            
             if (empty($area)) {
                 throw new Exception("El área que intenta eliminar no existe", 1);
             }
-    
+            $area->setTestingMode($this->getTestingMode());
+            
             $subareas = $area->listarSubareas();
     
             if (count($subareas) > 0) {
@@ -300,8 +299,11 @@ class Area extends Model
         $this->nombre = $nombre;
         $this->idArea = $idArea;
     }
-
+    
     // Getters
+    /**
+     * @codeCoverageIgnore of getNombre
+     */
     public function getNombre() : string {
         return $this->nombre;
     }

@@ -4,7 +4,9 @@
 		const fechaHasta = document.getElementById("hasta");
 		const departamento = document.getElementById("departamento");
 		const turno = document.getElementById("turno");
+        const cargo = document.getElementById("cargo");
 		const agrupar = document.getElementById("agrupar");
+		const activo = document.getElementById("activo");
 
 
 		const fecha = new Date();
@@ -12,8 +14,8 @@
 		const mes = `${fecha.getMonth()+1}`.padStart(2, '0');
 		const anio = fecha.getFullYear();
 		var lastDayOfMonth = new Date(fecha.getFullYear(), fecha.getMonth()+1, 0);
-		document.getElementById("fechaInicio").value = `${anio}-${mes}-01`;
-		document.getElementById("hasta").value = `${anio}-${mes}-${lastDayOfMonth.getDate()}`;
+		// document.getElementById("fechaInicio").value = `${anio}-${mes}-01`;
+		// document.getElementById("hasta").value = `${anio}-${mes}-${lastDayOfMonth.getDate()}`;
 		const tabla = document.getElementById("reporteAsistencia");
 
 		// si la tabla esta vacia llama a enviar
@@ -25,20 +27,9 @@
 		fechaHasta.addEventListener("change", enviar);
 		departamento.addEventListener("change", enviar);
 		turno.addEventListener("change", enviar);
-		agrupar.addEventListener("change", (e)=>{
-			
-			let sms = e.target.dataset.formtext;
-			sms = document.getElementById(sms);
-			if(e.target.value === "semana"){
-				sms.innerText = "Para este modo se utilizara la fecha de inicio para calcular la semana";
-				sms.classList.add("d-block", "text-info");
-			}
-			else{
-				sms.innerText = "";
-				sms.classList.remove("d-block", "text-info");
-			}
-			enviar();
-		});
+		cargo.addEventListener("change", enviar);
+		agrupar.addEventListener("change", enviar);
+		activo.addEventListener("change", enviar);
 
 
 	});
@@ -52,9 +43,11 @@
 		const hasta = document.getElementById("hasta").value;
 		const departamento = document.getElementById("departamento").value;
 		const turno = document.getElementById("turno").value;
+        const cargo = document.getElementById("cargo").value;
+		const activo = document.getElementById("activo").checked ? 1 : 0;
 		const agrupar = document.getElementById("agrupar").value;
 
-		resp = await peticion("/Reportes/Asistencia",{
+		resp = await peticion("/Reportes/Trabajadores",{
 			method: "POST",
 			useLoader: "body",
 			headers: {
@@ -66,6 +59,8 @@
 				departamento: departamento,
 				turno: turno,
 				agrupar: agrupar,
+                cargo: cargo,
+				activo: activo,
 				action: "consultar",
 				
 			}),
@@ -108,20 +103,10 @@
 
 				let tr = document.createElement("tr");
 
-				let semanaDias = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
-
 				console.log(headers);
 				headers.forEach(header => {
 					let th = document.createElement("th");
-					th.innerHTML = header;
-					
-					if(agrupar === "semana"){
-						if(semanaDias.includes(header.replace(/^(.+)\s.*/,"$1"))){
-							th.classList.add("no-sort");
-						}
-					}
-
-
+					th.innerText = header;
 					tr.appendChild(th);
 				})
 				thead.appendChild(tr);
@@ -141,16 +126,6 @@
 				tabla.appendChild(tbody);
 
 				//*************************************
-
-				if(agrupar == ""){
-					data.forEach(dato => {
-						let fecha = dato[3];
-						if((fecha = fecha.split("-")).length === 3){
-							dato[3] = fecha.reverse().join("/");
-						}
-					});
-				}
-
 
 
 				
@@ -172,14 +147,11 @@
 								}
 				            },
 				            ordering: true,
-							responsive: false,
+							responsive: true,
 							data: data,
 							initComplete: function () {
 								mostrarLoader("body", false);
-							},
-							columnDefs: [
-								{ orderable: false, targets: '.no-sort' } // Columnas con clase 'no-sort'
-							]
+							}
 				        });
 				}
 

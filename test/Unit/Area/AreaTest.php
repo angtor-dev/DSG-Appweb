@@ -286,6 +286,18 @@ class AreaTest extends TestCase
                 "El area no puede ser padre de si mismo",
                 $idExistente
             ),
+            "Entradas Invalidas - id area no existe" => $aux(
+                0,
+                "Subarea Actualizada",
+                false,
+                "El area seleccionada no existe",
+                $idExistente),
+            "Entradas Invalidas - id area padre no existe" => $aux(
+                $idExistente,
+                "Subarea Actualizada",
+                false,
+                "El area padre seleccionada no existe",
+                99999),
         ];
     }
 

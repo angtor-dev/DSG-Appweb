@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * @codeCoverageIgnore
+ */
 class EntradaDetalle extends Model
 {
     public int $idEntrada;

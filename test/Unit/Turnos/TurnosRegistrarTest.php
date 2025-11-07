@@ -255,7 +255,7 @@ class TurnosRegistrarTest extends TestCase
         $num_caso
     ): void
     {
-        (new LoggerPhpUnit($this, $this->testSuiteControl, "Eliminar Turno"))->log();
+        $__logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Eliminar Turno"))->log();
 
         // Preparar los datos para la prueba
         $this->turnoObj->setterArray(['codigo' => $id]);
@@ -271,7 +271,7 @@ class TurnosRegistrarTest extends TestCase
         $this->assertArrayHasKey('success', $respuesta);
 
         $mensaje = ($respuesta['consoleError'] ?? $respuesta['message']) . ' :: '.$mensaje;
-        $this->assertEquals($resultado_esperado, $respuesta['success'], $mensaje);
+        $this->assertEquals($resultado_esperado, $respuesta['success'], $__logger['dataname']);
         $this->assertEquals($mensajeEsperado, $respuesta['message'], $mensaje);
 
     }
@@ -311,6 +311,16 @@ class TurnosRegistrarTest extends TestCase
             public $turnoRelacionesEliminar = "El turno esta siendo utilizado y no puede ser eliminado";
 
         };
+        $funccion = function (){
+            $db = Database::getInstance();
+            $db->connect();
+            $id = $db->pdo()->query("SELECT t.codigo FROM turno as t LEFT JOIN asignacion_laboral as al on al.idTurno = t.id WHERE al.id is null")->fetch(PDO::FETCH_ASSOC);
+            return $id['codigo'];
+        };
+
+        $idEliminar = $funccion();
+        
+
         return [
             // Casos de prueba
             "Eliminar turno existente con relaciones"=>[
@@ -319,7 +329,7 @@ class TurnosRegistrarTest extends TestCase
                 "resultado esperado" => false,
                 "num_caso" => 1], // Eliminar turno existente
             "Eliminar turno existente"=>[
-                "codigo" => "ec233a83-8dea-11f0-91e8-d481d7968c88", 
+                "codigo" => $idEliminar, 
                 "mensaje esperado" => $mensajeEsperado->eliminarTurno,
                 "resultado esperado" => true,
                 "num_caso" => 2], // Eliminar turno existente

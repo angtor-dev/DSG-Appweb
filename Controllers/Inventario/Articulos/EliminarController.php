@@ -4,16 +4,16 @@ requierePermiso(Modulo::ARTICULOS, Permiso::ELIMINAR);
 /**
  * @var Area
  */
-$area = Articulo::cargar($_GET['id']);
+$objArticulo = Articulo::cargar($_GET['id']);
 
-if (empty($area)) {
+if (empty($objArticulo)) {
     $_SESSION['errores'][] = "El artículo que intenta eliminar no existe";
     redirigir(LOCAL_DIR."/Inventario/Articulos");
 }
 
-if ($area->eliminar(false)) {
+if ($objArticulo->eliminar(false)) {
     $_SESSION['exitos'][] = "Artículo eliminada con exito";
-    Bitacora::registrar("Artículo '".$area->getNombre()."' eliminado");
+    Bitacora::registrar("Artículo '".$objArticulo->getNombre()."' eliminado");
 }
 
 redirigir(LOCAL_DIR."/Inventario/Articulos");

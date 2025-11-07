@@ -15,7 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     $articulo = new Articulo();
-    $articulo->mapearFormulario();
+    $idCategoria = $_POST['idCategoria'];
+    $idMedida = $_POST['idMedida'];
+    $nombre = $_POST['nombre'];
+    $descripcion = $_POST['descripcion'];
+    $cantidad = 0;
+    $esConsumible = isset($_POST['esConsumible']) ? true : false;
+    
+    $articulo->setDatos(null, $idCategoria, $idMedida, $nombre, $descripcion, $cantidad, $esConsumible);
 
     if ($articulo->esValido() && $articulo->registrar()) {
         $_SESSION['exitos'][] = "Artículo registrado con exito";
