@@ -37,6 +37,10 @@
     <script src="<?= LOCAL_DIR ?>/public/lib/select2/select2.full.min.js"></script>
     <script src="<?= LOCAL_DIR ?>/public/js/main.js"></script>
     <script src="<?= LOCAL_DIR ?>/public/js/utilities.js"></script>
+    
+    <script src="<?= LOCAL_DIR ?>/public/lib/jspdf.umd.min.js"></script>
+    <script src="<?= LOCAL_DIR ?>/public/lib/jspdf.plugin.autotable.min.js"></script>
+    <script src="<?= LOCAL_DIR ?>/public/lib/html2canvas.min.js"></script>
 
     <?php imprimirLibs(); ?>
 

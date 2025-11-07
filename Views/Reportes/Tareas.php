@@ -3,11 +3,8 @@
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
                 <h3 class="pb-2">Reportes de Tareas</h3>
-                <span class="opacity-75 mb-2">Genere reportes detallados de tareas y descárguelos en PDF</span>
+                <span class="opacity-75 mb-2">Genere reportes detallados de tareas</span>
             </div>
-            <button class="btn btn-success mt-3 mt-md-0" id="btnGenerarReporte">
-                <i class="fas fa-file-pdf mr-2"></i>Generar PDF
-            </button>
         </div>
     </div>
 </div>
@@ -27,13 +24,9 @@
                             <label for="tipo_reporte" class="form-label">Tipo de Reporte</label>
                             <select name="tipo_reporte" id="tipo_reporte" class="form-select" required>
                                 <option value="">Seleccione un tipo</option>
-                                <option value="trabajadores">Por Trabajador</option>
-                                <option value="departamentos">Por División</option>
-                                <option value="turnos">Por Turno</option>
-                                <option value="evaluaciones">Evaluaciones de Calidad</option>
-                                <option value="recursos">Uso de Recursos</option>
-                                <option value="temporal">Evolución Temporal</option>
-                                <option value="general">Resumen General</option>
+                                <option value="productividad_trabajador">Productividad por Trabajador</option>
+                                <option value="rendimiento_division">Rendimiento por División</option>
+                                <option value="general_extenso">Reporte General Extenso</option>
                             </select>
                         </div>
 
@@ -49,215 +42,44 @@
                             </div>
                         </div>
 
-                        <!-- Filtros Específicos -->
-                        <div id="filtrosEspecificos">
-                            <!-- Filtros para Reporte por Trabajador -->
-                            <div class="filtro-grupo" data-tipo="trabajadores">
-                                <div class="mb-3">
-                                    <label for="filtroTrabajador" class="form-label">Trabajador Específico</label>
-                                    <select name="filtroTrabajador" id="filtroTrabajador" class="form-select">
-                                        <option value="">Todos los trabajadores</option>
-                                        <?php foreach ($trabajadores as $trabajador): ?>
-                                            <option value="<?= $trabajador->id ?>">
-                                                <?= $trabajador->nombre . ' ' . $trabajador->apellido ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Filtros para Reporte por División -->
-                            <div class="filtro-grupo" data-tipo="departamentos">
-                                <div class="mb-3">
-                                    <label for="filtroDivision" class="form-label">División Específica</label>
-                                    <select name="filtroDivision" id="filtroDivision" class="form-select">
-                                        <option value="">Todas las divisiones</option>
-                                        <?php foreach ($departamentos as $departamento): ?>
-                                            <option value="<?= $departamento->id ?>"><?= $departamento->getNombre() ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Filtros para Reporte por Turno -->
-                            <div class="filtro-grupo" data-tipo="turnos">
-                                <div class="mb-3">
-                                    <label for="filtroTurno" class="form-label">Turno Específico</label>
-                                    <select name="filtroTurno" id="filtroTurno" class="form-select">
-                                        <option value="">Todos los turnos</option>
-                                        <?= Turno::getTurnosOptions(); ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Filtros para Evaluaciones -->
-                            <div class="filtro-grupo" data-tipo="evaluaciones">
-                                <div class="mb-3">
-                                    <label for="filtroEvaluacion" class="form-label">Rango de Evaluación</label>
-                                    <select name="filtroEvaluacion" id="filtroEvaluacion" class="form-select">
-                                        <option value="">Todas las evaluaciones</option>
-                                        <option value="excelente">Excelente (buenobueno)</option>
-                                        <option value="bueno">Bueno (buenomedio)</option>
-                                        <option value="regular">Regular (mediomedio)</option>
-                                        <option value="mejorable">Necesita Mejora (malomalo)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Filtros para Recursos -->
-                            <div class="filtro-grupo" data-tipo="recursos">
-                                <div class="mb-3">
-                                    <label for="filtroCategoria" class="form-label">Categoría de Recursos</label>
-                                    <select name="filtroCategoria" id="filtroCategoria" class="form-select">
-                                        <option value="">Todas las categorías</option>
-                                        <?php foreach ($categorias as $categoria): ?>
-                                            <option value="<?= $categoria->id ?>"><?= $categoria->nombre ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
+                        <!-- Filtros para Reporte por Trabajador -->
+                        <div class="mb-3" id="filtroTrabajadorContainer" style="display:none;">
+                            <label for="filtroTrabajador" class="form-label">Trabajador Específico</label>
+                            <select name="filtroTrabajador" id="filtroTrabajador" class="form-select">
+                                <option value="">Todos los trabajadores</option>
+                                <!-- Aquí se cargarían los trabajadores desde la BD -->
+                            </select>
                         </div>
 
-                        <!-- Estado de Tareas -->
-                        <div class="mb-3">
-                            <label class="form-label">Estado de Tareas</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="estados[]" value="activo" id="estadoActivo" checked>
-                                <label class="form-check-label" for="estadoActivo">Activas</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="estados[]" value="evaluada" id="estadoEvaluada" checked>
-                                <label class="form-check-label" for="estadoEvaluada">Evaluadas</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="estados[]" value="cancelado" id="estadoCancelado">
-                                <label class="form-check-label" for="estadoCancelado">Canceladas</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="estados[]" value="vencida" id="estadoVencida">
-                                <label class="form-check-label" for="estadoVencida">Vencidas</label>
-                            </div>
+                        <!-- Filtros para Reporte por División -->
+                        <div class="mb-3" id="filtroDivisionContainer" style="display:none;">
+                            <label for="filtroDivision" class="form-label">División Específica</label>
+                            <select name="filtroDivision" id="filtroDivision" class="form-select">
+                                <option value="">Todas las divisiones</option>
+                                <!-- Aquí se cargarían las divisiones desde la BD -->
+                            </select>
                         </div>
 
-                        <!-- Opciones de PDF -->
-                        <div class="mb-3">
-                            <label class="form-label">Opciones de PDF</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="incluirGraficos" id="incluirGraficos" checked>
-                                <label class="form-check-label" for="incluirGraficos">Incluir Gráficos</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="incluirDetalles" id="incluirDetalles" checked>
-                                <label class="form-check-label" for="incluirDetalles">Incluir Detalles</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="soloResumen" id="soloResumen">
-                                <label class="form-check-label" for="soloResumen">Solo Resumen</label>
-                            </div>
-                        </div>
+                        <button type="button" class="btn btn-success w-100" id="btnGenerarPDF">
+                            <i class="fas fa-file-pdf mr-2"></i>Generar PDF
+                        </button>
                     </form>
-                </div>
-            </div>
-
-            <!-- Vista Previa Rápida -->
-            <div class="card border-0 box-shadow-alt mt-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Vista Previa Rápida</h5>
-                </div>
-                <div class="card-body">
-                    <div id="vistaPrevia" class="text-center text-muted">
-                        <i class="fas fa-chart-bar fa-3x mb-3"></i>
-                        <p>Seleccione un tipo de reporte para ver la vista previa</p>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Área de Visualización -->
+        <!-- Área de Descripción -->
         <div class="col-md-8">
             <div class="card border-0 box-shadow-alt">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0" id="tituloReporte">Reporte de Tareas</h4>
-                    <div class="btn-group">
-                        <button class="btn btn-light btn-sm" id="btnVistaPrevia">
-                            <i class="fas fa-eye mr-1"></i>Vista Previa
-                        </button>
-                        <button class="btn btn-success btn-sm" id="btnDescargarPDF">
-                            <i class="fas fa-download mr-1"></i>Descargar PDF
-                        </button>
-                    </div>
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0" id="tituloReporte">Descripción del Reporte</h4>
                 </div>
                 <div class="card-body">
-                    <div id="contenedorReporte" class="reporte-container">
-                        <!-- Aquí se mostrará el reporte generado -->
+                    <div id="descripcionReporte">
                         <div class="text-center py-5 text-muted">
-                            <i class="fas fa-file-alt fa-4x mb-3"></i>
-                            <h4>No hay datos para mostrar</h4>
-                            <p>Configure los filtros y genere un reporte</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Métricas Rápidas -->
-            <div class="row mt-4">
-                <div class="col-md-3">
-                    <div class="card card-stats bg-gradient-primary text-white">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-tasks fa-2x"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h5 class="card-title mb-0" id="metricTotalTareas">0</h5>
-                                    <small>Total Tareas</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stats bg-gradient-success text-white">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-check-circle fa-2x"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h5 class="card-title mb-0" id="metricCompletadas">0</h5>
-                                    <small>Completadas</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stats bg-gradient-warning text-white">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-clock fa-2x"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h5 class="card-title mb-0" id="metricActivas">0</h5>
-                                    <small>En Progreso</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stats bg-gradient-danger text-white">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-times-circle fa-2x"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h5 class="card-title mb-0" id="metricVencidas">0</h5>
-                                    <small>Vencidas</small>
-                                </div>
-                            </div>
+                            <i class="fas fa-info-circle fa-4x mb-3"></i>
+                            <h4>Seleccione un tipo de reporte</h4>
+                            <p>Elija entre las opciones disponibles para ver la descripción</p>
                         </div>
                     </div>
                 </div>
@@ -281,228 +103,723 @@
     </div>
 </div>
 
-<style>
-.reporte-container {
-    min-height: 400px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.card-stats {
-    border: none;
-    border-radius: 10px;
-    transition: transform 0.2s;
-}
-
-.card-stats:hover {
-    transform: translateY(-2px);
-}
-
-.filtro-grupo {
-    display: none;
-}
-
-.filtro-grupo.activo {
-    display: block;
-}
-
-.form-check {
-    margin-bottom: 0.5rem;
-}
-
-.bg-gradient-primary { background: linear-gradient(45deg, #007bff, #0056b3); }
-.bg-gradient-success { background: linear-gradient(45deg, #28a745, #1e7e34); }
-.bg-gradient-warning { background: linear-gradient(45deg, #ffc107, #e0a800); }
-.bg-gradient-danger { background: linear-gradient(45deg, #dc3545, #c82333); }
-</style>
 
 <script>
+// En tu vista de reportes
 document.addEventListener('DOMContentLoaded', function() {
     const tipoReporte = document.getElementById('tipo_reporte');
-    const filtrosEspecificos = document.getElementById('filtrosEspecificos');
-    const btnGenerarReporte = document.getElementById('btnGenerarReporte');
-    const btnVistaPrevia = document.getElementById('btnVistaPrevia');
-    const btnDescargarPDF = document.getElementById('btnDescargarPDF');
-    const contenedorReporte = document.getElementById('contenedorReporte');
-    const modalCarga = new bootstrap.Modal(document.getElementById('modalCarga'));
+    const btnGenerarPDF = document.getElementById('btnGenerarPDF');
+    const filtroTrabajadorContainer = document.getElementById('filtroTrabajadorContainer');
+    const filtroDivisionContainer = document.getElementById('filtroDivisionContainer');
+    const descripcionReporte = document.getElementById('descripcionReporte');
 
-    // Mostrar/ocultar filtros específicos
+    
+    // Cargar datos iniciales
+    cargarDatosIniciales();
+    
+    // Mostrar/ocultar filtros
     tipoReporte.addEventListener('change', function() {
-        // Ocultar todos los filtros
-        document.querySelectorAll('.filtro-grupo').forEach(filtro => {
-            filtro.classList.remove('activo');
-        });
-
-        // Mostrar filtros del tipo seleccionado
-        const filtroSeleccionado = document.querySelector(`.filtro-grupo[data-tipo="${this.value}"]`);
-        if (filtroSeleccionado) {
-            filtroSeleccionado.classList.add('activo');
-        }
-
-        // Actualizar título
-        document.getElementById('tituloReporte').textContent = 
-            `Reporte de ${this.options[this.selectedIndex].text}`;
-    });
-
-    // Generar vista previa
-    btnVistaPrevia.addEventListener('click', function() {
-        generarReporte(false);
-    });
-
-    // Descargar PDF
-    btnDescargarPDF.addEventListener('click', function() {
-        generarReporte(true);
-    });
-
-    function generarReporte(descargarPDF = false) {
-        const formData = new FormData(document.getElementById('formReporte'));
+        filtroTrabajadorContainer.style.display = 'none';
+        filtroDivisionContainer.style.display = 'none';
         
-        // Validaciones básicas
-        if (!formData.get('tipo_reporte')) {
-            alert('Por favor seleccione un tipo de reporte');
-            return;
+        if (this.value === 'productividad_trabajador') {
+            filtroTrabajadorContainer.style.display = 'block';
+            mostrarDescripcionProductividad();
+        } else if (this.value === 'rendimiento_division') {
+            filtroDivisionContainer.style.display = 'block';
+            mostrarDescripcionRendimiento();
+        } else if (this.value === 'general_extenso') {
+            mostrarDescripcionProductividad1();
         }
 
-        if (descargarPDF) {
-            modalCarga.show();
-        }
+    });
 
-        // Simular generación de reporte (aquí iría tu llamada AJAX real)
-        setTimeout(() => {
-            if (descargarPDF) {
-                modalCarga.hide();
-                // Aquí iría la lógica real para descargar el PDF
-                simularDescargaPDF();
-            } else {
-                mostrarVistaPrevia();
+    function mostrarDescripcionProductividad() {
+        descripcionReporte.innerHTML = `
+            <h5>Reporte de Productividad por Trabajador</h5>
+            <p>Este reporte mostrará:</p>
+            <ul>
+                <li>Tareas asignadas a cada trabajador en el período seleccionado</li>
+                <li>Comparación entre tareas completadas y pendientes</li>
+                <li>Eficiencia y rendimiento individual</li>
+                <li>Promedio de tiempo por tarea</li>
+                <li>Recursos utilizados por cada trabajador</li>
+            </ul>
+            <div class="alert alert-info">
+                <small><i class="fas fa-info-circle mr-2"></i>Este reporte ayuda a identificar a los trabajadores más productivos y aquellos que pueden necesitar apoyo adicional.</small>
+            </div>
+        `;
+    }
+
+    function mostrarDescripcionProductividad1() {
+        descripcionReporte.innerHTML = `
+            <h5>Reporte de General</h5>
+            <p>Este reporte mostrará:</p>
+            <ul>
+                <li>Resumen ejecutivo</li>
+                <li>Distribucion de tareas</li>
+                <li>Detalle completo de tareas</li>
+                
+            </ul>
+            <div class="alert alert-info">
+                <small><i class="fas fa-info-circle mr-2"></i>Este reporte ayuda a identificar tareas.</small>
+            </div>
+        `;
+    }
+
+    function mostrarDescripcionRendimiento() {
+        descripcionReporte.innerHTML = `
+            <h5>Reporte de Rendimiento por División</h5>
+            <p>Este reporte mostrará:</p>
+            <ul>
+                <li>Total de tareas asignadas por división/área</li>
+                <li>Tareas completadas vs pendientes por área</li>
+                <li>Recursos utilizados por cada división</li>
+                <li>Evaluaciones de calidad por área</li>
+                <li>Comparación de eficiencia entre divisiones</li>
+            </ul>
+            <div class="alert alert-info">
+                <small><i class="fas fa-info-circle mr-2"></i>Este reporte permite evaluar el desempeño de cada área y distribuir mejor los recursos.</small>
+            </div>
+        `;
+    }
+
+    function mostrarDescripcionGeneral() {
+        descripcionReporte.innerHTML = `
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-info-circle fa-4x mb-3"></i>
+                <h4>Seleccione un tipo de reporte</h4>
+                <p>Elija entre las opciones disponibles para ver la descripción</p>
+            </div>
+        `;
+    }
+    
+    // Generar PDF
+    btnGenerarPDF.addEventListener('click', function() {
+        generarReporte();
+    });
+    
+    function cargarDatosIniciales() {
+        $.ajax({
+            url: 'Tareas?ajax=cargar_datos',
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    llenarSelectTrabajadores(response.data.trabajadores);
+                    llenarSelectDivisiones(response.data.divisiones);
+                }
+            },
+            error: function() {
+                console.error('Error al cargar datos iniciales');
             }
-        }, 2000);
+        });
     }
-
-    function mostrarVistaPrevia() {
-        const tipo = document.getElementById('tipo_reporte').value;
-        let contenido = '';
-
-        switch(tipo) {
-            case 'trabajadores':
-                contenido = generarVistaTrabajadores();
-                break;
-            case 'departamentos':
-                contenido = generarVistaDepartamentos();
-                break;
-            case 'turnos':
-                contenido = generarVistaTurnos();
-                break;
-            case 'evaluaciones':
-                contenido = generarVistaEvaluaciones();
-                break;
-            case 'recursos':
-                contenido = generarVistaRecursos();
-                break;
-            default:
-                contenido = generarVistaGeneral();
-        }
-
-        contenedorReporte.innerHTML = contenido;
-        actualizarMetricas();
-    }
-
-    function simularDescargaPDF() {
-        // Aquí iría la lógica real para generar y descargar el PDF
-        alert('PDF generado exitosamente. En una implementación real, se descargaría el archivo.');
+    
+    function llenarSelectTrabajadores(trabajadores) {
+        const select = document.getElementById('filtroTrabajador');
+        select.innerHTML = '<option value="">Todos los trabajadores</option>';
         
-        // Ejemplo de cómo podría ser:
-        // window.open('generar_pdf.php?' + new URLSearchParams(formData), '_blank');
+        trabajadores.forEach(trabajador => {
+            const option = document.createElement('option');
+            option.value = trabajador.id;
+            option.textContent = `${trabajador.nombre_completo} - ${trabajador.cargo} (${trabajador.division})`;
+            select.appendChild(option);
+        });
     }
-
-    function actualizarMetricas() {
-        // Simular actualización de métricas
-        document.getElementById('metricTotalTareas').textContent = '156';
-        document.getElementById('metricCompletadas').textContent = '89';
-        document.getElementById('metricActivas').textContent = '45';
-        document.getElementById('metricVencidas').textContent = '22';
+    
+    function llenarSelectDivisiones(divisiones) {
+        const select = document.getElementById('filtroDivision');
+        select.innerHTML = '<option value="">Todas las divisiones</option>';
+        
+        divisiones.forEach(division => {
+            const option = document.createElement('option');
+            option.value = division.id;
+            option.textContent = division.nombre;
+            select.appendChild(option);
+        });
     }
+    
+    function generarPDF(datos, filtros) {
+    
 
-    // Funciones para generar vistas previas (simuladas)
-    function generarVistaTrabajadores() {
-        return `
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Trabajador</th>
-                            <th>División</th>
-                            <th>Total Tareas</th>
-                            <th>Completadas</th>
-                            <th>Activas</th>
-                            <th>Eficiencia</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Juan Pérez</td>
-                            <td>Jardinería</td>
-                            <td>15</td>
-                            <td>12</td>
-                            <td>3</td>
-                            <td>80%</td>
-                        </tr>
-                        <tr>
-                            <td>María García</td>
-                            <td>Herrería</td>
-                            <td>22</td>
-                            <td>18</td>
-                            <td>4</td>
-                            <td>82%</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        `;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Configuración inicial
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    let yPosition = margin;
+    
+    // Función para agregar nueva página si es necesario
+    function checkPageHeight(extraSpace = 10) {
+        if (yPosition + extraSpace > doc.internal.pageSize.getHeight() - margin) {
+            doc.addPage();
+            yPosition = margin;
+            return true;
+        }
+        return false;
     }
-
-    function generarVistaDepartamentos() {
-        return `
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Tareas por División</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="chartDepartamentos" width="400" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Eficiencia por Área</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="list-group">
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    Jardinería
-                                    <span class="badge bg-success rounded-pill">85%</span>
-                                </div>
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    Herrería
-                                    <span class="badge bg-warning rounded-pill">78%</span>
-                                </div>
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    Plomería
-                                    <span class="badge bg-danger rounded-pill">65%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+    
+    // Encabezado del reporte
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REPORTE DE GESTIÓN DE TAREAS', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 10;
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Tipo: ${getTipoReporteNombre(filtros.tipo)}`, margin, yPosition);
+    yPosition += 6;
+    doc.text(`Período: ${formatearFecha(filtros.fechaInicio)} - ${formatearFecha(filtros.fechaFin)}`, margin, yPosition);
+    yPosition += 6;
+    doc.text(`Generado: ${new Date().toLocaleDateString()}`, margin, yPosition);
+    yPosition += 15;
+    
+    // Línea separadora
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    // Contenido según el tipo de reporte
+    if (filtros.tipo === 'general_extenso') {
+        generarPDFGeneralExtenso(doc, { ...datos, filtros }, yPosition, pageWidth, margin);
+    } else if (filtros.tipo === 'productividad_trabajador') {
+        generarPDFProductividadTrabajador(doc, datos, yPosition, pageWidth, margin);
+    } else if (filtros.tipo === 'rendimiento_division') {
+        generarPDFRendimientoDivision(doc, datos, yPosition, pageWidth, margin);
     }
+    
+    // Guardar el PDF
+    const fileName = `reporte_tareas_${filtros.tipo}_${filtros.fechaInicio}_${filtros.fechaFin}.pdf`;
+    doc.save(fileName);
+}
 
+function generarPDFGeneralExtenso(doc, datos, yPosition, pageWidth, margin) {
+    const { tareas, estadisticas, total_registros } = datos;
+    
+    // PORTADA
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REPORTE GENERAL DE GESTIÓN DE TAREAS', pageWidth / 2, 80, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Período: ${formatearFecha(datos.filtros.fechaInicio)} - ${formatearFecha(datos.filtros.fechaFin)}`, pageWidth / 2, 100, { align: 'center' });
+    doc.text(`Generado: ${new Date().toLocaleDateString('es-ES')}`, pageWidth / 2, 110, { align: 'center' });
+    doc.text(`Total de registros: ${total_registros}`, pageWidth / 2, 120, { align: 'center' });
+    
+    doc.addPage();
+    yPosition = margin;
+
+    // SECCIÓN 1: RESUMEN EJECUTIVO
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RESUMEN EJECUTIVO', margin, yPosition);
+    yPosition += 15;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    const resumenData = [
+        ['Total de Tareas', estadisticas.total_tareas],
+        ['Tareas Completadas', estadisticas.completadas],
+        ['Tareas en Progreso', estadisticas.en_progreso],
+        ['Tareas Canceladas', estadisticas.canceladas],
+        ['Tareas Vencidas', estadisticas.vencidas],
+        ['Departamentos Involucrados', estadisticas.departamentos_involucrados],
+        ['Áreas Atendidas', estadisticas.areas_atendidas],
+        ['Trabajadores Involucrados', estadisticas.trabajadores_involucrados],
+        ['Tipos de Recursos Utilizados', estadisticas.tipos_recursos_utilizados],
+        ['Promedio Días Completación', formatearNumero(estadisticas.promedio_dias_completacion)]
+    ];
+    
+    doc.autoTable({
+        startY: yPosition,
+        body: resumenData,
+        margin: { left: margin, right: margin },
+        styles: {
+            fontSize: 10,
+            cellPadding: 5,
+        },
+        theme: 'grid',
+        columnStyles: {
+            0: { fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: 40 }
+        }
+    });
+    
+    yPosition = doc.lastAutoTable.finalY + 15;
+
+    // SECCIÓN 2: DISTRIBUCIÓN POR ESTADO (Gráfico de torta simulado)
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DISTRIBUCIÓN DE TAREAS POR ESTADO', margin, yPosition);
+    yPosition += 10;
+    
+    const estadosData = [
+        ['Completadas', estadisticas.completadas, '#28a745'],
+        ['En Progreso', estadisticas.en_progreso, '#ffc107'],
+        ['Canceladas', estadisticas.canceladas, '#dc3545'],
+        ['Vencidas', estadisticas.vencidas, '#6c757d']
+    ].filter(item => item[1] > 0);
+    
+    estadosData.forEach((estado, index) => {
+        const porcentaje = ((estado[1] / estadisticas.total_tareas) * 100).toFixed(1);
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`• ${estado[0]}: ${estado[1]} tareas (${porcentaje}%)`, margin + 5, yPosition + (index * 5));
+    });
+    
+    yPosition += (estadosData.length * 5) + 15;
+
+    // SECCIÓN 3: DETALLE COMPLETO DE TAREAS (máximo 100)
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DETALLE COMPLETO DE TAREAS', margin, yPosition);
+    yPosition += 10;
+    
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Mostrando las ${Math.min(total_registros, 100)} tareas más recientes`, margin, yPosition);
+    yPosition += 8;
+
+    // Preparar datos para la tabla detallada
+    const tableData = tareas.map((tarea, index) => [
+        (index + 1).toString(),
+        tarea.descripcion?.substring(0, 50) + (tarea.descripcion?.length > 50 ? '...' : '') || 'Sin descripción',
+        tarea.area_nombre || 'N/A',
+        tarea.departamento_nombre || 'N/A',
+        tarea.personal_asignado?.substring(0, 30) + (tarea.personal_asignado?.length > 30 ? '...' : '') || 'Sin asignar',
+        tarea.recursos_utilizados?.substring(0, 30) + (tarea.recursos_utilizados?.length > 30 ? '...' : '') || 'Sin recursos',
+        tarea.estado_detallado || tarea.estado_tarea,
+        tarea.evaluacion_supervisor || 'Pendiente',
+        tarea.dias_completacion ? tarea.dias_completacion + ' días' : 'N/A',
+        formatearFecha(tarea.fechaCreacion?.split(' ')[0])
+    ]);
+
+    // Configuración de la tabla detallada
+    doc.autoTable({
+        startY: yPosition,
+        head: [
+            ['#', 'Descripción', 'Área', 'Departamento', 'Personal', 'Recursos', 'Estado', 'Evaluación', 'Tiempo', 'Fecha Creación']
+        ],
+        body: tableData,
+        margin: { left: margin, right: margin },
+        styles: {
+            fontSize: 6,
+            cellPadding: 2,
+            lineColor: [200, 200, 200],
+            lineWidth: 0.1
+        },
+        headStyles: {
+            fillColor: [41, 128, 185],
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 6
+        },
+        alternateRowStyles: {
+            fillColor: [250, 250, 250]
+        },
+        columnStyles: {
+            0: { cellWidth: 8, fontStyle: 'bold' },
+            1: { cellWidth: 35 },
+            2: { cellWidth: 20 },
+            3: { cellWidth: 25 },
+            4: { cellWidth: 25 },
+            5: { cellWidth: 20 },
+            6: { cellWidth: 15 },
+            7: { cellWidth: 15 },
+            8: { cellWidth: 12 },
+            9: { cellWidth: 15 }
+        },
+        pageBreak: 'auto',
+        didDrawPage: function(data) {
+            // Footer personalizado
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.text(
+                `Página ${data.pageNumber} de ${doc.internal.getNumberOfPages()} - Reporte General de Gestión de Tareas`,
+                pageWidth / 2,
+                doc.internal.pageSize.getHeight() - 10,
+                { align: 'center' }
+            );
+            
+            // Header en cada página después de la primera
+            if (data.pageNumber > 1) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text('REPORTE GENERAL DE GESTIÓN DE TAREAS', margin, 10);
+                
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Período: ${formatearFecha(datos.filtros.fechaInicio)} - ${formatearFecha(datos.filtros.fechaFin)}`, pageWidth - margin, 10, { align: 'right' });
+            }
+        }
+    });
+
+    // SECCIÓN 4: ANÁLISIS Y RECOMENDACIONES (última página)
+    const finalY = doc.lastAutoTable.finalY + 10;
+    
+    if (finalY < doc.internal.pageSize.getHeight() - 50) {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('ANÁLISIS Y RECOMENDACIONES', margin, finalY);
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        
+        let analisisY = finalY + 10;
+        
+        // Análisis automático basado en los datos
+        const tasaCompletacion = (estadisticas.completadas / estadisticas.total_tareas) * 100;
+        const tasaVencimiento = (estadisticas.vencidas / estadisticas.total_tareas) * 100;
+        
+        if (tasaCompletacion < 60) {
+            doc.text('• 📉 Se recomienda mejorar la tasa de completación de tareas', margin, analisisY);
+            analisisY += 5;
+        }
+        
+        if (tasaVencimiento > 10) {
+            doc.text('• ⚠️  Alta tasa de tareas vencidas, revisar procesos de seguimiento', margin, analisisY);
+            analisisY += 5;
+        }
+        
+        if (estadisticas.promedio_dias_completacion > 7) {
+            doc.text('• 🕒 Tiempo promedio de completación elevado, optimizar asignaciones', margin, analisisY);
+            analisisY += 5;
+        }
+        
+        if (estadisticas.trabajadores_involucrados < 5 && estadisticas.total_tareas > 20) {
+            doc.text('• 👥 Pocos trabajadores para el volumen de tareas, considerar redistribución', margin, analisisY);
+            analisisY += 5;
+        }
+        
+        // Recomendaciones generales
+        doc.text('• 📊 Monitorear regularmente el progreso de tareas en curso', margin, analisisY);
+        analisisY += 5;
+        doc.text('• 🔍 Revisar tareas vencidas para identificar causas recurrentes', margin, analisisY);
+        analisisY += 5;
+        doc.text('• ✅ Establecer metas de eficiencia por departamento', margin, analisisY);
+    }
+}
+
+
+
+function generarPDFProductividadTrabajador(doc, datos, yPosition, pageWidth, margin) {
+    // Título de la sección
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PRODUCTIVIDAD POR TRABAJADOR', margin, yPosition);
+    yPosition += 15;
+    
+    if (datos.length === 0) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text('No hay datos para mostrar en el período seleccionado', margin, yPosition);
+        return;
+    }
+    
+    // Preparar datos para la tabla - CORREGIDO
+    const tableData = datos.map(trabajador => [
+        `${trabajador.nombre || ''} ${trabajador.apellido || ''}`.trim() || 'Sin nombre',
+        trabajador.total_tareas || 0,
+        trabajador.tareas_completadas || 0,
+        trabajador.tareas_activas || 0,
+        trabajador.tareas_canceladas || 0,
+        trabajador.tareas_vencidas || 0,
+        `${trabajador.eficiencia_porcentaje || 0}%`,
+        // CORRECCIÓN: Usar la función auxiliar
+        formatearNumero(trabajador.promedio_dias_completar)
+    ]);
+    
+    // Configurar y generar tabla
+    doc.autoTable({
+        startY: yPosition,
+        head: [
+            ['Trabajador', 'Total', 'Completadas', 'Activas', 'Canceladas', 'Vencidas', 'Eficiencia', 'Prom. Días']
+        ],
+        body: tableData,
+        margin: { left: margin, right: margin },
+        styles: {
+            fontSize: 8,
+            cellPadding: 3,
+        },
+        headStyles: {
+            fillColor: [41, 128, 185],
+            textColor: 255,
+            fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+            fillColor: [245, 245, 245]
+        },
+        columnStyles: {
+            0: { cellWidth: 35 },
+            1: { cellWidth: 15 },
+            2: { cellWidth: 20 },
+            3: { cellWidth: 15 },
+            4: { cellWidth: 20 },
+            5: { cellWidth: 15 },
+            6: { cellWidth: 20 },
+            7: { cellWidth: 20 }
+        },
+        didDrawPage: function(data) {
+            // Footer en cada página
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.text(
+                `Página ${doc.internal.getNumberOfPages()}`,
+                pageWidth / 2,
+                doc.internal.pageSize.getHeight() - 10,
+                { align: 'center' }
+            );
+        }
+    });
+    
+    // Estadísticas resumen después de la tabla - CORREGIDO
+    const finalY = doc.lastAutoTable.finalY + 10;
+    
+    if (finalY < doc.internal.pageSize.getHeight() - 50) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('RESUMEN ESTADÍSTICO', margin, finalY);
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        const totalTrabajadores = datos.length;
+        const totalTareas = datos.reduce((sum, t) => sum + parseInt(t.total_tareas || 0), 0);
+        
+        // CORRECCIÓN: Manejar eficiencia nula
+        const eficienciasValidas = datos
+            .map(t => parseFloat(t.eficiencia_porcentaje || 0))
+            .filter(ef => !isNaN(ef));
+        const promedioEficiencia = eficienciasValidas.length > 0 
+            ? eficienciasValidas.reduce((sum, ef) => sum + ef, 0) / eficienciasValidas.length 
+            : 0;
+        
+        // CORRECCIÓN: Manejar trabajador más eficiente
+        const trabajadoresConEficiencia = datos.filter(t => t.eficiencia_porcentaje != null);
+        const mejorTrabajador = trabajadoresConEficiencia.length > 0 
+            ? trabajadoresConEficiencia.reduce((best, current) => 
+                parseFloat(current.eficiencia_porcentaje) > parseFloat(best.eficiencia_porcentaje) ? current : best
+            )
+            : { nombre: 'N/A', apellido: '', eficiencia_porcentaje: 0 };
+        
+        // CORRECCIÓN: Manejar promedio de días
+        const diasValidos = datos
+            .map(t => parseFloat(t.promedio_dias_completar || 0))
+            .filter(d => !isNaN(d) && d > 0);
+        const promedioDias = diasValidos.length > 0 
+            ? diasValidos.reduce((sum, d) => sum + d, 0) / diasValidos.length 
+            : 0;
+        
+        doc.text(`• Total de trabajadores: ${totalTrabajadores}`, margin, finalY + 8);
+        doc.text(`• Total de tareas asignadas: ${totalTareas}`, margin, finalY + 16);
+        doc.text(`• Eficiencia promedio: ${promedioEficiencia.toFixed(2)}%`, margin, finalY + 24);
+        doc.text(`• Promedio días completación: ${promedioDias.toFixed(1)} días`, margin, finalY + 32);
+        doc.text(`• Trabajador más eficiente: ${mejorTrabajador.nombre} ${mejorTrabajador.apellido} (${mejorTrabajador.eficiencia_porcentaje}%)`, margin, finalY + 40);
+    }
+}
+function generarPDFRendimientoDivision(doc, datos, yPosition, pageWidth, margin) {
+    // Título de la sección
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RENDIMIENTO POR DIVISIÓN', margin, yPosition);
+    yPosition += 15;
+    
+    if (datos.length === 0) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text('No hay datos para mostrar en el período seleccionado', margin, yPosition);
+        return;
+    }
+    
+    // Preparar datos para la tabla
+   const tableData = datos.map(division => [
+        division.division_nombre || 'Sin nombre',
+        division.total_tareas || 0,
+        division.tareas_completadas || 0,
+        division.tareas_activas || 0,
+        division.tareas_canceladas || 0,
+        division.tareas_vencidas || 0,
+        division.total_trabajadores_asignados || 0,
+        division.total_recursos_utilizados || 0,
+        `${division.eficiencia_porcentaje || 0}%`,
+       
+        (division.promedio_dias_completar && !isNaN(parseFloat(division.promedio_dias_completar))) 
+            ? parseFloat(division.promedio_dias_completar).toFixed(1) 
+            : 'N/A'
+    ]);
+    
+    // Configurar y generar tabla
+    doc.autoTable({
+        startY: yPosition,
+        head: [
+            ['División', 'Total Tareas', 'Completadas', 'Activas', 'Canceladas', 'Vencidas', 'Trabajadores', 'Recursos', 'Eficiencia', 'Prom. Días']
+        ],
+        body: tableData,
+        margin: { left: margin, right: margin },
+        styles: {
+            fontSize: 7,
+            cellPadding: 2,
+        },
+        headStyles: {
+            fillColor: [39, 174, 96],
+            textColor: 255,
+            fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+            fillColor: [245, 245, 245]
+        },
+        columnStyles: {
+            0: { cellWidth: 30 },
+            1: { cellWidth: 15 },
+            2: { cellWidth: 15 },
+            3: { cellWidth: 12 },
+            4: { cellWidth: 15 },
+            5: { cellWidth: 12 },
+            6: { cellWidth: 15 },
+            7: { cellWidth: 15 },
+            8: { cellWidth: 15 },
+            9: { cellWidth: 15 }
+        },
+        didDrawPage: function(data) {
+            // Footer en cada página
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.text(
+                `Página ${doc.internal.getNumberOfPages()}`,
+                pageWidth / 2,
+                doc.internal.pageSize.getHeight() - 10,
+                { align: 'center' }
+            );
+        }
+    });
+    
+    // Estadísticas resumen después de la tabla
+    const finalY = doc.lastAutoTable.finalY + 10;
+    
+    if (finalY < doc.internal.pageSize.getHeight() - 50) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('RESUMEN ESTADÍSTICO', margin, finalY);
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        const totalDivisiones = datos.length;
+        const totalTareas = datos.reduce((sum, d) => sum + parseInt(d.total_tareas), 0);
+        const promedioEficiencia = datos.reduce((sum, d) => sum + parseFloat(d.eficiencia_porcentaje), 0) / totalDivisiones;
+        const mejorDivision = datos.reduce((best, current) => 
+            parseFloat(current.eficiencia_porcentaje) > parseFloat(best.eficiencia_porcentaje) ? current : best
+        );
+        
+        doc.text(`• Total de divisiones: ${totalDivisiones}`, margin, finalY + 8);
+        doc.text(`• Total de tareas: ${totalTareas}`, margin, finalY + 16);
+        doc.text(`• Eficiencia promedio: ${promedioEficiencia.toFixed(2)}%`, margin, finalY + 24);
+        doc.text(`• División más eficiente: ${mejorDivision.division_nombre} (${mejorDivision.eficiencia_porcentaje}%)`, margin, finalY + 32);
+    }
+}
+
+// Funciones auxiliares
+function getTipoReporteNombre(tipo) {
+    const tipos = {
+        'productividad_trabajador': 'Productividad por Trabajador',
+        'rendimiento_division': 'Rendimiento por División'
+    };
+    return tipos[tipo] || tipo;
+}
+
+function formatearFecha(fecha) {
+    return new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES');
+}
+
+// Función mejorada para generar el reporte con validación
+function generarReporte() {
+    const formData = new FormData(document.getElementById('formReporte'));
+    
+    // Validaciones
+    if (!formData.get('tipo_reporte')) {
+        mostrarError('Por favor seleccione un tipo de reporte');
+        return;
+    }
+    
+    if (!formData.get('fechaInicio') || !formData.get('fechaFin')) {
+        mostrarError('Por favor seleccione el rango de fechas');
+        return;
+    }
+    
+    // Validar que fecha fin no sea menor que fecha inicio
+    const fechaInicio = new Date(formData.get('fechaInicio'));
+    const fechaFin = new Date(formData.get('fechaFin'));
+    
+    if (fechaFin < fechaInicio) {
+        mostrarError('La fecha final no puede ser menor que la fecha inicial');
+        return;
+    }
+    
+    // Mostrar modal de carga
+    $('#modalCarga').modal('show');
+    
+    $.ajax({
+        url: 'Tareas',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            $('#modalCarga').modal('hide');
+            
+            if (response.success) {
+                generarPDF(response.data, response.filtros);
+                mostrarExito('Reporte generado exitosamente');
+            } else {
+                mostrarError('Error: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            $('#modalCarga').modal('hide');
+            console.error('Error:', error);
+            mostrarError('Error al generar el reporte: ' + (xhr.responseJSON?.message || error));
+        }
+    });
+}
+
+// Funciones para mostrar mensajes (asumiendo que existen en tu código)
+function mostrarError(mensaje) {
+    // Tu implementación existente para mostrar errores
+    alert('Error: ' + mensaje);
+}
+
+// Agregar esta función al inicio de tu script
+function formatearNumero(valor, decimales = 1) {
+    if (valor === null || valor === undefined || valor === '' || isNaN(parseFloat(valor))) {
+        return 'N/A';
+    }
+    return parseFloat(valor).toFixed(decimales);
+}
+
+function mostrarExito(mensaje) {
+    // Tu implementación existente para mostrar éxitos
+    console.log('Éxito: ' + mensaje);
+}
+});
     // Inicializar
     tipoReporte.dispatchEvent(new Event('change'));
-});
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
