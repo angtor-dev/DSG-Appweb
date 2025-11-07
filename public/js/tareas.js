@@ -808,7 +808,14 @@ function mostrarModalOrden(tareaData) {
     $("#orden-departamento").text(tarea.departamento_nombre || "No especificado");
     $("#orden-area").text(tarea.area_nombre || "No especificado");
     $("#orden-descripcion").text(tarea.descripcion_tarea || "No hay descripción");
-    $("#orden-observaciones").val(tarea.observaciones || "");
+    
+    $("#orden-observaciones").val(tarea.evaluacion_tarea.comentario_supervisor || "");
+      if (tarea.evaluacion_tarea.comentario_supervisor) {
+          $("#orden-observaciones-div").css("display", "block");
+      } else {
+          $("#orden-observaciones-div").css("display", "none");
+      }
+   
 
     // Personal asignado
     let personalHtml = "";
@@ -1856,6 +1863,62 @@ $("#btn-guardar-evaluacion").click(function () {
       // Cargar datos al abrir el modal
       //----------------------------------Revisar por si esto esta dando un problema
       //cargarDatosTarea();
+     // Función para enviar la evaluación
+      function enviarEvaluacion() {
+        const formData = new FormData($("#form-evaluacion")[0]);
+
+        // Recolectar materiales dinámicamente (si existen)
+        const materiales = [];
+        if ($("#tabla-materialesDevueltos").length) {
+          $("#tabla-materialesDevueltos tbody tr").each(function () {
+            const row = $(this);
+            materiales.push({
+              id: row.data("id"),
+              utilizado: row.find("input").eq(1).val(),
+              devuelto: row.find("input").eq(2).val(),
+            });
+          });
+        }
+
+        console.log("Materiales a enviar:", materiales);
+
+        // Agregar datos adicionales al FormData
+        formData.append("materiales", JSON.stringify(materiales));
+        formData.append("idTarea", modalId);
+        console.log("ID de tarea:", modalId);
+
+        // Enviar la evaluación
+        $.ajax({
+          url: "Tareas/Evaluar",
+          type: "POST",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            if (response.success) {
+              mostrarExito(response.message);
+              $("#modal-evaluar-tarea").modal("hide");
+               tablaVencidas.ajax.reload();
+              if (typeof tablaActivas !== "undefined") {
+                tablaVencidas.ajax.reload();
+
+              $("#modal-evaluar").modal("hide");
+              }
+            } else {
+              if (response.errors) {
+                response.errors.forEach(mostrarError);
+              } else {
+                mostrarError("Ocurrió un error al procesar la evaluación");
+              }
+            }
+          },
+          error: function (xhr, status, error) {
+            mostrarError("Error al enviar la evaluación");
+            console.error("Error en AJAX:", error);
+            console.log("Respuesta del servidor:", xhr.responseText);
+          },
+        });
+      }
 
     //--------------------------------------------------------- FIN EVALUACIÓN --------------------------------------------//
   }

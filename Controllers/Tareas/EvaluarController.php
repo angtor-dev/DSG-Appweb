@@ -53,11 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'comentarios' => $_POST['comentarios'] ?? '',
             'aprobacion' => isset($_POST['aprobacion']) ? 1 : 0
         ],
-        'evaluacionDirector' => [
-            'ponderacion' => $_POST['ponderacion_director'] ?? '',
-            'comentarios' => $_POST['comentarios_director'] ?? '',
-            'aprobacion' => isset($_POST['aprobacion_director']) ? 1 : 0
-        ],
         'materiales' => isset($_POST['materiales']) ? 
             (is_string($_POST['materiales']) ? json_decode($_POST['materiales'], true) : (array)$_POST['materiales']) 
             : null
@@ -65,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $evaluacion->setterArray($datosEvaluacion);
     
-    if (true /*$evaluacion->evaluar()*/) {
+    if ($evaluacion->evaluar()) {
         $response = [
             'success' => true,
             'message' => "Evaluación registrada con éxito"

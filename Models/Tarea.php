@@ -411,14 +411,6 @@ public function evaluar(): bool {
             $this->evaluacion['aprobacion']
         );
      
-        if ($this->evaluacion['aprobacion'] == 1) {
-            $this->guardarEvaluacionDirector(
-                $this->id,
-                $this->evaluacionDirector['ponderacion'],
-                $this->evaluacionDirector['comentarios'],
-                $this->evaluacionDirector['aprobacion']
-            );
-        }
 
         $this->actualizarEstadoTarea($this->id, 'evaluada');
         
@@ -560,47 +552,6 @@ public function evaluar(): bool {
         $stmt->execute($params);
     }
 
-private function guardarEvaluacionDirector(
-    int $idTarea,
-    string $ponderacion,
-    string $comentarios,
-    int $aprobacion
-): void {
-   
-    if ($aprobacion != 1) {
-        return;
-    }
-
-  
-    $currentObsQuery = "SELECT observacion FROM tarea_validacion WHERE idTarea = :idTarea";
-    $currentObsStmt = $this->prepare($currentObsQuery);
-    $currentObsStmt->execute([':idTarea' => $idTarea]);
-    $currentObs = $currentObsStmt->fetchColumn();
-
- 
-    $observacion = $currentObs ?: '';
-    
-    if (!empty($comentarios)) {
-        if (!empty($observacion)) {
-            $observacion .= "\n";
-        }
-        $observacion .= "[Observación director]: " . $comentarios;
-    }
-
-    $params = [
-        ':idTarea' => $idTarea,
-        ':evaluacion' => $ponderacion,
-        ':observacion' => $observacion
-    ];
-
-    $query = "UPDATE tarea_validacion SET 
-                evalSuperior = :evaluacion, 
-                observacion = :observacion
-            WHERE idTarea = :idTarea";
-
-    $stmt = $this->prepare($query);
-    $stmt->execute($params);
-}
 
 
 

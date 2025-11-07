@@ -162,7 +162,7 @@
                             de Asistencias
                         </a>
                     <?php endif ?>
-                    <?php if (true/*tienePermiso("reporteasistencias", "consultar")*/): ?>
+                   <?php if (tienePermiso(Modulo::TAREAS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Reportes/Tareas"
                             class="<?= strtolower($uriParts[1]) == "reportetarea" ? "active" : "" ?>">
                             de Tareas
@@ -188,7 +188,7 @@
                             de Asistencias
                         </a>
                     <?php endif ?>
-                <?php if (true/*tienePermiso("estadisticasasistencias", "consultar")*/): ?>
+               <?php if (tienePermiso(Modulo::TAREAS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Estadisticas/Tareas"
                             class="<?= strtolower($uriParts[1]) == "estadisticatarea" ? "active" : "" ?>">
                             de Tareas
