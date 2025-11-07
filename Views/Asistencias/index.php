@@ -106,7 +106,7 @@
     <div class="page-inner">
         <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
             <div class="text-white">
-                <h3 class="pb-2">Asistencias</h3>
+                <h3 class="pb-2">Asistencias/Inasistencias</h3>
                 <span class="opacity-75 mb-2">Gestiona a las asistencias e inasistencias de los trabajadores de las diferentes divisiones del departamento de Servicios Generales</span>
             </div>
         </div>
