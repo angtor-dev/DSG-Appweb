@@ -66,22 +66,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('La tarea ya está cancelada');
             }
 
-            // Preparar datos para la cancelación
+            
+            
             $datosCancelacion = [
                 'id' => $idTarea,
                 'observaciones' => trim($_POST['comentarios']),
                 'materiales' => []
             ];
 
-            // Procesar materiales si existen
-            if (isset($_POST['materiales']) && is_array($_POST['materiales'])) {
-                foreach ($_POST['materiales'] as $material) {
-                    if (isset($material['id']) && is_numeric($material['id'])) {
-                        $datosCancelacion['materiales'][] = [
-                            'id_material' => (int)$material['id'],
+            // PROCESAR MATERIALES IGUAL QUE EN EVALUARCONTROLLER
+            if (isset($_POST['materiales'])) {
+                $materiales = $_POST['materiales'];
+                
+                // Si viene como JSON string, decodificar (igual que en EvaluarController)
+                if (is_string($materiales)) {
+                    $materiales = json_decode($materiales, true);
+                }
+                
+                // Si es array, procesar
+                if (is_array($materiales)) {
+                    foreach ($materiales as $material) {
+                        if (isset($material['id']) && is_numeric($material['id'])) {
+                           $datosCancelacion['materiales'][] = [
+                            'id' => (int)$material['id'], 
                             'utilizado' => isset($material['utilizado']) ? (float)$material['utilizado'] : 0,
                             'devuelto' => isset($material['devuelto']) ? (float)$material['devuelto'] : 0
                         ];
+                        }
                     }
                 }
             }
@@ -92,23 +103,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Ejecutar cancelación
             if ($tareaCancelar->cancelar()) {
-               /*  $response = [
-                    'success' => true,
-                    'message' => "Tarea cancelada correctamente"
-                ]; */
-            } else {
+
                 $response = [
                     'success' => true,
                     'message' => "Tarea cancelada correctamente"
                 ];
-                Bitacora::registrar("Tarea cancelada - ID: $idTarea - Observaciones: " . substr($datosCancelacion['observaciones'], 0, 100));
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => "No se pudo cancelar la tarea"
+                ];
             }
             
         } catch (Exception $e) {
             $response = [
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'errors' => $_SESSION['errores'] ?? []
             ];
+            error_log("Error al cancelar tarea: " . $e->getMessage());
         }
         
         echo json_encode($response);
