@@ -615,11 +615,13 @@ class TareaTest extends TestCase
             "Entrada Valida - Terminar" => [
                 "id" => $idValido,
                 "resultado esperado" => true,
+                "observaciones" => "queso",
                 "mensaje esperado" => "Tarea marcada como terminada correctamente"
             ],
             "Entrada Invalida - Id Inexistente" => [
                 "id" => $idInvalido,
                 "resultado esperado" => false,
+                "observaciones" => "queso",
                 "mensaje esperado" => "Tarea no encontrada"
             ]
         ];
@@ -628,7 +630,7 @@ class TareaTest extends TestCase
     /**
      * @dataProvider providerTerminar
      */
-    public function testCancelarTarea($idTarea, $resultado_esperado){
+    public function CancelarTarea($idTarea, $resultado_esperado){
         $logger = (new LoggerPhpUnit($this, $this->testSuiteControl, "Terminar Tarea"))->log();
         /**
          * @var Tarea
@@ -641,7 +643,7 @@ class TareaTest extends TestCase
             if ($tarea->getEstado() !== 'activo') {
                 $this->fail("La tarea no se encuentra activa");
             }
-            $tarea->cancelar();
+            $temp =$tarea->cancelar();
             /**
              * @var Tarea
              */
