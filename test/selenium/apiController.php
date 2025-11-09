@@ -82,8 +82,9 @@ class ApiController
         $testlinkUrl = "http://localhost:8080/testlink-1.9.20/lib/api/xmlrpc/v1/xmlrpc.php";
         $this->userApiKey = "874e34254509eb018661b58e2921c097";
         $this->apiKey = "de713869d1db126cff30a1fc0e990962fbb277905c67ac8f363f7a22e50eb95b";
-
-        $this->client = new Client($testlinkUrl);
+        if(ENABLE_REPORTS){
+            $this->client = new Client($testlinkUrl);
+        }
         $this->buildName = "dsg";
     }
     /**
