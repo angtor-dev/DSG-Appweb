@@ -48,7 +48,18 @@
                 }
             }
         })
-    })
+    });
+    function agregarValidaciones() {
+        let nombre = document.querySelector("#nombre");
+        let descripcion = document.querySelector("#descripcion");
+        let form = document.querySelector("#form-departamento");
+
+        addPreventLongStringInput("#nombre");
+
+        form.addEventListener("submit", function(e) {
+            bodyLoader();
+        });
+    }
 </script>
 
 <?php // agregarScript("departamento.js") ?>
