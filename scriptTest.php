@@ -6,7 +6,7 @@ require_once('vendor/autoload.php');
     ✅
 */
 define("URL", "http://localhost/DSG-Appweb/" );
-define("ENABLE_REPORTS", true);
+
 define("LIST_TESTS", ["login", "areas"]);
 
 

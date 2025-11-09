@@ -31,6 +31,7 @@ defined('SYS_EMAIL_PASS') or define("SYS_EMAIL_PASS", 'gexv tail oxwx ejwt');
 defined('SYS_EMAIL_NAME') or define("SYS_EMAIL_NAME", "Dirección de Servicios Generales");
 defined('SYS_EMAIL_HOST') or define("SYS_EMAIL_HOST", "smtp.gmail.com");
 defined('ASISTENCIAS_SEMANALES') or define("ASISTENCIAS_SEMANALES", true);
+defined('ENABLE_REPORTS') or define ("ENABLE_REPORTS", true);
 
 
 // defined('DB_USERS_HOST') or define("DB_USERS_HOST", "61z0o.h.filess.io");
