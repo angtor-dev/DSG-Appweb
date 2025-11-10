@@ -1,12 +1,10 @@
 <?php
-require_once('vendor/autoload.php');
+require_once 'vendor/autoload.php';
 /*
-    php scriptTest.php
+    php scriptTest.php [test1 test2 ...]
     ❌
     ✅
 */
-define("URL", "http://localhost/DSG-Appweb/" );
-
 define("LIST_TESTS", ["login", "areas"]);
 
 
@@ -68,5 +66,4 @@ echo "\n END \n";
  * @param mixed $url agrega al final de la url ej.(Area) http://localhost/DSG-Appweb/Area
  * @return string
  */
-function url($url='') { return URL.$url; }
-?>
+function url($url='') { return APP_URL.$url; }
