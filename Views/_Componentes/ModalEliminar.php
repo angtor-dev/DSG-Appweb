@@ -44,5 +44,8 @@
             nombreEl.textContent = nombre
             eliminarEl.href = url
         })
+        modal.querySelector('.eliminar').addEventListener('click', e => {
+            bodyLoader();
+        });
     })
 </script>

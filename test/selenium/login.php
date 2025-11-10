@@ -27,7 +27,10 @@ class LoginSelenium extends ComunSelenium{
         try {
             $this->startContador();
             $this->openSystemDSG(false);
+
+
             $this->waitUrl(url('Login'));
+            
             $this->addSteps('p'); // ingresar al sistema
 
             $this->fillFroms([

@@ -1,6 +1,7 @@
 // evento onload 
 document.addEventListener("DOMContentLoaded", async function(){
     cargarCargos();
+    
 });
 
 
@@ -110,6 +111,10 @@ function agregarValidaciones(){
     const nombre = form.querySelector("#form-nombre");
     const nivel = form.querySelector("#form-nivel");
 
+    addValidNombre("#form-nombre",true);
+    addValidNum("#form-nivel",true, 3);
+    
+
     form.addEventListener("submit",function(e){
         console.log("enviando");
         e.preventDefault();
@@ -120,7 +125,7 @@ function agregarValidaciones(){
         nivel.setValidStatus();
 
         const validarNombre = ()=>{
-            const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9.,\s]*$/
+            const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9.,\s]{1,50}$/
             let ok = true;
             let valor = nombre.value.trim();
             if (valor.length <= 0) {

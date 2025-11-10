@@ -137,108 +137,110 @@ class TurnosRegistrarTest extends TestCase
 
     public function RegistrosProvider()
     {
-        return [
-    // casos de prueba
-    "Caso 1 registro valido"=>[
-        "nombre" => 'turno1',
-        "hora de entrada" => '08:00:00',
-        "hora de salida" => '18:00:00',
-        "Lunes" => 1,
-        "Martes" => 1,
-        "Miercoles" => 1,
-        "Jueves" => 1,
-        "Viernes" => 1,
-        "Sabado" => 1,
-        "Domingo" => 1,
-        "resultado esperado" => true,
-        "num_caso" => 1
-    ],
-    "caso 2 registro valido con string en los dias" =>[
-        "nombre" => 'turno1',
-        "hora de entrada" => '08:00:00',
-        "hora de salida" => '18:00:00',
-        "Lunes" => "1",
-        "Martes" => "0",
-        "Miercoles" => "1",
-        "Jueves" => "0",
-        "Viernes" => "1",
-        "Sabado" => "0",
-        "Domingo" => "1",
-        "resultado esperado" => true,
-        "num_caso" => 2
-    ],// valido 
-    "caso 3 registro con nombre invalido"=>[
-        "nombre" => '',
-        "hora de entrada" => '08:00:00',
-        "hora de salida" => '18:00:00',
-        "Lunes" => 1,
-        "Martes" => 1,
-        "Miercoles" => 1,
-        "Jueves" => 1,
-        "Viernes" => 1,
-        "Sabado" => 1,
-        "Domingo" => 1,
-        "resultado esperado" => false,
-        "num_caso" => 3
-    ],// nombre invalido
-    "caso 4 registro con hora entrada invalida"=>[
-        "nombre" => 'turno1',
-        "hora de entrada" => '',
-        "hora de salida" => '18:00:00',
-        "Lunes" => 1,
-        "Martes" => 1,
-        "Miercoles" => 1,
-        "Jueves" => 1,
-        "Viernes" => 1,
-        "Sabado" => 1,
-        "Domingo" => 1,
-        "resultado esperado" => false,
-        "num_caso" => 4
-    ],// hora entrada invalida
-    "caso 5 registro con hora salida invalida"=>[
-        "nombre" => 'turno1',
-        "hora de entrada" => '08:00:00',
-        "hora de salida" => '',
-        "Lunes" => 1,
-        "Martes" => 1,
-        "Miercoles" => 1,
-        "Jueves" => 1,
-        "Viernes" => 1,
-        "Sabado" => 1,
-        "Domingo" => 1,
-        "resultado esperado" => false,
-        "num_caso" => 5
-    ],// hora salida invalida
+        $contador = 0;
+        $func = function(
+            $nombre,
+            $horario_entrada,
+            $horario_salida,
+            $lunes, $martes, $miercoles,
+            $jueves, $viernes, $sabado,
+            $domingo,
+            $resultado_esperado
+        ) use (&$contador){
+            $contador++;
+            return [
+                "turnoNombre" => $nombre,
+                "horario_entrada" => $horario_entrada,
+                "horario_salida" => $horario_salida,
+                "lunes" => $lunes,
+                "martes" => $martes,
+                "miercoles" => $miercoles,
+                "jueves" => $jueves,
+                "viernes" => $viernes,
+                "sabado" => $sabado,
+                "domingo" => $domingo,
+                "resultado_esperado" => $resultado_esperado,
+                "num_caso" => $contador
+            ];
+        };
 
-    "caso 6 registro con dias invalidos" =>[
-        "nombre" => 'turno1',
-        "hora de entrada" => '08:00:00',
-        "hora de salida" => '18:00:00',
-        "Lunes" => null,
-        "Martes" => null,
-        "Miercoles" => null,
-        "Jueves" => null,
-        "Viernes" => null,
-        "Sabado" => null,
-        "Domingo" => null,
-        "resultado esperado" => false,
-        "num_caso" => 6
-    ],// dias invalido
-    "caso 7 registro sin dias seleccionados" =>[
-        "nombre" => 'turno1',
-        "hora de entrada" => '08:00:00',
-        "hora de salida" => '18:00:00',
-        "Lunes" => 0,
-        "Martes" => 0,
-        "Miercoles" => 0,
-        "Jueves" => 0,
-        "Viernes" => 0,
-        "Sabado" => 0,
-        "Domingo" => 0,
-        "resultado esperado" => false,
-        "num_caso" => 7
-    ],// dias invalido
-    ];
+        return [
+            // casos de prueba
+            "Caso 1 registro valido"=>
+            $func(
+                "turno1",
+                "08:00:00",
+                "18:00:00",
+                1, 1, 1,
+                1, 1, 1,
+                1,
+                true
+            ),
+            "caso 2 registro valido con string en los dias" =>
+            $func(
+                "turno1",
+                "08:00:00",
+                "18:00:00",
+                "1", "1", "1",
+                "1", "1", "1",
+                "1",
+                true
+            ),// valido 
+            
+            "caso 3 registro con nombre invalido"=>
+            $func(
+                '',
+                "08:00:00",
+                "18:00:00",
+                1, 1, 1,
+                1, 1, 1,
+                1,
+                false
+            )
+            ,// nombre invalido
+            "caso 4 registro con hora entrada invalida"=>
+            $func(
+                'turno1',
+                '',
+                "18:00:00",
+                1, 1, 1,
+                1, 1, 1,
+                1,
+                false
+            ),// hora entrada invalida
+            "caso 5 registro con hora salida invalida"=>
+            $func(
+                'turno1',
+                '08:00:00',
+                '',
+                1, 1, 1,
+                1, 1, 1,
+                1,
+                false
+            )
+            ,// hora salida invalida
+
+            "caso 6 registro con dias invalidos" =>
+            $func(
+                'turno1',
+                '08:00:00',
+                '18:00:00',
+                null, null, null,
+                null, null, null,
+                null,
+                false
+            ),// dias invalido
+            "caso 7 registro sin dias seleccionados" =>
+            $func(
+                'turno1',
+                '08:00:00',
+                '18:00:00',
+                0, 0, 0,
+                0, 0, 0,
+                0,
+                false
+            )
+        ];
 
 
 

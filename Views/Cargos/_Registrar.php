@@ -18,7 +18,7 @@
                 <div class="row">
                     <div class="col">
                         <label for="form-nivel" class="form-label">Nivel </label>
-                        <input required type="number" step="1" min="1" class="form-control" id="form-nivel" name="form-nivel-cargo" data-formText="form-text-form-nivel">
+                        <input max="999" required type="number" step="1" min="1" class="form-control" id="form-nivel" name="form-nivel-cargo" data-formText="form-text-form-nivel">
                         <div id="form-text-form-nivel" class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col" style="color: var(--font-color-light);">

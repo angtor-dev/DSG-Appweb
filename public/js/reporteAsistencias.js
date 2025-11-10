@@ -7,6 +7,9 @@
 		const agrupar = document.getElementById("agrupar");
 
 
+		addValidDesdeHasta(fechaInicio,fechaHasta);
+
+
 		const fecha = new Date();
 		// el mes debe obtenerse con los dos digitos
 		const mes = `${fecha.getMonth()+1}`.padStart(2, '0');
@@ -53,6 +56,23 @@
 		const departamento = document.getElementById("departamento").value;
 		const turno = document.getElementById("turno").value;
 		const agrupar = document.getElementById("agrupar").value;
+
+
+		const desdeField = document.getElementById("fechaInicio");
+		const hastaField = document.getElementById("hasta");
+		const departamentoField = document.getElementById("departamento");
+		const turnoField = document.getElementById("turno");
+		const agruparField = document.getElementById("agrupar");
+
+		let chekc = true;
+		[desdeField, hastaField, departamentoField, turnoField, agruparField].forEach((input) => {
+			if(input.classList.contains("is-invalid")){
+				chekc = false;
+			}
+		})
+
+		if(!chekc) return;
+
 
 		resp = await peticion("/Reportes/Asistencia",{
 			method: "POST",
