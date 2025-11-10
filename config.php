@@ -1,44 +1,40 @@
 <?php
+/// Default user configs (estas constantes pueden sobrescribirse en el archivo user_config.php)
 if (file_exists("user_config.php"))
     require_once "user_config.php";
 date_default_timezone_set('America/Caracas');
 const APP_NAME = "DSG";
 
-// Default user configs (estas constantes pueden sobrescribirse
-// en el archivo user_config.php)
+// Opciones de desarrollo
 defined('LOCAL_DIR') or define("LOCAL_DIR", "/DSG-Appweb");
-
 defined('DEVELOPER_MODE') or define("DEVELOPER_MODE", true);
+defined('ENABLE_REPORTS') or define("ENABLE_REPORTS", true);
+defined('APP_URL') or define("APP_URL", "http://localhost/DSG-Appweb/");
 
+// Configuración de la base de datos
 defined('DB_HOST') or define("DB_HOST", "localhost");
 defined('DB_NAME') or define("DB_NAME", "dsg_db_testmerge");
 defined('DB_USER') or define("DB_USER", "root");
 defined('DB_PASSWORD') or define("DB_PASSWORD", "");
 
+// Configuración de la base de datos de usuarios
 defined('DB_USERS_HOST') or define("DB_USERS_HOST", "localhost");
 defined('DB_USERS_NAME') or define("DB_USERS_NAME", "dsg_db_users");
 defined('DB_USERS_USER') or define("DB_USERS_USER", "root");
 defined('DB_USERS_PASSWORD') or define("DB_USERS_PASSWORD", "");
 defined('DB_USERS_PORT') or define("DB_USERS_PORT", "");
+
+// Configuración de la aplicación
 defined('DEP_NAME') or define("DEP_NAME", "División"); // para cambiar el nombre al modulo fácilmente
 defined('DEP_NAME_M') or define("DEP_NAME_M", "división"); // minúsculas
 defined('DEP_NAME_S') or define("DEP_NAME_S", "divisiones"); // plural
-
+defined('ASISTENCIAS_SEMANALES') or define("ASISTENCIAS_SEMANALES", true);
 
 // Credenciales de correo
 defined('SYS_EMAIL') or define("SYS_EMAIL", "reivax.zeraus@gmail.com");
 defined('SYS_EMAIL_PASS') or define("SYS_EMAIL_PASS", 'gexv tail oxwx ejwt');
 defined('SYS_EMAIL_NAME') or define("SYS_EMAIL_NAME", "Dirección de Servicios Generales");
 defined('SYS_EMAIL_HOST') or define("SYS_EMAIL_HOST", "smtp.gmail.com");
-defined('ASISTENCIAS_SEMANALES') or define("ASISTENCIAS_SEMANALES", true);
-
-
-// defined('DB_USERS_HOST') or define("DB_USERS_HOST", "61z0o.h.filess.io");
-// defined('DB_USERS_NAME') or define("DB_USERS_NAME", "dsgusers_tiredsleep");
-// defined('DB_USERS_USER') or define("DB_USERS_USER", "dsgusers_tiredsleep");
-// defined('DB_USERS_PASSWORD') or define("DB_USERS_PASSWORD", "4ace3bab5b2d174f65e4520361fb21c267a75084");
-// defined('DB_USERS_PORT') or define("DB_USERS_PORT", "port=61000;");
-
 
 // Expresiones regulares
 const REG_NUMERICO = "/^[0-9]+$/";
