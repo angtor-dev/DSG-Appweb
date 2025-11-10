@@ -123,6 +123,16 @@ class Trabajador extends Model
             if (!preg_match(REG_FECHA, $this->fechaIngreso)) {
                 throw new Exception("El campo 'Fecha de Ingreso' solo puede contener números",self::SHOW_EXCEPTION );
             }
+            foreach( ["nombre_50", "apellido_50", "telefono_11"] as $campo){
+                $tempCampo = preg_split("/_/", $campo);
+                $num = $tempCampo[1];
+                $tempCampo = $tempCampo[0];
+
+                if (strlen($this->$tempCampo) > $num) {
+                    throw new Exception("El campo '$tempCampo' solo puede contener $num caracteres",self::SHOW_EXCEPTION );
+                }
+
+            }
         }
 
         if($control == self::ACTUALIZAR_TRABAJADOR || $control == self::ELIMINAR_TRABAJADOR){

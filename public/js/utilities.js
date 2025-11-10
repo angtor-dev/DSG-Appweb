@@ -681,7 +681,7 @@ function addPreventLongStringInput(elem, maxLength = 50) {
 };
 
 
-function inputValid(elem,maxLength = 50 ,regex = null, message = "INVALIDO") {
+function inputValid(elem,maxLength = 50 ,regex = null, message = "INVALIDO", required = false) {
     if(typeof elem == "string") elem = document.querySelector(elem);
     else if(typeof elem == "object") elem = elem;
     else{
@@ -695,6 +695,10 @@ function inputValid(elem,maxLength = 50 ,regex = null, message = "INVALIDO") {
 
     elem.addEventListener("input", function () {
         invalidStatus(this);
+        if(required && this.value.length <= 0) {
+            invalidStatus(this, false, "Este campo es obligatorio");
+            return;
+        }
         if(this.value.length > maxLength) {
             invalidStatus(this, false, "El campo no puede tener mas de "+maxLength+" caracteres");
             return;
@@ -805,7 +809,7 @@ function AObjetoFecha(fechaString) {
     return objetoFecha;
 }
 
-/** para la trabesia de las validaciones */
+/** para la travesia de las validaciones */
 
 function bodyLoader($loaderLocated = "body") {
     elemBlur();
@@ -850,8 +854,8 @@ function addValidDesdeHasta(desde,hasta){
 
 
     const fechas = function (){
-        invalidStatus(desde);
-        invalidStatus(hasta);
+        invalidStatus(desde);// reiniciar estado
+        invalidStatus(hasta);// reiniciar estado
 
         // Obtener los elementos de fecha
         const fechaDesdeInput = desde;
@@ -896,45 +900,72 @@ function addValidDesdeHasta(desde,hasta){
 function addValidNombre(elem, required = false, maxLength = 50) {
     let regexString = `^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\\s,.-]{${required?1:0},${maxLength}}$`;
     let regex = new RegExp(regexString);
-    inputValid(elem,50,regex,"El campo solo acepta letras, espacios, comas, puntos y guiones");
+    inputValid(elem,50,regex,"El campo solo acepta letras, espacios, comas, puntos y guiones",required);
 }
 
 
 function addValidAlfaNum(elem, required = false, maxLength = 50) {
     let regexString = `^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\\s,.-]{${required?1:0},${maxLength}}$`;
     let regex = new RegExp(regexString);
-    inputValid(elem,50,regex,"El campo solo acepta letras, numeros, espacios, comas, puntos y guiones");
+    inputValid(elem,50,regex,"El campo solo acepta letras, numeros, espacios, comas, puntos y guiones",required);
 }
 
 function addValidNum(elem, required = false, maxLength = 50) {
     let regexString = `^[0-9]{${required?1:0},${maxLength}}$`;
     let regex = new RegExp(regexString);
-    inputValid(elem,maxLength,regex,"El campo solo acepta numeros");
+    inputValid(elem,maxLength,regex,"El campo solo acepta numeros",required);
+}
+
+function addValidTelefono(elem,required = false, maxLength = 11) {
+    let regexString = `^[0-9]{${required?1:0},${maxLength}}$`;
+    let regex = new RegExp(regexString);
+    inputValid(elem,maxLength,regex,"El campo solo acepta numeros",required);
 }
 
 /**
+ * validar si el elemento es valido
  * 
- * @param {string|HTMLElement|array} elem 
- * @returns 
+ * @param {string|HTMLElement|Array<string|HTMLElement>} elem 
+ * - puede ser un querySelector, un HTMLElement o un array
+ * - si es un querySelector, se convierte a un HTMLElement y se valida
+ * - si es un HTMLElement, se valida
+ * - si es un array, se valida todos los elementos
+ * @returns {boolean|null|undefined}
  */
 function checkValidStatus(elem){
     
 
 
     let dispatch = true;
-    if(typeof elem == "string") elem = document.querySelector(elem);
+    if(typeof elem == "string") {
+        elem = document.querySelector(elem)
+        if(!elem) {
+            console.error("Elemento no valido");
+            return;
+        }
+    }
     else if(typeof elem == "object") elem = elem;
     else if(typeof elem == "array"){
-       elem.forEach(e => checkValidStatus(e)); 
+       elem.every(e => checkValidStatus(e)); 
        dispatch = false;
     }
     else{
         console.error("Elemento no valido");
         return;
     }
+    
 
     if(dispatch){
         elem.dispatchEvent(new Event('input'));
-        return elem.isValid();
+        elem.dispatchEvent(new Event('change'));
+        if(typeof elem.isValid == "function"){
+            return elem.isValid() || false;
+        }
+        else{
+            console.error("Elemento no valido "+elem.name);
+            return false;
+        }
     }
 }
+
+
