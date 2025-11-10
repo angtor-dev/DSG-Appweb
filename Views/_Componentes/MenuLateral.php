@@ -112,25 +112,25 @@
                 <div class="acordeon-items">
                     <?php if (tienePermiso(Modulo::ARTICULOS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Articulos"
-                            class="<?= strtolower($uriParts[1]) == "articulos" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "articulos") ? "active" : "" ?>">
                             Artículos
                         </a>
                     <?php endif ?>
                     <?php if (tienePermiso(Modulo::AJUSTES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Ajustes"
-                            class="<?= strtolower($uriParts[1]) == "ajustes" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "ajustes") ? "active" : "" ?>">
                             Correcciones de Inventario
                         </a>
                     <?php endif ?>
                     <?php if (tienePermiso(Modulo::NOTASENTREGA, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/NotasEntrega"
-                            class="<?= strtolower($uriParts[1]) == "notasentrega" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "notasentrega") ? "active" : "" ?>">
                             Notas de Entrega
                         </a>
                     <?php endif ?>
                     <?php if (tienePermiso(Modulo::MOVIMIENTOS, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Inventario/Movimientos"
-                            class="<?= strtolower($uriParts[1]) == "movimientos" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "movimientos") ? "active" : "" ?>">
                             Movimientos
                         </a>
                     <?php endif ?>
@@ -158,19 +158,19 @@
                 <div class="acordeon-items">
                     <?php if (tienePermiso("reporteasistencias", "consultar")): ?>
                         <a href="<?= LOCAL_DIR ?>/Reportes/Asistencia"
-                            class="<?= strtolower($uriParts[1]) == "reporteasistencia" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "reporteasistencia") ? "active" : "" ?>">
                             de Asistencias
                         </a>
                     <?php endif ?>
                     <?php if (true/*tienePermiso("reporteasistencias", "consultar")*/): ?>
                         <a href="<?= LOCAL_DIR ?>/Reportes/Tareas"
-                            class="<?= strtolower($uriParts[1]) == "reportetarea" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "reportetarea") ? "active" : "" ?>">
                             de Tareas
                         </a>
                     <?php endif ?>
                     <?php if (tienePermiso(Modulo::TRABAJADORES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Reportes/Trabajadores"
-                            class="<?= strtolower($uriParts[1]) == "reportetrabajadores" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "reportetrabajadores") ? "active" : "" ?>">
                             de Trabajadores
                         </a>
                     <?php endif ?>
@@ -190,13 +190,13 @@
                 <div class="acordeon-items">
                     <?php if (tienePermiso("estadisticasasistencias", "consultar")): ?>
                         <a href="<?= LOCAL_DIR ?>/Estadisticas/Asistencias"
-                            class="<?= strtolower($uriParts[1]) == "estadisticaasistencia" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "estadisticaasistencia") ? "active" : "" ?>">
                             de Asistencias
                         </a>
                     <?php endif ?>
                 <?php if (true/*tienePermiso("estadisticasasistencias", "consultar")*/): ?>
                         <a href="<?= LOCAL_DIR ?>/Estadisticas/Tareas"
-                            class="<?= strtolower($uriParts[1]) == "estadisticatarea" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "estadisticatarea") ? "active" : "" ?>">
                             de Tareas
                         </a>
                     <?php endif ?>
@@ -229,20 +229,20 @@
                 <div class="acordeon-items">
                     <?php if (tienePermiso(Modulo::ROLES, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Roles"
-                            class="<?= strtolower($uriParts[1]) == "roles" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "roles") ? "active" : "" ?>">
                             Roles y permisos
                         </a>
                     <?php endif ?>
                     <?php if (tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Bitacora"
-                            class="<?= strtolower($uriParts[1]) == "bitacora" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "bitacora") ? "active" : "" ?>">
                             Bitácora
                         </a>
                     <?php endif ?>
                     <!--  colocar permisos -->
                     <?php if (true/*tienePermiso(Modulo::BITACORA, Permiso::CONSULTAR)*/): ?>
                         <a href="<?= LOCAL_DIR ?>/Seguridad/Respaldo"
-                            class="<?= strtolower($uriParts[1]) == "respaldo" ? "active" : "" ?>">
+                            class="<?= (isset($uriParts[1]) and strtolower($uriParts[1]) == "respaldo") ? "active" : "" ?>">
                             Respaldo BD
                         </a>
                     <?php endif ?>
