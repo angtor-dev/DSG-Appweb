@@ -4,6 +4,7 @@ require_once 'vendor/autoload.php';
     php scriptTest.php [test1 test2 ...]
     ❌
     ✅
+    🔎
 */
 define("LIST_TESTS", ["login", "areas"]);
 
@@ -21,9 +22,9 @@ $listTest = LIST_TESTS;
 
     $list = [];
     if($argc > 1) {
+        $searchTest = true;
         foreach ($argv as $elem) {
             $list[] = $elem;
-            if(in_array($elem, $listTest) ) $searchTest = true;
         }
     }
     if(in_array("projects", $list)) {$apicontroller->getProjects(); die;}
