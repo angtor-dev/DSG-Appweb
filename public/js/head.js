@@ -22,7 +22,6 @@ function hideExportDatatable (settings) {
 }
 
 function defaultHideButtonsDataTable () {
-    console.log('defaultHideButtonsDataTable');
     $.extend(true, $.fn.dataTable.defaults, {
         // 3. Aplicamos la lógica de visibilidad en el drawCallback global
         "drawCallback": hideExportDatatable

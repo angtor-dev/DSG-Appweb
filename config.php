@@ -36,6 +36,20 @@ defined('SYS_EMAIL_PASS') or define("SYS_EMAIL_PASS", 'gexv tail oxwx ejwt');
 defined('SYS_EMAIL_NAME') or define("SYS_EMAIL_NAME", "Dirección de Servicios Generales");
 defined('SYS_EMAIL_HOST') or define("SYS_EMAIL_HOST", "smtp.gmail.com");
 
+defined('TEST_LIST') or define('TEST_LIST', array());
+defined('PROJECT_INFO') or define('PROJECT_INFO', array());
+defined('TEST_PLAN_INFO') or define('TEST_PLAN_INFO', array());
+defined('TEST_BUILD_INFO') or define('TEST_BUILD_INFO', array());
+defined('TEST_SUITE_ALFA_INFO') or define('TEST_SUITE_ALFA_INFO', array());
+
+
+defined('TESTLINK_URL') or define('TESTLINK_URL', "http://localhost:8080/testlink-1.9.20/lib/api/xmlrpc/v1/xmlrpc.php");
+defined('TESTLINK_USER_API_KEY') or define('TESTLINK_USER_API_KEY', "874e34254509eb018661b58e2921c097");
+defined('TESTLINK_API_KEY') or define('TESTLINK_API_KEY', "de713869d1db126cff30a1fc0e990962fbb277905c67ac8f363f7a22e50eb95b");
+
+
+
+
 // Expresiones regulares
 const REG_NUMERICO = "/^[0-9]+$/";
 const REG_ALFABETICO = "/^[a-zA-ZáÁéÉíÍóÓúÚüÜñÑ.,\s_-]+$/";
