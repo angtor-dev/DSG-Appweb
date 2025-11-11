@@ -17,6 +17,7 @@
         <?php require_once 'public/js/constantes.php'; ?>
     </script>
 <script src="<?= LOCAL_DIR ?>/public/lib/jquery-3.7.1.min.js"></script>
+<script src="<?= LOCAL_DIR ?>/public/js/head.js"></script>
 
 <title><?= APP_NAME ?></title>
 </head>
