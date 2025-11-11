@@ -36,6 +36,12 @@ defined('SYS_EMAIL_PASS') or define("SYS_EMAIL_PASS", 'gexv tail oxwx ejwt');
 defined('SYS_EMAIL_NAME') or define("SYS_EMAIL_NAME", "Dirección de Servicios Generales");
 defined('SYS_EMAIL_HOST') or define("SYS_EMAIL_HOST", "smtp.gmail.com");
 
+defined('TEST_LIST') or define('TEST_LIST', array());
+defined('PROJECT_INFO') or define('PROJECT_INFO', array());
+defined('TEST_PLAN_INFO') or define('TEST_PLAN_INFO', array());
+defined('TEST_BUILD_INFO') or define('TEST_BUILD_INFO', array());
+defined('TEST_SUITE_ALFA_INFO') or define('TEST_SUITE_ALFA_INFO', array());
+
 // Expresiones regulares
 const REG_NUMERICO = "/^[0-9]+$/";
 const REG_ALFABETICO = "/^[a-zA-ZáÁéÉíÍóÓúÚüÜñÑ.,\s_-]+$/";
