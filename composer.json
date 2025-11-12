@@ -13,7 +13,6 @@
            "classmap": ["Models","test/selenium"],
            "files":[
                "config.php",
-               "user_config.php",
                "utilities.php",
                 "Models/Enums/Justificacion.php",
                 "Models/Enums/EstadoNotif.php"

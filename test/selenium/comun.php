@@ -158,6 +158,15 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 $this->fillForm($input['selector'], $input['value'], $timeout, $interval, $mensaje);
             }
         }
+
+        /**
+         * epera que un elemento se encuentre visible
+         * @param WebDriverBy|string  $selector
+         * @param int $timeout
+         * @param int $interval
+         * @param string $mensaje
+         * @return RemoteWebElement
+         */
         public function waitElement($selector, $timeout = 3, $interval = 500, $mensaje = ''){
             try {
                 $selector = $this->selector($selector);
@@ -183,7 +192,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
             }
         }
         /**
-         * Summary of waitAlert
+         * Espera que una alerta se muestre
          * @param string $text
          * @param 'success'|'danger' | 'warning' $type = 'success'
          * @param int $timeout
@@ -309,7 +318,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
          * </code>
          * 
          * si el idElemnent es un input/textarea/select desde donde encontrar el form-text este metodo tambien validara el valid de html5 ej. required pattern
-         * @param string $idElemnent id sin # del elemento input o un elemento con la clase form-text
+         * @param string $idElemnent selector css del input
          * @param string $mensaje mensaje a esperar
          * @param bool $xpath si el idElemnent es un xpath al input||.form-text
          * @param mixed $timeout tiempo de espera
@@ -326,7 +335,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                     $by = WebDriverBy::xpath($idElemnent);
                 }
                 else{
-                    $by = $this->selector("#$idElemnent");
+                    $by = $this->selector("$idElemnent");
                 }
                 
                 $elem = $this->driver->findElement($by);

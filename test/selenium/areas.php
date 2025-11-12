@@ -167,7 +167,7 @@ class AreasSelenium extends LoginSelenium
             $this->click('div.modal button[type="submit"]');
             
             if($datos["caso"] == 1){
-                $this->waitFormText('nombre');
+                $this->waitFormText('#nombre');
                 $this->addSteps('p', "caso invalido entrada (".$datos['nombre']." -- ".$datos['esenario'].")");
                 $this->print("feedback correcto por el campo", 1);
             }
@@ -228,7 +228,7 @@ class AreasSelenium extends LoginSelenium
             $this->click('div.modal button[type="submit"]');
             
             if($datos["caso"] == 1){
-                $this->waitFormText('nombre');
+                $this->waitFormText('#nombre');
                 $this->addSteps('p', "caso invalido entrada (".$datos['nombre']." -- ".$datos['esenario'].")");
                 $this->print("feedback correcto por el campo", 1);
             }
