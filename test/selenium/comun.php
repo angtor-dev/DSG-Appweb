@@ -153,7 +153,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
          * @param array<array{selector: string, value: string}> $inputs
          * @return void
          */
-        public function fillFroms(array $inputs, $timeout = 3, $interval = 500, $mensaje = ''){
+        public function fillForms(array $inputs, $timeout = 3, $interval = 500, $mensaje = ''){
             foreach($inputs as $input){
                 $this->fillForm($input['selector'], $input['value'], $timeout, $interval, $mensaje);
             }

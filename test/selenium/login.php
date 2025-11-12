@@ -33,7 +33,7 @@ class LoginSelenium extends ComunSelenium{
             
             $this->addSteps('p'); // ingresar al sistema
 
-            $this->fillFroms([
+            $this->fillForms([
                 ['selector' => 'input[name="correo"]', 'value' => 'admin@dsg.com'],
                 ['selector' => 'input[name="clave"]', 'value' => 'hola123'],
             ]);
