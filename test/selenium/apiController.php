@@ -1,6 +1,7 @@
 <?php 
 use PhpXmlRpc\Client;
 use PhpXmlRpc\Request;
+use PhpXmlRpc\Response;
 use PhpXmlRpc\Value;
 use function PHPUnit\Framework\arrayHasKey;
 
@@ -123,7 +124,29 @@ class ApiController
                 echo "❌ ERROR de API TestLink: " . $response->faultString() . "\n";
             }
 
-            echo "✅ TEST REPORT COMPLETED: Resultado reportado para el test case: " . $name . "\n";
+            $xml = $response->serialize();
+
+            if(!is_string($xml)){
+                $ok = false;
+                echo "❌ ERROR de API TestLink: \n";
+            }
+
+            
+            $xml = new SimpleXMLElement($xml);
+
+            echo findResponseXml($xml, "message") . "\n";
+
+            if(findResponseXml($xml, "message") != "Success!"){
+                $ok = false;
+                echo "❌ ERROR de API TestLink: " . findResponseXml($xml, "message") . "\n";
+            }
+            else{
+                echo "✅ TEST REPORT COMPLETED: Resultado reportado para el test case: " . $name . "\n";
+
+            }
+
+            
+
             
         } catch (\Throwable $th) {
             $ok = false;
@@ -199,7 +222,10 @@ class ApiController
 // Cambia esto a un nuevo método en tu clase (ej: getTestPlans)
     public function getTestPlans($projectId) 
     {
-        
+        if(!ENABLE_REPORTS){
+            echo "❌ LOS REPORTES NO ESTAN HABILITADOS\n";
+            return null;
+        }
         // 1. Prepara los argumentos: devKey y testprojectid (¡como enteros!)
         $args = [
             "devKey" => new Value($this->userApiKey, "string"),
@@ -250,7 +276,10 @@ class ApiController
      */
     public function getBuildsForTestPlan($planId)
     {
-        
+        if(!ENABLE_REPORTS){
+            echo "❌ LOS REPORTES NO ESTAN HABILITADOS\n";
+            return null;
+        }
         // 1. Prepara los argumentos: devKey y testplanid
         $args = [
             "devKey" => new Value($this->userApiKey, "string"),
@@ -302,7 +331,10 @@ class ApiController
 
     public function getTestSuitesForTestPlan($planId)
     {
-        
+        if(!ENABLE_REPORTS){
+            echo "❌ LOS REPORTES NO ESTAN HABILITADOS\n";
+            return null;
+        }
         // Parámetros adicionales requeridos para este método:
         $args = [
             "devKey" => new Value($this->userApiKey, "string"),
@@ -345,7 +377,10 @@ class ApiController
 
     public function getTestCasesForTestSuite($suiteId)
     {
-        
+        if(!ENABLE_REPORTS){
+            echo "❌ LOS REPORTES NO ESTAN HABILITADOS\n";
+            return null;
+        }
         // Parámetros adicionales requeridos para este método:
         $args = [
             "devKey" => new Value($this->userApiKey, "string"),
@@ -395,6 +430,10 @@ class ApiController
 
     public function getTestCaseIdByName($testSuiteName, $testCaseName)
     {
+        if(!ENABLE_REPORTS){
+            echo "❌ LOS REPORTES NO ESTAN HABILITADOS\n";
+            return null;
+        }
         $args = [
             "devKey" => new Value($this->userApiKey, "string"),
             "testsuitename" => new Value($testSuiteName, "string"),
@@ -589,6 +628,34 @@ function echoDebug($var){
     echo "</pre>";
 }
 
+
+/**
+ * Busca un elemento en la respuesta XML-RPC que tenga como nombre el par metro $name.
+ * Si se encuentra, devuelve el valor del elemento como un string, boolean o int, dependiendo de su tipo.
+ * Si no se encuentra, devuelve null.
+ * para despues de aplicar un $elem->serialize();
+ *
+ * @param SimpleXMLElement $xml La respuesta XML-RPC.
+ * @param string $name El nombre del elemento a buscar.
+ * @return string|boolean|int|null El valor del elemento encontrado, o null si no se encuentra.
+ * @throws Throwable Si ocurre un error al procesar la respuesta XML-RPC.
+ */
+function findResponseXml ($xml, $name) {
+
+    try {
+        $elem = $xml->xpath("//member[name='" . $name . "']/value/*");
+        
+        if (count($elem) > 0) {
+            //return $elem[0]->__toString();
+            if($elem[0]->getName() == "string") return $elem[0]->__toString();
+            if($elem[0]->getName() == "boolean") return (in_array($elem[0]->__toString(), ["true", "1"]) ? true : false) ;
+            if($elem[0]->getName() == "int") return intval($elem[0]->__toString());
+            return null;
+        }
+    } catch (\Throwable $th) {
+        return null;
+    }
+};
 
 
  ?>
