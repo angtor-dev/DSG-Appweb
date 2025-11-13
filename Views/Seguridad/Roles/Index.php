@@ -87,13 +87,20 @@
                 url: '<?= LOCAL_DIR ?>/public/lib/DataTables/datatables-spanish.json'
             },
             layout: {
-                topStart: {
-                    buttons: ['excel', 'pdf', 'print']
-                },
                 bottom1Start: {
                     pageLength: true
+                },
+                bottom1End: {
+                    buttons: ['excel', 'pdf', 'print']
                 }
-            }
+            },
+            columnDefs:[
+                {
+                    targets: [0],
+                    visible: false,
+                    searchable: false
+                }
+            ]
         })
     })
 </script>

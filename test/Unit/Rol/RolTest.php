@@ -123,6 +123,18 @@ class RolTest extends TestCase
                 false,
                 ...["--observacion" => "devuelve true si se pudo registrar el Rol"]
             ),
+            "Nombre Invalido - Nombre Muy Largo" => $aux(
+                str_repeat("R", 51),
+                "Descripcion de la Rol 1",
+                false,
+                ...["--observacion" => "devuelve true si se pudo registrar el Rol"]
+            ),
+            "Descripcion Invalida - Descripcion Muy Larga" => $aux(
+                "Rol",
+                str_repeat("D", 300),
+                false,
+                ...["--observacion" => "devuelve true si se pudo registrar el Rol"]
+            ),
         ];
     }
 
