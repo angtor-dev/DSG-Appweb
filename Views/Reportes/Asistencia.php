@@ -101,4 +101,56 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalObservacion" tabindex="-1" aria-labelledby="modalObservacionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="modalObservacionLabel">Observación de Inasistecia</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+			<div class="card">
+				<div class="card-body">
+					<div class="row">
+						<div class="col-12 col-md-4">
+							<div class="form-info-field" id="modalObCedula" data-info="Cedula"></div>
+						</div>
+						<div class="col-12 col-md-4">
+							<div class="form-info-field" id="modalObNombre" data-info="Nombre"></div>
+						</div>
+						<div class="col-12 col-md-4">
+							<div class="form-info-field" id="modalObTurno" data-info="Turno"></div>
+						</div>
+						<div class="col-12 col-md-4">
+							<div class="form-info-field" id="modalObDivision" data-info="<?= DEP_NAME ?>"></div>
+						</div>
+						<div class="col-12 col-md-4">
+							<div class="form-info-field" id="modalObFecha" data-info="Fecha"></div>
+						</div>
+						<div class="col-12 col-md-4">
+							<div class="form-info-field" id="modalObTipo" data-info="Tipo"></div>
+						</div>
+						<div class="col-12">
+							<div class="form-info-field" id="modalObObservación" data-info="Observación"></div>
+						</div>
+					</div>
+					
+					
+				</div>
+			</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelarModal" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+  </div>
+</div>
+
+<script>
+	// mostrar el modal automaticamente para debugear
+	document.addEventListener("DOMContentLoaded", () => {
+		//new bootstrap.Modal(document.getElementById('modalObservacion')).show();
+	});
+</script>
+
 <?php agregarScript("reporteAsistencias.js") ?>
