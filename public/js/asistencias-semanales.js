@@ -7,6 +7,7 @@ let preventLostControl = false;
 var mostrarBotonEliminar = false;
 document.addEventListener("DOMContentLoaded", async function(){
     window.addEventListener('beforeunload', preventLost);
+    addValidAlfaNum('#observacion', false, 255);
     const modalEliminar = document.getElementById('modal-eliminar')
     // quito el evento del modal
 
@@ -578,6 +579,7 @@ function promesaModal(elModal,nombre, cedula,dia, justificacion = null, jusdescr
     elModal.querySelector("#modalTrabajadorInfo").textContent = `${nombre} (${parseFecha(dia)})`;
     document.getElementById("submit-asistencias").disabled = true;
     document.getElementById("form-table-asistencias").updating = true;
+    invalidStatus(elModal.querySelector("#observacion"));
     if(justificacion){
         elModal.querySelector("#justificacion").value = justificacion;
         elModal.querySelector("#observacion").value = jusdescripcion;

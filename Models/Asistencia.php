@@ -193,6 +193,14 @@ class Asistencia extends Model
                 if(!preg_match("/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", trim($this->fecha))) {
                     throw new Exception("La fecha es invalida", self::SHOW_EXCEPTIONS);
                 }
+
+                if(strlen($trabajador["descripcion_justificacion"]) > 255) {
+                    throw new Exception("La descripción de la justificación es demasiado larga (más de 255 caracteres)".substr($trabajador["descripcion_justificacion"], 0, 50)."...", self::SHOW_EXCEPTIONS);
+                }
+
+                if(!preg_match("/^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\\s,.-]{1,255}$/", $trabajador["descripcion_justificacion"])) {
+                    throw new Exception("La descripción de la justificación es invalida", self::SHOW_EXCEPTIONS);
+                }
                 
                 $parametros = [
                     "fecha" => $this->fecha,

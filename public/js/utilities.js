@@ -907,7 +907,7 @@ function addValidNombre(elem, required = false, maxLength = 50) {
 function addValidAlfaNum(elem, required = false, maxLength = 50) {
     let regexString = `^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\\s,.-]{${required?1:0},${maxLength}}$`;
     let regex = new RegExp(regexString);
-    inputValid(elem,50,regex,"El campo solo acepta letras, numeros, espacios, comas, puntos y guiones",required);
+    inputValid(elem,maxLength,regex,"El campo solo acepta letras, numeros, espacios, comas, puntos y guiones",required);
 }
 
 function addValidNum(elem, required = false, maxLength = 50) {
@@ -935,7 +935,6 @@ function addValidTelefono(elem,required = false, maxLength = 11) {
 function checkValidStatus(elem){
     
 
-
     let dispatch = true;
     if(typeof elem == "string") {
         elem = document.querySelector(elem)
@@ -944,18 +943,19 @@ function checkValidStatus(elem){
             return;
         }
     }
-    else if(typeof elem == "object") elem = elem;
-    else if(typeof elem == "array"){
-       elem.every(e => checkValidStatus(e)); 
-       dispatch = false;
+    else if(Array.isArray(elem)){
+        return elem.every(e => checkValidStatus(e));
+        //dispatch = false;
     }
+    else if(typeof elem == "object") elem = elem;
     else{
         console.error("Elemento no valido");
         return;
     }
     
-
+    
     if(dispatch){
+        
         elem.dispatchEvent(new Event('input'));
         elem.dispatchEvent(new Event('change'));
         if(typeof elem.isValid == "function"){
