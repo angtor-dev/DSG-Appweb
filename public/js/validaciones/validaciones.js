@@ -26,6 +26,7 @@ const setValid = (inputEl, feedbackEl) => {
  * @param {boolean} [options.isRequired=false] - Si es obligatorio.
  * @param {number} [options.minLength=0] - Longitud mínima.
  * @param {number} [options.maxLength=30] - Longitud máxima.
+ * @param {bool} [options.allowOnlyNumbers=false] - Si permite cadena de solo números.
  * @param {HTMLElement|null} [options.customFeedbackEl=null] - Elemento personalizado para mensajes.
  * @returns {boolean} True si es válido.
  */
@@ -33,6 +34,7 @@ const validarCampoTexto = (inputEl, {
     isRequired = false,
     minLength = 0,
     maxLength = 30,
+    allowOnlyNumbers = false,
     customFeedbackEl = null
 } = {}) => {
     if (!inputEl) return false;
@@ -66,7 +68,7 @@ const validarCampoTexto = (inputEl, {
     }
 
     // Validar que contenga al menos una letra (solo si hay algo escrito)
-    if (longitud > 0 && !regLetra.test(valor)) {
+    if (!allowOnlyNumbers && longitud > 0 && !regLetra.test(valor)) {
         setInvalid(inputEl, feedbackEl, "Debe contener al menos una letra");
         return false;
     }
@@ -81,7 +83,7 @@ const validarCampoTexto = (inputEl, {
  * @param {string} errorMsg - Mensaje de error a mostrar.
  * @returns {boolean} True si es válido.
  */
-const validarSelect = (inputEl, errorMsg) => {
+const validarCampoSelect = (inputEl, errorMsg) => {
     if (!inputEl) return false;
 
     const feedbackEl = inputEl.parentElement.parentElement.querySelector('.form-text');

@@ -15,9 +15,10 @@ function agregarValidaciones() {
     })
     const validarDescripcion = () => validarCampoTexto(iDescripcion, {
         maxLength: 100,
+        allowOnlyNumbers: true
     })
-    const validarCategoria = () => validarSelect(iCategoria, 'Debe seleccionar una categoría válida')
-    const validarMedida = () => validarSelect(iMedida, 'Debe seleccionar una medida válida')
+    const validarCategoria = () => validarCampoSelect(iCategoria, 'Debe seleccionar una categoría válida')
+    const validarMedida = () => validarCampoSelect(iMedida, 'Debe seleccionar una medida válida')
 
     // validar al desenfocar campo o al enviar formulario
     iNombre?.addEventListener('input', validarNombre)
