@@ -19,7 +19,8 @@ class AreasSelenium extends LoginSelenium
             $this->startContador();
             $this->createSteps();
             $this->goTo('Areas');
-            $this->addSteps('p');
+            $this->addSteps(result: 'p');
+            echo "✅ ingresando a areas \n";
 
             $this->click('button[data-bs-target="#modal-generico"][data-bs-url="/DSG-Appweb/Areas/Registrar"]');
             $this->addSteps('p');

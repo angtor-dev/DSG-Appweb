@@ -30,10 +30,9 @@ $listTest = LIST_TESTS;
     }
     if(in_array("projects", $list)) {$apicontroller->getProjects(); die;}
     if(in_array("plans", $list)) {$apicontroller->getTestPlans(1); die;}
-    if(in_array("builds", $list)) {$apicontroller->getBuildsForTestPlan(10); die;}
-    if(in_array("testsuite", $list)) {$apicontroller->getTestSuitesForTestPlan(10); die;}
+    if(in_array("builds", $list)) {$apicontroller->getBuildsForTestPlan(2); die;}
+    if(in_array("testsuite", $list)) {$apicontroller->getTestSuitesForTestPlan(2); die;}
     if(in_array("testcase", $list)) {$apicontroller->getTestCasesForTestSuite($apicontroller->testSuiteAlfa['id']); die;}
-
     $__executeTest = function ($test) use ($searchTest, $list, $listTest) {
         if(!$searchTest ) return true; // si no esta buscando un test especifico, se ejecutan todos
         else{

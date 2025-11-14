@@ -3,8 +3,9 @@
     "description": "gestor de tareas del dsg",
     "require": {
         "phpmailer/phpmailer": "^6.9",
-        "php-webdriver/webdriver": "^1.15",
+        "php-webdriver/webdriver": "^1.1",
         "phpxmlrpc/phpxmlrpc": "^4.11"
+        
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6"

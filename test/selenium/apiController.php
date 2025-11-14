@@ -26,65 +26,70 @@ class ApiController
     public $testCases;
     public function __construct()
     {
-        $this->projectInfo = ["name" => "dsg", "id" => 1];
-        $this->testPlan = ["name" => "plan de pruebas generales", "id" => 10];
-        $this->testBuild = ["name" => "DSG-V1", "id" => 2];
-        $this->testSuiteAlfa = ["name" => "TSAL01 - Pruebas Alfa Sistema de Gestión", "id" => 255, "parentId" => 1];
+        $this->projectInfo = ["name" => "Pruebas DSG", "id" => 1];
+        $this->testPlan = ["name" => "Plan de Pruebas V1.0 - Servicios Generales", "id" => 2];
+        $this->testBuild = ["name" => "DSG-V1", "id" => 1];
+        $this->testSuiteAlfa = ["name" => "TSAL01 - Pruebas Alfa Sistema de Gestión", "id" => 326, "parentId" => 1];
 
         $this->testCases = [
-            [ 'id' => 256, 'name' => 'TCAA01 - Registrar Área', 'parent_id' => 255 ],       
-            [ 'id' => 263, 'name' => 'TCAA02 - Actualizar Área', 'parent_id' => 255 ],      
-            [ 'id' => 270, 'name' => 'TCAA03 - Eliminar Área', 'parent_id' => 255 ],        
-            [ 'id' => 276, 'name' => 'TCAC04 - Registrar Cargo', 'parent_id' => 255 ],      
-            [ 'id' => 283, 'name' => 'TCAC05 - Actualizar Cargo', 'parent_id' => 255 ],     
-            [ 'id' => 290, 'name' => 'TCAC06 - Eliminar Cargo', 'parent_id' => 255 ],       
-            [ 'id' => 296, 'name' => 'TCAT07 - Registrar Trabajador', 'parent_id' => 255 ], 
-            [ 'id' => 304, 'name' => 'TCAT08 - Actualizar Trabajador', 'parent_id' => 255 ],
-            [ 'id' => 311, 'name' => 'TCAT09 - Eliminar Trabajador', 'parent_id' => 255 ],  
-            [ 'id' => 317, 'name' => 'TCAR10 - Generar Reporte', 'parent_id' => 255 ],      
-            [ 'id' => 324, 'name' => 'TCAU11 - Registrar Usuario', 'parent_id' => 255 ],    
-            [ 'id' => 332, 'name' => 'TCARP12 - Crear Rol', 'parent_id' => 255 ],
-            [ 'id' => 340, 'name' => 'TCACA13 - Registrar Categoría', 'parent_id' => 255 ], 
-            [ 'id' => 347, 'name' => 'TCACA14 - Actualizar Categoría', 'parent_id' => 255 ],
-            [ 'id' => 354, 'name' => 'TCACA15 - Eliminar Categoría', 'parent_id' => 255 ],  
-            [ 'id' => 360, 'name' => 'TCADI16 - Registrar División', 'parent_id' => 255 ],
-            [ 'id' => 367, 'name' => 'TCADI17 - Actualizar División', 'parent_id' => 255 ],
-            [ 'id' => 374, 'name' => 'TCADI18 - Eliminar División', 'parent_id' => 255 ],
-            [ 'id' => 380, 'name' => 'TCAME19 - Registrar Medida', 'parent_id' => 255 ],
-            [ 'id' => 387, 'name' => 'TCAME20 - Actualizar Medida', 'parent_id' => 255 ],
-            [ 'id' => 394, 'name' => 'TCAME21 - Eliminar Medida', 'parent_id' => 255 ],
-            [ 'id' => 400, 'name' => 'TCATU22 - Registrar Turno', 'parent_id' => 255 ],
-            [ 'id' => 408, 'name' => 'TCATU23 - Actualizar Turno', 'parent_id' => 255 ],
-            [ 'id' => 415, 'name' => 'TCATU24 - Eliminar Turno', 'parent_id' => 255 ],
-            [ 'id' => 421, 'name' => 'TCAAS25 - Registrar Asistencia', 'parent_id' => 255 ],
-            [ 'id' => 429, 'name' => 'TCAAS26 - Actualizar Asistencia', 'parent_id' => 255 ],
-            [ 'id' => 436, 'name' => 'TCAAS27 - Eliminar Asistencia', 'parent_id' => 255 ],
-            [ 'id' => 442, 'name' => 'TCAAR28 - Registrar Artículo', 'parent_id' => 255 ],
-            [ 'id' => 451, 'name' => 'TCAAR29 - Actualizar Artículo', 'parent_id' => 255 ],
-            [ 'id' => 459, 'name' => 'TCAAR30 - Eliminar Artículo', 'parent_id' => 255 ],
-            [ 'id' => 465, 'name' => 'TCACI31 - Registrar Corrección de Inventario', 'parent_id' => 255 ],
-            [ 'id' => 473, 'name' => 'TCANE32 - Registrar Nota de Entrega', 'parent_id' => 255 ],
-            [ 'id' => 481, 'name' => 'TCATA33 - Registrar Tarea', 'parent_id' => 255 ],
-            [ 'id' => 490, 'name' => 'TCARE34 - Filtrar Reporte', 'parent_id' => 255 ],
-            [ 'id' => 497, 'name' => 'TCARE35 - Exportar Reporte', 'parent_id' => 255 ],
-            [ 'id' => 504, 'name' => 'TCAES36 - Visualizar Estadísticas', 'parent_id' => 255 ],
-            [ 'id' => 510, 'name' => 'TCAES37 - Filtrar Estadísticas', 'parent_id' => 255 ],
-            [ 'id' => 517, 'name' => 'TCAUS38 - Actualizar Usuario', 'parent_id' => 255 ],
-            [ 'id' => 525, 'name' => 'TCAUS39 - Eliminar Usuario', 'parent_id' => 255 ],
-            [ 'id' => 531, 'name' => 'TCARP40 - Asignar Permisos', 'parent_id' => 255 ],
-            [ 'id' => 538, 'name' => 'TCARP41 - Eliminar Rol', 'parent_id' => 255 ],
-            [ 'id' => 1109, 'name' => 'TCAL01 - Login Invalido', 'parent_id' => 255 ],
-            [ 'id' => 1114, 'name' => 'TCAL02 - Login Valido', 'parent_id' => 255 ],
+            ["id" => 326, "name" => "TSAL01 - Pruebas Beta Sistema de Gestión", "parent_id" => 325],
+["id" => 500, "name" => "TCAAS26 - Actualizar Asistencia", "parent_id" => 326],
+["id" => 976, "name" => "TSAL01 - Pruebas Alfa Sistema de Gestión", "parent_id" => 1],
+["id" => 977, "name" => "TCAA01 - Registrar Área", "parent_id" => 976],
+["id" => 984, "name" => "TCAA02 - Actualizar Área", "parent_id" => 976],
+["id" => 991, "name" => "TCAA03 - Eliminar Área", "parent_id" => 976],
+["id" => 997, "name" => "TCAC04 - Registrar Cargo", "parent_id" => 976],
+["id" => 1004, "name" => "TCAC05 - Actualizar Cargo", "parent_id" => 976],
+["id" => 1011, "name" => "TCAC06 - Eliminar Cargo", "parent_id" => 976],
+["id" => 1017, "name" => "TCAT07 - Registrar Trabajador", "parent_id" => 976],
+["id" => 1025, "name" => "TCAT08 - Actualizar Trabajador", "parent_id" => 976],
+["id" => 1032, "name" => "TCAT09 - Eliminar Trabajador", "parent_id" => 976],
+["id" => 1038, "name" => "TCAR10 - Generar Reporte", "parent_id" => 976],
+["id" => 1045, "name" => "TCAU11 - Registrar Usuario", "parent_id" => 976],
+["id" => 1053, "name" => "TCARP12 - Crear Rol", "parent_id" => 976],
+["id" => 1061, "name" => "TCACA13 - Registrar Categoría", "parent_id" => 976],
+["id" => 1068, "name" => "TCACA14 - Actualizar Categoría", "parent_id" => 976],
+["id" => 1075, "name" => "TCACA15 - Eliminar Categoría", "parent_id" => 976],
+["id" => 1081, "name" => "TCADI16 - Registrar División", "parent_id" => 976],
+["id" => 1088, "name" => "TCADI17 - Actualizar División", "parent_id" => 976],
+["id" => 1095, "name" => "TCADI18 - Eliminar División", "parent_id" => 976],
+["id" => 1101, "name" => "TCAME19 - Registrar Medida", "parent_id" => 976],
+["id" => 1108, "name" => "TCAME20 - Actualizar Medida", "parent_id" => 976],
+["id" => 1115, "name" => "TCAME21 - Eliminar Medida", "parent_id" => 976],
+["id" => 1121, "name" => "TCATU22 - Registrar Turno", "parent_id" => 976],
+["id" => 1129, "name" => "TCATU23 - Actualizar Turno", "parent_id" => 976],
+["id" => 1136, "name" => "TCATU24 - Eliminar Turno", "parent_id" => 976],
+["id" => 1142, "name" => "TCAAS25 - Registrar Asistencia", "parent_id" => 976],
+["id" => 1150, "name" => "TCAAS26 - Actualizar Asistencia", "parent_id" => 976],
+["id" => 1157, "name" => "TCAAS27 - Eliminar Asistencia", "parent_id" => 976],
+["id" => 1163, "name" => "TCAAR28 - Registrar Artículo", "parent_id" => 976],
+["id" => 1172, "name" => "TCAAR29 - Actualizar Artículo", "parent_id" => 976],
+["id" => 1180, "name" => "TCAAR30 - Eliminar Artículo", "parent_id" => 976],
+["id" => 1186, "name" => "TCACI31 - Registrar Corrección de Inventario", "parent_id" => 976],
+["id" => 1194, "name" => "TCANE32 - Registrar Nota de Entrega", "parent_id" => 976],
+["id" => 1202, "name" => "TCATA33 - Registrar Tarea", "parent_id" => 976],
+["id" => 1211, "name" => "TCARE34 - Filtrar Reporte", "parent_id" => 976],
+["id" => 1218, "name" => "TCARE35 - Exportar Reporte", "parent_id" => 976],
+["id" => 1225, "name" => "TCAES36 - Visualizar Estadísticas", "parent_id" => 976],
+["id" => 1231, "name" => "TCAES37 - Filtrar Estadísticas", "parent_id" => 976],
+["id" => 1238, "name" => "TCAUS38 - Actualizar Usuario", "parent_id" => 976],
+["id" => 1246, "name" => "TCAUS39 - Eliminar Usuario", "parent_id" => 976],
+["id" => 1252, "name" => "TCARP40 - Asignar Permisos", "parent_id" => 976],
+["id" => 1259, "name" => "TCARP41 - Eliminar Rol", "parent_id" => 976],
+["id" => 1260, "name" => "TCAL01 - Login Invalido", "parent_id" => 976],
+["id" => 1265, "name" => "TCAL02 - Login Valido", "parent_id" => 976],
         ];
 
 
 
         $testlinkUrl = "http://localhost:8080/testlink-1.9.20/lib/api/xmlrpc/v1/xmlrpc.php";
-        $this->userApiKey = "874e34254509eb018661b58e2921c097";
-        $this->apiKey = "de713869d1db126cff30a1fc0e990962fbb277905c67ac8f363f7a22e50eb95b";
+        $this->userApiKey = "c99d3e509e09af7151225be92c01ccbf";
+        $this->apiKey = "452e59f6084d94442fd8f653932afcb824cc4e6e1e5504cef39f1aadd7b09d79";
+        if(ENABLE_REPORTS){
+            $this->client = new Client($testlinkUrl);
 
-        $this->client = new Client($testlinkUrl);
-        $this->buildName = "dsg";
+        }
+        $this->buildName = "Pruebas DSG";
     }
     /**
      * Reports a result for a single test case for Testlink
@@ -367,6 +372,7 @@ class ApiController
         echo "\n--- Test Suites (Para Plan ID: {$planId}) ---\n";
         
         $testCases = [];
+
         $numCases = $xmlRpcArray->arraySize();
         
         if ($numCases > 0) {
