@@ -249,7 +249,7 @@
 									}
 								}
 							],
-							drawCallback: drawCallback
+							drawCallbackPlus: drawCallback
 
 				        });
 				}
