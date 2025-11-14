@@ -434,7 +434,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
          * Imprime una cadena con un icono al inicio
          * 
          * @param string $str la cadena a imprimir
-         * @param int $icon el icono a imprimir (1: ✅, 2: ⚠ , 3:❌ , 4: 🔎, 5: ༼ つ ◕_◕ ༽つ, 6: `(*>﹏<*)′ )
+         * @param int $icon el icono a imprimir (1: ✅, 2: ⚠ , 3:❌ , 4: 🔎, 5: ༼ つ ◕_◕ ༽つ, 6: `(*>﹏<*)′, 7: ✍(◔◡◔), 8: (✿◠‿◠))
          */
         public function print($str,$icon = 1){
             $icon--;
@@ -445,12 +445,147 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 "🔎",
                 "༼ つ ◕_◕ ༽つ",
 
-                "`(*>﹏<*)′"
+                "`(*>﹏<*)′",
+                
+                "✍(◔◡◔)",
+                "(✿ ◠‿◠)"
             ];
 
             preg_match("/^([\t|\s]*)/", $str, $matches);
             $message = preg_replace("/^[\t|\s]*/", "", $str);
             echo $matches[1] . $icons[$icon] .' '. $message . "\n";
+        }
+
+
+        /**
+         * Llena un select con el valor especificado
+         * 
+         * @param WebDriverBy|string $selectorOrigen el selector del elemento select
+         * @param string $value el valor a buscar en el select
+         * @param string $selectBy el criterio de busqueda en el select (text o value)
+         * @param int $timeout el tiempo de espera en segundos
+         * @param int $interval el intervalo de espera en milisegundos
+         * @param string $mensaje el mensaje a mostrar en caso de error
+         * @throws Exception si no se encuentra el elemento o no se puede llenar el formulario
+         */
+        public function fillSelect($selectorOrigen, $value,$selectBy = 'text', $timeout = 3, $interval = 500, $mensaje = 'Elemento no encontrado') {
+            try {
+                $selector = $this->selector($selectorOrigen);
+                $this->driver->wait($timeout, $interval)->until(
+                    WebDriverExpectedCondition::visibilityOfElementLocated($selector),
+                    $mensaje
+                );
+                $select = $this->driver->findElement($selector);
+                if ($select->getTagName() != 'select') {
+                    throw new \Exception('El elemento no es un select');
+                }
+                
+                $select->click();
+
+                $options = $select->findElements(WebDriverBy::tagName('option'));
+                $found = false;
+                foreach ($options as $option) {
+                    if ($selectBy == 'text' && $option->getText() == $value || $selectBy == 'value' && $option->getAttribute('value') == $value) {
+                        $option->click();
+                        $found = true;
+                        break;
+                    }
+                }
+                if(!$found){
+                    throw new Exception("No se encontro el elemento");
+                }
+
+            } catch (\Exception $th) {
+                $this->print("  Error al llenar el formulario". (is_string($selectorOrigen) ? " ({$selectorOrigen})" : '') ,3);
+                echo "      {$th->getMessage()}\n";
+            }
+        }
+
+        /**
+         * Llena varios select con los valores especificados en un array.
+         * Cada elemento del array debe tener una clave "selector" con el valor del selector del elemento select,
+         * una clave "value" con el valor a buscar en el select y opcionalmente una clave "selectBy" con el criterio de busqueda en el select (text o value).
+         * 
+         * @param array $elements un array con los elementos a llenar
+         * @param int $timeout el tiempo de espera en segundos
+         * @param int $interval el intervalo de espera en milisegundos
+         * @param string $mensaje el mensaje a mostrar en caso de error
+         * @throws Exception si no se encuentra alguno de los elementos o no se puede llenar alguno de los formulario
+         */
+        public function fillSelects(array $elements, $timeout = 3, $interval = 500, $mensaje = 'Elemento no encontrado') {
+            try {
+                foreach ($elements as $element) {
+                    $this->fillSelect($element['selector'], $element['value'], $element['selectBy'] ?? 'text', $timeout, $interval, $mensaje);
+                }
+            } catch (\Exception $th) {
+                $this->print("Error al llenar el formulario",3);
+                echo "{$th->getMessage()}\n" ;
+            }
+        }
+
+
+        /**
+         * Busca una fila en una tabla con un texto especificado.
+         * La busqueda se puede realizar en una columna especifica o en todas las columnas.
+         * Si la columna es especificada, se busca con el texto especificado en esa columna.
+         * Si no se especifica la columna, se busca el texto en todas las columnas.
+         * 
+         * @param string $tableSelector el selector del elemento table
+         * @param string $text el texto a buscar en la tabla
+         * @param int|null $inColumn la columna en la que se debe buscar el texto (si es null, se busca en todas las columnas)
+         * @param int $timeout el tiempo de espera en segundos
+         * @param int $interval el intervalo de espera en milisegundos
+         * @param string $mensaje el mensaje a mostrar en caso de error
+         * @return RemoteWebElement la fila encontrada con el texto especificado
+         * @throws Exception si no se encuentra la tabla o no se puede buscar la fila con el texto especificado
+         */
+        public function findRowInTableByText($tableSelector, $text, $inColumn = null, $timeout = 3, $interval = 500, $mensaje = 'Elemento no encontrado') {
+            try {
+                $tableBy = $this->selector($tableSelector);
+                $this->driver->wait($timeout, $interval)->until(
+                    WebDriverExpectedCondition::visibilityOfElementLocated($tableBy),
+                    $mensaje
+                );
+                $table = $this->driver->findElement($tableBy);
+                if ($table->getTagName() != 'table') {
+                    throw new \Exception('      El elemento no es una tabla');
+                }
+
+
+                $rows = $table->findElements(WebDriverBy::tagName('tr'));
+                foreach ($rows as $row) {
+                    $td = null;
+                    if(is_int($inColumn)){
+                        try {
+                            $td = $row->findElement(WebDriverBy::xpath(".//td[{$inColumn}][contains(.,'{$text}')]"));
+                            $this->print("      Fila encontrada con el texto especificado ( {$text} ) en la columna {$inColumn}");
+                            break;
+                        } catch (\Throwable $th) {
+                            $td = null;
+                        }
+                    }
+                    else{
+                        try {
+                            $td = $row->findElement(WebDriverBy::xpath(".//td[contains(.,'{$text}')]"));
+                            $this->print("      Fila encontrada con el texto especificado ( {$text} )");
+                            break;
+                        } catch (\Throwable $th) {
+                            $td = null;
+                        }
+                        
+                    }
+                }
+
+                if ($td) {
+                    return $row;
+                };
+                $this->print("      Fila no encontrada con el texto especificado ( {$text} ) ",6);
+                throw new Exception("", 1);
+            } catch (\Exception $th) {
+                $this->print(" Error al buscar la fila en la tabla". (is_string($tableSelector) ? " ({$tableSelector})" : '') ,3);
+                echo "      {$th->getMessage()}\n";
+                throw $th;
+            }
         }
 
 
