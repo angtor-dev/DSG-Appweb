@@ -12,6 +12,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
         public $steps;
         public $startCounter;
         public $lastTime;
+        private $triedStepNote = null;
 
         public function __construct(){
             $this->startCounter = null;
@@ -59,6 +60,10 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
         
         public function createSteps(){
             $this->steps = array();
+            $this->triedStepNote = null;
+        }
+        public function triedStepNote($note){
+            $this->triedStepNote = $note;
         }
 
         /**
@@ -82,11 +87,12 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
             $this->endContador();
             $contador = count($this->steps);
             $result = "f";
+            $notas = $this->triedStepNote ?? '';
             for($i = $contador + 1; $i <= $num; $i++){
                 $this->steps[] = array(
                     'step_number' => $i,
                     'result' => $result,
-                    'notes' => ''
+                    'notes' => $notas
                 );
                 $result = "b";
             }
@@ -175,7 +181,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                     $mensaje
                 );
                 return $this->driver->findElement($selector);
-            } catch (\Exception $th) {
+            } catch (\Throwable $th) {
                 echo "Error al esperar el elemento :: {$th->getMessage()}\n" ;
                 throw $th;
             }
@@ -422,7 +428,8 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 return $span;
                 
             } catch (\Throwable $th) {
-                $this->print(" Error al esperar el elemento",6);
+                $this->print(" Error al esperar el elemento",3);
+                echo "\n ($idElemnent) \n";
                 echo $th->getMessage();
                 throw $th;
             }
@@ -447,7 +454,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 
                 "`(*>﹏<*)′",
                 
-                "✍(◔◡◔)",
+                "✍ (◔◡◔)",
                 "(✿ ◠‿◠)"
             ];
 
@@ -462,7 +469,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
          * 
          * @param WebDriverBy|string $selectorOrigen el selector del elemento select
          * @param string $value el valor a buscar en el select
-         * @param string $selectBy el criterio de busqueda en el select (text o value)
+         * @param 'text'|'value' $selectBy el criterio de busqueda en el select (text o value)
          * @param int $timeout el tiempo de espera en segundos
          * @param int $interval el intervalo de espera en milisegundos
          * @param string $mensaje el mensaje a mostrar en caso de error
@@ -487,6 +494,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 foreach ($options as $option) {
                     if ($selectBy == 'text' && $option->getText() == $value || $selectBy == 'value' && $option->getAttribute('value') == $value) {
                         $option->click();
+                        $select->click();
                         $found = true;
                         break;
                     }
@@ -496,7 +504,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 }
 
             } catch (\Exception $th) {
-                $this->print("  Error al llenar el formulario". (is_string($selectorOrigen) ? " ({$selectorOrigen})" : '') ,3);
+                $this->print("  Error seleccionar opcion de select". (is_string($selectorOrigen) ? " ({$selectorOrigen})" : '') ,3);
                 echo "      {$th->getMessage()}\n";
             }
         }
@@ -518,7 +526,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                     $this->fillSelect($element['selector'], $element['value'], $element['selectBy'] ?? 'text', $timeout, $interval, $mensaje);
                 }
             } catch (\Exception $th) {
-                $this->print("Error al llenar el formulario",3);
+                $this->print("Error al seleccionar opciones",3);
                 echo "{$th->getMessage()}\n" ;
             }
         }
