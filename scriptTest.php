@@ -6,7 +6,7 @@ require_once 'vendor/autoload.php';
     ✅
     🔎
 */
-define("LIST_TESTS", ["login", "areas"]);
+define("LIST_TESTS", ["login", "areas", "trabajador"]);
 
 
 
@@ -45,6 +45,7 @@ $listTest = LIST_TESTS;
 
 if($__executeTest("login")) (new LoginSelenium($apicontroller))->testLogin();
 if($__executeTest("areas")) (new AreasSelenium($apicontroller))->testArea();
+if($__executeTest("trabajador")) (new TrabajadorSelenium($apicontroller))->testTrabajador();
 
 
 echo "\n END \n";
