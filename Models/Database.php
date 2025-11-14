@@ -98,7 +98,7 @@ class Database
     public function connectUser() : bool
     {
         try {
-            $dns = "mysql:host=".DB_USERS_HOST.";". DB_USERS_PORT."dbname=".DB_USERS_NAME.";charset=".$this->charset;
+            $dns = "mysql:host=".DB_USERS_HOST.";port=".DB_USERS_PORT.";dbname=".DB_USERS_NAME.";charset=".$this->charset;
             
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -263,9 +263,9 @@ class Database
                     
                     "asignacion_laboral",
                     "asistencia_inasistencia",
-                    //"inasistencia",
-                   // "asistencia",
-                    "inventariohistorial",
+                    "inasistencia",
+                    "asistencia",
+                    //"inventariohistorial",
                     "entrada",
                     
                     "entradadetalle",

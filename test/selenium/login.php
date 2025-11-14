@@ -27,10 +27,13 @@ class LoginSelenium extends ComunSelenium{
         try {
             $this->startContador();
             $this->openSystemDSG(false);
+
+
             $this->waitUrl(url('Login'));
+            
             $this->addSteps('p'); // ingresar al sistema
 
-            $this->fillFroms([
+            $this->fillForms([
                 ['selector' => 'input[name="correo"]', 'value' => 'admin@dsg.com'],
                 ['selector' => 'input[name="clave"]', 'value' => 'hola123'],
             ]);

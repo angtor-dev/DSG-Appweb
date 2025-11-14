@@ -1,3 +1,7 @@
+
+
+
+
 /**
  * Script con la logica de los componentes y
  * funciones de utilidades para facilitar la vida
@@ -607,3 +611,361 @@ function getHora(fecha){
     let strTime = horas + ':' + minutos + ' ' + ampm;
     return strTime;
 }
+
+/**
+ * para formularios sin js
+ * @param {string|Array} elem query Selector
+ * @param {*} maxLength 
+ */
+function addPreventLongStringInput(elem, maxLength = 50) {
+
+    if(Array.isArray(elem)){
+
+        elem.forEach(element => {
+            addPreventLongStringInput(element,maxLength);
+        });
+    }
+    else{
+        let input = document.querySelector(elem);
+        if(!input) return;
+        input.addEventListener('input', function () {
+
+            let sms = false;
+            if(input.dataset.formtext){
+                sms = document.getElementById(input.dataset.formtext);
+                if(!sms) sms = false;
+            }
+            if(!sms){
+                sms = input.nextElementSibling.classList.contains("invalid-feedback") ? input.nextElementSibling: false;
+            }
+
+            let funcAux = function (sms,texto=""){
+                if(texto != ''){
+                    sms.textContent = texto;
+                    sms.classList.add("d-block");
+                }
+                else{
+                    sms.classList.remove("d-block");
+                    sms.textContent = "";
+                }
+            }
+
+
+
+
+
+
+            if (this.value.length > maxLength) {
+                if (sms) {
+                    funcAux(sms,`El campo no puede tener mas de ${maxLength} caracteres`);
+                    if(this.tagName == "TEXTAREA"){
+                        this.setCustomValidity(`El campo no puede tener mas de ${maxLength} caracteres`);
+                        return;
+                    }
+                }
+            }
+            else{
+                if(sms){
+                    funcAux(sms);
+                    if(this.tagName == "TEXTAREA"){
+                        this.setCustomValidity(``);
+                    }
+                }
+            }
+
+        });
+        input.pattern = `.{1,${maxLength}}`;
+        input.title = `El campo no puede tener mas de ${maxLength} caracteres`;
+    }
+
+};
+
+
+function inputValid(elem,maxLength = 50 ,regex = null, message = "INVALIDO", required = false) {
+    if(typeof elem == "string") elem = document.querySelector(elem);
+    else if(typeof elem == "object") elem = elem;
+    else{
+        console.error("Elemento no valido");
+        return;
+    }
+
+    let smsContainer = document.getElementById(elem.dataset.formText) || document.getElementById(elem.dataset.formtext) || elem.parentElement.querySelector('.form-text')
+    if(!smsContainer) console.error("Elemento no tiene form-text");
+
+
+    elem.addEventListener("input", function () {
+        invalidStatus(this);
+        if(required && this.value.length <= 0) {
+            invalidStatus(this, false, "Este campo es obligatorio");
+            return;
+        }
+        if(this.value.length > maxLength) {
+            invalidStatus(this, false, "El campo no puede tener mas de "+maxLength+" caracteres");
+            return;
+        }
+        else{
+            invalidStatus(this, true);
+        }
+
+        if(regex){
+            if(!regex.test(this.value)){
+                invalidStatus(this, false, message);
+                return;
+            }
+            else{
+                invalidStatus(this, true);
+            }
+        }
+    })
+}
+
+
+
+
+
+
+function invalidStatus (elem, control = null, mensaje = "INVALIDO") {
+    if(typeof elem == "string") elem = document.querySelector(elem);
+    else if(typeof elem == "object") elem = elem;
+    else{
+        console.error("Elemento no valido");
+        return;
+    }
+    let smsContainer = document.getElementById(elem.dataset.formText) || document.getElementById(elem.dataset.formtext) || elem.parentElement.querySelector('.form-text')
+    elem.classList.remove('is-processing');
+    if (control === true) {
+        elem.classList.add('is-valid')
+        elem.classList.remove('is-invalid')
+        elem.setCustomValidity("");
+        smsContainer ? smsContainer.textContent = "":null;
+        smsContainer ? smsContainer.classList.remove("d-block"):null;
+        elem.isValid = ()=>{ return true }
+    } else if(control === false) {
+        elem.classList.add('is-invalid')
+        elem.classList.remove('is-valid')
+        elem.setCustomValidity(mensaje);
+        smsContainer ? smsContainer.textContent = mensaje:null;
+        smsContainer ? smsContainer.classList.add("d-block"):null;
+
+        elem.isValid = ()=>{ return false }
+    }
+    else {
+        elem.classList.remove('is-valid')
+        elem.classList.remove('is-invalid')
+        elem.setCustomValidity("");
+        smsContainer ? smsContainer.textContent = "":null;
+        elem.isValid = ()=>{ return true }
+    }
+}
+
+
+
+
+
+
+function fechaNoFuture(elem){
+    if(typeof elem == "string") elem = document.querySelector(elem);
+    else if(typeof elem == "object") elem = elem;
+    else{
+        console.error("Elemento no valido");
+        return false;
+    }
+    
+    if((date = AObjetoFecha(elem.value))){
+        let today = new Date();
+        if(date.valueOf() > today.valueOf()){
+            invalidStatus(elem, false, "La fecha no puede ser futura");
+            return false;
+        }
+    }
+    else{
+        invalidStatus(elem, false, "La fecha no es valida");
+        return false;
+    }
+
+    return true;
+}
+
+
+
+function elemBlur(){
+    if(document.activeElement){
+        document.activeElement.blur();
+    }
+}
+
+
+function AObjetoFecha(fechaString) {
+    const formatoValido = /^\d{4}-\d{2}-\d{2}$/;
+    if (!formatoValido.test(fechaString)) {
+        console.error(`Error: El formato de la fecha '${fechaString}' no es 'YYYY-MM-DD'.`);
+        return null;
+    }
+    const objetoFecha = new Date(fechaString);
+    if (isNaN(objetoFecha)) {
+        console.error(`Error: La fecha '${fechaString}' es sintácticamente inválida (ej. día o mes incorrecto).`);
+        return null;
+    }
+    return objetoFecha;
+}
+
+/** para la travesia de las validaciones */
+
+function bodyLoader($loaderLocated = "body") {
+    elemBlur();
+    mostrarLoader($loaderLocated,true);
+}
+
+
+/**
+ * bloquea el formulario
+ * @param {string} form 
+ */
+function addblockFrom(form, $loaderLocated = "body") {
+    form = document.querySelector(form);
+    if(form){
+        form.addEventListener("submit",(e)=>{
+            elemBlur();
+            mostrarLoader($loaderLocated,true);
+            form.onsubmit = () => false;
+        })
+    }
+}
+
+/**
+ * recibe dos inputs typo date o el selector
+ * verifica que desde y hasta no sean una fecha futura y la hasta sea mayor a la desde
+ * @param {HTMLInputElement|string} desde 
+ * @param {HTMLInputElement|string} hasta 
+ */
+function addValidDesdeHasta(desde,hasta){
+    if(typeof desde == "string") desde = document.querySelector(desde);
+    else if(typeof desde == "object") desde = desde;
+    else{
+        console.error("Elemento no valido");
+        return;
+    }
+    if(typeof hasta == "string") hasta = document.querySelector(hasta);
+    else if(typeof hasta == "object") hasta = hasta;
+    else{
+        console.error("Elemento no valido");
+        return;
+    }
+
+
+    const fechas = function (){
+        invalidStatus(desde);// reiniciar estado
+        invalidStatus(hasta);// reiniciar estado
+
+        // Obtener los elementos de fecha
+        const fechaDesdeInput = desde;
+        const fechaHastaInput = hasta;
+        // Convertir los valores a objetos Date
+        const fechaDesde = new Date(fechaDesdeInput.value);
+        const fechaHasta = new Date(fechaHastaInput.value);
+        // Obtener la fecha actual (sin hora, para comparar solo el día)
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0); 
+        // Variable para almacenar el mensaje de error
+        // 1. Validación: "Desde" no puede ser mayor que "Hasta"
+        // Solo aplica si ambos campos tienen un valor
+        
+        // 2. Validación: Ninguna fecha puede ser del futuro
+        if (fechaDesdeInput.value && fechaDesde > hoy) {
+            invalidStatus(fechaDesdeInput, false, "La fecha no puede ser una fecha futura.");
+            return false;
+        }
+        else if(fechaDesde > fechaHasta){
+            invalidStatus(fechaDesdeInput, false, "La fecha 'desde' no puede ser mayor a la fecha 'hasta'.");
+            return false;
+        }
+        
+        if (fechaHastaInput.value && fechaHasta > hoy) {
+            invalidStatus(fechaHastaInput, false, "La fecha no puede ser una fecha futura.");
+            return false;
+        }
+        else if(fechaHasta < fechaDesde){
+            invalidStatus(fechaHastaInput, false, "La fecha 'hasta' no puede ser menor a la fecha 'desde'.");
+            return false;
+        }
+
+        return true;
+        
+    }
+
+    desde.addEventListener("input", fechas);
+    hasta.addEventListener("input", fechas);
+}
+
+function addValidNombre(elem, required = false, maxLength = 50) {
+    let regexString = `^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\\s,.-]{${required?1:0},${maxLength}}$`;
+    let regex = new RegExp(regexString);
+    inputValid(elem,50,regex,"El campo solo acepta letras, espacios, comas, puntos y guiones",required);
+}
+
+
+function addValidAlfaNum(elem, required = false, maxLength = 50) {
+    let regexString = `^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\\s,.-]{${required?1:0},${maxLength}}$`;
+    let regex = new RegExp(regexString);
+    inputValid(elem,maxLength,regex,"El campo solo acepta letras, numeros, espacios, comas, puntos y guiones",required);
+}
+
+function addValidNum(elem, required = false, maxLength = 50) {
+    let regexString = `^[0-9]{${required?1:0},${maxLength}}$`;
+    let regex = new RegExp(regexString);
+    inputValid(elem,maxLength,regex,"El campo solo acepta numeros",required);
+}
+
+function addValidTelefono(elem,required = false, maxLength = 11) {
+    let regexString = `^[0-9]{${required?1:0},${maxLength}}$`;
+    let regex = new RegExp(regexString);
+    inputValid(elem,maxLength,regex,"El campo solo acepta numeros",required);
+}
+
+/**
+ * validar si el elemento es valido
+ * 
+ * @param {string|HTMLElement|Array<string|HTMLElement>} elem 
+ * - puede ser un querySelector, un HTMLElement o un array
+ * - si es un querySelector, se convierte a un HTMLElement y se valida
+ * - si es un HTMLElement, se valida
+ * - si es un array, se valida todos los elementos
+ * @returns {boolean|null|undefined}
+ */
+function checkValidStatus(elem){
+    
+
+    let dispatch = true;
+    if(typeof elem == "string") {
+        elem = document.querySelector(elem)
+        if(!elem) {
+            console.error("Elemento no valido");
+            return;
+        }
+    }
+    else if(Array.isArray(elem)){
+        return elem.every(e => checkValidStatus(e));
+        //dispatch = false;
+    }
+    else if(typeof elem == "object") elem = elem;
+    else{
+        console.error("Elemento no valido");
+        return;
+    }
+    
+    
+    if(dispatch){
+        
+        elem.dispatchEvent(new Event('input'));
+        elem.dispatchEvent(new Event('change'));
+        if(typeof elem.isValid == "function"){
+            return elem.isValid() || false;
+        }
+        else{
+            console.error("Elemento no valido "+elem.name);
+            return false;
+        }
+    }
+}
+
+

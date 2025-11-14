@@ -71,7 +71,7 @@ class TrabajadoresTest extends TestCase
 
         $resp = $this->trabajadorObj->registrar(false);
         $this->assertIsArray($resp);
-        $this->assertEquals($resp["success"], $respuesta_esperada);
+        $this->assertEquals($respuesta_esperada, $resp["success"], $_logger["dataname"]);
     }
 
     public function registrarProvider(){
@@ -135,6 +135,12 @@ class TrabajadoresTest extends TestCase
             "Entrada Invalida - Fecha de Ingreso Invalida" => $auxiliar($cedulaValida, $nombreValido, $apellidoValido, $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoInvalida, false, ["mensaje esperado" => "El campo 'Fecha de Ingreso' debe ser una fecha valida"]),
             "Entrada Invalida - Cargo Vacio" => $auxiliar($cedulaValida, $nombreValido, $apellidoValido, $telefonoValido, $cargoVacio, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false, ["mensaje esperado" => "El campo 'Cargo' es obligatorio"]),
             "Entrada Invalida - Cargo Invalido" => $auxiliar($cedulaValida, $nombreValido, $apellidoValido, $telefonoValido, $cargoInvalido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false, ["mensaje esperado" => "El campo 'Cargo' es obligatorio"]),
+            "Entrada Invalida - Nombre Muy Largo" => $auxiliar($cedulaValida, str_repeat("a", 300), $apellidoValido, $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false ,["mensaje esperado" => "El campo 'Nombre' solo puede contener 50 caracteres"]),
+            "Entrada Invalida - Apellido Muy Largo" => $auxiliar($cedulaValida, $nombreValido, str_repeat("a", 300), $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false ,["mensaje esperado" => "El campo 'Apellido' solo puede contener 50 caracteres"]),
+            "Entrada Invalida - Nombre XSS" => $auxiliar($cedulaValida, "<script>alert('XSS')</script>", $apellidoValido, $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false ,["mensaje esperado" => "El campo 'Nombre' solo puede contener letras y números"]),
+            "Entrada Invalida - Apellido XSS" => $auxiliar($cedulaValida, $nombreValido, "<script>alert('XSS')</script>", $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false ,["mensaje esperado" => "El campo 'Apellido' solo puede contener letras y números"]),
+            
+            
         ];
     }
 
@@ -237,6 +243,10 @@ class TrabajadoresTest extends TestCase
             "Actualizar - División Vacío" =>    $aux($id, $cedulaSeleccion, $cedulaValida, $nombreValido, $apellidoValido, $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoVacio, $fechaIngresoValida, false, ["mensaje esperado" => "El campo 'Departamento' es obligatorio"]),
             "Actualizar - División Invalido" => $aux($id, $cedulaSeleccion, $cedulaValida, $nombreValido, $apellidoValido, $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoInvalido, $fechaIngresoValida, false, ["mensaje esperado" => "El campo 'Departamento' solo puede contener números y no puede tener mas de 5 digitos"]),
             "Actualizar - Turno Inexistente" => $aux($id, $cedulaSeleccion, $cedulaValida, $nombreValido, $apellidoValido, $telefonoValido, $cargoValido, "99999", $idDepartamentoValido, $fechaIngresoValida, false, ["mensaje esperado" => "El turno no existe"]),
+            "Actualizar - Nombre Muy Largo" => $aux($id, $cedulaSeleccion, $cedulaValida, str_repeat("a", 300), $apellidoValido, $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false ,["mensaje esperado" => "El campo 'Nombre' solo puede contener 50 caracteres"]),
+            "Actualizar - Apellido Muy Largo" => $aux($id, $cedulaSeleccion, $cedulaValida, $nombreValido, str_repeat("a", 300), $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false ,["mensaje esperado" => "El campo 'Apellido' solo puede contener 50 caracteres"]),
+            "Actualizar - nombre XSS" => $aux($id, $cedulaSeleccion, $cedulaValida, "<script>alert('XSS')</script>", $apellidoValido, $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false ,["mensaje esperado" => "El campo 'Nombre' solo puede contener letras y números"]),
+            "Actualizar - apellido XSS" => $aux($id, $cedulaSeleccion, $cedulaValida, $nombreValido, "<script>alert('XSS')</script>", $telefonoValido, $cargoValido, $turnoValido, $idDepartamentoValido, $fechaIngresoValida, false ,["mensaje esperado" => "El campo 'Apellido' solo puede contener letras y números"]),
         ];
     }
 

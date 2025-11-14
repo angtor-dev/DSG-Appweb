@@ -1,12 +1,11 @@
 <?php
-require_once('vendor/autoload.php');
+require_once 'vendor/autoload.php';
 /*
-    php scriptTest.php
+    php scriptTest.php [test1 test2 ...]
     ❌
     ✅
+    🔎
 */
-define("URL", "http://localhost/DSG-Appweb/" );
-define("ENABLE_REPORTS", true);
 define("LIST_TESTS", ["login", "areas"]);
 
 
@@ -23,9 +22,9 @@ $listTest = LIST_TESTS;
 
     $list = [];
     if($argc > 1) {
+        $searchTest = true;
         foreach ($argv as $elem) {
             $list[] = $elem;
-            if(in_array($elem, $listTest) ) $searchTest = true;
         }
     }
     if(in_array("projects", $list)) {$apicontroller->getProjects(); die;}
@@ -67,5 +66,4 @@ echo "\n END \n";
  * @param mixed $url agrega al final de la url ej.(Area) http://localhost/DSG-Appweb/Area
  * @return string
  */
-function url($url='') { return URL.$url; }
-?>
+function url($url='') { return APP_URL.$url; }

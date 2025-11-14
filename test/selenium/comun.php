@@ -153,11 +153,20 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
          * @param array<array{selector: string, value: string}> $inputs
          * @return void
          */
-        public function fillFroms(array $inputs, $timeout = 3, $interval = 500, $mensaje = ''){
+        public function fillForms(array $inputs, $timeout = 3, $interval = 500, $mensaje = ''){
             foreach($inputs as $input){
                 $this->fillForm($input['selector'], $input['value'], $timeout, $interval, $mensaje);
             }
         }
+
+        /**
+         * epera que un elemento se encuentre visible
+         * @param WebDriverBy|string  $selector
+         * @param int $timeout
+         * @param int $interval
+         * @param string $mensaje
+         * @return RemoteWebElement
+         */
         public function waitElement($selector, $timeout = 3, $interval = 500, $mensaje = ''){
             try {
                 $selector = $this->selector($selector);
@@ -183,9 +192,9 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
             }
         }
         /**
-         * Summary of waitAlert
+         * Espera que una alerta se muestre
          * @param string $text
-         * @param 'success'|'danger' | 'warning' $type
+         * @param 'success'|'danger' | 'warning' $type = 'success'
          * @param int $timeout
          * @param int $interval
          * @param string $mensaje
@@ -209,7 +218,8 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 );
                 
             } catch (\Exception $th) {
-                echo "Error al esperar la alerta :: {$th->getMessage()}\n" ;
+                $this->print("Error al esperar la alerta",6);
+                echo ":: {$th->getMessage()}\n" ;
                 throw $th;
             }
 
@@ -219,6 +229,13 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
         public function goTo($url){
             $this->driver->get(url($url));
         }
+        /**
+         * Convierte un selector CSS o un objeto WebDriverBy en un objeto WebDriverBy para utilizarlo en las funciones de espera.
+         * Si el par metro es un string, se asume que es un selector CSS.
+         * Si el par metro es un objeto WebDriverBy, se devuelve el mismo objeto sin realizar ninguna acci n.
+         * @param string|WebDriverBy $selector Un selector CSS, un objeto WebDriverBy, o un elemento ya encontrado.
+         * @return WebDriverBy El objeto WebDriverBy resultante de la conversi n.
+         */
         public function selector(WebDriverBy|string $selector){
             if(is_string($selector)){
                 return WebDriverBy::cssSelector($selector);
@@ -268,8 +285,172 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 
             } catch (\Exception $th) {
                 echo "❌ Error al hacer scroll o esperar elemento: {$th->getMessage()}\n";
-                return null;
+                throw $th;
             }
+        }
+
+        /**
+         * Espera a que el elemento de mensajes de error de los input/select este visible 
+         * * si se le pasa el mensaje verifica que sea el mismo
+         * * usage:
+         * * <code> $this->waitFormText($this->selector('idInput'), 'El mensaje a esperar'); </code>
+         * * input:
+         * <code>
+         * con data-span
+         * <input type="text" data-span="spanId">
+         * <span id="spanId" class="form-text invalid-feedback ">El mensaje a esperar</span>
+         * 
+         * con data-formtext
+         * <input type="text" data-formtext="spanId">
+         * <span id="spanId" class="form-text invalid-feedback ">El mensaje a esperar</span>
+         * 
+         * sin data (por el elemento hermano con la clase form-text invalid-feedback )
+         * <input type="text">
+         * <span class="form-text invalid-feedback ">El mensaje a esperar</span>
+         * 
+         * sin data (por el elemento padre y luego un elemento hijo con la clase form-text invalid-feedback )
+         * <div>
+         *   <input id="passID" type="password" name="clave" class="form-control" placeholder="Contraseña" data-span="test">
+         *   <div>algo a mitad</div>
+         *   <span class="form-text invalid-feedback d-block">queso</span>
+         * </div>
+         * 
+         * </code>
+         * 
+         * si el idElemnent es un input/textarea/select desde donde encontrar el form-text este metodo tambien validara el valid de html5 ej. required pattern
+         * @param string $idElemnent selector css del input
+         * @param string $mensaje mensaje a esperar
+         * @param bool $xpath si el idElemnent es un xpath al input||.form-text
+         * @param mixed $timeout tiempo de espera
+         * @param mixed $interval iteraciones de espera
+         * 
+         * @return RemoteWebElement;
+         */
+        public function waitFormText($idElemnent, $mensaje = '', $xpath = false, $timeout = 3, $interval = 500){
+            try {
+                $input = '';
+                $this->print("  buscando form-text",5);
+                
+                if($xpath){
+                    $by = WebDriverBy::xpath($idElemnent);
+                }
+                else{
+                    $by = $this->selector("$idElemnent");
+                }
+                
+                $elem = $this->driver->findElement($by);
+                
+                if(!$elem){
+                    throw new Exception("No se pudo encontrar el elemento por su selector");
+                }
+                
+                $class = $elem->getAttribute('class');
+                
+                $span = '';
+                
+                if(str_contains($class, 'form-text') || str_contains($class, 'invalid-feedback')){
+                    $span = $elem;
+                    echo "span: seleccionado directamente\n";
+                    $this->print("  form-text encontrado directamente",4);
+
+                }
+                else{
+                    $span = $elem->getAttribute('data-span') ?? $elem->getAttribute('data-formtext') ?? '';
+                    
+
+
+                    
+                    // <div class="input-group">
+                    if(empty($span)){
+                        $input = $by;
+                        
+                        try {// buscamos el hermano
+                            $next = $elem->findElement(WebDriverBy::xpath(".//following-sibling::*[1][contains(@class, 'form-text') or contains(@class, 'invalid-feedback')]"));
+                        } catch (\Throwable $th) {
+                            // buscamos el padre y luego el hijo
+                            $next = $elem->findElement(WebDriverBy::xpath(".//ancestor::*[1]/descendant::*[contains(@class,'form-text') or contains(@class,'invalid-feedback')]"));
+                        }
+                        $span = $next;
+                        $this->print("  form-text encontrado desde el elemento [input|select|textarea (elemento campo origen)] como hermano o hijo del padre del elemento",4);
+
+                    }
+                    else{
+                        $span = $this->driver->findElement($this->selector("#$span"));
+                        $this->print("  form-text encontrado desde el data-span|data-formtext del elemento",4);
+                    }
+
+                }
+                
+
+                if(!($span instanceof RemoteWebElement)){
+                    throw new Exception("No se pudo encontrar el span de error por su selector");
+                }
+                if($input instanceof WebDriverBy ){
+
+                    $this->print("  validando con estado de input o elemento .invalid-feedback",4);
+                    
+                    $this->driver->wait($timeout, $interval)->until(
+                        function (RemoteWebDriver $driver) use ($elem, $span, $mensaje) {
+                            /**
+                             * @var RemoteWebElement $span
+                             */
+                            $validInput = !$this->driver->executeScript("return arguments[0].validity.valid", [$elem]);
+                            if($mensaje != ""){
+                                $validSpan = $span->isDisplayed() && $span->getText() == $mensaje;
+                            }
+                            else{
+                                $validSpan = $span->isDisplayed();
+                            }
+
+                            return $validInput || $validSpan;
+                            
+                        }
+                    );
+
+                }
+                else{
+                    $this->driver->wait($timeout, $interval)->until(
+                        WebDriverExpectedCondition::visibilityOf($span)
+                    );
+                    
+                }
+                if($mensaje != ""){
+                    if(!$span->getText() == $mensaje){
+                        throw new Exception("El mensaje no es el esperado \nEsperado: {$mensaje} \nObtenido: {$span->getText()} != {$mensaje}");
+                    }
+                }
+                return $span;
+                
+            } catch (\Throwable $th) {
+                $this->print(" Error al esperar el elemento",6);
+                echo $th->getMessage();
+                throw $th;
+            }
+            
+        }
+
+        
+        /**
+         * Imprime una cadena con un icono al inicio
+         * 
+         * @param string $str la cadena a imprimir
+         * @param int $icon el icono a imprimir (1: ✅, 2: ⚠ , 3:❌ , 4: 🔎, 5: ༼ つ ◕_◕ ༽つ, 6: `(*>﹏<*)′ )
+         */
+        public function print($str,$icon = 1){
+            $icon--;
+            $icons = [
+                "✅",
+                "⚠️",
+                "❌",
+                "🔎",
+                "༼ つ ◕_◕ ༽つ",
+
+                "`(*>﹏<*)′"
+            ];
+
+            preg_match("/^([\t|\s]*)/", $str, $matches);
+            $message = preg_replace("/^[\t|\s]*/", "", $str);
+            echo $matches[1] . $icons[$icon] .' '. $message . "\n";
         }
 
 

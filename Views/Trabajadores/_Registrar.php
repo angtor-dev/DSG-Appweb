@@ -7,7 +7,7 @@
             </h5>
         </div>
         <div class="modal-body">
-            <form method="post" id="form-trabajador">
+            <form method="post" id="form-trabajador" onsubmit="return false">
                 <input type="hidden" id="modificar" value="">
                 <div class="row gy-3">
                     <div class="col-md-6">

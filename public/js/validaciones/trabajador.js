@@ -53,6 +53,11 @@ function validarNombre(id) {
         iNombre.classList.add('is-invalid')
         return false
     }
+    if(valor.length > 50){
+        elTexto.textContent = "El nombre no puede tener mas de 50 caracteres"
+        iNombre.classList.add('is-invalid')
+        return false
+    }
     iNombre.classList.remove('is-invalid')
     iNombre.classList.add('is-valid')
     return true
@@ -111,17 +116,12 @@ function validarTelefono(id) {
 }
 
 function validarFecha(id) {
+
     const iFecha = document.getElementById(id)
     let valor = iFecha.value.trim()
-    iFecha.setValidStatus();
-    if(/\d{4}-\d{2}-\d{2}/.test(valor)) {
-        iFecha.setValidStatus(true)
-        return true
-    }
-    else {
-        iFecha.setValidStatus(false, "Formato de fecha incorrecto")
-        return false
-    };
+    invalidStatus(iFecha);// reiniciar estado
+    return fechaNoFuture(iFecha);
+    
 }
 
 function actualizarTrabajador (){
@@ -212,21 +212,20 @@ function agregarValidaciones() {
         }
         
     }
-    
     formulario.addEventListener('submit',async event => {
-
-
         console.log("entro formulario");
         event.preventDefault()
         event.stopPropagation()
+
+
         if (
-            validarNombre('nombre') ||
-            validarNombre('apellido') ||
-            validarSelect('cargo') ||
-            validarSelect('turno') ||
-            validarCedula('cedula') ||
-            validarSelect('departamento') ||
-            validarTelefono('telefono') ||
+            validarNombre('nombre') &&
+            validarNombre('apellido') &&
+            validarSelect('cargo') &&
+            validarSelect('turno') &&
+            validarCedula('cedula') &&
+            validarSelect('departamento') &&
+            validarTelefono('telefono') &&
             validarFecha('fecha_ingreso')
         ) {
 

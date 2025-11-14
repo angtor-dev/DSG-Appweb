@@ -17,6 +17,7 @@
         <?php require_once 'public/js/constantes.php'; ?>
     </script>
 <script src="<?= LOCAL_DIR ?>/public/lib/jquery-3.7.1.min.js"></script>
+<script src="<?= LOCAL_DIR ?>/public/js/head.js"></script>
 
 <title><?= APP_NAME ?></title>
 </head>
@@ -36,6 +37,7 @@
     <script src="<?= LOCAL_DIR ?>/public/lib/toastify/toastify.min.js"></script>
     <script src="<?= LOCAL_DIR ?>/public/lib/select2/select2.full.min.js"></script>
     <script src="<?= LOCAL_DIR ?>/public/js/main.js"></script>
+    <script src="<?= LOCAL_DIR ?>/public/js/validaciones/validaciones.js"></script>
     <script src="<?= LOCAL_DIR ?>/public/js/utilities.js"></script>
     
     <script src="<?= LOCAL_DIR ?>/public/lib/jspdf.umd.min.js"></script>
@@ -68,7 +70,7 @@
     <?php if (!empty($_SESSION['consoleError'])): ?>
         <script>
             console.error("Error en consola");
-            console.log("lista errores",[<?php echo implode(',', $_SESSION['consoleError']) ?>]);
+            console.log("lista errores",['<?php echo implode(',', $_SESSION['consoleError']) ?>']);
         </script>
         <?php unset($_SESSION['consoleError']) ?>
     <?php endif ?>

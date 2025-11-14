@@ -117,6 +117,22 @@
             }
         })
     })
+    function agregarValidaciones() {
+        let nombre = document.querySelector("#nombre");
+        let color = document.querySelector("#color");
+        let descripcion = document.querySelector("#descripcion");
+        let form = document.querySelector("#form-area");
+
+        addValidNombre("#nombre",true);
+        addPreventLongStringInput("#color");
+        addValidNombre("#descripcion",255);
+
+
+        form.addEventListener("submit", function(e) {
+            bodyLoader();
+            
+        });
+    }
 </script>
 
 

@@ -49,7 +49,16 @@
                 }
             }
         })
-    })
+    });
+
+    function agregarValidaciones() {
+        const form = document.querySelector("#form-area");
+        const nombre = form.querySelector("#nombre");
+
+
+        addValidNombre("#nombre",true);
+        addValidNum("#form-area",true,3);
+    }
 </script>
 
 <?php // agregarScript("area.js") ?>

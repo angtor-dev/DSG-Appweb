@@ -7,6 +7,9 @@
 		const agrupar = document.getElementById("agrupar");
 
 
+		addValidDesdeHasta(fechaInicio,fechaHasta);
+
+
 		const fecha = new Date();
 		// el mes debe obtenerse con los dos digitos
 		const mes = `${fecha.getMonth()+1}`.padStart(2, '0');
@@ -53,6 +56,23 @@
 		const departamento = document.getElementById("departamento").value;
 		const turno = document.getElementById("turno").value;
 		const agrupar = document.getElementById("agrupar").value;
+
+
+		const desdeField = document.getElementById("fechaInicio");
+		const hastaField = document.getElementById("hasta");
+		const departamentoField = document.getElementById("departamento");
+		const turnoField = document.getElementById("turno");
+		const agruparField = document.getElementById("agrupar");
+
+		let chekc = true;
+		[desdeField, hastaField, departamentoField, turnoField, agruparField].forEach((input) => {
+			if(input.classList.contains("is-invalid")){
+				chekc = false;
+			}
+		})
+
+		if(!chekc) return;
+
 
 		resp = await peticion("/Reportes/Asistencia",{
 			method: "POST",
@@ -119,6 +139,20 @@
 						if(semanaDias.includes(header.replace(/^(.+)\s.*/,"$1"))){
 							th.classList.add("no-sort");
 						}
+					}else if(agrupar === ''){
+						if(header === "descripcion" || header === "tipo"){
+							th.classList.add("no-visible");
+						}
+						else if(header === "Acción"){
+							th.classList.add("btn-mostrar-detalle");
+						}
+						data.forEach(dato => {
+							let fecha = dato[3];
+							if((fecha = fecha.split("-")).length === 3){
+								dato[3] = fecha.reverse().join("/");
+							}
+						});
+						
 					}
 
 
@@ -141,7 +175,7 @@
 				tabla.appendChild(tbody);
 
 				//*************************************
-
+				let drawCallback = function (settings) {};
 				if(agrupar == ""){
 					data.forEach(dato => {
 						let fecha = dato[3];
@@ -149,6 +183,11 @@
 							dato[3] = fecha.reverse().join("/");
 						}
 					});
+
+					drawCallback = function (settings) {
+						inicializarTooltips("reporteAsistencia");
+					}
+
 				}
 
 
@@ -178,10 +217,43 @@
 								mostrarLoader("body", false);
 							},
 							columnDefs: [
-								{ orderable: false, targets: '.no-sort' } // Columnas con clase 'no-sort'
-							]
+								{ orderable: false, targets: '.no-sort' }, // Columnas con clase 'no-sort'
+								{ 
+									visible: false,
+									searchable: false,
+									targets: '.no-visible'
+
+								},
+								{
+									targets: '.btn-mostrar-detalle',
+									createdCell: function(td, cellData, rowData, row, col) {
+										if(rowData[6] != "Asistencia" ){
+											let button = crearElemento(
+												"div",
+												{
+													class: "accion pointer text-center",
+													type: "button",
+													"data-bs-toggle": "tooltip",
+													"data-bs-title": "Ver Observación",
+													"aria-label": "Ver Observación",
+													"data-bs-original-title": "Ver Observación"
+												}
+											);
+	
+											button.innerHTML = '<i class="fa-solid fa-eye"></i>';
+											button.onclick = () => mostrarDetalles(rowData);
+											
+											td.appendChild(button);
+											
+										}
+									}
+								}
+							],
+							drawCallback: drawCallback
+
 				        });
 				}
+				
 
 
 				//*************************************
@@ -212,4 +284,43 @@
 
 
 
+	}
+
+	function mostrarDetalles(row){
+		/*
+		modalObCedula
+		modalObNombre
+		modalObFecha
+		modalObTurno
+		modalObDivision
+		modalObObservación
+		*/
+		const modal = document.getElementById('modalObservacion');
+		const modalCedula = document.getElementById('modalObCedula');
+		const modalNombre = document.getElementById('modalObNombre');
+		const modalFecha = document.getElementById('modalObFecha');
+		const modalTurno = document.getElementById('modalObTurno');
+		const modalDivision = document.getElementById('modalObDivision');
+		const modalObservacion = document.getElementById('modalObObservación');
+		const modalTipo = document.getElementById('modalObTipo');
+		modalCedula.innerText = row[0];
+		modalNombre.innerText = row[1]+" "+row[2];
+		modalFecha.innerText = row[3];
+		modalTurno.innerText = row[4];
+		modalDivision.innerText = row[5];
+		modalObservacion.innerText = row[8];
+		modalTipo.innerText = row[9];
+		//new bootstrap.Modal(document.getElementById('modalObservacion')).show();
+		var myModal = new bootstrap.Modal(document.getElementById('modalObservacion'));
+		myModal.show();
+	}
+
+	function inicializarTooltips(tablaId) {
+		// Busca todos los elementos con el atributo de tooltip dentro del cuerpo de la tabla
+		document.querySelectorAll(`#${tablaId} [data-bs-toggle="tooltip"]`).forEach(tooltipEl => {
+			// Asegúrate de que el tooltip no haya sido ya inicializado para evitar duplicados
+			if (!bootstrap.Tooltip.getInstance(tooltipEl)) {
+				new bootstrap.Tooltip(tooltipEl);
+			}
+		});
 	}

@@ -13,7 +13,7 @@
                 <div class="row gy-3">
                     <div class="col-md-12">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre">
+                        <input required type="text" class="form-control" id="nombre" name="nombre">
                         <div class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-12">

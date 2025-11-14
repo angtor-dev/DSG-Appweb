@@ -14,7 +14,7 @@ $colorHex = sprintf("%02x%02x%02x", rand(0, 255), rand(0, 255), rand(0, 255));
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre">
+                        <input required type="text" class="form-control" id="nombre" name="nombre">
                         <div class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">

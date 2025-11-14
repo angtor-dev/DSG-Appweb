@@ -433,6 +433,9 @@ abstract class Model
      */
     public function testHandler() : bool
     {
+        if (!$this->db->connected()) {
+            return false;
+        }
         if ($this->db->isTestConnection()) {
             return true;
         }
