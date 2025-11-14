@@ -27,7 +27,7 @@ function agregarValidaciones() {
     $(iMedida).on('change', validarMedida)
     
     formulario.addEventListener('submit', event => {
-        const btnSubmit = formulario.querySelector('button[type="submit"]');
+        const btnSubmit = document.querySelector('button[type="submit"][form="form-articulo"]');
         if (btnSubmit) btnSubmit.disabled = true;
 
         const esNombreValido = validarNombre();

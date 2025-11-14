@@ -1,12 +1,7 @@
-
-
-
-
 /**
  * Script con la logica de los componentes y
  * funciones de utilidades para facilitar la vida
  */
-
 
 /* Inicializar componentes */
 // Acordeones
@@ -34,7 +29,7 @@ document.querySelectorAll('select.select2').forEach(s => $(s).select2({
  */
 function mostrarError(mensaje) {
     Toastify({
-        duration: 4000,
+        duration: 10000,
         text: mensaje,
         gravity: "bottom",
         position: "center",
@@ -53,7 +48,7 @@ function mostrarError(mensaje) {
  */
 function mostrarExito(mensaje) {
     Toastify({
-        duration: 4000,
+        duration: 5000,
         text: mensaje,
         gravity: "bottom",
         position: "center",
@@ -68,7 +63,7 @@ function mostrarExito(mensaje) {
 
 function mostrarAdvertencia(mensaje) {
     Toastify({
-        duration: 4000,
+        duration: 6000,
         text: mensaje,
         gravity: "bottom",
         position: "center",

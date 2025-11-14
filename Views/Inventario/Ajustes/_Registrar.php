@@ -12,7 +12,7 @@
                 <div class="row gy-3">
                     <div class="col-md-12">
                         <label for="idInventario" class="form-label">Artículo</label>
-                        <select class="form-select select2" id="idInventario" name="idInventario" required>
+                        <select class="form-select select2" id="idInventario" name="idInventario">
                             <option value="">Seleccionar artículo</option>
                             <?php foreach ($articulos as $articulo): ?>
                                 <option value="<?= $articulo->id ?>">
@@ -24,17 +24,17 @@
                     </div>
                     <div class="col-md-6">
                         <label for="cantidad" class="form-label">Cantidad</label>
-                        <input type="number" step="any" class="form-control" id="cantidad" name="cantidad" required>
+                        <input type="number" step="any" class="form-control" id="cantidad" name="cantidad">
                         <div class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label for="fechaIncidente" class="form-label">Fecha del incidente</label>
-                        <input type="date" class="form-control" id="fechaIncidente" name="fechaIncidente" required>
+                        <input type="date" class="form-control" id="fechaIncidente" name="fechaIncidente">
                         <div class="form-text invalid-feedback"></div>
                     </div>
                     <div class="col-md-12">
                         <label for="descripcion" class="form-label">Motivo</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" required></textarea>
+                        <textarea class="form-control" id="descripcion" name="descripcion"></textarea>
                         <div class="form-text invalid-feedback"></div>
                     </div>
                 </div>

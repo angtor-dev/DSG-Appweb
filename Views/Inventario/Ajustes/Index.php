@@ -83,7 +83,8 @@
                         'excel', 'pdf', 'print'
                     ]
                 }
-            }
+            },
+            order: [[4, 'desc']]
         })
     })
 </script>

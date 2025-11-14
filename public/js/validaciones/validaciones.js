@@ -97,3 +97,133 @@ const validarCampoSelect = (inputEl, errorMsg) => {
     setValid(inputEl, feedbackEl);
     return true;
 };
+/**
+ * Valida un campo de tipo date.
+ * @param {HTMLElement} inputEl - Elemento input[type="date"].
+ * @param {object} options - Opciones de validación.
+ * @param {boolean} [options.isRequired=false] - Si es obligatorio.
+ * @param {boolean} [options.allowPastDate=true] - Si permite fechas pasadas.
+ * @param {boolean} [options.allowFutureDate=true] - Si permite fechas futuras.
+ * @param {HTMLElement|null} [options.customFeedbackEl=null] - Elemento personalizado para mensajes.
+ * @returns {boolean} True si es válido.
+ */
+const validarCampoFecha = (inputEl, {
+    isRequired = false,
+    allowPastDate = true,
+    allowFutureDate = true,
+    customFeedbackEl = null
+} = {}) => {
+    if (!inputEl) return false;
+
+    const feedbackEl = customFeedbackEl || inputEl.parentElement.querySelector('.form-text');
+    const valor = (inputEl.value || '').trim();
+
+    // Si no hay valor
+    if (valor.length === 0) {
+        if (isRequired) {
+            setInvalid(inputEl, feedbackEl, "Este campo es obligatorio");
+            return false;
+        } else {
+            setValid(inputEl, feedbackEl);
+            return true;
+        }
+    }
+
+    // Parsear fecha (esperando formato YYYY-MM-DD)
+    const partes = valor.split('-').map(p => parseInt(p, 10));
+    if (partes.length !== 3 || partes.some(p => Number.isNaN(p))) {
+        setInvalid(inputEl, feedbackEl, "Fecha inválida");
+        return false;
+    }
+    const [y, m, d] = partes;
+    const fecha = new Date(y, m - 1, d);
+    // Validar que la fecha creada coincida con los componentes (evita cosas como 2021-02-30)
+    if (fecha.getFullYear() !== y || fecha.getMonth() !== (m - 1) || fecha.getDate() !== d) {
+        setInvalid(inputEl, feedbackEl, "Fecha inválida");
+        return false;
+    }
+
+    // Normalizar a medianoche para comparación solo por fecha
+    const fechaComparar = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()).getTime();
+    const hoy = new Date();
+    const hoyComparar = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+
+    if (!allowPastDate && fechaComparar < hoyComparar) {
+        setInvalid(inputEl, feedbackEl, "No se permiten fechas pasadas");
+        return false;
+    }
+
+    if (!allowFutureDate && fechaComparar > hoyComparar) {
+        setInvalid(inputEl, feedbackEl, "No se permiten fechas futuras");
+        return false;
+    }
+
+    setValid(inputEl, feedbackEl);
+    return true;
+};
+
+/**
+ * Valida un campo de tipo number.
+ * @param {HTMLElement} inputEl - Elemento input[type="number"].
+ * @param {object} options - Opciones de validación.
+ * @param {boolean} [options.isRequired=false] - Si es obligatorio.
+ * @param {number} [options.minValue=null] - Valor mínimo permitido.
+ * @param {number} [options.maxValue=null] - Valor máximo permitido.
+ * @param {boolean} [options.allowDecimals=true] - Si permite decimales.
+ * @param {boolean} [options.allowZero=false] - Si permite el valor cero.
+ * @param {HTMLElement|null} [options.customFeedbackEl=null] - Elemento personalizado para mensajes.
+ * @returns {boolean} True si es válido.
+ */
+const validarCampoNumerico = (inputEl, {
+    isRequired = false,
+    minValue = null,
+    maxValue = null,
+    allowDecimals = true,
+    allowZero = false,
+    customFeedbackEl = null
+} = {}) => {
+    if (!inputEl) return false;
+
+    const feedbackEl = customFeedbackEl || inputEl.parentElement.querySelector('.form-text');
+    const valor = inputEl.value.trim();
+    const numero = allowDecimals ? parseFloat(valor) : parseInt(valor, 10);
+
+    // Validar si es obligatorio
+    if (isRequired && (valor.length === 0 || isNaN(numero))) {
+        setInvalid(inputEl, feedbackEl, "Este campo es obligatorio");
+        return false;
+    }
+
+    // Si no es obligatorio y está vacío, es válido
+    if (!isRequired && valor.length === 0) {
+        setValid(inputEl, feedbackEl);
+        return true;
+    }
+
+    // Validar si no se permiten decimales
+    if (!allowDecimals && valor.includes('.')) {
+        setInvalid(inputEl, feedbackEl, "No se permiten decimales");
+        return false;
+    }
+
+    // Validar que no sea cero si no está permitido
+    if (!allowZero && !isNaN(numero) && numero === 0) {
+        setInvalid(inputEl, feedbackEl, "El valor no puede ser cero");
+        return false;
+    }
+
+    // Validar Valor Mínimo
+    if (minValue !== null && !isNaN(numero) && numero < minValue) {
+        setInvalid(inputEl, feedbackEl, `El valor no puede ser menor que ${minValue}`);
+        return false;
+    }
+
+    // Validar Valor Máximo
+    if (maxValue !== null && !isNaN(numero) && numero > maxValue) {
+        setInvalid(inputEl, feedbackEl, `El valor no puede ser mayor que ${maxValue}`);
+        return false;
+    }
+
+    setValid(inputEl, feedbackEl);
+    return true;
+};
