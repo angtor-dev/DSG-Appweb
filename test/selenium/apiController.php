@@ -115,6 +115,15 @@ class ApiController
                     throw new Exception("No se pudo obtener el testCase", 1);
                 }
             }
+            else if(is_string($testCase) and !preg_match("/^[0-9]+$/", $testCase)){
+                $testCase = $this->getTestCaseByNameProp($testCase);
+                if($testCase["found"]){
+                    $testCase = $testCase["id"];
+                }
+                else{
+                    throw new Exception("No se pudo obtener el testCase", 1);
+                }
+            }
             $params = [
                 'devKey' => new Value($this->userApiKey, "string"),
                 'testcaseid' => new Value(intval($testCase), "int"),
@@ -203,6 +212,144 @@ class ApiController
         return $ok;
 
     }
+
+/**
+ * Reporta un estado único (p, f, b) para un caso de prueba,
+ * aplicando automáticamente ese estado a TODOS sus pasos.
+ * para usarlo con condicionales en las que si una prueba falla y la siguiente necesita que halla 
+ * ocurrido exitosamente se puede usar reportTestStatusOnly para reportrar una prueba como bloqueada
+ *
+ * @param int|string $testCase ID o Nombre del Test Case.
+ * @param string $status Estado a reportar ('p', 'f', 'b').
+ * @param float|null $duration Duración opcional de la ejecución.
+ * @param string|null $testSuite Nombre del Test Suite (necesario si $testCase es un string).
+ * @param string|null $notes Notas opcionales para la ejecución general.
+ * @return bool true si el reporte fue exitoso, false en caso contrario.
+ */
+public function reportTestStatusOnly(int|string $testCase, string $status, $duration = null, string $testSuite = null, $notes = null)
+{
+    if (ENABLE_REPORTS == false) return true;
+    $ok = true;
+    try {
+        // 1. Resolver el ID del Test Case (idéntico a reportTest)
+        if (is_string($testCase) && is_string($testSuite)) {
+            $testCase = $this->getTestCaseIdByName($testSuite, $testCase);
+            if (is_array($testCase) and arrayHasKey('id', $testCase)) {
+                $testCase = $testCase['id'];
+            } else {
+                throw new Exception("No se pudo obtener el testCase", 1);
+            }
+        }
+        else if(is_string($testCase) and !preg_match("/^[0-9]+$/", $testCase)){
+            $testCase = $this->getTestCaseByNameProp($testCase);
+            if($testCase["found"]){
+                $testCase = $testCase["id"];
+            }
+            else{
+                throw new Exception("No se pudo obtener el testCase", 1);
+            }
+        }
+
+        // 2. Obtener los detalles del Test Case (para saber cuántos steps tiene)
+        $params = [
+            'devKey' => new Value($this->userApiKey, "string"),
+            'testcaseid' => new Value(intval($testCase), "int"),
+        ];
+        $paramStruct = new Value($params, "struct");
+        $request = new Request("tl.getTestCase", [$paramStruct]);
+        $response = $this->client->send($request);
+        if ($response->faultCode() != 0) {
+            throw new Exception("No existe el testCase", 1);
+        }
+
+        /**
+         * @var Value
+         */
+        $responseArray = $response->value()[0];
+        $name = $this->getValStruc($responseArray, 'name'); // Para el mensaje de éxito
+        $steps_Tc = $this->getValStruc($responseArray, 'steps'); // Los steps definidos en TestLink
+
+        // 3. GENERAR EL ARRAY DE STEPS
+        $generatedSteps = [];
+        if (is_array($steps_Tc)) {
+            $contador = 0;
+            // Iteramos sobre los steps que TestLink nos devuelve
+            foreach ($steps_Tc as $step_definition) {
+                // Creamos un resultado de step para cada uno
+                $generatedSteps[] = array(
+                    'step_number' => $contador + 1,
+                    'result' => $status, // Aplicamos el estado general
+                    'notes' => ''
+                );
+                $contador++;
+            }
+        } else {
+            // Si $steps_Tc no es un array, puede que el test no tenga steps
+            // o que la respuesta de la API sea inesperada.
+            // Si el test NO tiene steps, $steps_Tc debería ser un array vacío
+            // y el foreach simplemente no se ejecutaría, lo cual es correcto.
+            // Lanzamos error solo si no es un array y esperábamos que lo fuera.
+            if ($steps_Tc !== null && !is_array($steps_Tc)) {
+                throw new Exception("No se pudo obtener la estructura de steps del test case", 1);
+            }
+            // Si $steps_Tc es null o un array vacío, $generatedSteps quedará como []
+        }
+
+        // 4. Reportar el resultado (Lógica de reportTCResult)
+        $params = [];
+        $params["devKey"] = new Value($this->userApiKey, "string");
+        $params["testcaseid"] = new Value(intval($testCase), "int");
+        $params["testplanid"] = new Value(intval($this->testPlan['id']), "int");
+        $params["buildid"] = new Value(intval($this->testBuild['id']), "int");
+        if (isset($duration)) {
+            $params["execduration"] = new Value((string)$duration, "string");
+        }
+        $params["status"] = new Value($status, "string"); // Estado general del Test Case
+        
+        // Usamos los steps que acabamos de generar
+        $newSteps = $this->sctructSteps($generatedSteps); 
+        $params["steps"] = new Value($newSteps, "array");
+
+        if (isset($notes)) {
+            $params["notes"] = new Value($notes, "string");
+        }
+        
+        $structValue = new Value($params, "struct");
+        $request = new Request("tl.reportTCResult", [$structValue]);
+        $response = $this->client->send($request);
+
+        // 5. Manejar la respuesta (idéntico a reportTest)
+        if ($response->faultCode() != 0) {
+            $ok = false;
+            echo "❌ ERROR de API TestLink: " . $response->faultString() . "\n";
+        }
+
+        $xml = $response->serialize();
+
+        if (!is_string($xml)) {
+            $ok = false;
+            echo "❌ ERROR de API TestLink: \n";
+        }
+
+        
+        $xml = new SimpleXMLElement($xml);
+
+        echo findResponseXml($xml, "message") . "\n";
+
+        if (findResponseXml($xml, "message") != "Success!") {
+            $ok = false;
+            echo "❌ ERROR de API TestLink: " . findResponseXml($xml, "message") . "\n";
+        } else {
+            echo "✅ TEST REPORT COMPLETED: Resultado reportado para el test case: " . $name . "\n";
+        }
+
+        
+    } catch (\Throwable $th) {
+        $ok = false;
+        echo "❌ ERROR de API TestLink: " . $th->getMessage() . "::linte {$th->getLine()} \n:: file {$th->getFile()}\n";
+    }
+    return $ok;
+}
 
     public function getTestCaseByNameProp($name){
         $resp = ["found" => false, "id" => 0, "name" => "", "parent_id" => 0];

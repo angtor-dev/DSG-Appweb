@@ -1,6 +1,7 @@
 // expresiones regulares
 // TODO abortar cedula en registro
-const regAlfanumerico = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
+const regAlfanumericoJodeteAngel = /^[A-Za-zá-úÁ-ÚñÑ0-9., ]*$/
+console.log(regAlfanumericoJodeteAngel);
 const regCedula = /^[0-9]{7,8}$/
 const regTelefono = /^[0-9]{11}$/
 
@@ -48,7 +49,7 @@ function validarNombre(id) {
         iNombre.classList.add('is-invalid')
         return false
     }
-    if (!regAlfanumerico.test(valor)) {
+    if (!regAlfanumericoJodeteAngel.test(valor)) {
         elTexto.textContent = "Solo puede contener letras y números"
         iNombre.classList.add('is-invalid')
         return false
@@ -62,7 +63,7 @@ function validarNombre(id) {
     iNombre.classList.add('is-valid')
     return true
 }
-function validarSelect(id) {
+function validarSelectJodeteAngel(id) {
     const iSelect = document.getElementById(id)
     let valor = iSelect.value.trim()
     const elTexto = iSelect.parentElement.querySelector('.form-text')
@@ -153,9 +154,9 @@ function agregarValidaciones() {
 
     iNombre.addEventListener('blur', () => {validarNombre('nombre')})
     iApellido.addEventListener('blur', () => {validarNombre('apellido')})
-    iCargo.addEventListener('change', () => {validarSelect('cargo')})
-    iTurno.addEventListener('change', () => {validarSelect('turno')})
-    iDepartamento.addEventListener('change', () => {validarSelect('departamento')})
+    iCargo.addEventListener('change', () => {validarSelectJodeteAngel('cargo')})
+    iTurno.addEventListener('change', () => {validarSelectJodeteAngel('turno')})
+    iDepartamento.addEventListener('change', () => {validarSelectJodeteAngel('departamento')})
     iTelefono.addEventListener('blur', () => {validarTelefono('telefono')})
     iFechaIngreso.addEventListener('change', () => {validarFecha('fecha_ingreso')})
 
@@ -176,13 +177,15 @@ function agregarValidaciones() {
 
 
             if(regCedula.test(this.value)){
+                iCedula.classList.add('is-processing');
+                iCedula.classList.remove('is-invalid', 'is-valid')
                 let data = await peticion(`/Trabajadores/Registrar?cedula=${this.value}`)
                 if(data === false) return;
                 data = JSON.parse(data)
                 console.log(data)
                 if(data.cedula){
                     iCedula.classList.add('is-invalid')
-                    iCedula.classList.remove('is-valid')
+                    iCedula.classList.remove('is-valid', 'is-processing')
                     iCedula.parentElement.querySelector('.form-text').textContent = "La cedula ya se encuentra registrada"
                     
                 }
@@ -190,7 +193,7 @@ function agregarValidaciones() {
                     mostrarError(data.message);
                 }
                 else{
-                    iCedula.classList.remove('is-invalid')
+                    iCedula.classList.remove('is-invalid', 'is-processing')
                     iCedula.classList.add('is-valid')
                     iCedula.parentElement.querySelector('.form-text').textContent = ""
                     iNombre.disabled = false
@@ -221,10 +224,10 @@ function agregarValidaciones() {
         if (
             validarNombre('nombre') &&
             validarNombre('apellido') &&
-            validarSelect('cargo') &&
-            validarSelect('turno') &&
+            validarSelectJodeteAngel('cargo') &&
+            validarSelectJodeteAngel('turno') &&
             validarCedula('cedula') &&
-            validarSelect('departamento') &&
+            validarSelectJodeteAngel('departamento') &&
             validarTelefono('telefono') &&
             validarFecha('fecha_ingreso')
         ) {
