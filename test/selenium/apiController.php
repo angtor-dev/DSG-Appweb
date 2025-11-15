@@ -311,6 +311,7 @@ public function reportTestStatusOnly(int|string $testCase, string $status, $dura
                 return $testCase;
             }
         }
+        return $resp;
     }
 
     public function getProjects() {
