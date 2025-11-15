@@ -44,6 +44,7 @@ $listTest = LIST_TESTS;
 
 if($__executeTest("login")) (new LoginSelenium($apicontroller))->testLogin();
 if($__executeTest("areas")) (new AreasSelenium($apicontroller))->testArea();
+if($__executeTest("tareas")) (new TareasSelenium($apicontroller))->testTarea();
 
 
 echo "\n END \n";
