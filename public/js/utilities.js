@@ -758,11 +758,21 @@ function invalidStatus (elem, control = null, mensaje = "INVALIDO") {
 
 
 
-function fechaNoFuture(elem){
+/**
+ * Verifica si la fecha del elemento es valida y no es futura
+ * @param {HTMLElement|string} elem - elemento o selector css del elemento a verificar
+ * @param {boolean} required - si es obligatorio el campo
+ * @returns {boolean} - true si la fecha es valida y no es futura, false en caso contrario
+ */
+function fechaNoFuture(elem, required = false) {
     if(typeof elem == "string") elem = document.querySelector(elem);
     else if(typeof elem == "object") elem = elem;
     else{
         console.error("Elemento no valido");
+        return false;
+    }
+    if(required && elem.value.length <= 0) {
+        invalidStatus(elem, false, "Este campo es obligatorio");
         return false;
     }
     
@@ -796,7 +806,7 @@ function AObjetoFecha(fechaString) {
         console.error(`Error: El formato de la fecha '${fechaString}' no es 'YYYY-MM-DD'.`);
         return null;
     }
-    const objetoFecha = new Date(fechaString);
+    const objetoFecha = new Date(fechaString+" 00:00:00");
     if (isNaN(objetoFecha)) {
         console.error(`Error: La fecha '${fechaString}' es sintácticamente inválida (ej. día o mes incorrecto).`);
         return null;
@@ -890,6 +900,8 @@ function addValidDesdeHasta(desde,hasta){
 
     desde.addEventListener("input", fechas);
     hasta.addEventListener("input", fechas);
+    desde.addEventListener("change", fechas);
+    hasta.addEventListener("change", fechas);
 }
 
 function addValidNombre(elem, required = false, maxLength = 50) {
@@ -902,7 +914,7 @@ function addValidNombre(elem, required = false, maxLength = 50) {
 function addValidAlfaNum(elem, required = false, maxLength = 50) {
     let regexString = `^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\\s,.-]{${required?1:0},${maxLength}}$`;
     let regex = new RegExp(regexString);
-    inputValid(elem,50,regex,"El campo solo acepta letras, numeros, espacios, comas, puntos y guiones",required);
+    inputValid(elem,maxLength,regex,"El campo solo acepta letras, numeros, espacios, comas, puntos y guiones",required);
 }
 
 function addValidNum(elem, required = false, maxLength = 50) {
@@ -930,7 +942,6 @@ function addValidTelefono(elem,required = false, maxLength = 11) {
 function checkValidStatus(elem){
     
 
-
     let dispatch = true;
     if(typeof elem == "string") {
         elem = document.querySelector(elem)
@@ -939,18 +950,19 @@ function checkValidStatus(elem){
             return;
         }
     }
-    else if(typeof elem == "object") elem = elem;
-    else if(typeof elem == "array"){
-       elem.every(e => checkValidStatus(e)); 
-       dispatch = false;
+    else if(Array.isArray(elem)){
+        return elem.every(e => checkValidStatus(e));
+        //dispatch = false;
     }
+    else if(typeof elem == "object") elem = elem;
     else{
         console.error("Elemento no valido");
         return;
     }
     
-
+    
     if(dispatch){
+        
         elem.dispatchEvent(new Event('input'));
         elem.dispatchEvent(new Event('change'));
         if(typeof elem.isValid == "function"){

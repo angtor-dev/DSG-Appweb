@@ -26,18 +26,29 @@ class Rol extends Model
             $modulos = $moduloObj->listarDBUser();
             $this->db->connectUser();
 
+
             $this->beginTransaction();
+
+            $resp = $this->ejecutarStatement("SELECT * from rol where nombre = :nombre", ["nombre" => $this->nombre]);
+            if ($resp->rowCount() > 0) {
+                if($resp->fetch()["estado"] != "0"){
+                    throw new Exception("El rol ya existe", self::SHOW_EXCEPTIONS_CODE);
+                }
+                else{
+                    $query = "UPDATE rol SET estado = 1, descripcion = :descripcion WHERE nombre = :nombre";
+                }
+            }
 
             // Registra el rol
             $stmt = $this->prepare($query);
-            $stmt->bindValue("nombre", $this->nombre);
-            $stmt->bindValue("descripcion", $this->descripcion);
+            $stmt->bindValue("nombre", trim($this->nombre));
+            $stmt->bindValue("descripcion", trim($this->descripcion));
 
             $stmt->execute();
             $idRol = $this->db->pdo()->lastInsertId();
 
             // Crea permisos del rol
-            $sql = "INSERT INTO permiso(idRol, idModulo)
+            $sql = "INSERT IGNORE INTO permiso(idRol, idModulo)
                 VALUES(:idRol, :idModulo)";
 
             $stmt = $this->prepare($sql);
@@ -60,9 +71,14 @@ class Rol extends Model
         } catch (\Throwable $th) {
             $this->disconectHandlerExeption();
             if(DEVELOPER_MODE){
-                debug($th);
+                $_SESSION['consoleError'][] = $th->getMessage();
             }
-            $_SESSION['errores'][] = "Ocurrio un error al registrar el rol";
+            if($th->getCode() == self::SHOW_EXCEPTIONS_CODE){
+                $_SESSION['errores'][] = $th->getMessage();
+            }
+            else{
+                $_SESSION['errores'][] = "Ocurrio un error al registrar el rol";
+            }
             return false;
         }
     }
@@ -157,6 +173,14 @@ class Rol extends Model
         }
         if (!preg_match(REG_ALFANUMERICO, $this->descripcion)) {
             $_SESSION['errores'][] = "El campo 'Descripcion' solo puede contener letras y números";
+            return false;
+        }
+        if (strlen(trim($this->nombre)) > 20) {
+            $_SESSION['errores'][] = "El campo 'Nombre' no puede tener mas de 20 caracteres";
+            return false;
+        }
+        if (strlen(trim($this->descripcion)) > 255) {
+            $_SESSION['errores'][] = "El campo 'Descripcion' no puede tener mas de 255 caracteres";
             return false;
         }
         return true;

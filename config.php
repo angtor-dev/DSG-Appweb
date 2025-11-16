@@ -47,6 +47,11 @@ defined('TESTLINK_URL') or define('TESTLINK_URL', "http://localhost:8080/testlin
 defined('TESTLINK_USER_API_KEY') or define('TESTLINK_USER_API_KEY', "874e34254509eb018661b58e2921c097");
 defined('TESTLINK_API_KEY') or define('TESTLINK_API_KEY', "de713869d1db126cff30a1fc0e990962fbb277905c67ac8f363f7a22e50eb95b");
 
+defined('TESTPLAN_ID') or define('TESTPLAN_ID', 1);
+
+defined('PROJECT_ID') or define('PROJECT_ID', 3);
+
+
 
 
 

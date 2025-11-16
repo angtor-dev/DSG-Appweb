@@ -263,9 +263,9 @@ class Database
                     
                     "asignacion_laboral",
                     "asistencia_inasistencia",
-                    //"inasistencia",
-                   // "asistencia",
-                    "inventariohistorial",
+                    "inasistencia",
+                    "asistencia",
+                    //"inventariohistorial",
                     "entrada",
                     
                     "entradadetalle",

@@ -6,7 +6,7 @@ require_once 'vendor/autoload.php';
     ✅
     🔎
 */
-define("LIST_TESTS", ["login", "areas"]);
+define("LIST_TESTS", ["login", "areas", "trabajador", "asistencia"]);
 
 
 
@@ -28,9 +28,9 @@ $listTest = LIST_TESTS;
         }
     }
     if(in_array("projects", $list)) {$apicontroller->getProjects(); die;}
-    if(in_array("plans", $list)) {$apicontroller->getTestPlans(1); die;}
-    if(in_array("builds", $list)) {$apicontroller->getBuildsForTestPlan(311); die;}
-    if(in_array("testsuite", $list)) {$apicontroller->getTestSuitesForTestPlan(311); die;}
+    if(in_array("plans", $list)) {$apicontroller->getTestPlans(PROJECT_ID); die;}
+    if(in_array("builds", $list)) {$apicontroller->getBuildsForTestPlan(TESTPLAN_ID); die;}
+    if(in_array("testsuite", $list)) {$apicontroller->getTestSuitesForTestPlan(TESTPLAN_ID); die;}
     if(in_array("testcase", $list)) {$apicontroller->getTestCasesForTestSuite($apicontroller->testSuiteAlfa['id']); die;}
 
     $__executeTest = function ($test) use ($searchTest, $list, $listTest) {
@@ -45,6 +45,8 @@ $listTest = LIST_TESTS;
 
 if($__executeTest("login")) (new LoginSelenium($apicontroller))->testLogin();
 if($__executeTest("areas")) (new AreasSelenium($apicontroller))->testArea();
+if($__executeTest("trabajador")) (new TrabajadorSelenium($apicontroller))->testTrabajador();
+if($__executeTest("asistencia")) (new AsistenciasSelenium($apicontroller))->testAsistencias();
 
 
 echo "\n END \n";

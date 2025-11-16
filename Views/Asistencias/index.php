@@ -320,11 +320,12 @@
           <div class="mb-3">
             <label for="observacion" class="form-label">Observación (opcional)</label>
             <textarea class="form-control" id="observacion" rows="2"></textarea>
+            <span class="form-text invalid-feedback"></span>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="cancelarModal" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar</button>
+          <button type="submit" class="btn btn-primary">Continuar</button>
         </div>
       </div>
     </form>

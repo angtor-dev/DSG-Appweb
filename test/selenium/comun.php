@@ -12,6 +12,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
         public $steps;
         public $startCounter;
         public $lastTime;
+        private $triedStepNote = null;
 
         public function __construct(){
             $this->startCounter = null;
@@ -59,6 +60,10 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
         
         public function createSteps(){
             $this->steps = array();
+            $this->triedStepNote = null;
+        }
+        public function triedStepNote($note){
+            $this->triedStepNote = $note;
         }
 
         /**
@@ -82,11 +87,12 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
             $this->endContador();
             $contador = count($this->steps);
             $result = "f";
+            $notas = $this->triedStepNote ?? '';
             for($i = $contador + 1; $i <= $num; $i++){
                 $this->steps[] = array(
                     'step_number' => $i,
                     'result' => $result,
-                    'notes' => ''
+                    'notes' => $notas
                 );
                 $result = "b";
             }
@@ -124,10 +130,10 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
         }
 
 
-        public function click($selector){
+        public function click($selector, $timeout = 3, $interval = 500){
             try {
                 $selector = $this->selector($selector);
-                $this->driver->wait(3, 500)->until(
+                $this->driver->wait($timeout, $interval)->until(
                     WebDriverExpectedCondition::visibilityOfElementLocated($selector)
                 );
                 $this->driver->findElement($selector)->click();
@@ -175,7 +181,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                     $mensaje
                 );
                 return $this->driver->findElement($selector);
-            } catch (\Exception $th) {
+            } catch (\Throwable $th) {
                 echo "Error al esperar el elemento :: {$th->getMessage()}\n" ;
                 throw $th;
             }
@@ -360,7 +366,6 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 
 
                     
-                    // <div class="input-group">
                     if(empty($span)){
                         $input = $by;
                         
@@ -368,7 +373,11 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                             $next = $elem->findElement(WebDriverBy::xpath(".//following-sibling::*[1][contains(@class, 'form-text') or contains(@class, 'invalid-feedback')]"));
                         } catch (\Throwable $th) {
                             // buscamos el padre y luego el hijo
-                            $next = $elem->findElement(WebDriverBy::xpath(".//ancestor::*[1]/descendant::*[contains(@class,'form-text') or contains(@class,'invalid-feedback')]"));
+                            try {
+                                $next = $elem->findElement(WebDriverBy::xpath(".//ancestor::*[1]/descendant::*[contains(@class,'form-text') or contains(@class,'invalid-feedback')]"));
+                            } catch (\Throwable $th) {
+                                $next = '';
+                            }
                         }
                         $span = $next;
                         $this->print("  form-text encontrado desde el elemento [input|select|textarea (elemento campo origen)] como hermano o hijo del padre del elemento",4);
@@ -382,30 +391,47 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 }
                 
 
-                if(!($span instanceof RemoteWebElement)){
+                if(!($span instanceof RemoteWebElement) && !($input instanceof WebDriverBy) ){
                     throw new Exception("No se pudo encontrar el span de error por su selector");
                 }
                 if($input instanceof WebDriverBy ){
 
                     $this->print("  validando con estado de input o elemento .invalid-feedback",4);
-                    
-                    $this->driver->wait($timeout, $interval)->until(
-                        function (RemoteWebDriver $driver) use ($elem, $span, $mensaje) {
-                            /**
-                             * @var RemoteWebElement $span
-                             */
-                            $validInput = !$this->driver->executeScript("return arguments[0].validity.valid", [$elem]);
-                            if($mensaje != ""){
-                                $validSpan = $span->isDisplayed() && $span->getText() == $mensaje;
+                    if($input instanceof WebDriverBy and $span instanceof RemoteWebElement){
+                        $this->driver->wait($timeout, $interval)->until(
+                            function (RemoteWebDriver $driver) use ($elem, $span, $mensaje) {
+                                /**
+                                 * @var RemoteWebElement $span
+                                 */
+                                $validInput = !$this->driver->executeScript("return arguments[0].validity.valid", [$elem]);
+                                if($mensaje != ""){
+                                    $validSpan = $span->isDisplayed() && $span->getText() == $mensaje;
+                                }
+                                else{
+                                    $validSpan = $span->isDisplayed();
+                                }
+    
+                                return $validInput || $validSpan;
+                                
                             }
-                            else{
-                                $validSpan = $span->isDisplayed();
+                        );
+                    }
+                    else if($input instanceof WebDriverBy){
+                        $this->driver->wait($timeout, $interval)->until(
+                            function (RemoteWebDriver $driver) use ($elem, $span, $mensaje) {
+                                /**
+                                 * @var RemoteWebElement $span
+                                 */
+                                $validInput = !$this->driver->executeScript("return arguments[0].validity.valid", [$elem]);
+    
+                                return $validInput;
+                                
                             }
-
-                            return $validInput || $validSpan;
-                            
-                        }
-                    );
+                        );
+                    }
+                    else{
+                        throw new Exception("No se pudo encontrar el span de error por su selector");
+                    }
 
                 }
                 else{
@@ -422,7 +448,8 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 return $span;
                 
             } catch (\Throwable $th) {
-                $this->print(" Error al esperar el elemento",6);
+                $this->print(" Error al esperar el elemento",3);
+                echo "\n ($idElemnent) \n";
                 echo $th->getMessage();
                 throw $th;
             }
@@ -434,7 +461,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
          * Imprime una cadena con un icono al inicio
          * 
          * @param string $str la cadena a imprimir
-         * @param int $icon el icono a imprimir (1: ✅, 2: ⚠ , 3:❌ , 4: 🔎, 5: ༼ つ ◕_◕ ༽つ, 6: `(*>﹏<*)′ )
+         * @param int $icon el icono a imprimir (1: ✅, 2: ⚠ , 3:❌ , 4: 🔎, 5: ༼ つ ◕_◕ ༽つ, 6: `(*>﹏<*)′, 7: ✍(◔◡◔), 8: (✿◠‿◠))
          */
         public function print($str,$icon = 1){
             $icon--;
@@ -445,12 +472,151 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 "🔎",
                 "༼ つ ◕_◕ ༽つ",
 
-                "`(*>﹏<*)′"
+                "`(*>﹏<*)′",
+                
+                "✍ (◔◡◔)",
+                "(✿ ◠‿◠)"
             ];
 
             preg_match("/^([\t|\s]*)/", $str, $matches);
             $message = preg_replace("/^[\t|\s]*/", "", $str);
             echo $matches[1] . $icons[$icon] .' '. $message . "\n";
+        }
+
+
+        /**
+         * Llena un select con el valor especificado
+         * 
+         * @param WebDriverBy|string $selectorOrigen el selector del elemento select
+         * @param string $value el valor a buscar en el select
+         * @param 'text'|'value' $selectBy el criterio de busqueda en el select (text o value)
+         * @param int $timeout el tiempo de espera en segundos
+         * @param int $interval el intervalo de espera en milisegundos
+         * @param string $mensaje el mensaje a mostrar en caso de error
+         * @throws Exception si no se encuentra el elemento o no se puede llenar el formulario
+         */
+        public function fillSelect($selectorOrigen, $value,$selectBy = 'text', $timeout = 3, $interval = 500, $mensaje = 'Elemento no encontrado') {
+            try {
+                $selector = $this->selector($selectorOrigen);
+                $this->driver->wait($timeout, $interval)->until(
+                    WebDriverExpectedCondition::visibilityOfElementLocated($selector),
+                    $mensaje
+                );
+                $select = $this->driver->findElement($selector);
+                if ($select->getTagName() != 'select') {
+                    throw new \Exception('El elemento no es un select');
+                }
+                
+                $select->click();
+
+                $options = $select->findElements(WebDriverBy::tagName('option'));
+                $found = false;
+                foreach ($options as $option) {
+                    if ($selectBy == 'text' && $option->getText() == $value || $selectBy == 'value' && $option->getAttribute('value') == $value) {
+                        $option->click();
+                        $select->click();
+                        $found = true;
+                        break;
+                    }
+                }
+                if(!$found){
+                    throw new Exception("No se encontro el elemento");
+                }
+
+            } catch (\Exception $th) {
+                $this->print("  Error seleccionar opcion de select". (is_string($selectorOrigen) ? " ({$selectorOrigen})" : '') ,3);
+                echo "      {$th->getMessage()}\n";
+            }
+        }
+
+        /**
+         * Llena varios select con los valores especificados en un array.
+         * Cada elemento del array debe tener una clave "selector" con el valor del selector del elemento select,
+         * una clave "value" con el valor a buscar en el select y opcionalmente una clave "selectBy" con el criterio de busqueda en el select (text o value).
+         * 
+         * @param array{selector: WebDriverBy|string, value: string, selectBy?: 'text'|'value'}[] $elements un array con los elementos a llenar
+         * * **selector: WebDriverBy|string** el selector del elemento select
+         * * **value: string** el valor a buscar en el select
+         * * **selectBy: 'text'|'value'** el criterio de busqueda en el select (text o value)
+         * @param int $timeout el tiempo de espera en segundos
+         * @param int $interval el intervalo de espera en milisegundos
+         * @param string $mensaje el mensaje a mostrar en caso de error
+         * @throws Exception si no se encuentra alguno de los elementos o no se puede llenar alguno de los formulario
+         */
+        public function fillSelects(array $elements, $timeout = 3, $interval = 500, $mensaje = 'Elemento no encontrado') {
+            try {
+                foreach ($elements as $element) {
+                    $this->fillSelect($element['selector'], $element['value'], $element['selectBy'] ?? 'text', $timeout, $interval, $mensaje);
+                }
+            } catch (\Exception $th) {
+                $this->print("Error al seleccionar opciones",3);
+                echo "{$th->getMessage()}\n" ;
+            }
+        }
+
+
+        /**
+         * Busca una fila en una tabla con un texto especificado.
+         * La busqueda se puede realizar en una columna especifica o en todas las columnas.
+         * Si la columna es especificada, se busca con el texto especificado en esa columna.
+         * Si no se especifica la columna, se busca el texto en todas las columnas.
+         * 
+         * @param string $tableSelector el selector del elemento table
+         * @param string $text el texto a buscar en la tabla
+         * @param int|null $inColumn la columna en la que se debe buscar el texto (si es null, se busca en todas las columnas)
+         * @param int $timeout el tiempo de espera en segundos
+         * @param int $interval el intervalo de espera en milisegundos
+         * @param string $mensaje el mensaje a mostrar en caso de error
+         * @return RemoteWebElement la fila encontrada con el texto especificado
+         * @throws Exception si no se encuentra la tabla o no se puede buscar la fila con el texto especificado
+         */
+        public function findRowInTableByText($tableSelector, $text, $inColumn = null, $timeout = 3, $interval = 500, $mensaje = 'Elemento no encontrado') {
+            try {
+                $tableBy = $this->selector($tableSelector);
+                $this->driver->wait($timeout, $interval)->until(
+                    WebDriverExpectedCondition::visibilityOfElementLocated($tableBy),
+                    $mensaje
+                );
+                $table = $this->driver->findElement($tableBy);
+                if ($table->getTagName() != 'table') {
+                    throw new \Exception('      El elemento no es una tabla');
+                }
+
+
+                $rows = $table->findElements(WebDriverBy::tagName('tr'));
+                foreach ($rows as $row) {
+                    $td = null;
+                    if(is_int($inColumn)){
+                        try {
+                            $td = $row->findElement(WebDriverBy::xpath(".//td[{$inColumn}][contains(.,'{$text}')]"));
+                            $this->print("      Fila encontrada con el texto especificado ( {$text} ) en la columna {$inColumn}");
+                            break;
+                        } catch (\Throwable $th) {
+                            $td = null;
+                        }
+                    }
+                    else{
+                        try {
+                            $td = $row->findElement(WebDriverBy::xpath(".//td[contains(.,'{$text}')]"));
+                            $this->print("      Fila encontrada con el texto especificado ( {$text} )");
+                            break;
+                        } catch (\Throwable $th) {
+                            $td = null;
+                        }
+                        
+                    }
+                }
+
+                if ($td) {
+                    return $row;
+                };
+                $this->print("      Fila no encontrada con el texto especificado ( {$text} ) ",6);
+                throw new Exception("", 1);
+            } catch (\Exception $th) {
+                $this->print(" Error al buscar la fila en la tabla". (is_string($tableSelector) ? " ({$tableSelector})" : '') ,3);
+                echo "      {$th->getMessage()}\n";
+                throw $th;
+            }
         }
 
 

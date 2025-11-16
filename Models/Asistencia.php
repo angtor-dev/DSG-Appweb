@@ -193,6 +193,14 @@ class Asistencia extends Model
                 if(!preg_match("/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/", trim($this->fecha))) {
                     throw new Exception("La fecha es invalida", self::SHOW_EXCEPTIONS);
                 }
+
+                if(isset($trabajador["descripcion_justificacion"]) and strlen($trabajador["descripcion_justificacion"]) > 255) {
+                    throw new Exception("La descripción de la justificación es demasiado larga (más de 255 caracteres)".substr($trabajador["descripcion_justificacion"], 0, 50)."...", self::SHOW_EXCEPTIONS);
+                }
+
+                if(isset($trabajador["descripcion_justificacion"]) and !preg_match("/^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\\s,.-]{1,255}$/", $trabajador["descripcion_justificacion"])) {
+                    throw new Exception("La descripción de la justificación es invalida", self::SHOW_EXCEPTIONS);
+                }
                 
                 $parametros = [
                     "fecha" => $this->fecha,
@@ -882,7 +890,7 @@ class Asistencia extends Model
 
             $pdo->beginTransaction();
             $headerTable = [];
-            $where = " WHERE fecha between :fechaInicio and :fechaFin";
+            $where = " WHERE fecha between :fechaInicio and :fechaFin AND esAsistencia IS NOT NULL";
             $groupBy = "";
 
             if($grupo == null || $grupo == "") {
@@ -891,22 +899,28 @@ class Asistencia extends Model
                  nombre,
                  apellido,
                  fecha,
-                 if(esAsistencia,horaEntrada,tipo) as entrada,
-                 if(esAsistencia,horaSalida,descripcion) as salida,
+                 -- if(esAsistencia,horaEntrada,tipo) as entrada,
+                 -- if(esAsistencia,horaSalida,descripcion) as salida,
                  division,
                  turno,
-                 if(esAsistencia, 'Asistencia', 'Inasistencia') as status
+                 if(esAsistencia, 'Asistencia', 'Inasistencia') as status,
+                 '' as accion,
+                 descripcion,
+                 tipo
                  from vista_asistencias";
                 $headerTable = [
                     "Cedula",
                     "Nombre",
                     "Apellido",
                     "Fecha",
-                    "Entrada",
-                    "Salida",
+                    // "Entrada",
+                    // "Salida",
                     DEP_NAME,
                     "Turno",
-                    "Estado"
+                    "Estado",
+                    "Acción",
+                    "descripcion",
+                    "tipo"
                 ];
             }
             else if($grupo == "trabajadores"){

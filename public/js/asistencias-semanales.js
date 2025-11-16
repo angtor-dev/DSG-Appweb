@@ -7,6 +7,7 @@ let preventLostControl = false;
 var mostrarBotonEliminar = false;
 document.addEventListener("DOMContentLoaded", async function(){
     window.addEventListener('beforeunload', preventLost);
+    addValidAlfaNum('#observacion', false, 255);
     const modalEliminar = document.getElementById('modal-eliminar')
     // quito el evento del modal
 
@@ -16,7 +17,11 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
     // agrego la fecha actual al campo de fecha
-    document.querySelector("#fecha").value = new Date().toISOString().split("T")[0];
+
+    const _hoy = new Date();
+
+
+    document.querySelector("#fecha").value = _hoy.getFullYear() + "-" + (_hoy.getMonth() + 1) + "-" + _hoy.getDate();
 
 
     // evento submit para el formulario
@@ -28,6 +33,10 @@ document.addEventListener("DOMContentLoaded", async function(){
             document.getElementById("tabla-asistencias-semanales").classList.add("d-none");
         });
     });
+
+    fecha.addEventListener("change", (e) => {
+        let resp = fechaNoFuture(e.target, true);
+    })
 
 
     // Evento para eliminar las asistencias desde el boton #eliminar-asistencias
@@ -139,6 +148,9 @@ document.addEventListener("DOMContentLoaded", async function(){
 
         if(control){
             // validar los campos
+
+            fecha.dispatchEvent(new Event("change"));
+            if(fecha.classList.contains("is-invalid")) return;
 
             if(departamento.value === "") {
                 departamento.setValidStatus(false, "seleccione un departamento");
@@ -578,6 +590,7 @@ function promesaModal(elModal,nombre, cedula,dia, justificacion = null, jusdescr
     elModal.querySelector("#modalTrabajadorInfo").textContent = `${nombre} (${parseFecha(dia)})`;
     document.getElementById("submit-asistencias").disabled = true;
     document.getElementById("form-table-asistencias").updating = true;
+    invalidStatus(elModal.querySelector("#observacion"));
     if(justificacion){
         elModal.querySelector("#justificacion").value = justificacion;
         elModal.querySelector("#observacion").value = jusdescripcion;
