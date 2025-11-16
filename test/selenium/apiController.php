@@ -92,8 +92,13 @@ class ApiController
              * @var Value
              */
             $responseArray = $response->value()[0];
-            $name = $this->getValStruc($responseArray, 'name');
-            $steps_Tc = $this->getValStruc($responseArray, 'steps');
+            try {
+                //code...
+                $name = $this->getValStruc($responseArray, 'name');
+                $steps_Tc = $this->getValStruc($responseArray, 'steps');
+            } catch (\Throwable $th) {
+                throw new Exception("No se pudo obtener el testCase o no existe", 1);
+            }
 
             if(is_array($steps_Tc)){
                 if(count($steps_Tc) != count($steps)){
