@@ -130,10 +130,10 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
         }
 
 
-        public function click($selector){
+        public function click($selector, $timeout = 3, $interval = 500){
             try {
                 $selector = $this->selector($selector);
-                $this->driver->wait(3, 500)->until(
+                $this->driver->wait($timeout, $interval)->until(
                     WebDriverExpectedCondition::visibilityOfElementLocated($selector)
                 );
                 $this->driver->findElement($selector)->click();
@@ -366,7 +366,6 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 
 
                     
-                    // <div class="input-group">
                     if(empty($span)){
                         $input = $by;
                         
@@ -374,7 +373,11 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                             $next = $elem->findElement(WebDriverBy::xpath(".//following-sibling::*[1][contains(@class, 'form-text') or contains(@class, 'invalid-feedback')]"));
                         } catch (\Throwable $th) {
                             // buscamos el padre y luego el hijo
-                            $next = $elem->findElement(WebDriverBy::xpath(".//ancestor::*[1]/descendant::*[contains(@class,'form-text') or contains(@class,'invalid-feedback')]"));
+                            try {
+                                $next = $elem->findElement(WebDriverBy::xpath(".//ancestor::*[1]/descendant::*[contains(@class,'form-text') or contains(@class,'invalid-feedback')]"));
+                            } catch (\Throwable $th) {
+                                $next = '';
+                            }
                         }
                         $span = $next;
                         $this->print("  form-text encontrado desde el elemento [input|select|textarea (elemento campo origen)] como hermano o hijo del padre del elemento",4);
@@ -388,30 +391,47 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
                 }
                 
 
-                if(!($span instanceof RemoteWebElement)){
+                if(!($span instanceof RemoteWebElement) && !($input instanceof WebDriverBy) ){
                     throw new Exception("No se pudo encontrar el span de error por su selector");
                 }
                 if($input instanceof WebDriverBy ){
 
                     $this->print("  validando con estado de input o elemento .invalid-feedback",4);
-                    
-                    $this->driver->wait($timeout, $interval)->until(
-                        function (RemoteWebDriver $driver) use ($elem, $span, $mensaje) {
-                            /**
-                             * @var RemoteWebElement $span
-                             */
-                            $validInput = !$this->driver->executeScript("return arguments[0].validity.valid", [$elem]);
-                            if($mensaje != ""){
-                                $validSpan = $span->isDisplayed() && $span->getText() == $mensaje;
+                    if($input instanceof WebDriverBy and $span instanceof RemoteWebElement){
+                        $this->driver->wait($timeout, $interval)->until(
+                            function (RemoteWebDriver $driver) use ($elem, $span, $mensaje) {
+                                /**
+                                 * @var RemoteWebElement $span
+                                 */
+                                $validInput = !$this->driver->executeScript("return arguments[0].validity.valid", [$elem]);
+                                if($mensaje != ""){
+                                    $validSpan = $span->isDisplayed() && $span->getText() == $mensaje;
+                                }
+                                else{
+                                    $validSpan = $span->isDisplayed();
+                                }
+    
+                                return $validInput || $validSpan;
+                                
                             }
-                            else{
-                                $validSpan = $span->isDisplayed();
+                        );
+                    }
+                    else if($input instanceof WebDriverBy){
+                        $this->driver->wait($timeout, $interval)->until(
+                            function (RemoteWebDriver $driver) use ($elem, $span, $mensaje) {
+                                /**
+                                 * @var RemoteWebElement $span
+                                 */
+                                $validInput = !$this->driver->executeScript("return arguments[0].validity.valid", [$elem]);
+    
+                                return $validInput;
+                                
                             }
-
-                            return $validInput || $validSpan;
-                            
-                        }
-                    );
+                        );
+                    }
+                    else{
+                        throw new Exception("No se pudo encontrar el span de error por su selector");
+                    }
 
                 }
                 else{
@@ -514,7 +534,10 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
          * Cada elemento del array debe tener una clave "selector" con el valor del selector del elemento select,
          * una clave "value" con el valor a buscar en el select y opcionalmente una clave "selectBy" con el criterio de busqueda en el select (text o value).
          * 
-         * @param array $elements un array con los elementos a llenar
+         * @param array{selector: WebDriverBy|string, value: string, selectBy?: 'text'|'value'}[] $elements un array con los elementos a llenar
+         * * **selector: WebDriverBy|string** el selector del elemento select
+         * * **value: string** el valor a buscar en el select
+         * * **selectBy: 'text'|'value'** el criterio de busqueda en el select (text o value)
          * @param int $timeout el tiempo de espera en segundos
          * @param int $interval el intervalo de espera en milisegundos
          * @param string $mensaje el mensaje a mostrar en caso de error

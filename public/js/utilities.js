@@ -763,11 +763,21 @@ function invalidStatus (elem, control = null, mensaje = "INVALIDO") {
 
 
 
-function fechaNoFuture(elem){
+/**
+ * Verifica si la fecha del elemento es valida y no es futura
+ * @param {HTMLElement|string} elem - elemento o selector css del elemento a verificar
+ * @param {boolean} required - si es obligatorio el campo
+ * @returns {boolean} - true si la fecha es valida y no es futura, false en caso contrario
+ */
+function fechaNoFuture(elem, required = false) {
     if(typeof elem == "string") elem = document.querySelector(elem);
     else if(typeof elem == "object") elem = elem;
     else{
         console.error("Elemento no valido");
+        return false;
+    }
+    if(required && elem.value.length <= 0) {
+        invalidStatus(elem, false, "Este campo es obligatorio");
         return false;
     }
     
@@ -801,7 +811,7 @@ function AObjetoFecha(fechaString) {
         console.error(`Error: El formato de la fecha '${fechaString}' no es 'YYYY-MM-DD'.`);
         return null;
     }
-    const objetoFecha = new Date(fechaString);
+    const objetoFecha = new Date(fechaString+" 00:00:00");
     if (isNaN(objetoFecha)) {
         console.error(`Error: La fecha '${fechaString}' es sintácticamente inválida (ej. día o mes incorrecto).`);
         return null;
@@ -895,6 +905,8 @@ function addValidDesdeHasta(desde,hasta){
 
     desde.addEventListener("input", fechas);
     hasta.addEventListener("input", fechas);
+    desde.addEventListener("change", fechas);
+    hasta.addEventListener("change", fechas);
 }
 
 function addValidNombre(elem, required = false, maxLength = 50) {

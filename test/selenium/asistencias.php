@@ -8,7 +8,7 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 
 class CustomException extends Exception {}
-class TrabajadorSelenium extends LoginSelenium
+class AsistenciasSelenium extends LoginSelenium
 {
     public $testNombre = "NOMBRE PRUEBA";
 
@@ -38,94 +38,81 @@ class TrabajadorSelenium extends LoginSelenium
         ];// validos
     }
 
-    public function testRegistrarTrabajador(){
+    public function testRegistrarAsistencia(){
         $ok = false;
         try {
             //code...
-            $this->print("  Registro de trabajadores",7);
+            $this->print("  Registro de Asistencias",7);
             $this->startContador();
             $this->createSteps();
-            $this->goTo('Trabajadores');
+            $this->goTo('Asistencias');
             $this->addSteps('p');
-            $this->print("  Accediendo al módulo de trabajadores",4);
+            $this->print("  Accediendo al módulo de asistencias",4);
 
-            $this->click('button[data-bs-target="#modal-generico"][data-bs-url="/DSG-Appweb/Trabajadores/Registrar"]');
-            $this->print("  Accediendo al modal de registro de trabajadores",4);
-            $this->addSteps('p');
-            
-            $this->fillForm('#cedula', $this->datosPruebas['cedula']);
-
-            $this->driver->wait(10, 500)->until(// espera que el campo se desabilite
-                function () {
-                    $nombre = $this->driver->findElement($this->selector('#nombre'));
-                    return $this->driver->executeScript("return arguments[0].disabled?false:true;", array($nombre));
-                }
-            );
-
-            $this->fillForms([
-                [
-                    'selector' => '#nombre',
-                    'value' => $this->datosPruebas['nombre'],
-                ],
-                [
-                    'selector' => '#apellido',
-                    'value' => $this->datosPruebas['apellido'],
-                ],
-                [
-                    'selector' => '#telefono',
-                    'value' => $this->datosPruebas['telefono'],
-                ],
-                [
-                    "selector" => '#fecha_ingreso',
-                    "value" => date('d-m-Y'),
-                ]
-            ]);
-            
-            $this->addSteps('p');
-            
             $this->fillSelects([
                 [
-                    "selector" => '#departamento',
-                    "value" => $this->datosPruebas['division'],
-                    "selectBy" => 'value',
+                    'selector' => '#departamento',
+                    'value' => 1,
+                    'selectBy' => 'value',
                 ],
                 [
-                    "selector" => '#cargo',
-                    "value" => $this->datosPruebas['cargo'],
+                    'selector' => '#turno',
+                    'value' => "Mañana",
                 ],
-                [
-                    "selector" => '#turno',
-                    "value" => $this->datosPruebas['turno'],
-                ],
+
             ]);
 
-            
+            $this->click('#btn-cargar');
+            $this->print("  Cargando asistencias/inasistencias",4);
             $this->addSteps('p');
-            $this->print("  Campos llenados");
+
+            $this->waitElement('#submit-asistencias');
+            $this->print("  Asistencias/inasistencias cargadas",4);
+
+            // marcon una fecha como no laborable
+            $firstTr = $this->waitElement('#tabla-asistencias-semanales table tbody tr');
+
+            if($firstTr->getText() == "No se encontraron registros"){
+                throw new CustomException("Prueba fallida, no se encontraron registros");
+            }
+
+            $this->click('#tabla-asistencias-semanales table thead label.switch');
+
+            $this->print("  Marcando dia como no laborable",7);
+
+
+            $firstTr->findElement($this->selector(".asistencia-checkbox:not(:disabled)"))->click();
+
+            $this->print("  Marcando inasistencia",7);
+            $modal = $this->waitElement('#modalInasistencia');
             
+            $this->fillSelect('#justificacion', 1, 'value');// injustificado
             
+            $modal->findElement($this->selector('button[type="submit"]'))->click();
+            $this->print("  Guardando inasistencia",7);
+
+            $this->scrollTo('#submit-asistencias');
             
-            $this->click('#btn-submit-registrar');
-            $this->addSteps('p');
-            $this->print("  Registrando trabajador");
+            $this->click('#submit-asistencias');
+            $this->print("  Guardando Registro",7);
             $this->waitAlert();
-            $this->addSteps('p');
-            $this->print("  Trabajador registrado exitosamente");
-            // $this->addSteps('p');
+            $this->print("  Asistencias guardadas",1);
             
             // $this->addSteps('p');
             $this->endContador();
             $ok = true;
         } catch (\Throwable $th) {
             $this->blockSteps(6);
+            $this->print("  Prueba fallida",3);
+            echo $th->getMessage()."\n";
         }
         $status = $this->getStatusSteps();
-        $this->testLink->reportTest(
-            $this->testLink->getTestCaseByNameProp('TCAT07 - Registrar Trabajador')['id'],
-            $status,
-            $this->getSteps(),
-            $this->lastTime
-        );
+        // $this->testLink->reportTest(
+        //     $this->testLink->getTestCaseByNameProp('TCAT07 - Registrar Trabajador')['id'],
+        //     $status,
+        //     $this->getSteps(),
+        //     $this->lastTime
+        // );
         return $ok;
     }
 
@@ -233,54 +220,200 @@ class TrabajadorSelenium extends LoginSelenium
     }
    
 
-    public function testEliminarTrabajador(){
+    public function testEliminarAsistencia(){
         $ok = false;
         try {
-            $this->createSteps();
+            //code...
+            $this->print("  Registro de Asistencias",7);
             $this->startContador();
-            $this->print("  Eliminando trabajador",7);
-            $this->goTo('Trabajadores');
+            $this->createSteps();
+            $this->goTo('Asistencias');
             $this->addSteps('p');
-            $this->print("  Accediendo al módulo de trabajadores",4);
+            $this->print("  Accediendo al módulo de asistencias",4);
 
-            sleep(1);
-            $this->print("  Buscando trabajador",4);
-            $this->fillForm('#dt-search-0', $this->datosPruebas['cedula']);
+            $this->fillSelects([
+                [
+                    'selector' => '#departamento',
+                    'value' => 1,
+                    'selectBy' => 'value',
+                ],
+                [
+                    'selector' => '#turno',
+                    'value' => "Mañana",
+                ],
 
-            $row = $this->findRowInTableByText('#tabla-trabajadores', $this->datosPruebas['cedula'], 1);
+            ]);
 
-            $botonEliminar = $row->findElement($this->selector('.accion-eliminar'));
-
-            $this->print("  Trabajador encontrado",1);
-
-            $botonEliminar->click();
+            $this->click('#btn-cargar');
+            $this->print("  Cargando asistencias/inasistencias",4);
             $this->addSteps('p');
 
-            $this->click(WebDriverBy::xpath('//div[@id="modal-eliminar"]//button[@class="btn btn-danger flex-grow-1 btn-eliminar"]'));
-            $this->print("  Eliminando trabajador",1);
+            $this->waitElement('#submit-asistencias');
+            $this->print("  Asistencias/inasistencias cargadas",4);
 
-            $this->addSteps('p');
+            // marcon una fecha como no laborable
+            $firstTr = $this->waitElement('#tabla-asistencias-semanales table tbody tr');
 
+            if($firstTr->getText() == "No se encontraron registros"){
+                throw new CustomException("Prueba fallida, no se encontraron registros");
+            }
+
+            $this->waitElement('#eliminar-asistencias');
+            $this->scrollTo('#eliminar-asistencias');
+            $this->click('#eliminar-asistencias');
+            $button = $this->waitElement('#modal-eliminar .btn-eliminar');
+            $button->click();
+            $this->print("  Eliminando asistencias",1);
 
             $this->waitAlert();
-            $this->addSteps('p');
-            $this->endContador();
-            $this->print("  Trabajador eliminado exitosamente",1);
-
-            $ok = true;
+            $this->print("  Asistencias guardadas",1);
             
+            // $this->addSteps('p');
+            $this->endContador();
+            $ok = true;
         } catch (\Throwable $th) {
-            echo "❌ Error al eliminar el area :: {$th->getMessage()} :: linea {$th->getLine()} :: file {$th->getFile()}\n" ;
-            echo $th->getTraceAsString();
-            $this->blockSteps(4);
+            $this->blockSteps(6);
+            $this->print("  Prueba fallida",3);
+            echo $th->getMessage()."\n";
         }
         $status = $this->getStatusSteps();
-        $this->testLink->reportTest(
-            "TCAT09 - Eliminar Trabajador",
-            $status,
-            $this->getSteps(),
-            $this->lastTime
-        );
+        // $this->testLink->reportTest(
+        //     $this->testLink->getTestCaseByNameProp('TCAT07 - Registrar Trabajador')['id'],
+        //     $status,
+        //     $this->getSteps(),
+        //     $this->lastTime
+        // );
+        return $ok;
+    }
+
+    public function testregistrarAsistenciaInvalido($datos, $invalid, $datasetInvalid){
+        $ok = false;
+        try {
+            //code...
+            $this->print("  Registro de Asistencias",7);
+            $this->startContador();
+            $this->createSteps();
+            $this->goTo('Asistencias');
+            $this->wait(WebDriverExpectedCondition::invisibilityOfElementLocated($this->selector('.loader')));
+            $this->driver->executeScript('mostrarLoader("#menu-lateral .user.acordeon");');
+            $this->addSteps('p');
+            $this->print("  Accediendo al módulo de asistencias",4);
+            if($invalid == "departamento"){
+                $this->print ("  probando division vacia",4);
+                $this->print($datos["turno"]);
+                $this->fillSelects([
+                    [
+                        'selector' => '#departamento',
+                        'value' => '',
+                        'selectBy' => 'value',
+                    ],
+                    [
+                        'selector' => '#turno',
+                        'value' => $datos['turno'],
+                        'selectBy' => 'text',
+                    ],
+                ]);
+                $this->click('#btn-cargar');
+                $this->waitFormText('#departamento');
+            }
+            else{
+                $this->fillSelect('#departamento', $datos['departamento'], 'value');
+            }
+
+            if($invalid == "turno"){
+                $this->print ("  probando turno vacio",4);
+                $this->fillSelects([
+                    [
+                        'selector' => '#departamento',
+                        'value' => $datos['departamento'],
+                        'selectBy' => 'value',
+                    ],
+                    [
+                        'selector' => '#turno',
+                        'value' => '',
+                        'selectBy' => 'value',
+                    ],
+                ]);
+                $this->click('#btn-cargar');
+                $this->waitFormText('#turno');
+            }
+            else{
+                $this->fillSelect('#turno', $datos['turno']);
+            }
+
+            if($invalid == "fecha"){
+
+                foreach ($datasetInvalid as $invalidData) {
+                    $this->fillForm('#fecha', $invalidData["valor"]);
+                    $this->click('#btn-cargar');
+                    $this->waitFormText('#fecha');
+                }
+            }
+            else if(!in_array($invalid, ["departamento", "turno", "fecha"])){
+                $this->fillForm('#fecha', $datos['fecha']);
+
+                $this->click('#btn-cargar');
+                $this->print("  Cargando asistencias/inasistencias",4);
+                $this->addSteps('p');
+    
+                $this->waitElement('#submit-asistencias');
+                $this->print("  Asistencias/inasistencias cargadas",4);
+    
+                // marcon una fecha como no laborable
+                $firstTr = $this->waitElement('#tabla-asistencias-semanales table tbody tr');
+    
+                if($firstTr->getText() == "No se encontraron registros"){
+                    throw new CustomException("Prueba fallida, no se encontraron registros");
+                }
+                $checkbox = $firstTr->findElement($this->selector(".asistencia-checkbox:not(:disabled)"))->click();
+                $this->print("  Marcando inasistencia",7);
+                $modal = $this->waitElement('#modalInasistencia');
+
+
+                if($invalid == "justificacion"){
+                    $this->print ("  probando justificacion vacia",4);
+                    //$this->fillSelect('#justificacion', '', 'value');
+                    $modal->findElement($this->selector('button[type="submit"]'))->click();
+                    $this->waitFormText('#justificacion');
+                    
+                }
+                else{
+                    $this->fillSelect('#justificacion', $datos['justificacion'], 'value');// injustificado
+                }
+                if($invalid == "observaciones"){
+                    $this->print ("  probando observaciones",4);
+                    
+                    foreach ($datasetInvalid as $invalidData) {
+                        $invalidData = reset($invalidData);
+                        $this->fillForm('#observacion', $invalidData["valor"]);
+                        $modal->findElement($this->selector('button[type="submit"]'))->click();
+                        $this->waitFormText('#observacion');
+                    }
+                    
+                }
+                else{
+                    $this->fillForm('#observacion', $datos['observaciones']);
+                }
+            }
+
+
+            $this->print("  Prueba de registro invalida exitosa",1);
+            
+            // $this->addSteps('p');
+            $this->endContador();
+            $ok = true;
+        } catch (\Throwable $th) {
+            $this->blockSteps(6);
+            $this->print("  Prueba fallida",3);
+            echo $th->getMessage()."\n line ". $th->getLine()."\n file ". $th->getFile()."\n paht ". $th->getTraceAsString()."\n";
+        }
+        $status = $this->getStatusSteps();
+        // $this->testLink->reportTest(
+        //     $this->testLink->getTestCaseByNameProp('TCAT07 - Registrar Trabajador')['id'],
+        //     $status,
+        //     $this->getSteps(),
+        //     $this->lastTime
+        // );
         return $ok;
     }
 
@@ -485,127 +618,51 @@ class TrabajadorSelenium extends LoginSelenium
     }
 
 
-    public function testTrabajador(){
+    public function testAsistencias(){
         $this->openSystemDSG();
         $this->print("  Empezando pruebas de trabajadores",5);
-        // $casos =[
-        //     ['caso' => 1, 'nombre' => '', 'esenario' => 'Campo vacio'],// vacio
-        //     ['caso' => 2, 'nombre' => 'Hilandera', 'esenario' => 'Campo repetido'],// repetido
-        //     ['caso' => 1, 'nombre' => str_repeat('H', 300), 'esenario' => 'Campo demasiado largo'],// demasiado largo
-        //     ['caso' => 1, 'nombre' => "<script>alert('XSS')</script>", 'esenario' => 'XSS'],// demasiado corto
-        // ];
-
-
-        // foreach ($casos as $caso) {
-        //     $this->testRegistrarAreaInvalid($caso);
-        // }
-        // $this->print("Prueba de registro invalida completada");
         $estructura = [
-            "valor" => "123456789",
+            "valor" => "",
         ];
-        $dic = new Diccionario();
-        $invalidCases = [
-            [
-                "invalid" => "cedula",
-                "values" => $dic->generateArrayFromDic($estructura, "valor", "/^[0-9]{7,8}$/", false, 'nombres', 'Cedula', ["Numeros Largo"]),
-                
-            ],
-            [
-                "invalid" => "nombre",
-                "values" => $dic->generateArrayFromDic($estructura, "valor", "/^[A-Za-zá-úÁ-ÚñÑ0-9., ]{1,50}$/", false, 'nombres', 'nombre'),
-                
-            ],
-            [
-                "invalid" => "apellido",
-                "values" => $dic->generateArrayFromDic($estructura, "valor", "/^[A-Za-zá-úÁ-ÚñÑ0-9., ]{1,50}$/", false, 'nombres', 'apellido'),
-                
-            ],
-            [
-                "invalid" => "telefono",
-                "values" => $dic->generateArrayFromDic($estructura, "valor", "/^[0-9]{7,8}$/", false, 'nombres', 'Telefono', ["Numeros Largo"]),
-                
-            ],
-            [
-                "invalid" => "fecha_ingreso",
-                "values" => [
-                    "fecha Futuro" => [ "valor" => date('d-m-Y', time() + 60*60*24*2) ],
+        $datos = [
+            "departamento" => 1,
+            "turno" => "Mañana",
+            "fecha" => date('d-m-Y'),
+            "justificacion" => 1,
+            "observaciones" => "observaciones de prueba",
+        ];
+        $ivalidCases = [
+            "departamento" => [],
+            "turno" => [],
+            "fecha" => [
+                "Numero 1 demasiado largo" => [
+                    "valor" => str_repeat('1', 100),
+                ],
+                "Fecha futuro" => [
+                    "valor" => date('d-m-Y', strtotime('+1 day')),
                 ]
             ],
-            [
-                "invalid" => "division",
-                "values" => []
-            ],
-            [
-                "invalid" => "cargo",
-                "values" => []
-            ],
-            [
-                "invalid" => "turno",
-                "values" => []
-            ]
+            "justificacion" => [],
+            "observaciones" => (new Diccionario())->generateArrayFromDic(
+                $estructura,
+                "valor",
+                "/^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\s,.-]{0,255}$/",
+                false,
+                'nombres',
+                'Entrada Observaciones Invalido'
+            ),
         ];
-        echo "\n===================registro de trabajador invalido====================================\n";
-
-        foreach ($invalidCases as $case) {
-            $this->testRegistrarTrabajadorInvalido(
-                $this->datosPruebas,
-                $case["invalid"],
-                $case["values"]
-            );
+        foreach ($ivalidCases as $invalid => $datasetInvalid) {
+            $resp = $this->testregistrarAsistenciaInvalido($datos, $invalid, $datasetInvalid);
+            if($resp == false){
+                break;
+            }
         }
-
-        
-
-
-        echo "\n===================registro de trabajador====================================\n";
-        if($this->testRegistrarTrabajador()){
-            $this->print("Prueba de registro completada");
-            echo "\n===================actualizacion de trabajador====================================\n";
-            $this->testActualizarTrabajador();
-            echo "\n===================eliminacion de trabajador====================================\n";
-            $this->testEliminarTrabajador();
-        }
-        else{
-            // si no se pudo registrar el trabajador no se puede eliminar asi que la prueba se bloquea
-            $this->print( "Pruebas bloqueadas, no se pudo registrar el trabajador", 6 );
-            $note = "No se pudo registrar el trabajador";
-            $this->testLink->reportTestStatusOnly(
-                "TCAT09 - Eliminar Trabajador",
-                "b",
-                notes: $note
-            );
-            $this->testLink->reportTestStatusOnly(
-                "TCAT08 - Actualizar Trabajador",
-                "b",
-                notes: $note
-            );
-        }
-
-
-        
-        // $this->print("Prueba de registro completada");
-        // $this->testActualizarArea();
-        // $this->print("Prueba de actualizacion completada");
-
-        // foreach ($casos as $caso) {
-        //     $this->testActualizarAreaInvalid($caso);
-        // }
-        // $this->print("Prueba de actualizacion invalida completada");
-        
-        // $this->testEliminarArea();
-        // $this->print("Prueba de eliminacion completada");
-        
-        
-        $this->print("  Terminando pruebas de trabajadores",8);
-        $this->driver->executeScript("mostrarExito('Pruebas de trabajadores completadas');");
-        $this->driver->executeScript("mostrarExito('l');");
-        $this->driver->executeScript("mostrarExito('l');");
-        sleep(4);
+        $this->testRegistrarAsistencia();
+        $this->testEliminarAsistencia();
+   
         $this->closeBrowser();
     }
-
-
-
     
 }
 

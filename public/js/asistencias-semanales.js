@@ -17,7 +17,11 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
     // agrego la fecha actual al campo de fecha
-    document.querySelector("#fecha").value = new Date().toISOString().split("T")[0];
+
+    const _hoy = new Date();
+
+
+    document.querySelector("#fecha").value = _hoy.getFullYear() + "-" + (_hoy.getMonth() + 1) + "-" + _hoy.getDate();
 
 
     // evento submit para el formulario
@@ -29,6 +33,10 @@ document.addEventListener("DOMContentLoaded", async function(){
             document.getElementById("tabla-asistencias-semanales").classList.add("d-none");
         });
     });
+
+    fecha.addEventListener("change", (e) => {
+        let resp = fechaNoFuture(e.target, true);
+    })
 
 
     // Evento para eliminar las asistencias desde el boton #eliminar-asistencias
@@ -140,6 +148,9 @@ document.addEventListener("DOMContentLoaded", async function(){
 
         if(control){
             // validar los campos
+
+            fecha.dispatchEvent(new Event("change"));
+            if(fecha.classList.contains("is-invalid")) return;
 
             if(departamento.value === "") {
                 departamento.setValidStatus(false, "seleccione un departamento");
