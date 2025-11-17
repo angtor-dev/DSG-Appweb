@@ -39,7 +39,7 @@
         </div>
         <div class="card-footer">
             <div class="d-flex justify-content-between gap-3">
-                <a href="<?= LOCAL_DIR ?>/Seguridad/Roles" class="btn btn-outline-secondary">Cancelar</a>
+                <a href="<?= LOCAL_DIR ?>/Seguridad/Roles" class="btn btn-outline-secondary" onclick="mostrarLoader('body')">Cancelar</a>
                 <button type="submit" form="form-rol" class="btn btn-primary">Registrar</button>
             </div>
         </div>
