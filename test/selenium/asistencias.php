@@ -646,7 +646,7 @@ class AsistenciasSelenium extends LoginSelenium
             "observaciones" => (new Diccionario())->generateArrayFromDic(
                 $estructura,
                 "valor",
-                "/^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\s,.-]{0,255}$/",
+                "/^[A-Za-zñÑá-úÁ-ÚüÜ0-9\s,.-]{0,255}$/",
                 false,
                 'nombres',
                 'Entrada Observaciones Invalido'

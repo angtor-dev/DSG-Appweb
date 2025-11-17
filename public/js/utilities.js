@@ -693,27 +693,28 @@ function inputValid(elem,maxLength = 50 ,regex = null, message = "INVALIDO", req
     if(!smsContainer) console.error("Elemento no tiene form-text");
 
 
-    elem.addEventListener("input", function () {
-        invalidStatus(this);
-        if(required && this.value.length <= 0) {
-            invalidStatus(this, false, "Este campo es obligatorio");
+    elem.addEventListener("input", function (e) {
+        const MyElem = e.target;
+        invalidStatus(MyElem);
+        if(required && MyElem.value.length <= 0) {
+            invalidStatus(MyElem, false, "Este campo es obligatorio");
             return;
         }
-        if(this.value.length > maxLength) {
-            invalidStatus(this, false, "El campo no puede tener mas de "+maxLength+" caracteres");
+        if(MyElem.value.length > maxLength) {
+            invalidStatus(MyElem, false, "El campo no puede tener mas de "+maxLength+" caracteres");
             return;
         }
         else{
-            invalidStatus(this, true);
+            invalidStatus(MyElem, true);
         }
 
         if(regex){
-            if(!regex.test(this.value)){
-                invalidStatus(this, false, message);
+            if(!regex.test(MyElem.value)){
+                invalidStatus(MyElem, false, message);
                 return;
             }
             else{
-                invalidStatus(this, true);
+                invalidStatus(MyElem, true);
             }
         }
     })
@@ -910,14 +911,14 @@ function addValidDesdeHasta(desde,hasta){
 }
 
 function addValidNombre(elem, required = false, maxLength = 50) {
-    let regexString = `^[A-Za-zÑñÁáÉéÍíÓóÚúÜü\\s,.-]{${required?1:0},${maxLength}}$`;
+    let regexString = `^[A-Za-zñÑá-úÁ-ÚüÜ\\s,.-]{${required?1:0},${maxLength}}$`;
     let regex = new RegExp(regexString);
     inputValid(elem,50,regex,"El campo solo acepta letras, espacios, comas, puntos y guiones",required);
 }
 
 
 function addValidAlfaNum(elem, required = false, maxLength = 50) {
-    let regexString = `^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\\s,.-]{${required?1:0},${maxLength}}$`;
+    let regexString = `^[A-Za-zñÑá-úÁ-ÚüÜ0-9\\s,.-]{${required?1:0},${maxLength}}$`;
     let regex = new RegExp(regexString);
     inputValid(elem,maxLength,regex,"El campo solo acepta letras, numeros, espacios, comas, puntos y guiones",required);
 }
