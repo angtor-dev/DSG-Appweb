@@ -15,9 +15,10 @@ function agregarValidaciones() {
     })
     const validarDescripcion = () => validarCampoTexto(iDescripcion, {
         maxLength: 100,
+        allowOnlyNumbers: true
     })
-    const validarCategoria = () => validarSelect(iCategoria, 'Debe seleccionar una categoría válida')
-    const validarMedida = () => validarSelect(iMedida, 'Debe seleccionar una medida válida')
+    const validarCategoria = () => validarCampoSelect(iCategoria, 'Debe seleccionar una categoría válida')
+    const validarMedida = () => validarCampoSelect(iMedida, 'Debe seleccionar una medida válida')
 
     // validar al desenfocar campo o al enviar formulario
     iNombre?.addEventListener('input', validarNombre)
@@ -26,7 +27,7 @@ function agregarValidaciones() {
     $(iMedida).on('change', validarMedida)
     
     formulario.addEventListener('submit', event => {
-        const btnSubmit = formulario.querySelector('button[type="submit"]');
+        const btnSubmit = document.querySelector('button[type="submit"][form="form-articulo"]');
         if (btnSubmit) btnSubmit.disabled = true;
 
         const esNombreValido = validarNombre();

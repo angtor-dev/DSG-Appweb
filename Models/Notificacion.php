@@ -44,6 +44,25 @@ class Notificacion extends Model
         }
     }
 
+    public static function marcarTodasLeidasPorUsuario(int $idUsuario) : void
+    {
+        $query = "UPDATE notificacion SET estado = :estado WHERE idUsuario = :idUsuario AND estado = :estadoPendiente";
+
+        $db = Database::getInstance();
+        try {
+            $db->connectUser();
+            $stmt = $db->pdo()->prepare($query);
+            $stmt->bindValue(':estado', EstadoNotif::Leida->value, \PDO::PARAM_INT);
+            $stmt->bindValue(':idUsuario', $idUsuario, \PDO::PARAM_INT);
+            $stmt->bindValue(':estadoPendiente', EstadoNotif::Pendiente->value, \PDO::PARAM_INT);
+            $stmt->execute();
+            $db->disconnect();
+        } catch (\Throwable $th) {
+            if (DEVELOPER_MODE) $_SESSION['errores'][] = $th->getMessage();
+            $_SESSION['errores'][] = "Ocurrió un error al marcar las notificaciones como leídas.";
+        }
+    }
+
     /**
      * Retorna las notificaciones de un usuario específico.
      * @param int $idUsuario
