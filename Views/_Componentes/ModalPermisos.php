@@ -8,9 +8,14 @@
 
         modal.addEventListener('show.bs.modal', async e => {
             const boton = event.relatedTarget
+            modal.innerHTML = `<div class="modal-dialog modal-lg">
+                                    <div class="modal-content" style="height: calc(50vh);">
+                                        <div class="loader"></div>
+                                    </div>
+                                </div>
+            `;
 
             const id = boton.getAttribute('data-bs-id')
-
             let response = await fetch("<?= LOCAL_DIR ?>/Seguridad/Roles/Permisos?id=" + id)
             let data = await response.text()
 

@@ -57,7 +57,6 @@
 
 
         addValidNombre("#nombre",true);
-        addValidNum("#form-area",true,3);
     }
 </script>
 
