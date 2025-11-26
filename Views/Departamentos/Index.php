@@ -1,4 +1,4 @@
-<?php /** @var Departamento[] $departamentos */ ?>
+<?php /** @var Division[] $departamentos */ ?>
 
 <div class="panel-header" style="background-color: red;">
     <div class="page-inner">
@@ -49,18 +49,7 @@
             }
         })
     });
-    function agregarValidaciones() {
-        let nombre = document.querySelector("#nombre");
-        let descripcion = document.querySelector("#descripcion");
-        let form = document.querySelector("#form-departamento");
-
-        addPreventLongStringInput("#nombre");
-
-        form.addEventListener("submit", function(e) {
-            bodyLoader();
-        });
-    }
 </script>
 
 <?php // agregarScript("departamento.js") ?>
-<?php // agregarScript("validaciones/departamento.js") ?>
+<?php agregarScript("validaciones/departamento.js") ?>
