@@ -36,8 +36,13 @@ document.addEventListener("DOMContentLoaded", async function(){
 
     fecha.addEventListener("change", (e) => {
         let resp = fechaNoFuture(e.target, true);
-    })
+    });
 
+    [departamento, turno].forEach(input => {
+        input.addEventListener("change", (e) => {
+            invalidStatus(input);
+        });
+    });
 
     // Evento para eliminar las asistencias desde el boton #eliminar-asistencias
     document.querySelector("#eliminar-asistencias").addEventListener("click", async function(e){

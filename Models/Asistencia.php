@@ -198,7 +198,7 @@ class Asistencia extends Model
                     throw new Exception("La descripción de la justificación es demasiado larga (más de 255 caracteres)".substr($trabajador["descripcion_justificacion"], 0, 50)."...", self::SHOW_EXCEPTIONS);
                 }
 
-                if(isset($trabajador["descripcion_justificacion"]) and !preg_match("/^[A-Za-z0-9ÑñÁáÉéÍíÓóÚúÜü\\s,.-]{1,255}$/", $trabajador["descripcion_justificacion"])) {
+                if(isset($trabajador["descripcion_justificacion"]) and !preg_match("/^[A-Za-zñÑá-úÁ-ÚüÜ0-9\\s,.-]{1,255}$/", $trabajador["descripcion_justificacion"])) {
                     throw new Exception("La descripción de la justificación es invalida", self::SHOW_EXCEPTIONS);
                 }
                 

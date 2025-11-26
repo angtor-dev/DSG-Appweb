@@ -8,7 +8,7 @@
                 <span class="opacity-75 mb-2">Gestiona los roles y permisos de los usuarios</span>
             </div>
             <div>
-                <a href="<?= LOCAL_DIR ?>/Seguridad/Roles/Registrar" style="padding: .65rem 1.4rem;"
+                <a href="<?= LOCAL_DIR ?>/Seguridad/Roles/Registrar" onclick="mostrarLoader('body')" style="padding: .65rem 1.4rem;"
                     class="btn btn-outline-light rounded-pill">
                     <i class="fa-solid fa-plus me-2"></i>
                     Nuevo Rol
@@ -49,7 +49,7 @@
                                             <?php endif ?>
                                             <?php if (tienePermiso('roles', 'actualizar')): ?>
                                                 <div class="accion pointer" data-bs-toggle="tooltip" data-bs-title="Editar">
-                                                    <a href="<?= LOCAL_DIR ?>/Seguridad/Roles/Actualizar?id=<?= $rol->id ?>">
+                                                    <a href="<?= LOCAL_DIR ?>/Seguridad/Roles/Actualizar?id=<?= $rol->id ?>" onclick="mostrarLoader('body')">
                                                         <i class="fa-solid fa-fw fa-pen-to-square"></i>
                                                     </a>
                                                 </div>
